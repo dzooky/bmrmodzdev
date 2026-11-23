@@ -121,14 +121,14 @@ mgu.run({
   function resultLine(cv,theme,item,x,y,width){
    const status=item&&item.status||'NOT_RUN';
    const color=status==='PASS'?theme.ok:status==='FAIL'?theme.crit:theme.dim;
-   label(cv,item&&item.label||'',x,y,21,theme.text);
-   label(cv,status==='NOT_RUN'?word('Not tested'):word(status),x+width,y,20,color,{align:'right',font:'bold'});
-   if(item&&item.detail)label(cv,safeValue(item.detail),x,y+24,14,theme.dim);
+   label(cv,item&&item.label||'',x,y,18,theme.text);
+   label(cv,status==='NOT_RUN'?word('Not tested'):word(status),x+width,y,18,color,{align:'right',font:'bold'});
+   if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.32 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.33 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.32 — '+word('Corrected CDS temperature scaling'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.33 — '+word('Broker and IPC self-test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -159,11 +159,11 @@ mgu.run({
     return;
    }
    const rows=STEPS.map(step=>report.results.find(r=>r.id===step.id)||{label:step.label});
-   const cols=[rows.slice(0,12),rows.slice(12)];
+   const cols=[rows.slice(0,13),rows.slice(13)];
    cols.forEach((column,c)=>{
     const x=c===0?24:809, w=767;
     G.panel(cv,theme,x,115,w,380,null);
-    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*29,w-48));
+    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*27,w-48));
    });
    // Dedicated footer line outside both results panels (panels end at y=495).
    // Show one message at a time; never paint over the final result row.
