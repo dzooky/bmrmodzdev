@@ -2,7 +2,7 @@
 // Read-only network checks from inside the OAP application process.
 // No shell commands, no vehicle identifiers, no MAC addresses, no background polling.
 const os=require('os'),fs=require('fs'),net=require('net');
-const HOST='192.168.0.10',PORT=80;
+const HOST='dzooky.eu',PORT=443;
 function interfaces(osApi){
   try{
     const all=(osApi||os).networkInterfaces();
@@ -23,9 +23,7 @@ function route(fsApi){
   const rows=raw.trim().split(/\r?\n/).slice(1).map(s=>s.trim().split(/\s+/));
   const usable=rows.filter(x=>x.length>=8&&((parseInt(x[3],16)||0)&1)!==0);
   const def=usable.find(x=>x[1]==='00000000'&&x[7]==='00000000');
-  const local=usable.find(x=>x[1]==='0000A8C0'&&x[7]==='00FFFFFF');
-  const chosen=local||def;
-  return {status:chosen?'PASS':'FAIL',detail:chosen?(local?'LAN route via ':'Default route via ')+chosen[0]+' (gateway '+chosen[2]+')':'No default or 192.168.0.0/24 route; entries='+usable.length};
+  return {status:def?'PASS':'FAIL',detail:def?'Default route via '+def[0]+' (gateway '+def[2]+')':'No default route; entries='+usable.length};
 }
 function tcp(netApi,timeoutMs){
   return new Promise(resolve=>{
