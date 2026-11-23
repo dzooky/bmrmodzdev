@@ -156,6 +156,42 @@ function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 // Diagnostic-only bounded retry. Never retry negative UDS, malformed data or
 // transport errors; keep the tool's ECU allowlist and serialization unchanged.
 const DRIVE_READ_ATTEMPTS=3, DRIVE_READ_GAP_MS=600;
+function tasuStatusSummary(traces){
+  const counts=Object.create(null);
+  let absent=0,overflow=0;
+  for(const trace of traces){
+    if(!trace||typeof trace!=='object')continue;
+    const codes=trace.shortStatusCodes;
+    if(codes&&typeof codes==='object'&&!Array.isArray(codes)){
+      for(const [key,value] of Object.entries(codes)){
+        const code=Number(key);
+        if(!/^\d{1,3}$/.test(key)||!Number.isInteger(code)||code<0||code>255||
+          !Number.isSafeInteger(value)||value<1||value>99)continue;
+        counts[code]=(counts[code]||0)+value;
+      }
+    }
+    if(Number.isSafeInteger(trace.shortStatusAbsent)&&trace.shortStatusAbsent>=0)absent+=trace.shortStatusAbsent;
+    if(Number.isSafeInteger(trace.shortStatusOverflow)&&trace.shortStatusOverflow>=0)overflow+=trace.shortStatusOverflow;
+  }
+  const codes=Object.entries(counts).sort((a,b)=>Number(a[0])-Number(b[0])).slice(0,8)
+    .map(([code,count])=>'0x'+Number(code).toString(16).toUpperCase().padStart(2,'0')+' x'+count);
+  return 'TASU status '+(codes.length?codes.join(','):'none')+
+    (absent?', absent '+absent:'')+(overflow?', overflow '+overflow:'');
+}
+const SOMEIP_TIMED_STEPS={
+  someipEnvironment:'environmentMs',someipConfig:'configMs',someipSetup:'setupMs',
+  someipGenerated:'generationMs',someipAudit:'auditMs',someipLoad:'nativeLoadMs',
+  cdsTemp:'cdsTempMs',cdsRpm:'cdsRpmMs',cdsStream:'cdsStreamMs',cdsMulti:'cdsMultiMs'
+};
+function someipTimings(results){
+  const times={};
+  for(const row of results){
+    const key=SOMEIP_TIMED_STEPS[row.id];
+    if(key&&row.status!=='SKIP'&&Number.isSafeInteger(row.durationMs)&&row.durationMs>=0)
+      times[key]=row.durationMs;
+  }
+  return times;
+}
 function traceSummary(traces){
   const valid=traces.filter(t=>t&&typeof t.ackAccepted==='boolean');
   if(!valid.length)return 'trace unavailable';
@@ -281,7 +317,8 @@ function createRunner(send,clock){
             const short='shortTASU reject '+cnt('shortRejectMarkers')+', unknown '+cnt('shortUnknownMarkers')+
               ', consistent '+cnt('shortLengthConsistent')+', truncated '+cnt('shortLengthTruncated')+
               ', len0-4 '+cnt('shortLength0to4')+', len5-8 '+cnt('shortLength5to8');
-            result.detail=(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+short+'; '+traceSummary(readResult.traces)).slice(0,240);
+            result.detail=(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+
+              tasuStatusSummary(readResult.traces)+'; '+short+'; '+traceSummary(readResult.traces)).slice(0,240);
           }
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
@@ -294,6 +331,7 @@ function createRunner(send,clock){
         skip:results.filter(x=>x.status==='SKIP').length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
         startedAt,finishedAt:new Date().toISOString(),totals,results,
+        someipTimings:someipTimings(results),
         controlsTested:false,signalPermissionsVerified:false,
         deviceVerified:false,
         notes:['Positive ECU responses are not proof of correct decoded values.',
@@ -305,4 +343,4 @@ function createRunner(send,clock){
   }
   return {run,isRunning:()=>active,steps:STEPS};
 }
-module.exports={createRunner,STEPS,resultFor,drivetrainRead,traceSummary};
+module.exports={createRunner,STEPS,resultFor,drivetrainRead,traceSummary,tasuStatusSummary,someipTimings};
