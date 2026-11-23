@@ -27,6 +27,7 @@ jobs:
           node --check tools/data-tool/someip-generate.js
           node --check tools/data-tool/someip-generator.js
           node -e "JSON.parse(require('fs').readFileSync('mgu-repo.json'))"
+          node -e "JSON.parse(require('fs').readFileSync('tools/data-tool/data-manifest.json'))"
           node -e "const s=JSON.parse(require('fs').readFileSync('apps/data-diagnostics/app.json')); if(s.mguInternet!==true)process.exit(1)"
       - name: Data Tool regression tests
         run: |
@@ -47,5 +48,6 @@ jobs:
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
           node tools/data-tool/cds-engine.test.js
+          node tools/data-tool/data-manifest.test.js
       - name: Offline MGU preview build
         run: python3 kit/tools/build.py --preview-only data-diagnostics
