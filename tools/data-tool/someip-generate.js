@@ -63,14 +63,22 @@ function createGenerator(options){
       for(const [file,label] of [[paths.catalog,'BMW catalog'],[paths.manifest,'Tool manifest'],[paths.generator,'Generator script']]){
         if(!io.statSync(file).isFile())throw new Error(label+' unavailable');
       }
-      io.mkdirSync(paths.root,{recursive:true,mode:0o700});
+      // MGU Node may not support mkdir({recursive:true}) reliably:
+      // do not call mkdir on an already existing directory.
+      if(io.existsSync(paths.root)){
+        if(!io.statSync(paths.root).isDirectory())throw new Error('Tool data path is not a directory');
+      }else{
+        io.mkdirSync(paths.root,{mode:0o700});
+      }
       if(io.existsSync(paths.staging)){
-        // Only remove an EMPTY tool-owned test directory; never touch partial output.
+        if(!io.statSync(paths.staging).isDirectory())throw new Error('Staging path is not a directory');
+        // Reuse an EMPTY staging directory after an unsuccessful attempt.
+        // Never delete or overwrite partial output.
         if(io.readdirSync(paths.staging).length!==0)
           return Promise.resolve(record({ok:false,stage:'partial-output',error:'Staging contains partial files; preserved for review'}));
-        io.rmdirSync(paths.staging);
+      }else{
+        io.mkdirSync(paths.staging,{mode:0o700});
       }
-      io.mkdirSync(paths.staging,{mode:0o700});
     }catch(error){return Promise.resolve(record({ok:false,stage:'precheck',error:clean(error)}));}
     running=true;attempts++;
     return new Promise(resolve=>{
