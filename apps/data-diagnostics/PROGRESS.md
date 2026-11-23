@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.42 — depend on Data Tool 0.1.37 (2026-11-23)
+- **Implemented on development branch:** companion manifest now requires Data Tool 0.1.37 instead of 0.1.36; Info version and English release note updated. Existing manual diagnostic protocol and report workflow preserved.
+- **Automated CI and in-car update:** unverified at time of writing. This version does not prove DPF integration or application identity.
+
+
 ## v0.1.41 — native process metadata accessibility survey (2026-11-23)
 - **Vehicle baseline:** Tool 0.1.35 / Diagnostics 0.1.40: 23 PASS, 0 FAIL, 5 SKIP; real SO_PEERCRED successful on MGU, with installed package identity still NO-GO.
 - **Implemented:** 29th manual `processBoundary` step requests Tool 0.1.36 `processBoundaryProbe`, reporting only booleans and sanitized `Process boundary:` note for cgroup, self/peer UID equivalence and process stat accessibility. It confirms production remains disabled and app identity unverified even on PASS. No UI button, data fields or upload schema changed; original vehicle read tests continue. **In-car v0.1.41 not verified.**
