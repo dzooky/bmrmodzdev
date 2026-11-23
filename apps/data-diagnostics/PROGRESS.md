@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.19 — passive application and tool identity survey (2026-11-23)
+- **Implemented on feature branch:** three additional manual rows (20 total): Data Tool self UID/GID and diagnostic socket owner/mode, Diagnostics app process self UID/GID, and reported native peer credential API availability. The peer-auth check remains SKIP by design because `peerIdentityVerified:false` and production access is disabled. Own-process readings are observational, not a trusted authentication handshake.
+- **In-car evidence from 0.1.18:** 15 PASS, 0 FAIL, 2 SKIP. Shared stream, UDS, and installation health pass; secure IPC disabled. **0.1.19 not yet tested in car**.
+- **Automated:** identity survey unit tests, runner regression and 10/10 result columns for 20 rows; CI to verify. Requires Data Tool 0.1.17. Expected if platform exposes UID/GID: 17 PASS / 0 FAIL / 3 SKIP. No production access or additional vehicle reads.
+
+
 ## v0.1.18 — installation health regression companion (2026-11-23)
 - **Reported:** Data Tool 0.1.15 failed installation health on MGU, so secure IPC was not vehicle-verified. The exact reason is unknown without MGU service logs.
 - **Implemented on branch:** dependency to Data Tool 0.1.16, visible release note, and `Secure IPC readiness` SKIP handling when the experimental secure listener is intentionally disabled. The 17 explicit read-only tests and manual report upload are otherwise unchanged.
