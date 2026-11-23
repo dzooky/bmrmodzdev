@@ -76,7 +76,7 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
   assert.strictEqual(result.results.length,27);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
