@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.7 — corrected BMR upload path and footer layout (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** fixed the manual HTTPS report URL from the mistakenly ordered `/brmmodz.php` to the user's actual `/bmrmodz.php`. Updated upload tests and renamed the repository PHP receiver file accordingly; no changes to installed public hosting were made.
+- **UI:** upload/export feedback now uses the single footer line at y=506 outside the Results panels instead of rendering over the final diagnostic row (y=460/479). PASS/FAIL/SKIP totals are displayed in the top-right Results header. Existing HTTP diagnostic details and protections remain unchanged.
+- **In-car observation (user):** v0.1.6 returned HTTP 404 with a >4 KB "Oops! That page can't be found" HTML reply; the user subsequently identified the reversed BMR/BRM characters in the configured URL. Successful POST to the corrected endpoint is not yet vehicle-verified. SOME/IP config ENOENT remains an independent known issue.
+- **Validation:** automated workflow status must be checked for the final revision; on-car rendering and successful upload remain pending.
+
+
 ## v0.1.6 — bounded HTTP response diagnostics (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** manual report upload failure now includes HTTP status and Content-Type, along with a short sanitized error preview (or JSON error) for the public HTTPS endpoint. The 4 KB server response cap remains; the request is still manual and the sanitized payload limit stays 32 KB.
 - **User-observed in-car with v0.1.5:** upload produced `Oversized server reply`, indicating an HTTP response body exceeding 4 KB reached the client; no confirmed successful report receipt. A website GET in the user's browser returned the expected `{"ok":false,"error":"Method not allowed"}`, which does not validate the POST response.
