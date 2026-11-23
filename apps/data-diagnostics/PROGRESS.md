@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.8 — passive standalone SOME/IP setup check (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** new `SOME/IP setup` diagnostic row queries Data Tool 0.1.6 passive `someipSetup`, showing catalog, BMW generator bundle, tool manifest, tool-owned config, process UID and explicitly unverified ACL status. Layout fits 15 results without overlapping the footer. Existing UDS, network, upload, and isolated native module test behavior remains unchanged.
+- **Dependency:** tool minimum 0.1.6. Requires updating **both** Data Tool and diagnostics app. No generated CDS file, ACL registration, or native signal subscription is introduced.
+- **Real-car basis:** the user supplied a complete real-MGU report: 9 PASS, 3 FAIL, 2 SKIP; native module loaded, five allowlisted ECU UDS response echoes matched, CDS config missing ENOENT. Upload succeeded through public receiver; latest passive setup test and CDS reception remain **not verified in car**.
+- **Automated:** runner and pure survey regressions added. Confirm final GitHub Actions status independently.
+
+
 ## PHP receiver counter fix (2026-11-23)
 - **In-car/user-host evidence:** Data Tool Diagnostics 0.1.7 reached `https://dzooky.eu/bmrmodz.php` but received HTTP 500 with a non-JSON body. The user-provided PHP error log identified a fatal `TypeError: json_decode() expects parameter 1 to be string, bool given` at the hourly counter decode; only `.upload-lock.php` was present in the reports directory.
 - **Implemented on dzooky/bmrmodzdev main:** `server/bmrmodz.php` validates the counter file content and newline before passing a nonempty string to `json_decode()`. Missing/malformed counters safely default to zero. Data Tool Diagnostics app remains at 0.1.7 and is unchanged.
