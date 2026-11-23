@@ -45,12 +45,13 @@ async function main(){
  assert.strictEqual(token.capability,grants.get('dpf.app'));
  const broker={get:async(fields,capability)=>{
   assert.strictEqual(capability,grants.get('dpf.app'));
+  if(fields.some(field=>field!=='dpf.soot'))return {ok:false,error:'Not authorized'};
   return {ok:true,results:Object.fromEntries(fields.map(field=>[field,{valid:true,value:0}]))};
  }};
  const gateway=createGateway(broker,peer=>trusted.resolve(peer));
  assert.strictEqual((await gateway.dispatch({uid:0,packageId:'dpf.app'}, {op:'getData',fields:['dpf.soot']})).ok,false);
  assert.strictEqual((await gateway.dispatch(approved, {op:'getData',fields:['dpf.soot']})).ok,true);
- assert.strictEqual((await gateway.dispatch(approved,{op:'getData',fields:['engine.rpm']})).ok,true);
+ assert.strictEqual((await gateway.dispatch(approved,{op:'getData',fields:['engine.rpm']})).ok,false);
  assert.strictEqual(trusted.productionReady,false);
  console.log('Auth feasibility: passive safe flags and kernel+package+process+isolation fail-closed policy passed');
 }
