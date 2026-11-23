@@ -12,7 +12,7 @@ const fake={
   assert.strictEqual(options.hostname,HOST);
   assert.strictEqual(options.path,ENDPOINT);
   assert.strictEqual(HOST,'dzooky.eu');
-  assert.strictEqual(ENDPOINT,'/brmmodz.php');
+  assert.strictEqual(ENDPOINT,'/bmrmodz.php');
   assert.strictEqual(options.port,443);
   assert.strictEqual(options.timeout,12000);
   assert.strictEqual(options.headers['Content-Type'],'application/json');
