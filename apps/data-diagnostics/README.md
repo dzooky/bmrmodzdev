@@ -1,16 +1,16 @@
-# BMRMODZ Data Tool Diagnostics v0.1.10
+# BMRMODZ Data Tool Diagnostics v0.1.11
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.7. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.8. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic. In v0.1.7 the corrected BMR endpoint is used and upload feedback is shown in a separate footer beneath results, with totals at the top.
 
 ## Operation
 1. Park securely. Install **both** components from an approved test build, not merely a draft GitHub PR.
 2. Open the app. The first tab is Info with the required development notice.
-3. Select Diagnostics and press **Run diagnostics**. This runs passive SOME/IP setup checks (presence of generator/catalog, tool manifest/config, UID and unverified ACL status) and allowlisted read-only operations against Data Tool and checks the app process's network interfaces, route table and TCP connectivity to dzooky.eu:443. Network checks also run if the Data Tool is unavailable. Nothing runs automatically.
+3. Select Diagnostics and press **Run diagnostics**. This runs passive SOME/IP setup checks (presence of generator/catalog, tool manifest/config, UID and unverified ACL status) and allowlisted read-only operations against Data Tool without the three old network tests. Nothing runs automatically.
 4. On Results, review individual PASS/FAIL/SKIP states. Missing tool, module or configuration produces an explicit failure or skip.
 5. Press **Send report** to POST the sanitized JSON over HTTPS to `https://dzooky.eu/bmrmodz.php`. The receiver should return an anonymous report ID. This button never sends automatically. Currently no upload token is sent. An MGU internet route, TLS trust and an adapted receiver are necessary.
-6. The **Export report** button was removed in v0.1.10 to fit the manual **Generate CDS test** and **Send report** controls. HTTPS Send report remains available.
+6. The **Export report** button was removed in v0.1.10; v0.1.11 also removes Next/Previous. Three actions remain: **Run diagnostics**, **Generate CDS test**, **Send report**. HTTPS Send report remains available.
 
 ## Temporary public HTTPS receiver
 
@@ -25,7 +25,7 @@ Local validation only: PHP lint succeeded, test POST returned HTTP 201 and direc
 - Passive SOME/IP module/catalog/config checks, isolated module load.
 - DDE `22 44BB`, EGS `22 6000`, IHKA `22 D8D7`, BDC `22 D074`, ACSM `22 4053`.
 - CDS `statusEngineTemperature` and `statusEngineSpeed2` via the isolated service worker.
-- App-process IPv4 interfaces, read-only `/proc/net/route` availability and TCP connect to `dzooky.eu:443` (4-second timeout). The resulting three PASS/FAIL entries appear in Results and the sanitized JSON report; these checks do not send a report.
+- Network interface/route/TCP diagnostic steps were removed in v0.1.11; manual HTTPS report upload remains unchanged.
 - No write/routine controls. CC 0x31 and 0x2E are intentionally **not** triggered.
 - No autonomous background polling. This is a **first-stage smoke test**, not full coverage of every DID or signal.
 
@@ -33,4 +33,4 @@ Local validation only: PHP lint succeeded, test POST returned HTTP 201 and direc
 A PASS means a matching response was seen, not that the decoded vehicle value is correct. The report contains no raw UDS bytes, VIN, VO/FA, GPS coordinates or secrets. Actual vehicle operation and optical display require explicit in-car confirmation. Tests should run only while stationary; driving concurrency tests are future work.
 
 ## Manual CDS generator experiment
-Press **Generate CDS test** once to request the tool's fixed-path, staging-only BMW generator test (no ACL registration). Then press **Run diagnostics** and **Send report**. The new `CDS generator test` row confirms whether staged CDS JSON and ACL files exist; ordinary CDS sampling remains unavailable until a separate reviewed authorization/configuration step. No existing applications are modified.
+Press **Generate CDS test** to request the tool's fixed-path, staging-only BMW generator test (no ACL registration). Then press **Run diagnostics** and **Send report**. The new `CDS generator test` row confirms whether staged CDS JSON and ACL files exist; ordinary CDS sampling remains unavailable until a separate reviewed authorization/configuration step. No existing applications are modified.
