@@ -26,7 +26,8 @@ function run(socket,directory,options){
    return Promise.resolve(out('unsupported'));
  let file=null,fd=null,child=null,finished=false;
  return new Promise(resolve=>{
-  const timeoutMs=2000;
+  const opts=options||{};
+  const timeoutMs=opts.timeoutMs||2000;
   let timer=null,seen='',result=out('unavailable'),exited=false,exitCode=null,stdoutEnded=false,spawned=false;
   const finish=value=>{
    if(finished)return;finished=true;
@@ -52,7 +53,7 @@ function run(socket,directory,options){
    if(fs.writeSync(fd,code,0,code.length,0)!==code.length)throw Error('Short write');
    fs.fchmodSync(fd,0o700);
    fs.closeSync(fd);fd=null;
-   child=cp.spawn(file,[],{stdio:['ignore','pipe','ignore',socket]});
+   child=(opts.spawn||cp.spawn)(file,[],{stdio:['ignore','pipe','ignore',socket]});
    // On Node 8 'close' can be delayed by the still-connected inherited FD3.
    // Observe process exit AND stdout EOF; neither waits for FD3 to close.
    const complete=()=>{
