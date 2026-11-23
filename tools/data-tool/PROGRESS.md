@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.14 — test-only multi-consumer CDS manifest (2026-11-23)
+- **Implemented on feature branch:** `data-manifest.json` declares CDS signals and two bounded diagnostic test consumers with independent 3-second leases. The one shared CDS worker continues until the last lease expires or is released. Each consumer receives only its manifest-declared fields and requires an active lease. Stopped streams clear cached values. The manifest is test-only and does **not** authorize production DPF, OSA or CC; the current world-accessible local socket is not yet an authenticated per-app interface.
+- **In-car evidence from v0.1.13 + Diagnostics v0.1.15:** 14 PASS, 0 FAIL, 1 SKIP. The single-consumer streaming test confirmed repeated cache refresh and clean stop in the real vehicle. Multi-consumer concurrency and lease expiry/restart are **not yet verified in car**.
+- **Automated:** independent consumer lifecycle, filtering, lease expiry, single-worker behavior, and manifest allowlist tests; CI results to verify. Companion Diagnostics v0.1.16 adds a controlled two-consumer test (no raw vehicle readings in uploads).
+- **Next:** install both and run parked-car Diagnostics + Send report. Do not connect production apps or rely on consumer ID strings as authentication until caller identity and access policy are designed.
+
+
 ## v0.1.13 — experimental request-driven shared CDS Data Engine (2026-11-23)
 - **Implemented on feature branch:** a single demand-started long-lived CDS worker creates one SOME/IP proxy subscribing to engine oil temperature, coolant temperature, and RPM. The Data Tool manages a 3-second renewable lease for the experimental `diagnostics` consumer, a 2-second freshness window, timestamped cache and update counters. Read-only `cdsDemand`, `cdsSnapshot`, `cdsRelease` operations. Snapshots/status do not renew leases; no boot-time CDS activity, automatic startup, or new ACL registration. Expired/released subscriptions stop the worker. A worker exit does not automatically restart until new demand.
 - **In-car evidence from v0.1.12 / Diagnostics v0.1.14:** both staged signal samples passed finite-number checks and five ECU UDS echoes passed. The active CDS configuration path remained absent, which is expected because the tests use staged files. This does not prove sustained subscriptions or cross-application arbitration.
