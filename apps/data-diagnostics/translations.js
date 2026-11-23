@@ -69,6 +69,7 @@ const catalogs={
     "Application authentication feasibility": "Application authentication feasibility",
     "Native peer ABI survey": "Native peer ABI survey",
     "Native kernel peer test": "Native kernel peer test",
+    "Native kernel peer compatibility": "Native kernel peer compatibility",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",
