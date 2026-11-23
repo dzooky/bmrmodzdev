@@ -54,9 +54,9 @@ async function main(){
    }};
    await assert.rejects(upload(result,'/unused',{https:backend}),pattern);
  }
- await rejectReply(403,'application/json',JSON.stringify({ok:false,error:'HTTPS required'}),/HTTP 403 application\\/json: HTTPS required/);
- await rejectReply(404,'text/html','<html><body>Not Found</body></html>',/HTTP 404 text\\/html: Non-JSON reply Not Found/);
- await rejectReply(200,'text/html','<html><body>'+('A'.repeat(4400))+'</body></html>',/HTTP 200 text\\/html: Reply >4 KB/);
+ await rejectReply(403,'application/json',JSON.stringify({ok:false,error:'HTTPS required'}),/HTTP 403 application\/json: HTTPS required/);
+ await rejectReply(404,'text/html','<html><body>Not Found</body></html>',/HTTP 404 text\/html: Non-JSON reply Not Found/);
+ await rejectReply(200,'text/html','<html><body>'+('A'.repeat(4400))+'</body></html>',/HTTP 200 text\/html: Reply >4 KB/);
  console.log('Data Diagnostics: HTTPS upload status, content type, sanitized preview and reply cap passed');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
