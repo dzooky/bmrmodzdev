@@ -57,3 +57,7 @@ Manual `someipAudit` inspects only the Data Tool-owned staged CDS config and ACL
 ### v0.1.11 staged CDS sampling experiment
 
 On explicit request, `signalStaging` (mode `sample`, allowlisted `statusEngineTemperature` or `statusEngineSpeed2`) runs a short-lived isolated native SOME/IP worker using the generated tool-owned staging configuration. Worker hard timeout is 8 seconds. No active configuration installation, ACL registration, background polling, or vehicle control. Receiving native field events is not proof of correct decoded values.
+
+### v0.1.12 CDS sample numeric validation
+
+The isolated staged CDS worker reports a usable sample only when engine coolant temperature, oil temperature, or RPM fields required by the requested signal are finite JavaScript numbers. Zero RPM is valid. No plausible-range assumptions are made; invalid results return field validity flags without leaking raw vehicle values. No system ACL or config change is performed.
