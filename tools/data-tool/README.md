@@ -93,3 +93,7 @@ A packaged internal `data-catalog.js` / `data-broker.js` pair is available for s
 
 ### v0.1.27 — one-shot broker/IPC test pack
 The diagnostic socket accepts `{ "op": "brokerSelfTest" }` **only on explicit request**. It exercises fake DPF/OSA/CC data and opaque in-process scopes with concurrency, then opens and removes a temporary `0600` Unix socket to verify default-denied `getData`, security-status availability and whether the running MGU Node socket can observe kernel peer credentials. It does **not** read a vehicle, enable a secure production socket or authenticate a real application. Results include only sanitized booleans, never peer IDs. A `broker-gateway.js` dispatcher and optional test-harness socket injection exist for automated testing. No authenticated package-aware resolver has been demonstrated on MGU: default secure IPC remains status-only, installation without the opt-in flag remains unchanged, and DPF/OSA/CC have not been migrated. Diagnostics v0.1.33 includes this check in the usual Run/Send flow.
+
+
+### v0.1.28 — legacy Node startup compatibility
+Data Tool 0.1.27 was reported `is not healthy` by the vehicle installer. The likely startup crash was a Node-14+-only `?.` operator in `data-broker.js`, now imported by the service at boot. This release removes that syntax, avoids modern `fs.rmSync` in the manual IPC test and adds Node 12 compatibility checks to CI. No secure production access is enabled. The actual root cause and recovery in the vehicle remain pending in-car verification.
