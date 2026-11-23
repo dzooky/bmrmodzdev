@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert');
-const {createRunner,STEPS,drivetrainRead,resultFor}=require('./test-runner');
+const {createRunner,STEPS,drivetrainRead,resultFor,traceSummary}=require('./test-runner');
 async function run(){
   let commands=[];
   const sender=async req=>{
@@ -14,7 +14,7 @@ async function run(){
     if(req.op==='someipGenerated')return {ok:false,mode:'staging-only',error:'Staging unavailable'};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:2},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:false,stage:'module-load',error:'Native binding missing'};
-    if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255,1]};
+    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255,1]};
     throw Error('Unexpected operation');
   };
   let updates=0;
@@ -33,9 +33,10 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
-  assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
+  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
+  assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
   assert.strictEqual(result.results.length,22);
+  assert.ok(commands.filter(x=>x.op==='readTrace').length===2);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
   let snapshots=0,mockStarts=0;
@@ -70,7 +71,7 @@ async function run(){
       leaseTimes.delete(req.consumer);
       return mockState(req.consumer);
     }
-    if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
+    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
     return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
@@ -96,7 +97,7 @@ async function run(){
     if(req.op==='signalStaging')return {ok:false,stage:'value-invalid',received:true,validated:false,
       validFields:req.field==='statusEngineTemperature'?{oil:false,coolant:true}:{rpm:false},
       error:'CDS sample missing numeric field'};
-    if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
+    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
     return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
   assert.strictEqual(invalid.results.find(x=>x.id==='cdsTemp').status,'FAIL');
@@ -129,6 +130,9 @@ async function run(){
       {ok:true,uds:[0x62,req.did>>8,req.did&255]};
   },ddeStep);
   assert.strictEqual(recovered.attempts,3);
+  assert.strictEqual(recovered.traces.length,3);
+  assert.ok(traceSummary([null]).includes('unavailable'));
+  assert.strictEqual(traceSummary([{ackAccepted:true,matchedEcuEvents:0,otherEcuEvents:1,wrongDidEvents:0,negativeEvents:0,pendingEvents:0,malformedEvents:0,timedOut:true}]).includes('other 1'),true);
   assert.strictEqual(retryCount,3);
   assert.strictEqual(resultFor(ddeStep,recovered.reply,0).status,'PASS');
   let exhaustedCount=0;
