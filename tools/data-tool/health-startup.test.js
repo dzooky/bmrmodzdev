@@ -53,7 +53,7 @@ async function check(extraEnv){
 async function main(){
   await check({BMRMODZ_SECURE_IPC_EXPERIMENT:'0'});
   // Uncreatable optional secure socket: must not break the original tool.
-  await check({BMRMODZ_SECURE_IPC_EXPERIMENT:'1',BMRMODZ_SECURE_IPC_TEST_FAILURE:'1'});
+  await check({BMRMODZ_SECURE_IPC_EXPERIMENT:'1',BMRMODZ_SECURE_IPC_SOCKET:'/dev/null/uncreatable.sock'});
   console.log('Data Tool health: normal service startup and optional secure endpoint failure passed');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
