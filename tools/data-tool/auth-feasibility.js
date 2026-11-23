@@ -11,7 +11,8 @@ function inspect(options){
  const status=safeRead(io,'/proc/self/status');
  const cgroup=safeRead(io,'/proc/self/cgroup');
  const label=safeRead(io,'/proc/self/attr/current');
- const ns=safeRead(io,'/proc/self/ns/pid');
+ let ns=null;
+ try{ns=String(io.readlinkSync('/proc/self/ns/pid'));}catch(_){}
  const value=name=>{
   const match=status&&status.match(new RegExp('(?:^|\\n)'+name+':\\s*([^\\n]+)'));
   return match?match[1].trim():null;
