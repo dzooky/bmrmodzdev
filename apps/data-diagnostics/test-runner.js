@@ -16,8 +16,8 @@ const STEPS=[
   {id:'someipGenerated',label:'CDS generator test',request:{op:'someipGenerated'},kind:'generated'},
   {id:'someipAudit',label:'CDS ACL audit',request:{op:'someipAudit'},kind:'audit'},
   {id:'someipLoad',label:'SOME/IP native',request:{op:'signalNative',mode:'load'},kind:'native'},
-  {id:'dde',label:'DDE / DPF',request:{op:'read',ecu:0x12,did:0x44BB},kind:'uds'},
-  {id:'egs',label:'EGS / transmission',request:{op:'read',ecu:0x18,did:0x6000},kind:'uds'},
+  {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
+  {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
   {id:'ihka',label:'IHKA / climate',request:{op:'read',ecu:0x78,did:0xD8D7},kind:'uds'},
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
@@ -156,15 +156,27 @@ function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 // Diagnostic-only bounded retry. Never retry negative UDS, malformed data or
 // transport errors; keep the tool's ECU allowlist and serialization unchanged.
 const DRIVE_READ_ATTEMPTS=3, DRIVE_READ_GAP_MS=600;
+function traceSummary(traces){
+  const valid=traces.filter(t=>t&&typeof t.ackAccepted==='boolean');
+  if(!valid.length)return 'trace unavailable';
+  const count=key=>valid.reduce((n,t)=>n+(Number.isSafeInteger(t[key])&&t[key]>=0?Math.min(t[key],99):0),0);
+  return 'ack '+valid.filter(t=>t.ackAccepted).length+'/'+traces.length+
+    ', ecu '+count('matchedEcuEvents')+', other '+count('otherEcuEvents')+
+    ', DID mismatch '+count('wrongDidEvents')+', NRC '+count('negativeEvents')+
+    ', pending '+count('pendingEvents')+', malformed '+count('malformedEvents')+
+    ', timeout '+valid.filter(t=>t.timedOut===true).length;
+}
 async function drivetrainRead(request,step){
   let reply,attempts=0;
+  const traces=[];
   for(let i=1;i<=DRIVE_READ_ATTEMPTS;i++){
     attempts=i;
     reply=await request(step.request,{timeoutMs:15000});
+    traces.push(reply&&reply.trace||null);
     if(!reply||reply.ok!==false||reply.error!=='No matching response'||i===DRIVE_READ_ATTEMPTS)break;
     await delay(DRIVE_READ_GAP_MS);
   }
-  return {reply,attempts};
+  return {reply,attempts,traces};
 }
 async function testEngine(request){
   const consumer='diagnostics';
@@ -252,7 +264,7 @@ function createRunner(send,clock){
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
-          if(drivetrain)result.detail=cleanError(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS);
+          if(drivetrain)result.detail=cleanError(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+traceSummary(readResult.traces));
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
         if(step.id==='service')serviceAvailable=result.status==='PASS';
@@ -275,4 +287,4 @@ function createRunner(send,clock){
   }
   return {run,isRunning:()=>active,steps:STEPS};
 }
-module.exports={createRunner,STEPS,resultFor,drivetrainRead};
+module.exports={createRunner,STEPS,resultFor,drivetrainRead,traceSummary};

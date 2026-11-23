@@ -1,0 +1,53 @@
+'use strict';
+// Isolated read-only trace tests. No hmictl process or vehicle connection.
+const assert=require('assert');
+const {HmiTransport}=require('./transport');
+const ecu=0x12,did=0x44BB;
+function fake(schedule){
+  const transport=new HmiTransport('/not-used');
+  transport.ready=true;
+  transport.line=async()=>{setImmediate(()=>schedule(transport));return 'ok';};
+  return transport;
+}
+async function main(){
+  const trace={};
+  const success=fake(t=>{
+    t.pendingRead.consume({ecu:0x18,uds:[0x62,0x44,0xBB]});
+    t.pendingRead.consume({ecu,uds:[0x62,0x12,0x34]});
+    t.pendingRead.consume({ecu,uds:[0x7F,0x22,0x78]});
+    t.pendingRead.consume({ecu,uds:[0x62,0x44,0xBB,0x01]});
+  });
+  const reply=await success.read(ecu,did,trace);
+  assert.strictEqual(reply[0],0x62);
+  assert.strictEqual(trace.ackAccepted,true);
+  assert.strictEqual(trace.otherEcuEvents,1);
+  assert.strictEqual(trace.matchedEcuEvents,3);
+  assert.strictEqual(trace.wrongDidEvents,1);
+  assert.strictEqual(trace.pendingEvents,1);
+  assert.strictEqual(trace.negativeEvents,0);
+  assert.strictEqual(trace.timedOut,false);
+  const negativeTrace={};
+  const negative=fake(t=>t.pendingRead.consume({ecu,uds:[0x7F,0x22,0x31]}));
+  const nrc=await negative.read(ecu,did,negativeTrace);
+  assert.deepStrictEqual(nrc,[0x7F,0x22,0x31]);
+  assert.strictEqual(negativeTrace.negativeEvents,1);
+  const timeoutTrace={};
+  const timeout=fake(t=>{
+    t.pendingRead.consume({ecu:0x18,uds:[0x62,0x44,0xBB]});
+    t.pendingRead.arm(15);
+  });
+  assert.strictEqual(await timeout.read(ecu,did,timeoutTrace),null);
+  assert.strictEqual(timeoutTrace.timedOut,true);
+  assert.strictEqual(timeoutTrace.ackAccepted,true);
+  assert.strictEqual(timeoutTrace.matchedEcuEvents,0);
+  assert.strictEqual(timeoutTrace.otherEcuEvents,1);
+  const rejectedTrace={};
+  const rejected=new HmiTransport('/not-used');
+  rejected.ready=true;rejected.line=async()=> 'error';
+  await assert.rejects(rejected.read(ecu,did,rejectedTrace),/TASU command rejected/);
+  assert.strictEqual(rejectedTrace.ackAccepted,false);
+  assert.strictEqual(rejected.pendingRead,null);
+  assert.strictEqual(JSON.stringify(trace).includes('uds'),false);
+  console.log('Transport trace: ACK, routing, DID mismatch, pending, negative, timeout and rejected command passed');
+}
+main().catch(e=>{console.error(e);process.exitCode=1;});

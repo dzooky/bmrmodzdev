@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.23 — DDE/EGS TASU response routing trace (2026-11-23)
+- **Implemented on feature branch:** existing 22 manual rows remain; only the DDE/EGS three-attempt read-only checks call the new Data Tool `readTrace` diagnostic-only operation and append aggregated, sanitized command-ACK, matching/other ECU frame, DID mismatch, negative/pending, malformed and timeout counts. Other ECU, CDS and IPC tests remain unchanged. Requires Data Tool v0.1.20.
+- **Vehicle evidence from v0.1.22 (2026-11-23):** 15 PASS / 2 FAIL / 5 SKIP, DDE and EGS `No matching response; attempt 3/3` (~11.7s each). No claim of vehicle-verification for v0.1.23; diagnostic traces do not include raw UDS content or prove ECU wake state.
+- **Automated:** trace summary fixtures and read-only transport observability tests in CI; verify CI outcome before car testing. **Next:** one parked explicit test, then interpret ACK / ECU routing / DID mismatch without changing retry limits by guesswork.
+
+
 ## v0.1.22 — bounded drivetrain ECU read-only retry diagnostics (2026-11-23)
 - **Implemented on feature branch:** in explicit manual Diagnostics only, DDE (0x12 / 0x44BB) and EGS (0x18 / 0x6000) get up to **three sequential read attempts**, with 600 ms pause between attempts, but ONLY on exact `No matching response` results. The final row records `attempt N/3`; other ECU checks remain single-shot. No change to Data Tool transport, ECU allowlist, UDS DID, timeout, CDS streaming, IPC or service startup. There is no background polling or retry of negative UDS responses, malformed positive replies or socket/transport errors.
 - **Reason:** on-car 0.1.21 report showed DDE and EGS 3.5 s no-response failures while other reads passed; user reports that repeated manual runs eventually make DDE/EGS respond. The test measures how many attempts are needed without claiming ECU wake-up as proven cause.

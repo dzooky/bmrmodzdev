@@ -39,11 +39,11 @@ function serve(factory,socketPath,options){
   const inflight=new Map(),cache=new Map();
   const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0};
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  function read(ecu,did){
+  function read(ecu,did,withTrace){
     const group=getRead(ecu,did);
     if(!group)return Promise.resolve({ok:false,error:'ECU/DID not allowlisted'});
-    const key=ecu+':'+did;
-    const cached=cache.get(key);
+    const key=ecu+':'+did+(withTrace?':trace':'');
+    const cached=withTrace?null:cache.get(key);
     if(cached&&Date.now()-cached.at<CACHE_MS){stats.cacheHits++;return Promise.resolve(Object.assign({cached:true},cached.reply));}
     if(inflight.has(key)){stats.coalesced++;return inflight.get(key);}
     const request=queue.then(async()=>{
@@ -51,17 +51,19 @@ function serve(factory,socketPath,options){
       if(remaining>0)await sleep(remaining);
       lastRequest=Date.now();
       stats.sent++;
+      const trace=withTrace?{}:null;
+      const attach=result=>withTrace?Object.assign(result,{trace}):result;
       try {
         if(!transport)transport=factory();
-        const reply=await transport.read(ecu,did);
-        if(!reply){stats.timeout++;return {ok:false,error:'No matching response',ecu,did};}
-        if(reply[0]===0x7f){stats.error++;return {ok:false,error:'UDS negative response',ecu,did,nrc:reply[2]};}
-        if(reply[0]!==0x62||reply[1]!==did>>8||reply[2]!==(did&255)){stats.error++;return {ok:false,error:'Unexpected response',ecu,did};}
+        const reply=await transport.read(ecu,did,trace);
+        if(!reply){stats.timeout++;return attach({ok:false,error:'No matching response',ecu,did});}
+        if(reply[0]===0x7f){stats.error++;return attach({ok:false,error:'UDS negative response',ecu,did,nrc:reply[2]});}
+        if(reply[0]!==0x62||reply[1]!==did>>8||reply[2]!==(did&255)){stats.error++;return attach({ok:false,error:'Unexpected response',ecu,did});}
         stats.ok++;
         const result={ok:true,ecu,did,group,uds:reply,at:new Date().toISOString()};
-        cache.set(key,{at:Date.now(),reply:result});
-        return result;
-      }catch(e){stats.error++;return {ok:false,ecu,did,error:String(e&&e.message||e)};}
+        if(!withTrace)cache.set(key,{at:Date.now(),reply:result});
+        return attach(result);
+      }catch(e){stats.error++;return attach({ok:false,ecu,did,error:withTrace?'Transport or TASU command error':String(e&&e.message||e)});}
     });
     queue=request.then(()=>{},()=>{});
     inflight.set(key,request);
@@ -86,7 +88,7 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.19',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.20',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='identitySurvey')reply=identitySurvey.inspectService(socket);
           else if(req.op==='securityCheck')reply={ok:true,secureSocket:secureEndpoint.inspect(),
@@ -102,10 +104,11 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.19',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.20',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
+          else if(req.op==='readTrace'&&((req.ecu===0x12&&req.did===0x44BB)||(req.ecu===0x18&&req.did===0x6000)))reply=await read(req.ecu,req.did,true);
           else if(req.op==='read'&&Number.isInteger(req.ecu)&&Number.isInteger(req.did))reply=await read(req.ecu,req.did);
           else reply={ok:false,error:'Unsupported request'};
         }catch(e){reply={ok:false,error:String(e.message||e)};}
