@@ -1,6 +1,6 @@
-# BMRMODZ Data Tool Diagnostics v0.1.11
+# BMRMODZ Data Tool Diagnostics v0.1.12
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.8. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.10. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic. In v0.1.7 the corrected BMR endpoint is used and upload feedback is shown in a separate footer beneath results, with totals at the top.
 
@@ -34,3 +34,5 @@ A PASS means a matching response was seen, not that the decoded vehicle value is
 
 ## Manual CDS generator experiment
 Press **Generate CDS test** to request the tool's fixed-path, staging-only BMW generator test (no ACL registration). Then press **Run diagnostics** and **Send report**. The new `CDS generator test` row confirms whether staged CDS JSON and ACL files exist; ordinary CDS sampling remains unavailable until a separate reviewed authorization/configuration step. No existing applications are modified.
+
+In v0.1.12 a fourteenth diagnostic row, `CDS ACL audit`, passively checks staged CDS/ACL fields and reports sanitized counts/UID. A PASS is only staged-structure verification. Neither registration nor live CDS reception is performed; the manual HTTPS upload and three existing buttons remain unchanged.
