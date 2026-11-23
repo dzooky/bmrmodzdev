@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.18 — installation health regression companion (2026-11-23)
+- **Reported:** Data Tool 0.1.15 failed installation health on MGU, so secure IPC was not vehicle-verified. The exact reason is unknown without MGU service logs.
+- **Implemented on branch:** dependency to Data Tool 0.1.16, visible release note, and `Secure IPC readiness` SKIP handling when the experimental secure listener is intentionally disabled. The 17 explicit read-only tests and manual report upload are otherwise unchanged.
+- **Automated:** existing regression and translation tests plus updated service boot health; CI to verify. **0.1.18 NOT YET VERIFIED IN CAR.** Expected in-car totals if everything works: 15 PASS / 0 FAIL / 2 SKIP.
+
+
 ## v0.1.17 — secure IPC readiness audit (2026-11-23)
 - **Implemented on feature branch:** adds 17th manual `Secure IPC readiness` check using Data Tool 0.1.15. It is `SKIP` (expected) when the owner-only 0600 test socket exists but peer identity is unverified and production access is disabled; FAIL if secure socket is not restricted. The existing 16 checks, three buttons and report sanitization are unchanged.
 - **Prior in-car evidence (v0.1.16):** 15 PASS / 0 FAIL / 1 SKIP, including successful two-consumer lease, expiry and restart. Does not authenticate application callers.
