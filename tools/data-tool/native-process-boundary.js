@@ -9,7 +9,8 @@ const PAYLOAD=artifact.compressed, SHA=artifact.sha;
 const out=(stage,extra)=>Object.assign({ok:false,mode:'passive-process-boundary',
   stage,unixSocket:false,kernelPeerObserved:false,
   applicationIdentityVerified:false,packageIdentityVerified:false,
-  productionAccessEnabled:false},extra||{});
+  installedPackageIdentityVerified:false,processInstanceVerified:false,
+  productionAccessEnabled:false,observationOnly:true},extra||{});
 function unpack(){
  const code=zlib.gunzipSync(Buffer.from(PAYLOAD,'base64'));
  if(code.length>16384||code.length<128||
@@ -65,7 +66,7 @@ function run(socket,directory,options){
       parsed.processInstanceVerified===false&&parsed.applicationIdentityVerified===false&&
       parsed.applicationIdentityVerified===false&&
       parsed.productionAccessEnabled===false&&
-      parsed.unixSocket===true&&parsed.kernelPeerObserved===true&&exitCode===0;
+      parsed.ok===true&&parsed.kernelPeerObserved===true&&exitCode===0;
     finish(safe?out('kernel-peer-observed',{ok:true,unixSocket:true,
       kernelPeerObserved:true,
       sameUidAsService:parsed.sameUidAsService===true,
