@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.9 — isolated CDS generator test control (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** manual `Generate CDS test` button triggers one bounded tool-level generator experiment (Data Tool 0.1.7), with in-app success/failure feedback. `CDS generator test` result row checks staged CDS JSON, fields and ACL file without registering ACLs; 16 results display in two columns. Existing Run, Send, export, UDS, network and SOME/IP native-load behavior is preserved.
+- **Safety:** staging-only output, no modification of active CDS config or other apps; normal CDS config/temperature/RPM tests remain FAIL/SKIP until authorized activation. Current local socket has broad access; this experimental write operation is intentionally one-shot and fixed-path, not a production feature.
+- **In-car baseline:** prior 0.1.8 report on 2026-11-23: 10 PASS, 3 FAIL, 2 SKIP; catalog/generator/manifest present, CDS config absent, UID 0 and ACL unverified. Native SOME/IP loaded; five UDS ECU replies matched. Upload report received. **New 0.1.9 generation action is not vehicle-verified**.
+- **Validation:** automated tests and preview build should be checked on final commit; no in-car generator or ACL results yet.
+
+
 ## v0.1.8 — passive standalone SOME/IP setup check (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** new `SOME/IP setup` diagnostic row queries Data Tool 0.1.6 passive `someipSetup`, showing catalog, BMW generator bundle, tool manifest, tool-owned config, process UID and explicitly unverified ACL status. Layout fits 15 results without overlapping the footer. Existing UDS, network, upload, and isolated native module test behavior remains unchanged.
 - **Dependency:** tool minimum 0.1.6. Requires updating **both** Data Tool and diagnostics app. No generated CDS file, ACL registration, or native signal subscription is introduced.
