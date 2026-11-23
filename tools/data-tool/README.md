@@ -1,4 +1,4 @@
-# BMRMODZ Data Tool — feasibility v0.1.5
+# BMRMODZ Data Tool — feasibility v0.1.6
 
 This is **not** a ready-for-migration data broker. It is an MGU-installable, on-demand, read-only experimental service to prove whether a standalone tool can read the diagnostic ECUs needed by OSA, DPF and Climate Comfort.
 
@@ -18,6 +18,7 @@ Unix socket: `/run/bmrmodz-data-tool/ctl.sock`; UTF-8 JSON object + newline; res
 {"op":"capabilities"}
 {"op":"signalEnvironment"}
 {"op":"configCheck"}
+{"op":"someipSetup"}
 {"op":"report"}
 {"op":"ccPlan"}
 {"op":"signalNative","mode":"load"}
@@ -26,7 +27,8 @@ Unix socket: `/run/bmrmodz-data-tool/ctl.sock`; UTF-8 JSON object + newline; res
 ```
 The example reads DDE 0x12, DID 0x44BB (decimal 17595). `status` never opens diagnostic transport. A successful result includes an `uds` byte array and timestamp; errors are explicit. **A successful socket response is not proof of correct ECU data**. Inspect raw values, timing and ECU correctness against the existing app.
 
-## Dedicated SOME/IP configuration\n\nThe bundled `signal-manifest.json` uses the BMW generator `proxies`/`services` manifest schema and documents the required CDS instance and read-only fields. It is **not** an installed OAP application's permission grant. A genuine per-tool configuration must be generated with the firmware-compatible BMW interface generator and successfully authorized on the MGU; do not reuse private app configs or bypass access controls. The isolated worker expects `BMRMODZ_CDS_CONFIG` or the tool-owned default `/var/opt/bmrmodz-data-tool/config/de_bmw_infotainment_vehicle_CDS.json`. Until that file and permissions exist, `signalNative sample` will correctly report a configuration failure.\n\n`probe.js report` yields a passive, structured, VIN-free readiness report and sends **no vehicle requests**. `probe.js configCheck` checks only the tool-owned config file. These are not proofs of vehicle communication.\n\n## In-car test companion app
+## Dedicated SOME/IP configuration\n\nThe bundled `signal-manifest.json` uses the BMW generator `proxies`/`services` manifest schema and documents the required CDS instance and read-only fields. It is **not** an installed OAP application's permission grant. A genuine per-tool configuration must be generated with the firmware-compatible BMW interface generator and successfully authorized on the MGU; do not reuse private app configs or bypass access controls. The isolated worker expects `BMRMODZ_CDS_CONFIG` or the tool-owned default `/var/opt/bmrmodz-data-tool/config/de_bmw_infotainment_vehicle_CDS.json`. Until that file and permissions exist, `signalNative sample` will correctly report a configuration failure.\n\n`probe.js report` yields a passive, structured, VIN-free readiness report and sends **no vehicle requests**. `probe.js configCheck` checks only the tool-owned config file. These are not proofs of vehicle communication.\n\n## Passive SOME/IP setup survey
+Run `probe.js someipSetup` or use the diagnostics app to inspect whether the master catalog, firmware AppManagement generator bundle, tool signal manifest, and tool-owned CDS config are present and which UID/GID runs the service. The operation is passive: it never executes a generator, copies another app's config, modifies ACL, or attempts a SOME/IP connection. A present generator bundle is not a proof of standalone ACL registration.\n\n## In-car test companion app
 
 `apps/data-diagnostics` is a separate OAP app that calls only this service. It offers manually triggered first-stage read-only diagnostics and a sanitized JSON plus offline QR summary export. Neither the app nor the tool is production ready. **Do not merge or deploy from a draft PR without review and test packaging.** The GUI does not send any 0x31/0x2E controls or poll in the background.
 
