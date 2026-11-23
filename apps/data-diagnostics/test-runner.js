@@ -16,7 +16,8 @@ const STEPS=[
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'cdsTemp',label:'CDS staged / temperatures',request:{op:'signalStaging',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
   {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'},
-  {id:'cdsStream',label:'CDS shared data engine',request:{op:'cdsDemand',consumer:'diagnostics'},kind:'engine'}
+  {id:'cdsStream',label:'CDS shared data engine',request:{op:'cdsDemand',consumer:'diagnostics'},kind:'engine'},
+  {id:'cdsMulti',label:'CDS multi-consumer lifecycle',request:{op:'cdsDemand',consumer:'diagnostics-secondary'},kind:'multi'}
 ];
 function cleanError(value){return String(value||'Unknown error').replace(/[\r\n]/g,' ').slice(0,140);}
 function resultFor(step,reply,duration){
@@ -53,6 +54,10 @@ function resultFor(step,reply,duration){
       ', offers '+(Number.isInteger(c.offers)?c.offers:'?')+', UID '+(Number.isInteger(id.uid)?id.uid:'?')+
       '; ACL NOT registered':cleanError(reply.error||reply.note||'CDS ACL audit unavailable');
     return Object.assign(base,{status:verified?'PASS':'FAIL',detail});
+  }
+  if(step.kind==='multi'){
+    const valid=reply.ok===true&&reply.shared===true&&reply.filtered===true&&reply.survived===true&&reply.expired===true&&reply.restarted===true&&reply.stopped===true;
+    return Object.assign(base,{status:valid?'PASS':'FAIL',detail:valid?'Two leases shared one stream; isolation, expiry and restart verified':cleanError(reply.error||'Multi-consumer lifecycle incomplete')});
   }
   if(step.kind==='engine'){
     const ok=reply.ok===true&&reply.stopped===true&&reply.updated===true&&reply.fresh===true;
@@ -106,6 +111,44 @@ async function testEngine(request){
     }catch(_){testEngine.lastRelease=false;}
   }
 }
+async function testMulti(request){
+  const first='diagnostics',second='diagnostics-secondary';
+  let result={ok:false,error:'Multi-consumer lifecycle incomplete'};
+  try{
+    const before=await request({op:'cdsSnapshot',consumer:first},{timeoutMs:6000});
+    const baseline=before&&before.stats&&before.stats.starts;
+    const a=await request({op:'cdsDemand',consumer:first},{timeoutMs:6000});
+    const b=await request({op:'cdsDemand',consumer:second},{timeoutMs:6000});
+    if(!a.ok||!b.ok)return {ok:false,error:'Consumer demand rejected'};
+    const shared=a.running===true&&b.running===true&&a.consumers===1&&b.consumers===2&&
+      Number.isInteger(baseline)&&b.stats.starts===baseline+1;
+    await delay(950);
+    const snap=await request({op:'cdsSnapshot',consumer:second},{timeoutMs:6000});
+    const keys=snap&&snap.fields||{};
+    const filtered=snap.ok===true&&keys.rpm&&keys.rpm.valid===true&&
+      keys.coolant&&keys.coolant.valid===true&&!Object.prototype.hasOwnProperty.call(keys,'oil')&&
+      !Object.prototype.hasOwnProperty.call(snap.values||{},'oil');
+    const releaseA=await request({op:'cdsRelease',consumer:first},{timeoutMs:6000});
+    const survived=releaseA.ok===true&&releaseA.running===true&&releaseA.consumers===1;
+    // No renewal for the second test consumer: its lease must expire.
+    await delay(3500);
+    const expiredState=await request({op:'cdsSnapshot',consumer:second},{timeoutMs:6000});
+    const expired=expiredState.ok===true&&expiredState.running===false&&expiredState.consumers===0;
+    const restart=await request({op:'cdsDemand',consumer:second},{timeoutMs:6000});
+    const restarted=restart.ok===true&&restart.running===true&&
+      restart.stats.starts===b.stats.starts+1;
+    result={ok:true,shared,filtered,survived,expired,restarted};
+    return result;
+  }catch(e){return {ok:false,error:String(e&&e.message||e).slice(0,140)};}
+  finally{
+    try{
+      const a=await request({op:'cdsRelease',consumer:first},{timeoutMs:6000});
+      const b=await request({op:'cdsRelease',consumer:second},{timeoutMs:6000});
+      result.stopped=!!(a&&b&&b.ok===true&&b.running===false&&b.consumers===0);
+      testMulti.lastStopped=result.stopped;
+    }catch(_){testMulti.lastStopped=false;}
+  }
+}
 function createRunner(send,clock){
   const request=send,now=clock||Date.now;
   let active=false;
@@ -118,15 +161,16 @@ function createRunner(send,clock){
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
         const skip=step.id!=='service'&&!serviceAvailable?'Service unavailable'
-          :(step.kind==='signal'||step.kind==='engine')&&!stagingReady?'Staged CDS config unavailable'
+          :(step.kind==='signal'||step.kind==='engine'||step.kind==='multi')&&!stagingReady?'Staged CDS config unavailable'
           :(step.kind==='signal'||step.kind==='engine')&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
         const start=now();
         let result;
         try{
-          const reply=step.kind==='engine'?await testEngine(request):await request(step.request,{timeoutMs:15000});
+          const reply=step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
+          if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
