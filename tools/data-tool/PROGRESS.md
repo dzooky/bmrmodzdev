@@ -1,5 +1,7 @@
 # Data Tool feasibility progress
 
+- **MGU report 2026-11-23 (Data Tool v0.1.19 + Diagnostics v0.1.21):** 15 PASS, 2 FAIL, 5 SKIP. Tool starts and CDS staged numeric checks/shared stream/multi-consumer test pass. DDE and EGS returned `No matching response` after ~3.5 seconds each, whereas IHKA/BDC/ACSM responded. This is a read timeout/no matching UDS reply, not a verified tool regression or decoded ECU failure. The optional DAC probe remains disabled. Preserve current read parameters pending repeat parked test with drivetrain awake. CI detected and corrected stale passive report version 0.1.18 in service (status correctly reported 0.1.19); no change to UDS transport logic.
+
 ## v0.1.19 — opt-in UID/DAC experimental status socket (2026-11-23)
 - **Implemented on development branch:** optional experimental secure socket may be assigned to an explicitly configured non-root UID using `BMRMODZ_SECURE_IPC_EXPERIMENT=1` plus `BMRMODZ_SECURE_IPC_TARGET_UID`. The socket remains `0600` and **status-only**; all CDS/UDS/control operations remain denied. No target UID is hardcoded, no peer credentials are claimed, and no production API is enabled.
 - Default boot and legacy diagnostic socket remain unchanged. Bad UID, failed socket ownership setup, or unavailable optional socket must not block main tool health; diagnostics keep showing production disabled. UID ownership is kernel filesystem access control, **not** proof of authenticated peers or a per-app policy. The observed app UID 12252 is not assumed stable across installations.

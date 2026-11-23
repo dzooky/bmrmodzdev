@@ -1,5 +1,7 @@
 # Data Tool Diagnostics progress
 
+- **MGU report 2026-11-23 (v0.1.21):** 22 checks, 15 PASS / 2 FAIL / 5 SKIP. DDE 3565ms and EGS 3507ms yielded `No matching response`; IHKA, BDC, ACSM, CDS numeric fields, and shared CDS stream/multi-consumer lifecycle passed. Identity/DAC results are expected SKIP, with the opt-in probe disabled. Cause of drivetrain ECU timeouts not established; repeat the same read-only test parked with the drivetrain awake before changing timing, retry behavior, or ECU profiles.
+
 ## v0.1.21 — optional secure socket DAC observation (2026-11-23)
 - **Implemented on development branch:** adds `Experimental DAC socket` (22 total read-only checks), using existing `securityCheck` metadata. Disabled or untargeted experimental sockets are SKIP. Matching 0600 owner UID plus the app's own UID is PASS for **ownership observation only**, not peer authentication; mismatched target is FAIL. Production data access remains disabled regardless.
 - Requires Data Tool 0.1.19. No automatic configuration, socket connection from the app, vehicle operations, CDS polling, or new secrets. Expected with default settings and previously observed results: 17 PASS / 0 FAIL / 5 SKIP; **not yet verified in car**.
