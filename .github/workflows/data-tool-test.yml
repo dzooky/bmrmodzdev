@@ -14,6 +14,8 @@ jobs:
       - name: Validate JavaScript and JSON
         run: |
           node --check apps/data-diagnostics/main.js
+          node --check apps/data-diagnostics/dpf-values.js
+          node --check apps/data-diagnostics/vehicle-values.js
           node --check apps/data-diagnostics/upload.js
           node --check apps/data-diagnostics/network.js
           node --check apps/data-diagnostics/network.test.js
@@ -39,6 +41,8 @@ jobs:
           node apps/data-diagnostics/client.test.js
           node apps/data-diagnostics/qr-report.test.js
           node apps/data-diagnostics/test-runner.test.js
+          node apps/data-diagnostics/dpf-values.test.js
+          node apps/data-diagnostics/vehicle-values.test.js
           node apps/data-diagnostics/translations.test.js
           node tools/data-tool/test.js
           node tools/data-tool/transport-trace.test.js

@@ -44,6 +44,40 @@ function upload(report,dataDir,options){
     id:String(item.id||''),label:String(item.label||''),status:String(item.status||''),
     durationMs:Number(item.durationMs)||0,detail:String(item.detail||'').slice(0,160)
   }));
+  // Reuse the server-accepted DDE result detail, never add a new JSON field or
+  // an unknown result id to the strict receiving endpoint.
+  const dpf=report.dpfSnapshot;
+  if(dpf&&dpf.ok===true&&['B57','B47'].includes(dpf.engine)&&dpf.values&&
+    ['soot','ash','since','average'].every(key=>Number.isFinite(dpf.values[key])&&
+      dpf.values[key]>=0&&dpf.values[key]<=10000000)){
+    const values=dpf.values;
+    const packed='DPF '+dpf.engine+' S='+values.soot+'g A='+values.ash+
+      'g D='+values.since+'km AVG='+values.average+'km';
+    const dde=safe.results.find(row=>row.id==='dde'&&row.status==='PASS');
+    if(dde)dde.detail=(packed+'; '+dde.detail).slice(0,160);
+  }
+  // Existing report row IDs and detail fields only (strict backend schema).
+  const v=report.vehicleSnapshot;
+  if(v&&typeof v==='object'){
+    const egs=safe.results.find(r=>r.id==='egs'&&r.status==='PASS');
+    if(egs&&Number.isFinite(v.transmissionOil)&&v.transmissionOil>=-40&&v.transmissionOil<=215)
+      egs.detail=('ATF='+v.transmissionOil+'C; '+egs.detail).slice(0,160);
+    const cds=safe.results.find(r=>r.id==='cdsStream'&&r.status==='PASS');
+    const c=v.engine;
+    if(cds&&c&&['oil','coolant','rpm'].every(k=>c[k]===null||
+      Number.isFinite(c[k])&&c[k]>=-50&&c[k]<=10000)){
+      const fmt=k=>c[k]===null?'NA':String(c[k]);
+      cds.detail=('CDS oil='+fmt('oil')+'C coolant='+fmt('coolant')+
+        'C rpm='+fmt('rpm')+'; '+cds.detail).slice(0,160);
+    }
+    const foot=v.footwell;
+    if(egs&&foot&&['frontLeft','frontRight','rearLeft','rearRight'].every(k=>
+      foot[k]===null||Number.isInteger(foot[k])&&foot[k]>=-40&&foot[k]<127)){
+      const fmt=k=>foot[k]===null?'NA':String(foot[k]);
+      egs.detail=(egs.detail+'; IHKA FL='+fmt('frontLeft')+' FR='+fmt('frontRight')+
+        ' RL='+fmt('rearLeft')+' RR='+fmt('rearRight')).slice(0,160);
+    }
+  }
   const body=JSON.stringify(safe);
   if(Buffer.byteLength(body)>32768)return Promise.reject(new Error('Diagnostic report exceeds 32 KB'));
   return new Promise((resolve,reject)=>{
