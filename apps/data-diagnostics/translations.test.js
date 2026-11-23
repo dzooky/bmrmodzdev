@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.32');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.33');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
