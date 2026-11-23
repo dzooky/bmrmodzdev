@@ -14,6 +14,7 @@ const STEPS=[
   {id:'ipcPeerAuth',label:'Authenticated IPC capability',request:{op:'identitySurvey'},kind:'peerAuth'},
   {id:'brokerGateway',label:'Broker and secure IPC test',request:{op:'brokerSelfTest'},kind:'brokerTest'},
   {id:'authBoundary',label:'Application authentication feasibility',request:{op:'authFeasibility'},kind:'authFeasibility'},
+  {id:'nativePeer',label:'Native peer ABI feasibility',request:{op:'nativePeerFeasibility'},kind:'nativePeer'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -130,6 +131,24 @@ function resultFor(step,reply,duration){
       ', cgroup '+(reply.cgroupReadable?'readable':'unavailable')+
       '; app authentication NO-GO':
       'Identity isolation survey unavailable; production remains OFF';
+    return Object.assign(base,{status:safe&&observed?'PASS':'FAIL',detail});
+  }
+  if(step.kind==='nativePeer'){
+    const safe=reply.ok===true&&reply.mode==='passive-native-peer-feasibility'&&
+      reply.mgubinaryInstalled===false&&reply.nativePeerAdapterLoaded===false&&
+      reply.kernelPeerProvenOnMgu===false&&reply.packageIdentityVerified===false&&
+      reply.productionAccessEnabled===false;
+    const observed=typeof reply.linuxPlatform==='boolean'&&
+      typeof reply.elfReadable==='boolean'&&
+      (reply.processArch==='arm'||reply.processArch==='arm64'||
+       reply.processArch==='x64'||reply.processArch==='ia32'||reply.processArch==='other');
+    const detail=safe&&observed?'Native MGU ABI: '+
+      reply.processArch+', ELF '+(reply.elfReadable?
+      String(reply.elfClassBits||'?')+'b '+String(reply.elfMachine||'unknown'):'not readable')+
+      ', Node '+String(reply.nodeMajor||'?')+
+      ', N-API '+String(reply.nodeNapiVersion||'none')+
+      '; Linux host proof only; app authentication NO-GO':
+      'Native ABI survey unavailable; production remains OFF';
     return Object.assign(base,{status:safe&&observed?'PASS':'FAIL',detail});
   }
   if(step.kind==='environment'){
@@ -412,6 +431,7 @@ function createRunner(send,clock){
           'Positive ECU responses are not proof of correct decoded values.',
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
           'Authentication: '+String((results.find(x=>x.id==='authBoundary')||{}).detail||'not run').slice(0,125)+'.',
+          'Native peer: '+String((results.find(x=>x.id==='nativePeer')||{}).detail||'not run').slice(0,125)+'.',
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
