@@ -64,6 +64,7 @@ const catalogs={
     "Corrected CDS temperature scaling": "Corrected CDS temperature scaling",
     "Broker and IPC self-test": "Broker and IPC self-test",
     "Broker and IPC failure diagnosis": "Broker and IPC failure diagnosis",
+    "Runtime IPC socket compatibility": "Runtime IPC socket compatibility",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",

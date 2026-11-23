@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.35 — corrected MGU runtime IPC probe (2026-11-23)
+- **In-car observation:** v0.1.34 with Data Tool 0.1.29 produced 19 PASS, 1 FAIL, 5 SKIP. Only brokerGateway failed at `local IPC listen`. The existing DDE/EGS/SOME-IP/CDS tests passed.
+- **Implemented:** new Data Tool v0.1.30 test probes an independent short-lived socket inside the established working Data Tool runtime directory instead of `/tmp`. Diagnostics v0.1.35 reports an allowlisted OS error category along with failure stage, while preserving all 25 steps, the three buttons and existing HTTPS report schema. In-car v0.1.35 remains unverified pending one parked test.
+
+
 ## v0.1.34 — report exact safe IPC subtest failure stage (2026-11-23)
 - **In-car observation:** v0.1.33 with Data Tool 0.1.28 produced 19 PASS, 1 FAIL, 5 SKIP; all core DDE/EGS/CDS checks pass. The sole FAIL is `brokerGateway`, but the previous HTTPS report only contained `Broker IPC: FAIL` without a subtest breakdown.
 - **Implemented:** classify synthetic broker failure versus local socket failure; include sanitized `failureStage` in existing `brokerGateway.detail` and existing upload `notes` without new server JSON fields or new UI buttons. The Data Tool v0.1.29 local socket probe supplies the coarse failure stage without exposing UID/PID, filesystem paths or sensitive errors. Versions updated as a pair; read-only diagnostics and all existing vehicle checks remain unchanged.

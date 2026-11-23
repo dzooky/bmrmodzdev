@@ -97,3 +97,7 @@ The diagnostic socket accepts `{ "op": "brokerSelfTest" }` **only on explicit re
 
 ### v0.1.28 — legacy Node startup compatibility
 Data Tool 0.1.27 was reported `is not healthy` by the vehicle installer. The likely startup crash was a Node-14+-only `?.` operator in `data-broker.js`, now imported by the service at boot. This release removes that syntax, avoids modern `fs.rmSync` in the manual IPC test and adds Node 12 compatibility checks to CI. No secure production access is enabled. The actual root cause and recovery in the vehicle remain pending in-car verification.
+
+
+### v0.1.30 — temporary IPC runtime socket correction
+The manual, test-only socket now binds within the proven Data Tool service runtime directory, under a short random name instead of `os.tmpdir()`. The legacy ctl.sock is never modified. Failures expose only a bounded stage and safe error category. New Diagnostics v0.1.35 reports these in existing notes. No production client data access is enabled. Vehicle retest remains necessary.
