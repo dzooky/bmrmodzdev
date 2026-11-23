@@ -37,8 +37,24 @@ async function main(){
  assert.strictEqual(calls,1);
  assert.strictEqual(body.includes('SHOULD_NEVER_LEAVE_MGU'),false);
  assert.strictEqual(JSON.parse(body).results[0].id,'dde');
+ const focused={...result,totals:{pass:17,fail:1,skip:4},results:[
+   {id:'service',label:'Service',status:'PASS',detail:'Service available'},
+   {id:'dde',label:'DDE / DPF',status:'FAIL',detail:'No matching response; shortTASU reject 3'},
+   {id:'egs',label:'EGS / transmission',status:'PASS',detail:'Matching response'},
+   {id:'ihka',label:'IHKA',status:'PASS',detail:'Successful'},
+   {id:'cdsStream',label:'CDS',status:'FAIL',detail:'Unexpected stream failure'},
+   {id:'someipConfig',label:'SOME/IP config',status:'SKIP',detail:'Expected skip'}
+ ]};
+ await upload(focused,'/unused',{https:fake});
+ const transmitted=JSON.parse(body);
+ assert.strictEqual(transmitted.totals.pass,17);
+ assert.strictEqual(transmitted.totals.fail,1);
+ assert.deepStrictEqual(transmitted.results.map(x=>x.id),['dde','egs','cdsStream']);
+ assert.ok(transmitted.results[0].detail.includes('shortTASU reject 3'));
+ assert.strictEqual(transmitted.results.some(x=>x.id==='ihka'||x.id==='service'),false);
+
  await assert.rejects(upload({},'/unused',{https:fake}),/Invalid diagnostic report/);
- assert.strictEqual(calls,1);
+ assert.strictEqual(calls,2);
  // Simulate common hosting error pages and a response larger than the 4 KB cap.
  async function rejectReply(status,contentType,payload,pattern){
    const backend={request(options,callback){
