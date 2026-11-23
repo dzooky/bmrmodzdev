@@ -21,6 +21,9 @@ async function run(){
   const result=await createRunner(sender).run(()=>updates++);
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
+  assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
+    ['ihka','bdc','acsm','dde','egs'],
+    'Use existing responsive ECUs before drivetrain: no added requests');
   assert.ok(result.someipTimings&&Number.isSafeInteger(result.someipTimings.environmentMs));
   assert.strictEqual(result.someipTimings.ddeMs,undefined);
   assert.deepStrictEqual(someipTimings([{id:'someipLoad',status:'PASS',durationMs:236},
