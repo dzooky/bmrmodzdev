@@ -79,8 +79,15 @@ async function run(){
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='ddeIdentity').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='ddeColdIdentity').status,'PASS');
+  assert.deepStrictEqual(result.ecuReads,{pass:7,fail:0,skip:0,total:7});
+  const rejectedIdentity=resultFor(STEPS.find(s=>s.id==='ddeColdIdentity'),
+    {ok:false,error:'TASU rejected request',tasuStatus:0x21,trace:{attempts:3}},0);
+  assert.strictEqual(rejectedIdentity.status,'FAIL');
+  assert.ok(rejectedIdentity.detail.includes('TASU status 0x21'));
+  assert.ok(rejectedIdentity.detail.includes('attempts 3'));
+  assert.strictEqual(STEPS.find(s=>s.id==='ddeColdIdentity').request.op,'readTrace');
   assert.strictEqual(STEPS.find(x=>x.id==='ddeColdIdentity').request.did,0xF150);
-  assert.deepStrictEqual(STEPS.find(s=>s.id==='ddeIdentity').request,{op:'read',ecu:0x12,did:0xF150});
+  assert.deepStrictEqual(STEPS.find(s=>s.id==='ddeIdentity').request,{op:'readTrace',ecu:0x12,did:0xF150});
   assert.strictEqual(STEPS.findIndex(s=>s.id==='ddeIdentity'),STEPS.findIndex(s=>s.id==='dde')+1);
   assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
   assert.strictEqual(result.results.find(r=>r.id==='egsIdentity').status,'SKIP');
@@ -111,7 +118,7 @@ async function run(){
     shortLengthConsistent:2,shortLengthTruncated:1,shortLength0to4:0,shortLength5to8:3}]).includes('shortTASU reject 2, unknown 1'));
 
 
-  assert.ok(commands.filter(x=>x.op==='readTrace').length===2);
+  assert.ok(commands.filter(x=>x.op==='readTrace').length===4);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
   let snapshots=0,mockStarts=0;
