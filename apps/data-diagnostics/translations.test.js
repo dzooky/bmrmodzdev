@@ -35,6 +35,7 @@ assert.ok(t('en','CDS multi-consumer test'));
 assert.ok(t('en','Secure IPC audit'));
 assert.ok(t('en','Data Tool startup recovery'));
 assert.ok(t('en','Process identity survey'));
+assert.ok(t('en','Drivetrain ECU retry test'));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
 assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');

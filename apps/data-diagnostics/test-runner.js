@@ -153,6 +153,19 @@ function resultFor(step,reply,duration){
 function failure(step,err,duration){return {id:step.id,label:step.label,status:'FAIL',durationMs:duration,detail:cleanError(err&&err.message||err)};}
 function skipped(step,reason){return {id:step.id,label:step.label,status:'SKIP',durationMs:0,detail:reason};}
 function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+// Diagnostic-only bounded retry. Never retry negative UDS, malformed data or
+// transport errors; keep the tool's ECU allowlist and serialization unchanged.
+const DRIVE_READ_ATTEMPTS=3, DRIVE_READ_GAP_MS=600;
+async function drivetrainRead(request,step){
+  let reply,attempts=0;
+  for(let i=1;i<=DRIVE_READ_ATTEMPTS;i++){
+    attempts=i;
+    reply=await request(step.request,{timeoutMs:15000});
+    if(!reply||reply.ok!==false||reply.error!=='No matching response'||i===DRIVE_READ_ATTEMPTS)break;
+    await delay(DRIVE_READ_GAP_MS);
+  }
+  return {reply,attempts};
+}
 async function testEngine(request){
   const consumer='diagnostics';
   let initial=null,second=null,third=null;
@@ -233,10 +246,13 @@ function createRunner(send,clock){
         const start=now();
         let result;
         try{
-          const reply=step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
+          const drivetrain=step.id==='dde'||step.id==='egs';
+          const readResult=drivetrain?await drivetrainRead(request,step):null;
+          const reply=drivetrain?readResult.reply:step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
+          if(drivetrain)result.detail=cleanError(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS);
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
         if(step.id==='service')serviceAvailable=result.status==='PASS';
@@ -259,4 +275,4 @@ function createRunner(send,clock){
   }
   return {run,isRunning:()=>active,steps:STEPS};
 }
-module.exports={createRunner,STEPS,resultFor};
+module.exports={createRunner,STEPS,resultFor,drivetrainRead};

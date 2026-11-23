@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert');
-const {createRunner,STEPS}=require('./test-runner');
+const {createRunner,STEPS,drivetrainRead,resultFor}=require('./test-runner');
 async function run(){
   let commands=[];
   const sender=async req=>{
@@ -120,6 +120,33 @@ async function run(){
         dacTargetUid:ownIdentity.uid+1,ownerUid:ownIdentity.uid+1,dacOwnershipReady:true}},0);
     assert.strictEqual(mismatch.status,'FAIL');
   }
+  // DDE/EGS retries are diagnostic-only, bounded and timeout-specific.
+  const ddeStep=STEPS.find(x=>x.id==='dde');
+  let retryCount=0;
+  const recovered=await drivetrainRead(async req=>{
+    assert.deepStrictEqual(req,ddeStep.request);
+    return ++retryCount<3?{ok:false,error:'No matching response'}:
+      {ok:true,uds:[0x62,req.did>>8,req.did&255]};
+  },ddeStep);
+  assert.strictEqual(recovered.attempts,3);
+  assert.strictEqual(retryCount,3);
+  assert.strictEqual(resultFor(ddeStep,recovered.reply,0).status,'PASS');
+  let exhaustedCount=0;
+  const exhausted=await drivetrainRead(async()=>{exhaustedCount++;return {ok:false,error:'No matching response'};},ddeStep);
+  assert.strictEqual(exhausted.attempts,3);
+  assert.strictEqual(exhaustedCount,3);
+  assert.strictEqual(resultFor(ddeStep,exhausted.reply,0).status,'FAIL');
+  for(const unexpectedReply of [{ok:false,error:'UDS negative response',nrc:0x31},
+    {ok:false,error:'Unexpected response'}, {ok:true,uds:[0x62,0,0]}]){
+    let count=0;
+    const noRetry=await drivetrainRead(async()=>{count++;return unexpectedReply;},ddeStep);
+    assert.strictEqual(noRetry.attempts,1);
+    assert.strictEqual(count,1);
+  }
+  let transportCalls=0;
+  await assert.rejects(drivetrainRead(async()=>{transportCalls++;throw Error('Socket unavailable');},ddeStep),/Socket unavailable/);
+  assert.strictEqual(transportCalls,1);
+  assert.ok(staged.results.find(x=>x.id==='dde').detail.includes('attempt 1/3'));
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
   assert.strictEqual(unavailable.results.slice(1).every(r=>r.status==='SKIP'),true);

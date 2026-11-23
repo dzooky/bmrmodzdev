@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.22 — bounded drivetrain ECU read-only retry diagnostics (2026-11-23)
+- **Implemented on feature branch:** in explicit manual Diagnostics only, DDE (0x12 / 0x44BB) and EGS (0x18 / 0x6000) get up to **three sequential read attempts**, with 600 ms pause between attempts, but ONLY on exact `No matching response` results. The final row records `attempt N/3`; other ECU checks remain single-shot. No change to Data Tool transport, ECU allowlist, UDS DID, timeout, CDS streaming, IPC or service startup. There is no background polling or retry of negative UDS responses, malformed positive replies or socket/transport errors.
+- **Reason:** on-car 0.1.21 report showed DDE and EGS 3.5 s no-response failures while other reads passed; user reports that repeated manual runs eventually make DDE/EGS respond. The test measures how many attempts are needed without claiming ECU wake-up as proven cause.
+- **Automated:** added recovery-after-two-timeouts, bounded-exhaustion, negative-response, malformed-success and transport-error tests, plus report attempt text and version/release-note coverage. CI must independently confirm results. **In-car:** 0.1.22 not yet tested. Suggested: run once parked with drivetrain awake and send sanitized report. A PASS on retry is communication evidence only, not proof of correctly decoded sensor values.
+
+
 - **MGU report 2026-11-23 (v0.1.21):** 22 checks, 15 PASS / 2 FAIL / 5 SKIP. DDE 3565ms and EGS 3507ms yielded `No matching response`; IHKA, BDC, ACSM, CDS numeric fields, and shared CDS stream/multi-consumer lifecycle passed. Identity/DAC results are expected SKIP, with the opt-in probe disabled. Cause of drivetrain ECU timeouts not established; repeat the same read-only test parked with the drivetrain awake before changing timing, retry behavior, or ECU profiles.
 
 ## v0.1.21 — optional secure socket DAC observation (2026-11-23)
