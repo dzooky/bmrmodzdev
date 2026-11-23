@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.34 — report exact safe IPC subtest failure stage (2026-11-23)
+- **In-car observation:** v0.1.33 with Data Tool 0.1.28 produced 19 PASS, 1 FAIL, 5 SKIP; all core DDE/EGS/CDS checks pass. The sole FAIL is `brokerGateway`, but the previous HTTPS report only contained `Broker IPC: FAIL` without a subtest breakdown.
+- **Implemented:** classify synthetic broker failure versus local socket failure; include sanitized `failureStage` in existing `brokerGateway.detail` and existing upload `notes` without new server JSON fields or new UI buttons. The Data Tool v0.1.29 local socket probe supplies the coarse failure stage without exposing UID/PID, filesystem paths or sensitive errors. Versions updated as a pair; read-only diagnostics and all existing vehicle checks remain unchanged.
+- **Automated:** CI pending at change creation. **In-car v0.1.34 unverified.** Next: parked one Run, Send report; use the stage to apply a targeted fix rather than guessing.
+
+
 ## v0.1.33 — integrated safe broker and local IPC diagnostic (2026-11-23)
 - **Implemented:** existing manual Run test adds `brokerGateway` as step 25, calling Data Tool v0.1.27 `brokerSelfTest`. The tool performs a synthetic per-app authorization/concurrency check and a local-only, temporary Unix socket deny/peer capability test. No real vehicle reads originate from this step and no production secure data gateway is enabled.
 - **UI:** keep exactly three MGU buttons: phase-aware Run, Generate CDS test, Send report. Results displayed in two columns with 13/12 shorter rows to fit 520px; no additional buttons or screens. Old before/after reports remain readable. A sanitized summary is included in the existing `notes` array accepted by the upload API, not in a new result row or top-level property.
