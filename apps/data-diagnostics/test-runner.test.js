@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert');
-const {createRunner,STEPS,drivetrainRead}=require('./test-runner');
+const {createRunner,STEPS,drivetrainRead,resultFor}=require('./test-runner');
 async function run(){
   let commands=[];
   const sender=async req=>{
