@@ -38,7 +38,12 @@ const catalogs={
     "MGU internet access": "MGU internet access",
     "HTTP response diagnostics": "HTTP response diagnostics",
     "Corrected upload endpoint": "Corrected upload endpoint",
-    "SOME/IP setup diagnostics": "SOME/IP setup diagnostics"
+    "SOME/IP setup diagnostics": "SOME/IP setup diagnostics",
+    "Generate CDS test": "Generate CDS test",
+    "CDS generation test": "CDS generation test",
+    "Generating CDS": "Generating CDS",
+    "Generation succeeded": "Generation succeeded",
+    "Generation failed": "Generation failed"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
