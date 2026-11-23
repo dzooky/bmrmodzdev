@@ -56,7 +56,10 @@ mgu.run({
      progress=Math.floor(100*completed/total);lastResult=item;
     },phase);
     report=output;page=2;
-    if(phase==='before'){before=output;after=null;}else after=output;
+    if(phase==='before'){
+     before=output;after=null;
+     try{fs.unlinkSync(phaseFile('after'));}catch(error){if(error.code!=='ENOENT')log.warn('After snapshot cleanup: '+error.message);}
+    }else after=output;
     nextPhase=phase==='before'?'after':'before';
     refreshButtons();
     try{
