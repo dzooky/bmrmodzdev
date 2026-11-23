@@ -1,5 +1,13 @@
 # Data Tool Diagnostics progress
 
+## v0.1.6 — bounded HTTP response diagnostics (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** manual report upload failure now includes HTTP status and Content-Type, along with a short sanitized error preview (or JSON error) for the public HTTPS endpoint. The 4 KB server response cap remains; the request is still manual and the sanitized payload limit stays 32 KB.
+- **User-observed in-car with v0.1.5:** upload produced `Oversized server reply`, indicating an HTTP response body exceeding 4 KB reached the client; no confirmed successful report receipt. A website GET in the user's browser returned the expected `{"ok":false,"error":"Method not allowed"}`, which does not validate the POST response.
+- **Known independent blocker:** SOME/IP config `No such file or directory` remains unresolved and is unaffected by network/upload changes. Do not fake a CDS config to mark it PASS.
+- **Automated:** regression coverage added for HTTP 403 JSON, HTTP 404 HTML and oversized HTML; test regex syntax corrected. GitHub CI status must be checked against latest commit. **In-car:** v0.1.6 not yet verified.
+- **AGENTS.md:** test/experimental/diagnostic applications are exempt from mandatory What's New; normal production apps retain it. This app kept the v0.1.6 entry already included in the authorized release.
+
+
 ## v0.1.5 — MGU internet access declaration (2026-11-23)
 - **Implemented in dzooky/bmrmodzdev main:** matched working Spritmonitor's `app.json` by adding `mguInternet: true` to the Data Tool Diagnostics app. MGU App Kit `kit/tools/build.py` passes this flag through to its generated application `package.json`. This flag was missing in v0.1.4 and is a likely cause of `ENOTFOUND`/`ENETUNREACH` from the OAP process, but the diagnosis is not yet vehicle-confirmed.
 - Updated version, English What's New, CI regression assertion and documentation. Preserved the explicit HTTPS `https://dzooky.eu/brmmodz.php` upload with its existing uplink-DNS lookup, and all read-only tests; Data Tool 0.1.5 is unchanged.
