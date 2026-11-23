@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.38 — native peer ABI read-only checkpoint (2026-11-23)
+- **Vehicle baseline:** v0.1.37 / Data Tool 0.1.32: 21 PASS, 0 FAIL, 5 SKIP; native Node peer API unavailable, cgroup accessible, no app identity verified.
+- **Implemented:** additional `nativePeer` test (#27) requests Tool v0.1.33 `nativePeerFeasibility`, displays sanitized architecture/ELF/Node/N-API summary and includes it in existing report `notes`. No raw /proc/ELF contents, PID/UID, identifiers or filenames leave the tool. Three MGU buttons, existing DDE/EGS/CDS tests and server upload schema unchanged; the Results view uses two columns of 14/13 rows.
+- **GO/NO-GO:** PASS means passive ABI data were collected while production access remained OFF; it does **not** indicate that a native SO_PEERCRED helper is deployed or package identity proven. The Linux-host native experiment is CI-only. **In-car v0.1.38 unverified** until one Run + Send report.
+
+
 ## v0.1.37 — explicit read-only authentication boundary survey (2026-11-23)
 - **Baseline real-car:** Tool 0.1.31 / Diagnostics 0.1.36 20 PASS, 0 FAIL, 5 SKIP; native Node peer API unavailable, application authentication NO-GO.
 - **Implemented:** one `authBoundary` check added to the existing manual Run sequence (26 checks), reading Tool 0.1.32 `authFeasibility`. Report includes booleans and sanitized textual readiness in the existing `notes` array (no new upload result IDs or fields); original three hardware buttons, before/after snapshots and existing vehicle tests preserved. A PASS for the survey only means observability and fail-closed state were checked; it **does not** mean an app has been authenticated. Without trusted per-app identity, OSA/DPF/CC cannot consume broker data.
