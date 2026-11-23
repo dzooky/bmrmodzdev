@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.12 — passive CDS ACL audit reporting (2026-11-23)
+- **Implemented on feature branch:** adds one `CDS ACL audit` step (14 total) to manually run diagnostics, showing staged config/ACL structural validity, sanitized counts and running UID. A PASS means staged files pass structural checks **only**, never ACL registration. Keeps three buttons, existing UDS tests, HTTPS Send report and CDS sampling SKIPs. Requires Data Tool v0.1.10.
+- **Verified evidence from prior in-car report:** Data Tool v0.1.9 generator produced staged CDS+ACL, native binding loaded, five ECU UDS response echoes present; active config missing and actual CDS values unavailable.
+- **Automated:** runner/translation regressions and workflow; CI to verify. **v0.1.12 NOT YET VERIFIED IN CAR.**
+
+
 ## v0.1.11 — focused generator/UDS diagnostics (2026-11-23)
 - **Implemented in dzooky/bmrmodzdev main:** only Run diagnostics, Generate CDS test, and Send report are declared and bound; removed Next/Previous actions while tab switching stays. Removed network interfaces, route and TCP tests from the run and uploaded JSON (16 -> 13 checks). Manual HTTPS report upload remains unchanged.
 - **Dependency:** Data Tool 0.1.8; its `someipGenerated` status retains the original generator failure for diagnostic report instead of losing it behind a one-attempt message. No automatic activation of CDS or ACL changes.
