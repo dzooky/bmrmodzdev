@@ -105,9 +105,9 @@ jobs:
         run: |
           cc -nostdlib -static -Wl,--build-id=none -Wl,-z,noexecstack -Wl,-z,relro -s -o /tmp/bmrmodz-native-peer/peercred-static tools/data-tool/native/peercred-static-x86_64.S
           node -e "const fs=require('fs'),crypto=require('crypto');const a=require('./tools/data-tool/native-peer-runner').unpack(),b=fs.readFileSync('/tmp/bmrmodz-native-peer/peercred-static');if(!a.equals(b))throw Error('Bundled ELF mismatches source')"
-      - name: Build and verify static x86_64 process boundary ELF
+      - name: Build and behavior-test static x86_64 process boundary ELF
         run: |
           cc -Os -nostdlib -static -fno-stack-protector -fno-asynchronous-unwind-tables -Wl,--build-id=none -Wl,-z,noexecstack -s -o /tmp/bmrmodz-native-peer/process-boundary tools/data-tool/native/process-boundary-x86_64.c
-          node -e "const fs=require('fs');const a=require('./tools/data-tool/native-process-boundary').unpack(),b=fs.readFileSync('/tmp/bmrmodz-native-peer/process-boundary');if(!a.equals(b))throw Error('Process boundary ELF does not match source')"
+          node tools/data-tool/native/process-boundary-source.test.js /tmp/bmrmodz-native-peer/process-boundary
       - name: Offline MGU preview build
         run: python3 kit/tools/build.py --preview-only data-diagnostics
