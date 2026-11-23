@@ -14,6 +14,7 @@ const ccFeasibility=require('./cc-feasibility');
 const {createRunner}=require('./signal-isolate');
 const {createEngine}=require('./cds-engine');
 const {createEndpoint}=require('./secure-ipc');
+const identitySurvey=require('./identity-survey');
 const SOCKET=process.env.BMRMODZ_DATA_SOCKET||'/run/bmrmodz-data-tool/ctl.sock';
 const GAP_MS=200, CACHE_MS=500;
 function serve(factory,socketPath,options){
@@ -80,8 +81,9 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.16',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.17',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
+          else if(req.op==='identitySurvey')reply=identitySurvey.inspectService(socket);
           else if(req.op==='securityCheck')reply={ok:true,secureSocket:secureEndpoint.inspect(),
             peerIdentityVerified:false,productionAccessEnabled:false,
             legacyDiagnosticSocket:true};
