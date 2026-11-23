@@ -35,9 +35,12 @@ function engineCds(reply){
   const out={};
   for(const key of ['oil','coolant','rpm']){
     const v=reply.values[key];
-    out[key]=reply.fields[key]&&reply.fields[key].valid===true&&
-      typeof v==='number'&&Number.isFinite(v)&&v>=-50&&v<=10000?
-        Math.round(v*100)/100:null;
+    // Match OSA's kit/runtime/car.js CDS scaling: temperature raw - 48;
+    // engine RPM raw * 0.25. Never interpret raw signal bytes as units.
+    const valid=reply.fields[key]&&reply.fields[key].valid===true&&
+      Number.isInteger(v)&&v>=0&&v<=65535&&
+      (key==='rpm'?v!==65535:v!==255);
+    out[key]=valid?(key==='rpm'?v*0.25:v-48):null;
   }
   return out;
 }
