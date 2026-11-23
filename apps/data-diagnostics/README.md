@@ -31,3 +31,6 @@ Local validation only: PHP lint succeeded, test POST returned HTTP 201 and direc
 
 ## Interpretation
 A PASS means a matching response was seen, not that the decoded vehicle value is correct. The report contains no raw UDS bytes, VIN, VO/FA, GPS coordinates or secrets. Actual vehicle operation and optical display require explicit in-car confirmation. Tests should run only while stationary; driving concurrency tests are future work.
+
+## Manual CDS generator experiment
+Press **Generate CDS test** once to request the tool's fixed-path, staging-only BMW generator test (no ACL registration). Then press **Run diagnostics** and **Send report**. The new `CDS generator test` row confirms whether staged CDS JSON and ACL files exist; ordinary CDS sampling remains unavailable until a separate reviewed authorization/configuration step. No existing applications are modified.
