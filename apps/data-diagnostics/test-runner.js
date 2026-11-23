@@ -275,4 +275,4 @@ function createRunner(send,clock){
   }
   return {run,isRunning:()=>active,steps:STEPS};
 }
-module.exports={createRunner,STEPS,resultFor};
+module.exports={createRunner,STEPS,resultFor,drivetrainRead};
