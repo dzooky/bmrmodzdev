@@ -65,3 +65,7 @@ The isolated staged CDS worker reports a usable sample only when engine coolant 
 ### v0.1.13 — experimental CDS Data Engine
 
 Explicit `cdsDemand` for consumer `diagnostics` starts one shared, isolated, read-only CDS stream using the existing generator-test configuration. `cdsSnapshot` reports fresh oil, coolant and RPM values plus per-field age, with 2-second freshness validity. `cdsRelease` or a 3-second unrenewed lease stops it. A separate worker reads both CDS fields with one SOME/IP proxy. No auto-start, unattended polling, ECU controls, system ACL registration or active config installation. Production apps are not yet authorized consumers. No continuous in-car verification yet.
+
+### v0.1.14 — test-only Data Manifest and multi-consumer CDS leases
+
+`data-manifest.json` defines the three decoded CDS fields and explicitly allowlisted diagnostic consumers `diagnostics` and `diagnostics-secondary`, with separate 3-second renewable demand leases. One CDS proxy is shared while any consumer remains leased; per-consumer snapshots are restricted to manifest fields and cease exposing valid data after release/expiry. This is a **test harness**, not user/production app authorization: the local Unix socket does not authenticate application identities yet. Do not add DPF/OSA/CC consumer IDs until security and lifecycle policy are reviewed.
