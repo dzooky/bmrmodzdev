@@ -109,7 +109,7 @@ class HmiTransport {
         }
       }
     }
-    if(rejected)this.pendingRead.consume({error:'TASU rejected request'});
+    if(rejected)this.pendingRead.consume({error:'TASU rejected request',tasuStatus:short.statusCode});
   }
   failPending(e){if(this.pendingLine)this.pendingLine.reject(e);if(this.pendingRead)this.pendingRead.reject(e);}
   line(s,timeout){
@@ -142,7 +142,14 @@ class HmiTransport {
       pending={
         reject:e=>finish(reject,e),trace,
         consume:response=>{
-          if(response.error){if(trace)trace.negativeEvents++;return finish(reject,new Error(trace?(response.error==='TASU rejected request'?'TASU rejected request':'TASU rejected frame'):response.error));}
+          if(response.error){
+            if(trace)trace.negativeEvents++;
+            const err=new Error(trace?(response.error==='TASU rejected request'?'TASU rejected request':'TASU rejected frame'):response.error);
+            // TASU status is not a UDS NRC. Preserve its numeric identity
+            // for a strictly bounded read-only 0x21 recovery in the service.
+            if(Number.isInteger(response.tasuStatus))err.tasuStatus=response.tasuStatus;
+            return finish(reject,err);
+          }
           if(response.ecu!==ecu){if(trace)trace.otherEcuEvents++;return;}
           if(trace)trace.matchedEcuEvents++;
           const u=response.uds;
