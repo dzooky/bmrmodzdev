@@ -25,6 +25,15 @@ async function run(){
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='brokerGateway').status,'PASS');
+  const brokerStep=STEPS.find(x=>x.id==='brokerGateway');
+  const brokenIpc=resultFor(brokerStep,{ok:true,mode:'explicit-test-only',
+    productionAccessEnabled:false,applicationIdentityVerified:false,
+    broker:{ok:true,vehicleReads:0,productionAccessEnabled:false,sharedUds:true,
+      sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true},
+    ipc:{ok:false,failureStage:'socket-permissions',productionAccessEnabled:false}},0);
+  assert.strictEqual(brokenIpc.status,'FAIL');
+  assert.ok(brokenIpc.detail.includes('local IPC socket-permissions'));
+  assert.ok(!brokenIpc.detail.includes('/run/'));
   assert.strictEqual(STEPS.length,25);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),

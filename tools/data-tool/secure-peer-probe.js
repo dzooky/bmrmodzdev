@@ -21,18 +21,22 @@ function request(socket,body){
 async function run(){
  const result={ok:false,mode:'local-loopback-only',socketOwnerOnly:false,
   statusReceived:false,unauthorizedDenied:false,kernelCredentialsAvailable:false,
-  kernelCredentialsObserved:false,applicationIdentityVerified:false,productionAccessEnabled:false};
- let dir=null,endpoint=null;
+  kernelCredentialsObserved:false,applicationIdentityVerified:false,productionAccessEnabled:false,
+  failureStage:'not-run'};
+ let dir=null,endpoint=null,stage='create-temp-directory';
  try{
   dir=fs.mkdtempSync(path.join(os.tmpdir(),'bmrmodz-peer-probe-'));
   const socket=path.join(dir,'secure.sock');
+  stage='listen';
   endpoint=createEndpoint(socket);
   await new Promise((resolve,reject)=>{
    const timeout=setTimeout(()=>reject(Error('Socket setup timeout')),2000);
    endpoint.server.once('listening',()=>{clearTimeout(timeout);setImmediate(resolve);});
    endpoint.server.once('error',e=>{clearTimeout(timeout);reject(e);});
   });
+  stage='security-status';
   const status=await request(socket,{op:'securityStatus',consumer:'dpf',uid:0});
+  stage='unauthorized-request';
   const denied=await request(socket,{op:'getData',fields:['dpf.soot'],consumer:'dpf',uid:0});
   result.socketOwnerOnly=!!(status.socket&&status.socket.present===true&&
     status.socket.mode==='0600'&&status.socket.ownerOnly===true);
@@ -42,7 +46,10 @@ async function run(){
   result.kernelCredentialsAvailable=!!(status.peer&&status.peer.kernelCredentialsAvailable===true);
   result.kernelCredentialsObserved=!!(status.peer&&status.peer.kernelCredentialsObserved===true);
   result.ok=result.socketOwnerOnly&&result.statusReceived&&result.unauthorizedDenied;
- }catch(_){/* Always return bounded booleans; socket creation may be unsupported. */}
+  result.failureStage=!result.statusReceived?'security-status':
+    !result.socketOwnerOnly?'socket-permissions':
+    !result.unauthorizedDenied?'unauthorized-request':'none';
+ }catch(_){result.failureStage=stage; /* Bounded stage only; never expose filesystem or OS errors. */}
  finally{
   if(endpoint){try{endpoint.close();}catch(_){}}
   if(dir){

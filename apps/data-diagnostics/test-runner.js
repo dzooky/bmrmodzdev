@@ -110,7 +110,9 @@ function resultFor(step,reply,duration){
       'Synthetic broker PASS; local IPC denies unauthorized; peer API '+
       (ipc.kernelCredentialsAvailable?'present':'unavailable')+
       '; application identity unverified; production OFF':
-      'Broker/IPC self-test incomplete; production OFF';
+      'Broker/IPC self-test incomplete; '+
+      (!b.ok?'synthetic broker failed':!ipc.ok?'local IPC '+String(ipc.failureStage||'unknown').slice(0,35):'policy mismatch')+
+      '; production OFF';
     return Object.assign(base,{status:good?'PASS':'FAIL',detail});
   }
   if(step.kind==='environment'){
@@ -393,7 +395,7 @@ function createRunner(send,clock){
           'Positive ECU responses are not proof of correct decoded values.',
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
-            ' (synthetic broker plus local socket only; production authorization not verified).',
+            ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
           'Staged CDS sampling does not register ACLs or prove installed system permissions.',
           'Only the tester can confirm installation and results in a real car.']};
