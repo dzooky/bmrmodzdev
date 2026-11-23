@@ -98,9 +98,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+24,14,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.6 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.7 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.6 — '+word('HTTP response diagnostics'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.7 — '+word('Corrected upload endpoint'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -122,7 +122,9 @@ mgu.run({
    label(cv,word('Stay parked during the test'),60,474,17,theme.warn);
   }
   function drawResults(cv,theme){
-   header(cv,theme,word('Results'),report?report.finishedAt.slice(0,19).replace('T',' '):word('No report yet'));
+   const totals=report&&report.totals;
+   const totalsText=totals?word('PASS')+': '+totals.pass+'   '+word('FAIL')+': '+totals.fail+'   '+word('SKIP')+': '+totals.skip:word('No report yet');
+   header(cv,theme,word('Results'),totalsText);
    if(!report){
     G.panel(cv,theme,24,115,1552,380,null);
     label(cv,running?word('Running'):word('No report yet'),800,282,34,theme.dim,{align:'center'});
@@ -135,11 +137,10 @@ mgu.run({
     G.panel(cv,theme,x,115,w,380,null);
     column.forEach((item,i)=>resultLine(cv,theme,item,x+24,151+i*48,w-48));
    });
-   const totals=report.totals;
-   label(cv,word('PASS')+': '+totals.pass+'   '+word('FAIL')+': '+totals.fail+'   '+
-      word('SKIP')+': '+totals.skip,800,506,18,theme.text,{align:'center'});
-   if(exportState)label(cv,exportState,800,479,16,theme.warn,{align:'center'});
-   if(sendStatus)label(cv,sendStatus,800,460,16,theme.text,{align:'center'});
+   // Dedicated footer line outside both results panels (panels end at y=495).
+   // Show one message at a time; never paint over the final result row.
+   const footer=sendStatus||exportState;
+   if(footer)label(cv,footer,800,506,16,sendStatus?theme.text:theme.warn,{align:'center'});
   }
   function drawShare(cv,theme){
    header(cv,theme,word('Share'),word('Read-only'));
