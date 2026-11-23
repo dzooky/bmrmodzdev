@@ -40,6 +40,8 @@ function createEndpoint(socketPath,options){
   // An explicit numeric UID restricts the optional, status-only test socket via
   // kernel filesystem DAC. It does NOT authenticate peers or unlock data APIs.
   const targetUid=opts.targetUid;
+  // An injected test gateway is never installed by the production service.
+  const gateway=opts.gateway&&typeof opts.gateway.dispatch==='function'?opts.gateway:null;
   if(targetUid!==undefined&&(!Number.isSafeInteger(targetUid)||targetUid<=0))
     throw Error('Invalid experimental DAC target UID');
   io.mkdirSync(path.dirname(socket),{recursive:true});
@@ -48,7 +50,7 @@ function createEndpoint(socketPath,options){
     client.setEncoding('utf8');
     let bytes=0,responded=false,buffer='';
     client.setTimeout(3000,()=>client.destroy());
-    client.on('data',chunk=>{
+    client.on('data',async chunk=>{
       if(responded)return;
       bytes+=Buffer.byteLength(chunk,'utf8');
       buffer+=chunk;
@@ -58,12 +60,17 @@ function createEndpoint(socketPath,options){
       responded=true;
       let payload;
       try{payload=JSON.parse(buffer.slice(0,newline));}catch(_){payload=null;}
-      const answer=payload&&payload.op==='securityStatus'
-        ? {ok:true,mode:'diagnostic-only',peerIdentityVerified:false,
+      let answer;
+      if(payload&&payload.op==='securityStatus'){
+        answer={ok:true,mode:'diagnostic-only',peerIdentityVerified:false,
           productionAccessEnabled:false,consumerAuthentication:'disabled',
-          peer:observePeer(client,targetUid),socket:describe(socket,io,targetUid)}
-        : {ok:false,error:'Secure data API unavailable until peer identity is verified'};
-      client.end(JSON.stringify(answer)+'\n');
+          peer:observePeer(client,targetUid),socket:describe(socket,io,targetUid)};
+      }else if(payload&&payload.op==='getData'&&gateway){
+        // Only test harnesses inject this gateway. Production never supplies it.
+        try{answer=await gateway.dispatch(client,payload);}
+        catch(_){answer={ok:false,error:'Gateway request failed'};}
+      }else answer={ok:false,error:'Secure data API unavailable until peer identity is verified'};
+      if(!client.destroyed)client.end(JSON.stringify(answer)+'\n');
     });
   });
   // Experimental listener errors must never become unhandled exceptions in Data Tool.

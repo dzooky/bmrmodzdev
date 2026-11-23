@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.24');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.27');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -44,6 +44,7 @@ assert.ok(t('en','Immediate TASU rejection handling'));
 assert.ok(t('en','Established ECU-first diagnostics'));
 assert.ok(t('en','Visible report upload action'));
 assert.ok(t('en','Corrected CDS temperature scaling'));
+assert.ok(t('en','Broker and IPC self-test'));
 for(const key of ['Run before sleep','Run after wake','DPF comparison','Vehicle comparison','Before sleep','After wake'])assert.ok(t('en',key));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
 assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');

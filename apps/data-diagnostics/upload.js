@@ -39,7 +39,7 @@ function upload(report,dataDir,options){
   // All 22 checks still run and remain in the local report.
   safe.results=report.results.filter(item=>item&&(
     item.id==='dde'||item.id==='egs'||item.id==='someipEnvironment'||
-    item.id==='someipLoad'||item.id==='cdsStream'||item.status==='FAIL'
+    item.id==='someipLoad'||item.id==='cdsStream'||(item.status==='FAIL'&&item.id!=='brokerGateway')
   )).map(item=>({
     id:String(item.id||''),label:String(item.label||''),status:String(item.status||''),
     durationMs:Number(item.durationMs)||0,detail:String(item.detail||'').slice(0,160)

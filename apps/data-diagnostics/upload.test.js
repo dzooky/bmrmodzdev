@@ -85,12 +85,22 @@ async function main(){
  assert.ok(vehiclePayload.results.find(x=>x.id==='cdsStream').detail.includes('CDS oil=90C'));
  assert.strictEqual(Object.hasOwn(vehiclePayload,'vehicleSnapshot'),false);
  assert.strictEqual(body.includes('PRIVATE_TEST_MARKER'),false);
+ const gateway={...result,
+  notes:['Broker IPC: PASS (synthetic broker plus local socket only; production authorization not verified).'],
+  results:[{id:'brokerGateway',label:'Broker test',status:'FAIL',detail:'Test incomplete'},
+   {id:'dde',label:'DDE',status:'PASS',detail:'Read succeeded'}]};
+ await upload(gateway,'/unused',{https:fake});
+ const gatewayPayload=JSON.parse(body);
+ assert.strictEqual(gatewayPayload.notes.length,1);
+ assert.strictEqual(gatewayPayload.notes[0].startsWith('Broker IPC: PASS'),true);
+ assert.strictEqual(gatewayPayload.results.some(x=>x.id==='brokerGateway'),false,
+   'Strict upload backend must not receive a new test row');
  const malicious={...before,dpfSnapshot:{ok:true,engine:'B57',
   values:{soot:'12;123',ash:1,since:100,average:200}}};
  await upload(malicious,'/unused',{https:fake});
  assert.strictEqual(JSON.parse(body).results[0].detail,'Matching UDS response received');
  await assert.rejects(upload({},'/unused',{https:fake}),/Invalid diagnostic report/);
- assert.strictEqual(calls,5);
+ assert.strictEqual(calls,6);
  // Simulate common hosting error pages and a response larger than the 4 KB cap.
  async function rejectReply(status,contentType,payload,pattern){
    const backend={request(options,callback){
