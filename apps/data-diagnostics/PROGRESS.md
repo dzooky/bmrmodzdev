@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.32 — correct CDS temperature and RPM conversion (2026-11-23)
+- **In-car issue:** v0.1.31 before-sleep report passed 19/24 checks (19 PASS, 0 FAIL, 5 SKIP), but transmitted CDS raw oil 58 and coolant 64 as °C. Production OSA `kit/runtime/car.js` uses temperature raw minus 48 °C, and RPM raw times 0.25. Thus the same captured raw values correspond to 10 °C oil and 16 °C coolant; RPM was zero so unaffected in that report. These are corrected interpretations, not new readings.
+- **Fix:** apply verified OSA CDS scaling and reject invalid sentinels (temperature 255, RPM 65535) in Diagnostics `vehicle-values.js` before showing, comparing or uploading CDS measures. Preserve Data Tool v0.1.24, existing read-only ECU steps, DPF/EGS/IHKA handling, three-button MGU layout, persisted phase snapshots and upload schema. Do not rewrite any previous already-sent report.
+- **Automated:** add tests for the exact reported values, RPM factor and invalid sentinels; CI pending. **In-car v0.1.32: unverified.** Keep v0.1.31 first report as pre-sleep baseline with its temperature values corrected analytically, then obtain a fresh after-wake report for comparison.
+
+
 ## v0.1.31 — restore visible Send report on MGU (2026-11-23)
 - **In-car regression reported:** v0.1.30 declared four MAIN screen buttons; actual MGU renders only three visible action slots. "Send report" was fourth and inaccessible. CI and offline preview did not catch the hardware layout limit.
 - **Implemented:** restore the three-slot manifest: phase-aware Run (label switches from "Run before sleep" to "Run after wake"), Generate CDS test, Send report. Persisted before/after snapshots select next action after app restart; completing an after snapshot starts the next cycle at before. Starting a new before measurement clears stale after data and its local saved file so values from different sleep cycles cannot accidentally be compared. Existing full read-only test sequence, values, report upload schema, CDS generator and Data Tool 0.1.24 unchanged.

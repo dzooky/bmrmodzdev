@@ -15,5 +15,9 @@ assert.deepStrictEqual(footwell({ok:true,uds:sample}),{
 });
 assert.strictEqual(footwell({ok:true,uds:sample.slice(0,18)}),null);
 assert.deepStrictEqual(engineCds({ok:true,fields:{oil:{valid:true},coolant:{valid:true},rpm:{valid:false}},
- values:{oil:94.125,coolant:88,rpm:1200}}),{oil:94.13,coolant:88,rpm:null});
+ values:{oil:142,coolant:136,rpm:1200}}),{oil:94,coolant:88,rpm:null});
+assert.deepStrictEqual(engineCds({ok:true,fields:{oil:{valid:true},coolant:{valid:true},rpm:{valid:true}},
+ values:{oil:58,coolant:64,rpm:1000}}),{oil:10,coolant:16,rpm:250});
+assert.deepStrictEqual(engineCds({ok:true,fields:{oil:{valid:true},coolant:{valid:true},rpm:{valid:true}},
+ values:{oil:255,coolant:255,rpm:65535}}),{oil:null,coolant:null,rpm:null});
 console.log('Vehicle values: OSA EGS identity/ATF, IHKA signed footwell and CDS guarded readings passed');
