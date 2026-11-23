@@ -46,6 +46,9 @@ function shortEnvelope(hex){
   const declared=parseInt(hex.slice(0,8),16);
   const bytes=Buffer.from(hex.slice(8),'hex');
   return {rejectMarker:declared>=3&&bytes[2]===0x7f,
+    // The existing TASU decoder uses envelope byte 4 as a rejection code.
+    // Observe this one byte only, never capture the rest of the frame.
+    statusCode:declared>=5&&bytes.length>=5&&bytes[2]===0x7f?bytes[4]:null,
     lengthConsistent:declared<=bytes.length,
     lengthBand:declared<=4?'0-4':'5-8'};
 }
@@ -79,6 +82,17 @@ class HmiTransport {
                     t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
                     t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
                     t[short.lengthBand==='0-4'?'shortLength0to4':'shortLength5to8']++;
+                    if(short.rejectMarker){
+                      if(short.statusCode===null)t.shortStatusAbsent++;
+                      else {
+                        const code=String(short.statusCode);
+                        // Bounded count map; numeric TASU status byte only.
+                        if(Object.prototype.hasOwnProperty.call(t.shortStatusCodes,code))
+                          t.shortStatusCodes[code]++;
+                        else if(Object.keys(t.shortStatusCodes).length<8)t.shortStatusCodes[code]=1;
+                        else t.shortStatusOverflow++;
+                      }
+                    }
                   }
                 }
               }
@@ -116,7 +130,8 @@ class HmiTransport {
       frameMissing:0,frameNonHex:0,frameOddLength:0,frameShortFrame:0,
       frameShortHeader:0,frameLengthOverflow:0,
       shortRejectMarkers:0,shortUnknownMarkers:0,shortLengthConsistent:0,
-      shortLengthTruncated:0,shortLength0to4:0,shortLength5to8:0,timedOut:false});
+      shortLengthTruncated:0,shortLength0to4:0,shortLength5to8:0,
+      shortStatusCodes:Object.create(null),shortStatusAbsent:0,shortStatusOverflow:0,timedOut:false});
     let pending;
     const received=new Promise((resolve,reject)=>{
       let timer,done=false;
