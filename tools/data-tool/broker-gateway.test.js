@@ -14,11 +14,20 @@ function send(socket,data){
  });
 }
 async function main(){
- const result=await run();
+ const probeDir=fs.mkdtempSync(path.join(os.tmpdir(),'bmrmodz-ipc-runtime-'));
+ let result;
+ try{result=await require('./secure-peer-probe').run({socketDirectory:probeDir});}
+ finally{fs.rmdirSync(probeDir);}
  assert.strictEqual(result.ok,true,JSON.stringify(result));
- assert.strictEqual(result.vehicleReads,0);
- assert.strictEqual(result.productionAccessEnabled,false);
- assert.strictEqual(result.trustedIdentityVerified,false);
+ assert.strictEqual(result.failureStage,'none');
+ const notDirectory=await require('./secure-peer-probe').run({socketDirectory:'/dev/null'});
+ assert.strictEqual(notDirectory.ok,false);
+ assert.strictEqual(notDirectory.failureStage,'choose-socket-path');
+ const synthetic=await run({});
+ assert.strictEqual(synthetic.ok,true,JSON.stringify(synthetic));
+ assert.strictEqual(synthetic.vehicleReads,0);
+ assert.strictEqual(synthetic.productionAccessEnabled,false);
+ assert.strictEqual(synthetic.trustedIdentityVerified,false);
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bmrmodz-broker-gateway-'));
  const socket=path.join(dir,'secure.sock');
  let requested=0;
