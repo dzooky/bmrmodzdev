@@ -55,8 +55,16 @@ function resultFor(step,reply,duration){
     return Object.assign(base,{status:valid?'PASS':'FAIL',detail:valid?'Matching UDS response received':cleanError(reply.error||'Invalid or missing UDS response')});
   }
   if(step.kind==='signal'){
-    const valid=reply.ok===true&&reply.stage==='sample'&&reply.received===true;
-    return Object.assign(base,{status:valid?'PASS':'FAIL',detail:valid?'Native CDS sample received (value not validated)':cleanError(reply.error||reply.stage)});
+    const flags=reply.validFields||{};
+    const names=step.id==='cdsTemp'?['oil','coolant']:['rpm'];
+    const valid=reply.ok===true&&reply.stage==='sample'&&reply.received===true&&
+      reply.validated===true&&names.every(name=>flags[name]===true);
+    const detail=valid?'Native CDS numeric fields validated':
+      reply.received===true&&reply.stage==='value-invalid'?
+        'CDS numeric validation failed: '+names.filter(name=>flags[name]!==true).join(', '):
+        cleanError(reply.error||reply.stage);
+    // Report contains only field validity, never the received values.
+    return Object.assign(base,{status:valid?'PASS':'FAIL',detail});
   }
   return base;
 }
