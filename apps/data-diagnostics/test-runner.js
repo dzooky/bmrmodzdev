@@ -1,9 +1,13 @@
 'use strict';
 // Explicit, sequential read-only MGU checks. No background activity, no writes.
 // Results are deliberately sanitised: no VIN, FA/VO, raw UDS data or position.
+const appIdentity=require('./identity-survey');
 const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
   {id:'ipcSecurity',label:'Secure IPC readiness',request:{op:'securityCheck'},kind:'security'},
+  {id:'ipcServiceIdentity',label:'Tool process identity',request:{op:'identitySurvey'},kind:'serviceIdentity'},
+  {id:'ipcAppIdentity',label:'Diagnostics app identity',request:null,kind:'appIdentity'},
+  {id:'ipcPeerAuth',label:'Authenticated IPC capability',request:{op:'identitySurvey'},kind:'peerAuth'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -25,6 +29,30 @@ function resultFor(step,reply,duration){
   const base={id:step.id,label:step.label,status:'FAIL',durationMs:duration};
   if(!reply||typeof reply!=='object')return Object.assign(base,{detail:'Missing response'});
   if(step.kind==='status')return Object.assign(base,{status:reply.ok===true?'PASS':'FAIL',detail:reply.ok?'Service available':cleanError(reply.error)});
+  if(step.kind==='serviceIdentity'){
+    const user=reply.identity||{},socket=reply.diagnosticSocket||{};
+    const ok=reply.ok===true&&reply.mode==='passive-observation'&&
+      Number.isInteger(user.uid)&&Number.isInteger(user.gid)&&socket.present===true&&
+      Number.isInteger(socket.uid)&&Number.isInteger(socket.gid);
+    return Object.assign(base,{status:ok?'PASS':'FAIL',detail:ok?
+      'Tool UID '+user.uid+', GID '+user.gid+'; socket UID '+socket.uid+', GID '+socket.gid+', mode '+socket.mode:
+      cleanError(reply.error||'Tool process identity unavailable')});
+  }
+  if(step.kind==='appIdentity'){
+    const ok=reply.ok===true&&reply.mode==='self-observation'&&
+      Number.isInteger(reply.uid)&&Number.isInteger(reply.gid);
+    return Object.assign(base,{status:ok?'PASS':'SKIP',
+      detail:ok?'App UID '+reply.uid+', GID '+reply.gid+'; peer authentication NOT verified':
+        'App process UID/GID unavailable'});
+  }
+  if(step.kind==='peerAuth'){
+    const unverified=reply.ok===true&&reply.peerIdentityVerified===false&&
+      reply.productionAccessEnabled===false;
+    return Object.assign(base,{status:unverified?'SKIP':'FAIL',
+      detail:unverified?'Peer credentials unverified; production access disabled; Node native API '+
+        (reply.nativePeerCredentialMethod===true?'present':'unavailable'):
+        cleanError(reply.error||'Unexpected peer authentication state')});
+  }
   if(step.kind==='security'){
     const sock=reply.secureSocket||{};
     const restricted=reply.ok===true&&sock.present===true&&sock.mode==='0600'&&sock.ownerOnly===true;
@@ -179,7 +207,7 @@ function createRunner(send,clock){
         const start=now();
         let result;
         try{
-          const reply=step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
+          const reply=step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
