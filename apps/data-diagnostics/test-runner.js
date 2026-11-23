@@ -26,6 +26,9 @@ const STEPS=[
   // Prime the already-tested TASU physical read path with existing supported
   // ECU reads, before the intermittent DDE/EGS diagnostic checks. This adds
   // no requests and does not change the transport, ECU addresses or DIDs.
+  // Cold DDE baseline: the first actual ECU read of a diagnostic run must
+  // reproduce DPF startup (F150 before any other ECU reads or warm-up).
+  {id:'ddeColdIdentity',label:'DDE F150 first read',request:{op:'read',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
   {id:'ihka',label:'IHKA / climate',request:{op:'read',ecu:0x78,did:0xD8D7},kind:'uds'},
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
