@@ -53,10 +53,11 @@ function createEndpoint(socketPath,options){
       bytes+=Buffer.byteLength(chunk,'utf8');
       buffer+=chunk;
       if(bytes>4096){client.destroy();return;}
-      if(!chunk.includes('\n'))return;
+      const newline=buffer.indexOf('\n');
+      if(newline<0)return;
       responded=true;
       let payload;
-      try{payload=JSON.parse(chunk.slice(0,chunk.indexOf('\n')));}catch(_){payload=null;}
+      try{payload=JSON.parse(buffer.slice(0,newline));}catch(_){payload=null;}
       const answer=payload&&payload.op==='securityStatus'
         ? {ok:true,mode:'diagnostic-only',peerIdentityVerified:false,
           productionAccessEnabled:false,consumerAuthentication:'disabled',
