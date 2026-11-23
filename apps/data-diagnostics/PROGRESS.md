@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.41 — native process metadata accessibility survey (2026-11-23)
+- **Vehicle baseline:** Tool 0.1.35 / Diagnostics 0.1.40: 23 PASS, 0 FAIL, 5 SKIP; real SO_PEERCRED successful on MGU, with installed package identity still NO-GO.
+- **Implemented:** 29th manual `processBoundary` step requests Tool 0.1.36 `processBoundaryProbe`, reporting only booleans and sanitized `Process boundary:` note for cgroup, self/peer UID equivalence and process stat accessibility. It confirms production remains disabled and app identity unverified even on PASS. No UI button, data fields or upload schema changed; original vehicle read tests continue. **In-car v0.1.41 not verified.**
+
+
 ## v0.1.40 — native helper lifecycle compatibility (2026-11-23)
 - **In-car observation:** Data Tool 0.1.34 / Diagnostics 0.1.39: 22 PASS, 0 FAIL, 6 SKIP. New `nativeKernel` skipped after a `timeout`; all preceding tests and vehicle reads stayed healthy.
 - **Change:** depends on Data Tool 0.1.35 which avoids Node 8 `close`-event socket lifecycle ambiguity and gives coarse phase-specific timeout. Diagnostics result formatting and existing 28 steps are unchanged, with updated title/version only. **In-car 0.1.40 not verified.** PASS means kernel peer primitive observed, never verified application package identity.
