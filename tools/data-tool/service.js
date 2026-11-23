@@ -21,6 +21,9 @@ const authFeasibility=require('./auth-feasibility');
 const nativePeerFeasibility=require('./native-peer-feasibility');
 const SOCKET=process.env.BMRMODZ_DATA_SOCKET||'/run/bmrmodz-data-tool/ctl.sock';
 const GAP_MS=200, CACHE_MS=500;
+// Status 0x21 is a TASU-envelope rejection (not a confirmed UDS NRC).
+// A bounded read-only retry is safe; failure must still be reported as FAIL.
+const TASU_21_RETRY_DELAYS=[700,1400];
 function serve(factory,socketPath,options){
   const socket=socketPath||SOCKET;
   let transport=null,queue=Promise.resolve(),lastRequest=0;
@@ -41,7 +44,7 @@ function serve(factory,socketPath,options){
     catch(_){/* Fail closed: no secure data endpoint, retain legacy diagnostics. */}
   }
   const inflight=new Map(),cache=new Map();
-  const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0};
+  const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0,tasu21Retries:0};
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   function read(ecu,did,withTrace){
     const group=getRead(ecu,did);
@@ -59,7 +62,31 @@ function serve(factory,socketPath,options){
       const attach=result=>withTrace?Object.assign(result,{trace}):result;
       try {
         if(!transport)transport=factory();
-        const reply=await transport.read(ecu,did,trace);
+        let reply;
+        for(let attempt=0;;attempt++){
+          // Per-attempt trace avoids presenting a previous TASU status as the
+          // current result, while retaining retry history as numeric counters.
+          const currentTrace=trace&&attempt?{}:trace;
+          if(trace)trace.attempts=attempt+1;
+          try{
+            reply=await transport.read(ecu,did,currentTrace);
+            if(trace&&attempt){
+              trace.finalAckAccepted=currentTrace.ackAccepted===true;
+              trace.finalTimedOut=currentTrace.timedOut===true;
+              trace.finalMatchedEcuEvents=currentTrace.matchedEcuEvents||0;
+            }
+            break;
+          }catch(error){
+            if(error&&error.tasuStatus===0x21&&attempt<TASU_21_RETRY_DELAYS.length){
+              stats.tasu21Retries++;
+              if(trace)trace.tasu21Retries=(trace.tasu21Retries||0)+1;
+              await sleep(TASU_21_RETRY_DELAYS[attempt]);
+              continue;
+            }
+            // Do not turn persistent status 0x21 into an apparent success.
+            throw error;
+          }
+        }
         if(!reply){stats.timeout++;return attach({ok:false,error:'No matching response',ecu,did});}
         if(reply[0]===0x7f){stats.error++;return attach({ok:false,error:'UDS negative response',ecu,did,nrc:reply[2]});}
         if(reply[0]!==0x62||reply[1]!==did>>8||reply[2]!==(did&255)){stats.error++;return attach({ok:false,error:'Unexpected response',ecu,did});}
@@ -67,7 +94,14 @@ function serve(factory,socketPath,options){
         const result={ok:true,ecu,did,group,uds:reply,at:new Date().toISOString()};
         if(!withTrace)cache.set(key,{at:Date.now(),reply:result});
         return attach(result);
-      }catch(e){stats.error++;return attach({ok:false,ecu,did,error:withTrace?(e&&e.message==='TASU rejected request'?'TASU rejected request':'Transport or TASU command error'):String(e&&e.message||e)});}
+      }catch(e){
+        stats.error++;
+        const status=e&&e.tasuStatus;
+        const error=withTrace?(e&&e.message==='TASU rejected request'?'TASU rejected request':'Transport or TASU command error'):String(e&&e.message||e);
+        const failure={ok:false,ecu,did,error};
+        if(Number.isInteger(status)&&status>=0&&status<=255)failure.tasuStatus=status;
+        return attach(failure);
+      }
     });
     queue=request.then(()=>{},()=>{});
     inflight.set(key,request);
@@ -92,7 +126,7 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.37',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.38',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='brokerPlan')reply={ok:true,broker:dataCatalog.describe()};
           else if(req.op==='brokerSelfTest'){
@@ -129,7 +163,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.37',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.38',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
