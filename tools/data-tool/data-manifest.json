@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "mode": "experimental-test-only",
+  "signals": {
+    "oil": {
+      "source": "CDS.statusEngineTemperature.temperatureEngineOilDrive"
+    },
+    "coolant": {
+      "source": "CDS.statusEngineTemperature.temperatureEngineDrive"
+    },
+    "rpm": {
+      "source": "CDS.statusEngineSpeed2.actualValueRPMEngineCrankshaft"
+    }
+  },
+  "consumers": {
+    "diagnostics": {
+      "fields": [
+        "oil",
+        "coolant",
+        "rpm"
+      ],
+      "leaseMs": 3000
+    },
+    "diagnostics-secondary": {
+      "fields": [
+        "rpm",
+        "coolant"
+      ],
+      "leaseMs": 3000
+    }
+  }
+}
