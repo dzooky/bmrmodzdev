@@ -2,7 +2,7 @@
 // Explicit manual HTTPS upload of sanitized diagnostic reports to the configured server.
 // Never auto-send; do not include vehicle identifiers or authentication secrets.
 const fs=require('fs'),path=require('path'),https=require('https'),dns=require('dns'),net=require('net');
-const HOST='dzooky.eu',ENDPOINT='/brmmodz.php';
+const HOST='dzooky.eu',ENDPOINT='/bmrmodz.php';
 // MGU's OAP resolver may not see the Wi-Fi DNS servers. Prefer the uplink lease
 // when available, otherwise use the default resolver, preserving TLS validation.
 function uplinkLookup(dataDir){
