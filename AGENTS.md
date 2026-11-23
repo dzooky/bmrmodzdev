@@ -49,3 +49,10 @@ At the start of development for each new app, make Info the first tab and the in
 - Record concrete version, relevant commit/PR references, test outcomes, and unresolved questions when known. Do not invent features, test results, vehicle readings, or approvals. Mark unknowns as unverified.
 - Treat PROGRESS.md as a concise handoff, not a transcript. Do not copy secrets, VINs, personal data, or raw conversation histories into it. Keep notes in English for cross-tool consistency.
 - At the beginning of a new ChatGPT or Codex session, read the latest PROGRESS.md and AGENTS.md. At the end, summarize changes and update PROGRESS.md if the project state changed. If a proposed change has not been approved, record it as a proposal, not an approved task.
+
+## Data Tool only — approved workflow (scoped)
+
+- Before changing `tools/data-tool/**`, `apps/data-diagnostics/**`, or their integration contract, **read and follow** `tools/data-tool/WORKFLOW.md` together with both component PROGRESS files. That document records the user's approved acquisition/cache/request workflow and strict non-regression rules.
+- Treat proven in-car behavior as the reference; do not replace it with an alternative transport, read order, wake-up, warm-up or retry strategy without evidence and explicit approval. Isolate investigations from the successful before/after-sleep measurement workflow.
+- A consumer declares required data and freshness; Tool owns data acquisition, shared scheduling, deduplication and cached validated values. Screen refresh frequency is independent of ECU read frequency. A new app adds demand, not a new acquisition policy.
+- Keep validation focused on the affected change plus a known working reference. Distinguish offline tests, genuine ECU results and in-car proof. This rule is **Data Tool scoped** and does not authorize unrelated app edits.
