@@ -7,6 +7,7 @@ const STEPS=[
   {id:'ipcSecurity',label:'Secure IPC readiness',request:{op:'securityCheck'},kind:'security'},
   {id:'ipcServiceIdentity',label:'Tool process identity',request:{op:'identitySurvey'},kind:'serviceIdentity'},
   {id:'ipcLegacyPermissions',label:'Legacy IPC exposure',request:{op:'identitySurvey'},kind:'legacyPermissions'},
+  {id:'ipcDac',label:'Experimental DAC socket',request:{op:'securityCheck'},kind:'dac'},
   {id:'ipcAppIdentity',label:'Diagnostics app identity',request:null,kind:'appIdentity'},
   {id:'ipcPeerAuth',label:'Authenticated IPC capability',request:{op:'identitySurvey'},kind:'peerAuth'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
@@ -48,6 +49,20 @@ function resultFor(step,reply,duration){
       detail:!valid?'Socket exposure could not be assessed':reply.legacySocketWorldAccessible?
         'Legacy socket is accessible to other users; production access disabled':
         'Legacy socket not world-accessible; peer authentication still unverified'});
+  }
+  if(step.kind==='dac'){
+    const sock=reply.secureSocket||{};
+    const disabled=reply.ok===true&&reply.productionAccessEnabled===false&&reply.peerIdentityVerified===false;
+    if(!disabled)return Object.assign(base,{status:'FAIL',detail:'Unexpected production or peer authentication state'});
+    if(sock.present===false||sock.dacTargetUid==null)
+      return Object.assign(base,{status:'SKIP',detail:'Optional UID-based DAC experiment not enabled; production disabled'});
+    const self=appIdentity.inspect();
+    const valid=sock.present===true&&sock.ownerOnly===true&&sock.mode==='0600'&&
+      sock.dacOwnershipReady===true&&Number.isInteger(sock.dacTargetUid)&&
+      Number.isInteger(self.uid)&&sock.ownerUid===sock.dacTargetUid&&self.uid===sock.dacTargetUid;
+    return Object.assign(base,{status:valid?'PASS':'FAIL',detail:valid?
+      'Socket UID ownership matches app; peer authentication NOT verified':
+      'Socket ownership/target does not match app; production disabled'});
   }
   if(step.kind==='appIdentity'){
     const ok=reply.ok===true&&reply.mode==='self-observation'&&
