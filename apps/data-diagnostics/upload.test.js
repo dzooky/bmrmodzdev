@@ -61,8 +61,22 @@ async function main(){
  assert.ok(transmitted.results[0].detail.includes('shortTASU reject 3'));
  assert.strictEqual(transmitted.results.some(x=>x.id==='ihka'||x.id==='service'),false);
 
+ const before={...result,snapshotPhase:'before',
+  dpfSnapshot:{ok:true,engine:'B57',values:{soot:3.91,ash:1.83,since:120,average:340},
+    vin:'PRIVATE_TEST_MARKER'}};
+ await upload(before,'/unused',{https:fake});
+ const dpfPayload=JSON.parse(body);
+ assert.strictEqual(dpfPayload.results[0].id,'dde');
+ assert.ok(dpfPayload.results[0].detail.startsWith('DPF B57 S=3.91g A=1.83g D=120km AVG=340km'));
+ assert.strictEqual(Object.hasOwn(dpfPayload,'dpfSnapshot'),false);
+ assert.strictEqual(Object.hasOwn(dpfPayload,'snapshotPhase'),false);
+ assert.strictEqual(body.includes('PRIVATE_TEST_MARKER'),false);
+ const malicious={...before,dpfSnapshot:{ok:true,engine:'B57',
+  values:{soot:'12;123',ash:1,since:100,average:200}}};
+ await upload(malicious,'/unused',{https:fake});
+ assert.strictEqual(JSON.parse(body).results[0].detail,'Matching UDS response received');
  await assert.rejects(upload({},'/unused',{https:fake}),/Invalid diagnostic report/);
- assert.strictEqual(calls,2);
+ assert.strictEqual(calls,4);
  // Simulate common hosting error pages and a response larger than the 4 KB cap.
  async function rejectReply(status,contentType,payload,pattern){
    const backend={request(options,callback){
