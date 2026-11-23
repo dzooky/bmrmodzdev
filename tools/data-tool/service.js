@@ -22,7 +22,14 @@ function serve(factory,socketPath,options){
   const signalRunner=options&&options.signalRunner||createRunner();
   const generator=options&&options.generator||createGenerator();
   const cdsEngine=options&&options.cdsEngine||createEngine();
-  const secureEndpoint=options&&options.secureEndpoint||createEndpoint(options&&options.secureSocket);
+  // Experimental secure listener must never be a prerequisite for legacy tool health.
+  // It is disabled by default until MGU socket lifecycle/peer identity are verified.
+  let secureEndpoint={inspect:()=>({present:false,mode:null,ownerOnly:false}),close:()=>{}};
+  if(options&&options.secureEndpoint)secureEndpoint=options.secureEndpoint;
+  else if(process.env.BMRMODZ_SECURE_IPC_EXPERIMENT==='1'){
+    try{secureEndpoint=createEndpoint(options&&options.secureSocket);}
+    catch(_){/* Fail closed: no secure data endpoint, retain legacy diagnostics. */}
+  }
   const inflight=new Map(),cache=new Map();
   const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0};
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -73,7 +80,7 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.15',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.16',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='securityCheck')reply={ok:true,secureSocket:secureEndpoint.inspect(),
             peerIdentityVerified:false,productionAccessEnabled:false,
