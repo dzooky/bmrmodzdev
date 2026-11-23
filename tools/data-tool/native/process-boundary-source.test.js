@@ -19,12 +19,15 @@ assert.ok(host.length<16384);
 assert.ok(embedded.length<16384);
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bmrmodz-boundary-source-'));
 const address=path.join(dir,'ctl.sock');
+let peer=null;
 const server=net.createServer(socket=>{
  const child=cp.spawn(binary,[],{stdio:['ignore','pipe','ignore',socket]});
  let stdout='';
  child.stdout.on('data',chunk=>{stdout+=chunk.toString();if(stdout.length>1024)child.kill('SIGKILL');});
  child.on('error',error=>{console.error(error);process.exitCode=1;});
- child.on('close',code=>{
+ let exitCode=null,stdoutEnded=false,exited=false,done=false;
+ function complete(){if(done||!exited||!stdoutEnded)return;done=true;
+  const code=exitCode;
   try{
    assert.strictEqual(code,0);
    const v=JSON.parse(stdout.trim());
@@ -43,8 +46,10 @@ const server=net.createServer(socket=>{
    assert.strictEqual(stdout.includes('uid'),false);
    console.log('Host-compiled process-boundary C source executed safely on accepted FD3');
   }catch(error){console.error(error);process.exitCode=1;}
-  socket.destroy();
+  socket.destroy();if(peer)peer.destroy();
   server.close(()=>{try{fs.unlinkSync(address);}catch(_){}fs.rmdirSync(dir);});
- });
+ }
+ child.on('exit',code=>{exited=true;exitCode=code;complete();});
+ child.stdout.on('end',()=>{stdoutEnded=true;complete();});
 });
-server.listen(address,()=>{const peer=net.createConnection(address);peer.on('error',e=>{console.error(e);process.exitCode=1;});});
+server.listen(address,()=>{peer=net.createConnection(address);peer.on('error',e=>{console.error(e);process.exitCode=1;});});
