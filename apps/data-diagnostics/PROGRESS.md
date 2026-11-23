@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## Baseline protection documented (2026-11-24; documentation-only)
+- Follow [Data Tool WORKFLOW](../../tools/data-tool/WORKFLOW.md) before changing the manual before-sleep/after-wake reference test. Preserve the last in-car-successful request workflow; isolate DDE F150/TASU 0x21 experiments instead of perturbing reference measurements.
+- This documentation does not restore ECU reads; existing 0/7 live ECU result remains an unresolved, not-yet-verified regression.
+
+
 ## v0.1.46 — distinguish ECU reads from passive PASS and trace F150 (2026-11-23)
 - **In-car evidence:** the 0.1.44 screenshot showed 17 PASS / 7 FAIL / 7 SKIP. All seven live ECU UDS read checks failed even though many passive service, security and environment checks passed. Presenting aggregate PASS as readiness was misleading.
 - **Implemented:** `Results` header displays validated ECU-response success as **ECU reads N/7** plus failures, rather than 31-step total PASS. The complete global results remain in `All tests` and JSON report; the seven eligible checks are cold F150, IHKA, BDC, ACSM, DDE 44BB, warm F150 and EGS. `ecuReads` is added to the sanitized report, based on actual validated UDS responses, never service/socket readiness.

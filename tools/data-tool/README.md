@@ -1,5 +1,7 @@
 # BMRMODZ Data Tool — experimental v0.1.38
 
+**Approved future workflow and change constraints:** see [WORKFLOW.md](WORKFLOW.md). It distinguishes the agreed multi-application data/cache architecture from the current experimental implementation; no migration-readiness is implied.
+
 This is **not** a ready-for-migration data broker. It is an MGU-installable, on-demand, read-only experimental service to prove whether a standalone tool can read the diagnostic ECUs needed by OSA, DPF and Climate Comfort.
 
 ## Architecture
