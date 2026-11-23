@@ -17,6 +17,22 @@ function describe(socket,io,targetUid){
   }catch(_){return {present:false,mode:null,ownerOnly:false,ownerUid:null,ownerGid:null,
       dacTargetUid:Number.isInteger(targetUid)?targetUid:null,dacOwnershipReady:false};}
 }
+// This is a passive capability observation, not application authorization.
+// Node versions without native kernel peer credentials must fail closed.
+// Never accept UID/PID or a consumer ID supplied inside the request JSON.
+function observePeer(client,targetUid){
+  const available=!!(client&&typeof client.getPeerCredentials==='function');
+  let credentials=null;
+  if(available){
+    try{credentials=client.getPeerCredentials();}catch(_){credentials=null;}
+  }
+  const valid=!!(credentials&&Number.isSafeInteger(credentials.uid)&&credentials.uid>=0&&
+    Number.isSafeInteger(credentials.gid)&&credentials.gid>=0&&
+    Number.isSafeInteger(credentials.pid)&&credentials.pid>0);
+  return {kernelCredentialsAvailable:available,kernelCredentialsObserved:valid,
+    dacUidMatch:valid&&Number.isSafeInteger(targetUid)&&credentials.uid===targetUid,
+    applicationIdentityVerified:false,productionAccessEnabled:false};
+}
 function createEndpoint(socketPath,options){
   const opts=options||{},io=opts.fs||fs;
   const socket=socketPath||SECURE_SOCKET;
@@ -43,8 +59,8 @@ function createEndpoint(socketPath,options){
       try{payload=JSON.parse(chunk.slice(0,chunk.indexOf('\n')));}catch(_){payload=null;}
       const answer=payload&&payload.op==='securityStatus'
         ? {ok:true,mode:'diagnostic-only',peerIdentityVerified:false,
-          productionAccessEnabled:false,consumerAuthentication:'unavailable',
-          socket:describe(socket,io,targetUid)}
+          productionAccessEnabled:false,consumerAuthentication:'disabled',
+          peer:observePeer(client,targetUid),socket:describe(socket,io,targetUid)}
         : {ok:false,error:'Secure data API unavailable until peer identity is verified'};
       client.end(JSON.stringify(answer)+'\n');
     });
@@ -68,4 +84,4 @@ function createEndpoint(socketPath,options){
   }
   return {server,close,inspect:()=>describe(socket,io,targetUid)};
 }
-module.exports={SECURE_SOCKET,createEndpoint,describe};
+module.exports={SECURE_SOCKET,createEndpoint,describe,observePeer};
