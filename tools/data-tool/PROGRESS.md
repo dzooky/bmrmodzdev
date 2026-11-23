@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.23 — bounded short TASU status byte audit (2026-11-23)
+- **Implemented on feature branch:** when a short TASU reject-marker envelope is observed during explicitly authorized DDE/EGS `readTrace`, record only the single legacy decoder status byte as a hex-labeled numeric code histogram (up to 8 distinct codes), plus absent/overflow counts; no raw frames, UDS bytes, VIN, response payloads or additional vehicle requests. The byte is a TASU envelope status, NOT confirmed UDS NRC or verified meaning. Production read access, CDS engine, security, 3.5s read timeout and legacy normal reads unchanged.
+- **Vehicle evidence (v0.1.22 + Diagnostics v0.1.25):** first run 15 PASS/2 FAIL/5 SKIP with 3 consistent short TASU 0x7f reject-marker events and 3 timeouts each for DDE/EGS; second run 17 PASS/0 FAIL/5 SKIP, both replied in ~0.2s on first attempt. Root cause and code meaning unverified. This release has no in-car verification.
+- **Automated tests:** synthetic short TASU status byte classification and existing health/transport regressions; CI verification required.
+
+
 ## v0.1.22 — short TASU envelope marker/length audit (2026-11-23)
 - **Implemented on feature branch:** for explicit readTrace requests to existing DDE/EGS DID pairs, short-header event envelopes are further classified by the existing TASU 0x7F rejection marker versus unknown marker, declared length consistency, and length bands (0-4, 5-8 bytes). Only boolean/numeric counters are exposed. No raw byte contents, statuses, reason codes, VIN, UDS values or helper lines are persisted. A short reject marker is an observation, NOT an identified ECU response or proof of an exact TASU rejection reason. The legacy decoder and successful read path remain unchanged.
 - **In-car baseline (v0.1.21 + Diagnostics v0.1.24):** first run 15 PASS / 2 FAIL / 5 SKIP: DDE and EGS each `ack 3/3`, `shortHeader 3`, timeout 3; second run 17 PASS / 0 FAIL / 5 SKIP: both responded on attempt 1. 1-second inter-ECU pause did not eliminate first-run failure. v0.1.22 has not been tested in-car.

@@ -55,6 +55,7 @@ const catalogs={
     "UDS response tracing": "UDS response tracing",
     "TASU frame classification": "TASU frame classification",
     "Short TASU envelope audit": "Short TASU envelope audit",
+    "TASU status and SOME/IP timing": "TASU status and SOME/IP timing",
     "Legacy IPC exposure audit": "Legacy IPC exposure audit",
     "Experimental DAC socket audit": "Experimental DAC socket audit",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",

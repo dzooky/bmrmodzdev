@@ -37,7 +37,8 @@ async function main(){
  assert.strictEqual(calls,1);
  assert.strictEqual(body.includes('SHOULD_NEVER_LEAVE_MGU'),false);
  assert.strictEqual(JSON.parse(body).results[0].id,'dde');
- const focused={...result,totals:{pass:17,fail:1,skip:4},results:[
+ const focused={...result,totals:{pass:17,fail:1,skip:4},
+ someipTimings:{environmentMs:540,nativeLoadMs:241,cdsStreamMs:1930,unknownMs:500,configMs:-1},results:[
    {id:'service',label:'Service',status:'PASS',detail:'Service available'},
    {id:'dde',label:'DDE / DPF',status:'FAIL',detail:'No matching response; shortTASU reject 3'},
    {id:'egs',label:'EGS / transmission',status:'PASS',detail:'Matching response'},
@@ -49,6 +50,7 @@ async function main(){
  const transmitted=JSON.parse(body);
  assert.strictEqual(transmitted.totals.pass,17);
  assert.strictEqual(transmitted.totals.fail,1);
+ assert.deepStrictEqual(transmitted.someipTimings,{environmentMs:540,nativeLoadMs:241,cdsStreamMs:1930});
  assert.deepStrictEqual(transmitted.results.map(x=>x.id),['dde','egs','cdsStream']);
  assert.ok(transmitted.results[0].detail.includes('shortTASU reject 3'));
  assert.strictEqual(transmitted.results.some(x=>x.id==='ihka'||x.id==='service'),false);

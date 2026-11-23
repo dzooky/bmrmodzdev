@@ -42,6 +42,16 @@ function upload(report,dataDir,options){
     id:String(item.id||''),label:String(item.label||''),status:String(item.status||''),
     durationMs:Number(item.durationMs)||0,detail:String(item.detail||'').slice(0,160)
   }));
+  // Only timing metadata for known read-only SOME/IP/CDS checks, no signal values.
+  const timingKeys=['environmentMs','configMs','setupMs','generationMs','auditMs',
+    'nativeLoadMs','cdsTempMs','cdsRpmMs','cdsStreamMs','cdsMultiMs'];
+  if(report.someipTimings&&typeof report.someipTimings==='object'){
+    safe.someipTimings={};
+    for(const key of timingKeys){
+      const value=report.someipTimings[key];
+      if(Number.isSafeInteger(value)&&value>=0&&value<=60000)safe.someipTimings[key]=value;
+    }
+  }
   const body=JSON.stringify(safe);
   if(Buffer.byteLength(body)>32768)return Promise.reject(new Error('Diagnostic report exceeds 32 KB'));
   return new Promise((resolve,reject)=>{
