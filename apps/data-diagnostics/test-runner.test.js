@@ -50,7 +50,7 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,23);
+  assert.strictEqual(result.results.length,24);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
