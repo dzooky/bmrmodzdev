@@ -15,7 +15,8 @@ const STEPS=[
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'cdsTemp',label:'CDS staged / temperatures',request:{op:'signalStaging',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
-  {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'}
+  {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'},
+  {id:'cdsStream',label:'CDS shared data engine',request:{op:'cdsDemand',consumer:'diagnostics'},kind:'engine'}
 ];
 function cleanError(value){return String(value||'Unknown error').replace(/[\r\n]/g,' ').slice(0,140);}
 function resultFor(step,reply,duration){
@@ -28,7 +29,12 @@ function resultFor(step,reply,duration){
     const ok=!!catalog&&!!module;
     return Object.assign(base,{status:ok?'PASS':'FAIL',detail:'Catalog '+(catalog?'yes':'no')+', native module '+(module?'resolved':'not resolved')});
   }
-  if(step.kind==='config')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Tool-owned CDS config present':cleanError(reply.error||'CDS config missing or incomplete')});
+  if(step.kind==='config'){
+    const missing=reply.ok===false&&/ENOENT|no such file/i.test(String(reply.error||''));
+    return Object.assign(base,{status:reply.ok?'PASS':missing?'SKIP':'FAIL',
+      detail:reply.ok?'Active CDS config present':missing?
+        'Active config absent; staged CDS mode used':cleanError(reply.error||'Active config invalid')});
+  }
   if(step.kind==='setup'){
     const c=reply.checks||{};
     const uid=reply.identity&&reply.identity.uid;
@@ -47,6 +53,12 @@ function resultFor(step,reply,duration){
       ', offers '+(Number.isInteger(c.offers)?c.offers:'?')+', UID '+(Number.isInteger(id.uid)?id.uid:'?')+
       '; ACL NOT registered':cleanError(reply.error||reply.note||'CDS ACL audit unavailable');
     return Object.assign(base,{status:verified?'PASS':'FAIL',detail});
+  }
+  if(step.kind==='engine'){
+    const ok=reply.ok===true&&reply.stopped===true&&reply.updated===true&&reply.fresh===true;
+    return Object.assign(base,{status:ok?'PASS':'FAIL',
+      detail:ok?'Shared CDS refreshed, cache fresh, lease stopped':
+        cleanError(reply.error||'CDS shared stream did not refresh or stop')});
   }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
   if(step.kind==='uds'){
@@ -70,6 +82,30 @@ function resultFor(step,reply,duration){
 }
 function failure(step,err,duration){return {id:step.id,label:step.label,status:'FAIL',durationMs:duration,detail:cleanError(err&&err.message||err)};}
 function skipped(step,reason){return {id:step.id,label:step.label,status:'SKIP',durationMs:0,detail:reason};}
+function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+async function testEngine(request){
+  const consumer='diagnostics';
+  let initial=null,second=null,third=null;
+  try{
+    const demand=await request({op:'cdsDemand',consumer},{timeoutMs:6000});
+    if(!demand||!demand.ok||!demand.running)return {ok:false,error:'Shared CDS engine did not start'};
+    await delay(1000);
+    second=await request({op:'cdsSnapshot'},{timeoutMs:6000});
+    await delay(900);
+    third=await request({op:'cdsSnapshot'},{timeoutMs:6000});
+    const fields=third&&third.fields||{};
+    const fresh=['oil','coolant','rpm'].every(k=>fields[k]&&fields[k].valid===true);
+    const updated=!!(second&&third&&second.stats&&third.stats&&
+      third.stats.samples>second.stats.samples);
+    return {ok:true,fresh,updated};
+  }catch(e){return {ok:false,error:String(e&&e.message||e).slice(0,140)};}
+  finally{
+    try{const release=await request({op:'cdsRelease',consumer},{timeoutMs:6000});
+      // read in caller via wrapper response to avoid leaked values
+      testEngine.lastRelease=!!(release&&release.ok&&release.running===false&&release.consumers===0);
+    }catch(_){testEngine.lastRelease=false;}
+  }
+}
 function createRunner(send,clock){
   const request=send,now=clock||Date.now;
   let active=false;
@@ -82,14 +118,15 @@ function createRunner(send,clock){
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
         const skip=step.id!=='service'&&!serviceAvailable?'Service unavailable'
-          :step.kind==='signal'&&!stagingReady?'Staged CDS config unavailable'
-          :step.kind==='signal'&&!nativeReady?'Native SOME/IP unavailable'
+          :(step.kind==='signal'||step.kind==='engine')&&!stagingReady?'Staged CDS config unavailable'
+          :(step.kind==='signal'||step.kind==='engine')&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
         const start=now();
         let result;
         try{
-          const reply=await request(step.request,{timeoutMs:15000});
+          const reply=step.kind==='engine'?await testEngine(request):await request(step.request,{timeoutMs:15000});
+          if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
