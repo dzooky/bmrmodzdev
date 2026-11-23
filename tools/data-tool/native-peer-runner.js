@@ -68,7 +68,7 @@ function run(socket,directory,options){
    };
    timer=setTimeout(()=>finish(out(exited?'timeout-after-exit':
      spawned?'timeout-after-spawn':'timeout-before-spawn')),timeoutMs);
-   child.on('spawn',()=>{spawned=true;});
+   spawned=true; // Node 8 ChildProcess does not expose a 'spawn' event.
    child.on('error',()=>finish(out('spawn-error')));
    child.stdout.on('data',chunk=>{
     seen+=String(chunk);
