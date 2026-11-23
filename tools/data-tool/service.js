@@ -9,6 +9,7 @@ const diagnosticReport=require('./diagnostic-report');
 const configCheck=require('./config-check');
 const {createGenerator}=require('./someip-generate');
 const someipSetup=require('./someip-setup');
+const someipAudit=require('./someip-audit');
 const ccFeasibility=require('./cc-feasibility');
 const {createRunner}=require('./signal-isolate');
 const SOCKET=process.env.BMRMODZ_DATA_SOCKET||'/run/bmrmodz-data-tool/ctl.sock';
@@ -68,11 +69,12 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.9',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.10',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='signalEnvironment')reply=signalEnvironment.inspect();
           else if(req.op==='configCheck')reply=configCheck.inspect();
           else if(req.op==='someipSetup')reply=someipSetup.inspect();
+          else if(req.op==='someipAudit')reply=someipAudit.inspect();
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
