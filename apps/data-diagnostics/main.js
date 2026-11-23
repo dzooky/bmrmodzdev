@@ -126,9 +126,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.45 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.46 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.45 — '+word('Readable DDE test results'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.46 — '+word('Real ECU read status and TASU retry'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -167,7 +167,11 @@ mgu.run({
   function drawResults(cv,theme){
    const totals=report&&report.totals;
    const totalsText=totals?word('PASS')+': '+totals.pass+'   '+word('FAIL')+': '+totals.fail+'   '+word('SKIP')+': '+totals.skip:word('No report yet');
-   header(cv,theme,word('Results'),totalsText);
+   // Display actual ECU response success, never the total of passive tests.
+   const ec=report&&report.ecuReads;
+   const ecuSummary=ec?word('ECU reads')+': '+ec.pass+'/'+ec.total+
+     (ec.fail?'   '+word('FAIL')+': '+ec.fail:''):totalsText;
+   header(cv,theme,word('Results'),ecuSummary);
    if(!report){
     G.panel(cv,theme,24,115,1552,380,null);
     label(cv,running?word('Running'):word('No report yet'),800,282,34,theme.dim,{align:'center'});
