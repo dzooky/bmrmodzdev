@@ -8,7 +8,9 @@ async function run(){
     if(req.op==='status')return {ok:true,version:'0.1.5'};
     if(req.op==='brokerSelfTest')return {ok:true,mode:'explicit-test-only',productionAccessEnabled:false,applicationIdentityVerified:false,
       broker:{ok:true,vehicleReads:0,sharedUds:true,sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true,productionAccessEnabled:false},
-      ipc:{ok:true,socketOwnerOnly:true,unauthorizedDenied:true,kernelCredentialsAvailable:false,productionAccessEnabled:false}};
+      ipc:{ok:true,mode:'existing-diagnostic-connection',transportConfirmed:true,
+        kernelCredentialsAvailable:false,productionAccessEnabled:false,
+        applicationIdentityVerified:false,productionDataGatewayEnabled:false,legacySocketProductionSafe:false}};
     if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},legacySocketWorldAccessible:true,legacySocketProductionSafe:false,peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:false}};
@@ -30,9 +32,11 @@ async function run(){
     productionAccessEnabled:false,applicationIdentityVerified:false,
     broker:{ok:true,vehicleReads:0,productionAccessEnabled:false,sharedUds:true,
       sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true},
-    ipc:{ok:false,failureStage:'socket-permissions',productionAccessEnabled:false}},0);
+    ipc:{ok:false,mode:'existing-diagnostic-connection',transportConfirmed:false,
+      productionAccessEnabled:false,productionDataGatewayEnabled:false,
+      applicationIdentityVerified:false,legacySocketProductionSafe:false}},0);
   assert.strictEqual(brokenIpc.status,'FAIL');
-  assert.ok(brokenIpc.detail.includes('local IPC socket-permissions'));
+  assert.ok(brokenIpc.detail.includes('existing IPC check failed'));
   assert.ok(!brokenIpc.detail.includes('/run/'));
   assert.strictEqual(STEPS.length,25);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
