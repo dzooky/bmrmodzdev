@@ -12,6 +12,7 @@ const someipSetup=require('./someip-setup');
 const someipAudit=require('./someip-audit');
 const ccFeasibility=require('./cc-feasibility');
 const {createRunner}=require('./signal-isolate');
+const {createEngine}=require('./cds-engine');
 const SOCKET=process.env.BMRMODZ_DATA_SOCKET||'/run/bmrmodz-data-tool/ctl.sock';
 const GAP_MS=200, CACHE_MS=500;
 function serve(factory,socketPath,options){
@@ -19,6 +20,7 @@ function serve(factory,socketPath,options){
   let transport=null,queue=Promise.resolve(),lastRequest=0;
   const signalRunner=options&&options.signalRunner||createRunner();
   const generator=options&&options.generator||createGenerator();
+  const cdsEngine=options&&options.cdsEngine||createEngine();
   const inflight=new Map(),cache=new Map();
   const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0};
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -53,7 +55,7 @@ function serve(factory,socketPath,options){
   }
   const capabilities=()=>({
     uds:{mode:'read-only-experimental',reads:READS,controls:'not implemented'},
-    signals:{mode:'isolated-on-demand-probe',reason:'Native SOME/IP and ACL still require on-car verification'},
+    signals:{mode:'demand-driven-experimental',stagingOnly:true,aclRegistration:'unverified',fields:['oil','coolant','rpm']},
     background:{mode:'on-demand-only',reason:'No unattended ECU polling in feasibility build'}
   });
   try{fs.mkdirSync(path.dirname(socket),{recursive:true});}catch(e){if(e.code!=='EEXIST')throw e;}
@@ -69,12 +71,15 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.12',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.13',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='signalEnvironment')reply=signalEnvironment.inspect();
           else if(req.op==='configCheck')reply=configCheck.inspect();
           else if(req.op==='someipSetup')reply=someipSetup.inspect();
           else if(req.op==='someipAudit')reply=someipAudit.inspect();
+          else if(req.op==='cdsDemand')reply=cdsEngine.demand(req.consumer);
+          else if(req.op==='cdsSnapshot')reply=cdsEngine.snapshot();
+          else if(req.op==='cdsRelease')reply=cdsEngine.release(req.consumer);
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
@@ -90,7 +95,7 @@ function serve(factory,socketPath,options){
     });
   });
   server.listen(socket,()=>fs.chmodSync(socket,0o666));
-  function close(){server.close();if(transport&&transport.close)transport.close();try{fs.unlinkSync(socket);}catch(_){}}
+  function close(){cdsEngine.close();server.close();if(transport&&transport.close)transport.close();try{fs.unlinkSync(socket);}catch(_){}}
   return {server,read,close,stats};
 }
 if(require.main===module){
