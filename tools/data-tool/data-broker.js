@@ -4,8 +4,10 @@
 // never build that capability from JSON, a client-provided consumer string or UID.
 const {DEFINITIONS,decode,decodeFootwell,decodeIdentity,decodeCds}=require('./data-catalog');
 function createBroker(options){
- const opts=options||{},read=opts.read,cds=opts.cds,authority=opts.authority,now=opts.now||Date.now;
- if(typeof read!=='function'||typeof authority!=='symbol')throw Error('Internal broker requires a trusted authority');
+ const opts=options||{},read=opts.read,cds=opts.cds,grants=opts.grants,now=opts.now||Date.now;
+ if(typeof read!=='function'||!(grants instanceof Map)||grants.size===0||
+    Array.from(grants).some(([token,allowed])=>typeof token!=='symbol'||!(allowed instanceof Set)))
+   throw Error('Internal broker requires trusted per-app grants');
  const pending=new Map(),stats={requests:0,denied:0,coalesced:0,reads:0,cdsSnapshots:0};
  let cdsUsers=0,cdsLease=null;
  function uds(ecu,did){
@@ -18,7 +20,8 @@ function createBroker(options){
    return task;
  }
  async function get(fields,capability){
-   if(capability!==authority){stats.denied++;return {ok:false,error:'Not authorized'};}
+   const allowed=grants.get(capability);
+   if(!allowed||!Array.isArray(fields)||fields.some(k=>!allowed.has(k))){stats.denied++;return {ok:false,error:'Not authorized'};}
    if(!Array.isArray(fields)||fields.length<1||fields.length>16||
       fields.some(k=>typeof k!=='string'||!Object.prototype.hasOwnProperty.call(DEFINITIONS,k))||
       new Set(fields).size!==fields.length){
@@ -74,9 +77,12 @@ function createBroker(options){
          const reply=replies.get(s.ecu+':'+did);
          measure=s.profile==='ihka'?decodeFootwell(reply,s):
            decode(reply,s,s.profile==='dde'?identityDde:identityEgs);
+         // A previously cached or delayed UDS response cannot be advertised as live.
+         const age=reply&&typeof reply.at==='string'?now()-Date.parse(reply.at):NaN;
+         if(!Number.isFinite(age)||age<0||age>10000)measure=null;
        }
        results[e.key]=measure?{valid:true,value:measure.value,unit:measure.unit,
-         sampledAt:s.source==='uds'&&replies.get(s.ecu+':'+(s.variants&&s.variants[identityDde]?s.variants[identityDde].did:s.did))?.at||null,
+         sampledAt:s.source==='uds'?replies.get(s.ecu+':'+(s.variants&&s.variants[identityDde]?s.variants[identityDde].did:s.did))?.at||null:null,
          ageMs:s.source==='cds'?snapshot.fields[s.field].ageMs:null}:
          {valid:false,value:null,unit:s.unit,sampledAt:null,ageMs:null};
      }
