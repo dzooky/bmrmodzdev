@@ -1,4 +1,4 @@
-# BMRMODZ Data Tool — experimental v0.1.37
+# BMRMODZ Data Tool — experimental v0.1.38
 
 This is **not** a ready-for-migration data broker. It is an MGU-installable, on-demand, read-only experimental service to prove whether a standalone tool can read the diagnostic ECUs needed by OSA, DPF and Climate Comfort.
 
@@ -6,7 +6,7 @@ This is **not** a ready-for-migration data broker. It is an MGU-installable, on-
 - Boot starts a Node service with a local Unix socket; **no ECU reads at startup**.
 - First explicit read opens an installed **hmictl** transport via TASU.
 - Only preapproved UDS `0x22` ECU/DID combinations in `profiles.js` may be requested.
-- One shared queue, 200 ms spacing, coalesced concurrent identical reads, 500 ms short cache. Forfeited/negative responses are not cached.
+- One shared queue, 200 ms spacing, coalesced concurrent identical reads, 500 ms short cache. Negative responses are not cached. TASU envelope status 0x21 receives at most two additional read-only attempts (700 ms and 1,400 ms delays), and persistent failure is returned as a real error, never PASS.
 - The service does not send UDS 0x31/0x2E, does not control anything, and has no recurring background poll.
 - CDS/SOME-IP standalone signal acquisition is unimplemented and must be separately proven.
 - This tool is **independent** of Car Equipment Tool and changes no applications.

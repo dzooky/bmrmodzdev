@@ -25,7 +25,7 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.37');
+   assert.strictEqual(status.version,'0.1.38');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const plan=await call(socket,{op:'brokerPlan'});
@@ -93,7 +93,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
-   assert.strictEqual(report.service.version,'0.1.37');
+   assert.strictEqual(report.service.version,'0.1.38');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});
@@ -111,7 +111,7 @@ async function run(){
    const traced=await call(socket,{op:'readTrace',ecu:0x12,did:0x44BB});
    assert.strictEqual(traced.ok,true);
    assert.strictEqual(traced.cached,undefined);
-   assert.deepStrictEqual(traced.trace,{}); // Mock transport does not emit trace metadata.
+   assert.deepStrictEqual(traced.trace,{attempts:1}); // Service records physical attempts even with a mock transport.
    assert.strictEqual(sent,1);
    sent=0;
    const [a,b]=await Promise.all([call(socket,{op:'read',ecu:0x12,did:0x44BB}),call(socket,{op:'read',ecu:0x12,did:0x44BB})]);

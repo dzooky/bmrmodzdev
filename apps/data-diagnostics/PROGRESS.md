@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.46 — distinguish ECU reads from passive PASS and trace F150 (2026-11-23)
+- **In-car evidence:** the 0.1.44 screenshot showed 17 PASS / 7 FAIL / 7 SKIP. All seven live ECU UDS read checks failed even though many passive service, security and environment checks passed. Presenting aggregate PASS as readiness was misleading.
+- **Implemented:** `Results` header displays validated ECU-response success as **ECU reads N/7** plus failures, rather than 31-step total PASS. The complete global results remain in `All tests` and JSON report; the seven eligible checks are cold F150, IHKA, BDC, ACSM, DDE 44BB, warm F150 and EGS. `ecuReads` is added to the sanitized report, based on actual validated UDS responses, never service/socket readiness.
+- **Transport evidence:** both F150 tests now use explicitly allowlisted Data Tool 0.1.38 `readTrace`. On failure the displayed result preserves numeric TASU status 0x21 and physical retry count; no raw VIN, DDE index, or response payload is captured in results. Preserve existing manual-only diagnostic sequence and UI layout from 0.1.45.
+- **Dependency:** Diagnostics 0.1.46 requires Data Tool 0.1.38. Offline mocked tests may demonstrate mechanics but are not vehicle verification; no real-car result for these versions yet.
+
+
 ## v0.1.45 — readable DDE-first diagnostics results (2026-11-23)
 - **In-car observation:** on Diagnostics v0.1.44 the photographed 31-check results screen was unreadable due to tiny overlapping 12px details and 17 result rows forced into a 380px panel; 17 PASS, 7 FAIL, 7 SKIP were reported. Failed checks included the cold F150, IHKA, BDC, ACSM, DDE 44BB, warm F150 and EGS, with visible TASU status `0x21`. This confirms broader ECU read failures at that time; cause is unresolved.
 - **Implemented:** Results tab now presents the three DDE/DPF stages in a spacious left panel with one concise diagnostic detail each; the right panel lists other failed tests and short errors. New `All tests` tab retains all 31 check statuses in two columns, exactly one row per check without overlapping second-line diagnostics. Complete unsanitized-by-UI (but still privacy-sanitized) result details remain in the existing local JSON report/upload unchanged. No diagnostic requests, backend logic, IPC security or ECU reads are modified.

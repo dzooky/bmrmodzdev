@@ -24,7 +24,7 @@ function call(socket,payload){
  await new Promise((resolve,reject)=>{svc.server.once('listening',resolve);svc.server.once('error',reject);});
  try{
   const status=await call(socket,{op:'status'});
-  assert.strictEqual(status.version,'0.1.37');
+  assert.strictEqual(status.version,'0.1.38');
   assert.strictEqual(sends,0,'status must not send ECU requests');
   const did=0x44BB,ecu=0x12;
   const [one,two]=await Promise.all([call(socket,{op:'read',ecu,did}),call(socket,{op:'read',ecu,did})]);
@@ -49,6 +49,6 @@ function call(socket,payload){
   const controls=await call(socket,{op:'control',ecu:0x40,sid:0x2e});
   assert.strictEqual(controls.ok,false,'controls must remain unavailable');
   assert.strictEqual(sends,2);
-  console.log('Data Tool 0.1.37: DPF read-only response, coalescing, caching and fail-closed control checks passed');
+  console.log('Data Tool 0.1.38: DPF read-only response, coalescing, caching and fail-closed control checks passed');
  }finally{svc.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

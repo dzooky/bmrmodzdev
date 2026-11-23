@@ -6,6 +6,8 @@ const catalogs={
     "Info": "Info",
     "Diagnostics": "Diagnostics",
     "Results": "Results",
+    "ECU reads": "ECU reads",
+    "Real ECU read status and TASU retry": "Real ECU read status and TASU retry",
     "All tests": "All tests",
     "DPF / DDE checks": "DPF / DDE checks",
     "Other failed checks": "Other failed checks",
