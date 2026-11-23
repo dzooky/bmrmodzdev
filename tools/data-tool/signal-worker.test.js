@@ -42,6 +42,8 @@ async function main(){
     const temp=await run('sample','statusEngineTemperature',env);
     assert.strictEqual(temp.ok,true);
     assert.strictEqual(temp.value.oil,93);
+    assert.strictEqual(temp.validated,true);
+    assert.deepStrictEqual(temp.validFields,{oil:true,coolant:true});
     assert.strictEqual(temp.value.coolant,86);
     const staged=await run('staging','statusEngineTemperature',Object.assign({},env,{BMRMODZ_CDS_STAGING_TEST_PATH:configPath}));
     assert.strictEqual(staged.ok,true);
@@ -49,6 +51,25 @@ async function main(){
     const rpm=await run('sample','statusEngineSpeed2',env);
     assert.strictEqual(rpm.ok,true);
     assert.strictEqual(rpm.value.rpm,715);
+    assert.strictEqual(rpm.validated,true);
+    fs.writeFileSync(modulePath,`
+exports.buildProxy=()=>({
+  init:async()=>{},
+  subscribe:async({name,onReceive})=>setImmediate(()=>onReceive(
+    name==='statusEngineTemperature'
+      ? {temperatureEngineDrive:0,temperatureEngineOilDrive:undefined}
+      : {actualValueRPMEngineCrankshaft:0})),
+  shutdown:async()=>{}
+});`);
+    const zero=await run('staging','statusEngineSpeed2',Object.assign({},env,{BMRMODZ_CDS_STAGING_TEST_PATH:configPath}));
+    assert.strictEqual(zero.ok,true);
+    assert.strictEqual(zero.value.rpm,0);
+    const missingOil=await run('staging','statusEngineTemperature',Object.assign({},env,{BMRMODZ_CDS_STAGING_TEST_PATH:configPath}));
+    assert.strictEqual(missingOil.ok,false);
+    assert.strictEqual(missingOil.stage,'value-invalid');
+    assert.strictEqual(missingOil.received,true);
+    assert.deepStrictEqual(missingOil.validFields,{oil:false,coolant:true});
+    assert.strictEqual(JSON.stringify(missingOil).includes('"value"'),false);
     const missingStaged=await run('staging','statusEngineSpeed2',Object.assign({},env,{BMRMODZ_CDS_STAGING_TEST_PATH:'/no-such-staging-config'}));
     assert.strictEqual(missingStaged.stage,'config');
     const deny=await run('staging','UnknownField',env);

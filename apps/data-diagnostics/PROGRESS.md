@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.14 — validate numeric staged CDS samples (2026-11-23)
+- **Implemented on feature branch:** CDS temperature/RPM PASS requires the isolated worker to report explicitly validated finite numeric fields. Invalid fields report their keys only (no numeric values transmitted). Existing 14 checks, three actions, manual HTTPS Send report and UDS tests remain unchanged. Requires Data Tool v0.1.12.
+- **In-car evidence from v0.1.13:** received native staged temperature and RPM samples in 266/297 ms, respectively, but the old test did not verify numeric payloads. Inactive CDS config still missing; no ACL registration proven.
+- **Automated:** mock valid/invalid CDS result assertions; CI to verify. **v0.1.14 NOT YET VERIFIED IN CAR.**
+
+
 ## v0.1.13 — sample CDS directly from staged configuration (2026-11-23)
 - **Implemented on feature branch:** manual diagnostics now request staged-only temperature and RPM SOME/IP probes through Data Tool 0.1.11 rather than skipping both simply because active CDS config is missing. The same 14 checks, three buttons, and manual HTTPS Send report remain. Each staged probe is isolated, read-only and bounded; native loading, staging audit and allowlist prerequisites apply. No ACL registration or active config changes.
 - **Automated:** mocked staged signal/worker and diagnostics tests; CI to verify. **v0.1.13 NOT YET VEHICLE VERIFIED.** The prior report (v0.1.12) showed staging ACL audit PASS, 1 request, UID 0, but no real CDS samples.
