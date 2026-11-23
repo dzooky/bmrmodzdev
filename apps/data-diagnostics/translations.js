@@ -36,7 +36,8 @@ const catalogs={
     "Network diagnostics": "Network diagnostics",
     "HTTPS report upload": "HTTPS report upload",
     "MGU internet access": "MGU internet access",
-    "HTTP response diagnostics": "HTTP response diagnostics"
+    "HTTP response diagnostics": "HTTP response diagnostics",
+    "Corrected upload endpoint": "Corrected upload endpoint"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
