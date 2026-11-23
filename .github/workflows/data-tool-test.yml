@@ -20,6 +20,7 @@ jobs:
           node --check tools/data-tool/broker-self-test.js
           node --check tools/data-tool/secure-peer-probe.js
           node --check tools/data-tool/secure-ipc.js
+          node tools/data-tool/health-startup.test.js
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
