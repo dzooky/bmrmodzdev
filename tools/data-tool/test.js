@@ -25,7 +25,7 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.30');
+   assert.strictEqual(status.version,'0.1.31');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const plan=await call(socket,{op:'brokerPlan'});
@@ -40,8 +40,12 @@ async function run(){
    assert.strictEqual(brokerTest.broker.vehicleReads,0);
    assert.strictEqual(brokerTest.productionAccessEnabled,false);
    assert.strictEqual(brokerTest.ipc.ok,true,JSON.stringify(brokerTest.ipc));
-   assert.strictEqual(brokerTest.ipc.unauthorizedDenied,true);
-   assert.strictEqual(brokerTest.ipc.failureStage,'none');
+   assert.strictEqual(brokerTest.ipc.ok,true);
+   assert.strictEqual(brokerTest.ipc.mode,'existing-diagnostic-connection');
+   assert.strictEqual(brokerTest.ipc.transportConfirmed,true);
+   assert.strictEqual(brokerTest.ipc.productionDataGatewayEnabled,false);
+   assert.strictEqual(brokerTest.ipc.applicationIdentityVerified,false);
+   assert.strictEqual(brokerTest.ipc.legacySocketProductionSafe,false);
    assert.strictEqual(sent,0,'broker test must never use injected vehicle transport');
    const identity=await call(socket,{op:'identitySurvey'});
    assert.strictEqual(identity.ok,true);
@@ -76,7 +80,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
-   assert.strictEqual(report.service.version,'0.1.30');
+   assert.strictEqual(report.service.version,'0.1.31');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});
