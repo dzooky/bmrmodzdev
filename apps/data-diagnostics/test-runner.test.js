@@ -22,6 +22,7 @@ async function run(){
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
+  assert.strictEqual(result.signalPermissionsVerified,false);
   assert.strictEqual(result.results.find(r=>r.id==='someipSetup').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='someipGenerated').status,'FAIL');
   assert.strictEqual(result.results.find(r=>r.id==='someipAudit').status,'PASS');
@@ -29,10 +30,26 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
   assert.strictEqual(result.results.length,14);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
+  const liveCommands=[];
+  const staged=await createRunner(async req=>{
+    liveCommands.push(req);
+    if(req.op==='status')return {ok:true};
+    if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
+    if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
+    if(req.op==='signalNative')return {ok:true,stage:'module-load'};
+    if(req.op==='signalStaging')return {ok:true,stage:'sample',received:true};
+    if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
+    return {ok:false,error:'Inactive config missing'};
+  }).run();
+  assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'FAIL');
+  assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
+  assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
+  assert.strictEqual(staged.signalPermissionsVerified,false);
+  assert.strictEqual(liveCommands.filter(x=>x.op==='signalStaging').length,2);
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
   assert.strictEqual(unavailable.results.slice(1).every(r=>r.status==='SKIP'),true);
