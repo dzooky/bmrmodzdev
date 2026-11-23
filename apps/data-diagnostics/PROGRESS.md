@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.44 — cold DDE F150 as first ECU read (2026-11-23)
+- **Vehicle evidence:** DPF Status 0.1.72 still fails on Data Tool `TASU_REJECTED` when identifying DDE F150. Prior Diagnostics 0.1.43 F150 PASS occurred only **after other ECU reads** and DDE 44BB. PASS did not cover a first DDE request.
+- **Implemented:** manual `DDE F150 first read` step uses the unchanged Tool `{op:'read',ecu:0x12,did:0xF150}` before IHKA/BDC/ACSM and before the warm DDE 44BB/F150 checks. Strictly validate a 0x62 F1 50 response of at least 6 bytes, but never save identifying bytes. Existing 15s IPC timeout and UDS result classification remain. Runs only on user-initiated Diagnostics, not at boot or in background.
+- **Scope:** diagnostics app 0.1.44 has 31 explicit checks, retains later warm F150 comparison and existing report fields. Data Tool service and transport are untouched; standalone DPF v0.1.73 change defers its native TASU session while Data Tool is enabled.
+- **Testing:** mock tests verify first ECU request is F150 and all established checks remain; CI pending. **In-car first-read result not verified**.
+
+
 ## v0.1.43 — isolated DDE F150 identification test (2026-11-23)
 - **Vehicle evidence (other repo):** DPF Status v0.1.70 (`dzooky/bmrmodz`) had TASU Ready and Data Tool status Responding but `0xF150` read failed with `TOOL_TIMEOUT` and TASU fallback `NO_MATCHING_RESPONSE`. User reported existing Data Tool Diagnostics tests all PASS; they previously exercised DDE `0x44BB`, not this exact `0xF150` identification.
 - **Implemented:** add manual `ddeIdentity` step using already allowlisted `{op:'read',ecu:0x12,did:0xF150}` immediately after the successful/attempted `0x44BB` DDE step, with existing 1-second ECU settling and 15-second client timeout. Require positive UDS `62 F1 50` response with at least three identification bytes to PASS; no raw ECU data or identity values persisted in report. FAIL reports a sanitized reason. This checks the disputed DID directly; a PASS alone does not validate DPF integration or startup timing.
