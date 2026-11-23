@@ -1,6 +1,6 @@
-# BMRMODZ Data Tool Diagnostics v0.1.4
+# BMRMODZ Data Tool Diagnostics v0.1.5
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.5. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.5. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 ## Operation
 1. Park securely. Install **both** components from an approved test build, not merely a draft GitHub PR.
