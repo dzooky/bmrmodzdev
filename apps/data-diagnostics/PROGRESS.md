@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.21 — optional secure socket DAC observation (2026-11-23)
+- **Implemented on development branch:** adds `Experimental DAC socket` (22 total read-only checks), using existing `securityCheck` metadata. Disabled or untargeted experimental sockets are SKIP. Matching 0600 owner UID plus the app's own UID is PASS for **ownership observation only**, not peer authentication; mismatched target is FAIL. Production data access remains disabled regardless.
+- Requires Data Tool 0.1.19. No automatic configuration, socket connection from the app, vehicle operations, CDS polling, or new secrets. Expected with default settings and previously observed results: 17 PASS / 0 FAIL / 5 SKIP; **not yet verified in car**.
+- **Automated:** mock matching/mismatched UID and existing regression tests; CI to verify.
+
+
 - **User-supplied MGU report 2026-11-23:** 21 explicit checks: 17 PASS / 0 FAIL / 4 SKIP. The added legacy IPC exposure SKIP confirms the mode-0666 socket is not production-safe. Tool and app identity observations PASS. `deviceVerified:false` remains in report, and these results do not authorize production consumption or verify ECU value semantics.
 
 ## v0.1.20 — legacy diagnostic socket exposure audit (2026-11-23)
