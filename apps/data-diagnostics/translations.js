@@ -68,6 +68,7 @@ const catalogs={
     "Existing IPC peer capability test": "Existing IPC peer capability test",
     "Application authentication feasibility": "Application authentication feasibility",
     "Native peer ABI survey": "Native peer ABI survey",
+    "Native kernel peer test": "Native kernel peer test",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",

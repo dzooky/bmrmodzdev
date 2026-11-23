@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.39 — explicit native SO_PEERCRED vehicle experiment (2026-11-23)
+- **Verified baseline:** Tool v0.1.33 / Diagnostics v0.1.38 22 PASS, 0 FAIL, 5 SKIP in real car, x86_64 ELF 64-bit Node 8 N-API 4. Only peer API and per-package identity unverified.
+- **Implemented:** 28th `nativeKernel` step in the existing manual Run calls Tool 0.1.34 `nativePeerProbe`, which executes a pinned static no-libc x86_64 helper **only on explicit request** with inherited existing ctl.sock client FD. Check PASS only if kernel SO_PEERCRED proof succeeds and all production-access and app-authentication flags remain false; SKIP on bounded missing/unsupported runtime conditions; FAIL on unexpected/insecure result. Preserve original app buttons, UDS/CDS semantics, existing report schema and safe textual note `Kernel peer:`. No DPF/OSA/CC source changes.
+- **Automated:** regressions and host ELF execution/roundtrip plus source binary identity. **In-car v0.1.39 UNVERIFIED.** A PASS cannot authenticate a specific application; future proof must bind peer PID/process instance to trusted signed installed package and isolation before enabling any application data API.
+
+
 ## v0.1.38 — native peer ABI read-only checkpoint (2026-11-23)
 - **Vehicle baseline:** v0.1.37 / Data Tool 0.1.32: 21 PASS, 0 FAIL, 5 SKIP; native Node peer API unavailable, cgroup accessible, no app identity verified.
 - **Implemented:** additional `nativePeer` test (#27) requests Tool v0.1.33 `nativePeerFeasibility`, displays sanitized architecture/ELF/Node/N-API summary and includes it in existing report `notes`. No raw /proc/ELF contents, PID/UID, identifiers or filenames leave the tool. Three MGU buttons, existing DDE/EGS/CDS tests and server upload schema unchanged; the Results view uses two columns of 14/13 rows.

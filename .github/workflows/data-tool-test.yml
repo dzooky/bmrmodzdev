@@ -21,6 +21,7 @@ jobs:
           node --check tools/data-tool/auth-feasibility.js
           node --check tools/data-tool/auth-policy.js
           node --check tools/data-tool/native-peer-feasibility.js
+          node --check tools/data-tool/native-peer-runner.js
           node --check tools/data-tool/secure-peer-probe.js
           node --check tools/data-tool/secure-ipc.js
           node tools/data-tool/health-startup.test.js
@@ -45,6 +46,7 @@ jobs:
           node --check tools/data-tool/auth-feasibility.test.js
           node --check tools/data-tool/native-peer-feasibility.js
           node --check tools/data-tool/native-peer-feasibility.test.js
+          node --check tools/data-tool/native-peer-runner.test.js
           node --check tools/data-tool/secure-ipc.js
           node --check tools/data-tool/identity-survey.js
           node --check apps/data-diagnostics/identity-survey.js
@@ -74,6 +76,7 @@ jobs:
           node tools/data-tool/broker-gateway.test.js
           node tools/data-tool/auth-feasibility.test.js
           node tools/data-tool/native-peer-feasibility.test.js
+          node tools/data-tool/native-peer-runner.test.js
           node tools/data-tool/transport-trace.test.js
           node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js
@@ -95,5 +98,9 @@ jobs:
           mkdir -p /tmp/bmrmodz-native-peer
           cc -std=c11 -Wall -Wextra -Werror -O2 -o /tmp/bmrmodz-native-peer/peercred tools/data-tool/native/peercred-probe.c
           node tools/data-tool/native/peercred-host.test.js /tmp/bmrmodz-native-peer/peercred
+      - name: Verify embedded x86_64 libc-free executable corresponds to assembly source
+        run: |
+          cc -nostdlib -static -Wl,--build-id=none -Wl,-z,noexecstack -Wl,-z,relro -s -o /tmp/bmrmodz-native-peer/peercred-static tools/data-tool/native/peercred-static-x86_64.S
+          node -e "const fs=require('fs'),crypto=require('crypto');const a=require('./tools/data-tool/native-peer-runner').unpack(),b=fs.readFileSync('/tmp/bmrmodz-native-peer/peercred-static');if(!a.equals(b))throw Error('Bundled ELF mismatches source')"
       - name: Offline MGU preview build
         run: python3 kit/tools/build.py --preview-only data-diagnostics
