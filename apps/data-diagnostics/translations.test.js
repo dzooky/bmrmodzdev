@@ -42,6 +42,7 @@ assert.ok(t('en','TASU status and SOME/IP timing'));
 assert.ok(t('en','Report upload compatibility fix'));
 assert.ok(t('en','Immediate TASU rejection handling'));
 assert.ok(t('en','Established ECU-first diagnostics'));
+for(const key of ['Run before sleep','Run after wake','DPF comparison','Before sleep','After wake'])assert.ok(t('en',key));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
 assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
