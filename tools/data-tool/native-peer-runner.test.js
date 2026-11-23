@@ -1,6 +1,7 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),net=require('net'),os=require('os'),path=require('path');
 const {run,unpack}=require('./native-peer-runner');
+const EventEmitter=require('events');
 async function main(){
  const bin=unpack();
  assert.strictEqual(bin.readUInt16LE(18),62);
@@ -27,6 +28,35 @@ async function main(){
   assert.strictEqual(value.applicationIdentityVerified,false);
   assert.strictEqual(value.packageIdentityVerified,false);
   assert.strictEqual(value.productionAccessEnabled,false);
+  assert.deepStrictEqual(fs.readdirSync(dir).sort(),['ctl.sock']);
+  // Node 8: the inherited socket may keep ChildProcess 'close' pending even
+  // though the helper already exited and its stdout reached EOF.
+  const fakeSpawn=()=>{
+   const child=new EventEmitter();
+   child.stdout=new EventEmitter();
+   child.killed=false;
+   child.kill=()=>{child.killed=true;};
+   process.nextTick(()=>{
+    child.stdout.emit('data',JSON.stringify({ok:true,mode:'mgu-native-peer-probe',
+      unixSocket:true,kernelPeerObserved:true,applicationIdentityVerified:false,
+      productionAccessEnabled:false})+'\\n');
+    child.emit('exit',0);
+    child.stdout.emit('end');
+    // Deliberately NO 'close' event.
+   });
+   return child;
+  };
+  const simulated=await run(client,dir,{spawn:fakeSpawn,timeoutMs:300});
+  assert.strictEqual(simulated.ok,true,JSON.stringify(simulated));
+  assert.strictEqual(simulated.stage,'kernel-peer-observed');
+  assert.deepStrictEqual(fs.readdirSync(dir).sort(),['ctl.sock']);
+  const fakeHang=()=>{
+   const child=new EventEmitter();child.stdout=new EventEmitter();
+   child.killed=false;child.kill=()=>{child.killed=true;};return child;
+  };
+  const timed=await run(client,dir,{spawn:fakeHang,timeoutMs:25});
+  assert.strictEqual(timed.ok,false);
+  assert.strictEqual(timed.stage,'timeout-after-spawn');
   assert.deepStrictEqual(fs.readdirSync(dir).sort(),['ctl.sock']);
   const denied=await run({},dir);
   assert.strictEqual(denied.ok,false);
