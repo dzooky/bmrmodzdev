@@ -19,6 +19,7 @@ jobs:
           node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
           node --check tools/data-tool/someip-setup.js
+          node --check tools/data-tool/someip-audit.js
           node --check tools/data-tool/someip-generate.js
           node --check tools/data-tool/someip-generator.js
           node -e "JSON.parse(require('fs').readFileSync('mgu-repo.json'))"
@@ -33,6 +34,7 @@ jobs:
           node apps/data-diagnostics/translations.test.js
           node tools/data-tool/test.js
           node tools/data-tool/someip-setup.test.js
+          node tools/data-tool/someip-audit.test.js
           node tools/data-tool/someip-generate.test.js
           node tools/data-tool/signal-environment.test.js
           node tools/data-tool/signal-isolate.test.js
