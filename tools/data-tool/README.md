@@ -45,3 +45,7 @@ Explicit `someipGenerate` runs a bounded generator probe with safe retries when 
 
 ## Climate Comfort control feasibility\n\n`probe.js ccPlan` exposes an **inert** coverage matrix for IHKA seat press/release/stop, BDC wheel heating and ACSM belt routines. It does not execute any UDS 0x31 or 0x2E commands. Code for changing ECU state is intentionally absent. Vehicle-side validation and authorization are separate work.\n\n## Status
 Implemented in source only. CI is checked separately; installation, native binding, SOME/IP configuration/ACL, signal reception and in-car diagnostic results are unverified. See `PROGRESS.md` for migration GO/NO-GO gates.
+
+### v0.1.9 — older MGU Node directory handling
+
+The manual CDS generator creates tool-owned root/staging directories only when absent. It reuses an existing empty staging directory, preserves partial output without overwriting it, and does not activate CDS or register ACLs. Data Tool Diagnostics v0.1.11 remains unchanged.
