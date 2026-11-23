@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.13 — sample CDS directly from staged configuration (2026-11-23)
+- **Implemented on feature branch:** manual diagnostics now request staged-only temperature and RPM SOME/IP probes through Data Tool 0.1.11 rather than skipping both simply because active CDS config is missing. The same 14 checks, three buttons, and manual HTTPS Send report remain. Each staged probe is isolated, read-only and bounded; native loading, staging audit and allowlist prerequisites apply. No ACL registration or active config changes.
+- **Automated:** mocked staged signal/worker and diagnostics tests; CI to verify. **v0.1.13 NOT YET VEHICLE VERIFIED.** The prior report (v0.1.12) showed staging ACL audit PASS, 1 request, UID 0, but no real CDS samples.
+- **Next:** run diagnostics and send report after updating both components. Distinguish native proxy init / subscribe / no signal from valid staged sample. Never treat positive sample alone as proof of decoded value correctness.
+
+
 ## v0.1.12 — passive CDS ACL audit reporting (2026-11-23)
 - **Implemented on feature branch:** adds one `CDS ACL audit` step (14 total) to manually run diagnostics, showing staged config/ACL structural validity, sanitized counts and running UID. A PASS means staged files pass structural checks **only**, never ACL registration. Keeps three buttons, existing UDS tests, HTTPS Send report and CDS sampling SKIPs. Requires Data Tool v0.1.10.
 - **Verified evidence from prior in-car report:** Data Tool v0.1.9 generator produced staged CDS+ACL, native binding loaded, five ECU UDS response echoes present; active config missing and actual CDS values unavailable.

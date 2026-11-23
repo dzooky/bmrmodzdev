@@ -14,8 +14,8 @@ const STEPS=[
   {id:'ihka',label:'IHKA / climate',request:{op:'read',ecu:0x78,did:0xD8D7},kind:'uds'},
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
-  {id:'cdsTemp',label:'CDS / temperatures',request:{op:'signalNative',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
-  {id:'cdsRpm',label:'CDS / engine speed',request:{op:'signalNative',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'}
+  {id:'cdsTemp',label:'CDS staged / temperatures',request:{op:'signalStaging',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
+  {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'}
 ];
 function cleanError(value){return String(value||'Unknown error').replace(/[\r\n]/g,' ').slice(0,140);}
 function resultFor(step,reply,duration){
@@ -69,12 +69,12 @@ function createRunner(send,clock){
     if(active)throw new Error('Diagnostics already running');
     active=true;
     const results=[],startedAt=new Date().toISOString();
-    let serviceAvailable=false,configReady=false,nativeReady=false;
+    let serviceAvailable=false,stagingReady=false,nativeReady=false;
     try{
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
         const skip=step.id!=='service'&&!serviceAvailable?'Service unavailable'
-          :step.kind==='signal'&&!configReady?'CDS config unavailable'
+          :step.kind==='signal'&&!stagingReady?'Staged CDS config unavailable'
           :step.kind==='signal'&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
@@ -86,7 +86,7 @@ function createRunner(send,clock){
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
         if(step.id==='service')serviceAvailable=result.status==='PASS';
-        if(step.id==='someipConfig')configReady=result.status==='PASS';
+        if(step.id==='someipAudit')stagingReady=result.status==='PASS';
         if(step.id==='someipLoad')nativeReady=result.status==='PASS';
         if(onProgress)onProgress(i+1,STEPS.length,result);
       }
@@ -94,11 +94,12 @@ function createRunner(send,clock){
         skip:results.filter(x=>x.status==='SKIP').length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
         startedAt,finishedAt:new Date().toISOString(),totals,results,
-        controlsTested:false,signalPermissionsVerified:results.some(x=>x.id==='cdsTemp'&&x.status==='PASS'),
+        controlsTested:false,signalPermissionsVerified:false,
         deviceVerified:false,
         notes:['Positive ECU responses are not proof of correct decoded values.',
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
           'No UDS 0x31 or 0x2E was issued by this test application.',
+          'Staged CDS sampling does not register ACLs or prove installed system permissions.',
           'Only the tester can confirm installation and results in a real car.']};
     }finally{active=false;}
   }

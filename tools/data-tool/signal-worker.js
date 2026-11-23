@@ -4,6 +4,7 @@
 // Only approved read-only CDS fields may be sampled.
 const fs=require('fs');
 const {DEFAULT}=require('./config-check');
+const STAGED='/var/opt/bmrmodz-data-tool/generator-test/de_bmw_infotainment_vehicle_CDS.json';
 const {SIGNALS,NODE_CANDIDATES}=require('./signal-environment');
 const CDS='de.bmw.infotainment.vehicle.CDS';
 const ALLOWED=['statusEngineTemperature','statusEngineSpeed2'];
@@ -21,8 +22,8 @@ function error(stage,e){finish({ok:false,stage,error:String(e&&e.message||e).sli
 async function main(){
   if(process.argv.length!==4) return error('args',new Error('Expected mode and field'));
   const mode=process.argv[2],field=process.argv[3];
-  if(mode!=='load' && mode!=='sample')return error('args',new Error('Unsupported mode'));
-  if(mode==='sample'&&ALLOWED.indexOf(field)<0)return error('allowlist',new Error('CDS field not allowed'));
+  if(mode!=='load' && mode!=='sample' && mode!=='staging')return error('args',new Error('Unsupported mode'));
+  if((mode==='sample'||mode==='staging')&&ALLOWED.indexOf(field)<0)return error('allowlist',new Error('CDS field not allowed'));
   let someip;
   try{
     // Caller can opt into a specific installation path; no binary is bundled.
@@ -35,14 +36,15 @@ async function main(){
   }catch(e){return error('module-load',e);}
   if(!someip||typeof someip.buildProxy!=='function')return error('module-api',new Error('buildProxy not available'));
   if(mode==='load')return finish({ok:true,stage:'module-load',hasBuildProxy:true});
-  const cfgPath=process.env.BMRMODZ_CDS_CONFIG||DEFAULT;
+  // Staged probe uses a fixed, tool-owned path; never accepts a client path.
+  const cfgPath=mode==='staging'?(process.env.BMRMODZ_CDS_STAGING_TEST_PATH||STAGED):(process.env.BMRMODZ_CDS_CONFIG||DEFAULT);
   let cfg;
   try{
     const stat=fs.statSync(cfgPath);
     if(!stat.isFile()||stat.size>1024*1024)throw new Error('Invalid CDS configuration file');
     cfg=JSON.parse(fs.readFileSync(cfgPath,'utf8'));
   }catch(e){return error('config',e);}
-  if(!cfg||typeof cfg!=='object')return error('config',new Error('Invalid config object'));
+  if(!cfg||typeof cfg!=='object'||!cfg.fields||!cfg.fields[field])return error('config',new Error('Missing staged CDS field'));
   try{
     // Match the scheduling approach of kit/runtime/signals.js.
     proxy=await new Promise((resolve,reject)=>setImmediate(()=>{

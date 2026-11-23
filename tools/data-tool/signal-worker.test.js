@@ -43,10 +43,15 @@ async function main(){
     assert.strictEqual(temp.ok,true);
     assert.strictEqual(temp.value.oil,93);
     assert.strictEqual(temp.value.coolant,86);
+    const staged=await run('staging','statusEngineTemperature',Object.assign({},env,{BMRMODZ_CDS_STAGING_TEST_PATH:configPath}));
+    assert.strictEqual(staged.ok,true);
+    assert.strictEqual(staged.value.oil,93);
     const rpm=await run('sample','statusEngineSpeed2',env);
     assert.strictEqual(rpm.ok,true);
     assert.strictEqual(rpm.value.rpm,715);
-    const deny=await run('sample','UnknownField',env);
+    const missingStaged=await run('staging','statusEngineSpeed2',Object.assign({},env,{BMRMODZ_CDS_STAGING_TEST_PATH:'/no-such-staging-config'}));
+    assert.strictEqual(missingStaged.stage,'config');
+    const deny=await run('staging','UnknownField',env);
     assert.strictEqual(deny.stage,'allowlist');
     const badConfig=await run('sample','statusEngineTemperature',Object.assign({},env,{BMRMODZ_CDS_CONFIG:'/no-such-file'}));
     assert.strictEqual(badConfig.stage,'config');

@@ -14,7 +14,9 @@ async function main(){
     const mock=createRunner({worker,timeoutMs:250});
     const good=await mock.run('load');
     assert.strictEqual(good.ok,true);
-    const slow=await mock.run('sample','statusEngineTemperature');
+    const badStaging=await mock.run('staging','other');
+    assert.strictEqual(badStaging.stage,'allowlist');
+    const slow=await mock.run('staging','statusEngineTemperature');
     assert.strictEqual(slow.stage,'worker-timeout');
   }finally{fs.unlinkSync(worker);}
   console.log('Data Tool signal isolate: allowlist, child lifecycle and kill timeout passed');

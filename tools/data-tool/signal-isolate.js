@@ -2,7 +2,7 @@
 // Broker: one short-lived worker at a time, hard-killed on deadline.
 // Never pass request-controlled module paths, config paths or process arguments.
 const {spawn}=require('child_process'),path=require('path');
-const MODES=['load','sample'],FIELDS=['statusEngineTemperature','statusEngineSpeed2'];
+const MODES=['load','sample','staging'],FIELDS=['statusEngineTemperature','statusEngineSpeed2'];
 function createRunner(options){
   const opts=options||{};
   const worker=opts.worker||path.join(__dirname,'signal-worker.js');
@@ -11,7 +11,7 @@ function createRunner(options){
   let running=false;
   return {
     run(mode,field){
-      if(MODES.indexOf(mode)<0 || (mode==='sample'&&FIELDS.indexOf(field)<0))return Promise.resolve({ok:false,stage:'allowlist',error:'Unsupported signal test'});
+      if(MODES.indexOf(mode)<0 || ((mode==='sample'||mode==='staging')&&FIELDS.indexOf(field)<0))return Promise.resolve({ok:false,stage:'allowlist',error:'Unsupported signal test'});
       if(running)return Promise.resolve({ok:false,stage:'busy',error:'Another signal probe is running'});
       running=true;
       return new Promise(resolve=>{

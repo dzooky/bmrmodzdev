@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.11 — isolated staged CDS sampling experiment (2026-11-23)
+- **Implemented on feature branch:** explicit read-only `signalStaging` operation launches the existing bounded isolated SOME/IP worker with the generated CDS config at `/var/opt/bmrmodz-data-tool/generator-test/de_bmw_infotainment_vehicle_CDS.json`. Only `statusEngineTemperature` and `statusEngineSpeed2` are allowed; a single worker at a time, 8s hard deadline. The active CDS config and ACL are not installed, registered, modified or copied.
+- **Prior in-car evidence (v0.1.10 with Diagnostics v0.1.12):** staged config and ACL audit PASS, requests 1, offers 0, UID 0. Active config absent, native module loads, and UDS response echoes present. This does not prove ACL registration or native signal reception.
+- **Automated:** worker fake SOME/IP staged-path test, missing-config and allowlist checks, timeout and diagnostics staged-read execution tests. CI pending. **v0.1.11 NOT YET IN-CAR VERIFIED.**
+- **Next:** update Data Tool and Diagnostics v0.1.13, parked car manual Run diagnostics / Send report. A staged sample PASS confirms a sample was received, not independent correctness of decoded values or registered ACL.
+
+
 ## v0.1.10 — passive CDS staging/ACL audit (2026-11-23)
 - **Implemented on feature branch:** new read-only `someipAudit` socket command inspects the two staged generator files, validates the two requested CDS field entries, counts ACL offers/requests, and reports Data Tool UID/GID. ACL entries, authorization details and raw config are never transmitted. The standalone service's ACL registration mechanism remains **unknown/unverified**; no file installation, permission change, native subscription, or ECU traffic.
 - **Confirmed in car for v0.1.9:** staged CDS and ACL generation PASS, native SOME/IP load PASS, five ECU UDS replies PASS; active CDS config absent, temperature and RPM SKIP. These results do **not** confirm service-side ACL authorization or signal delivery.
