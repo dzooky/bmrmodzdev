@@ -44,6 +44,18 @@ function upload(report,dataDir,options){
     id:String(item.id||''),label:String(item.label||''),status:String(item.status||''),
     durationMs:Number(item.durationMs)||0,detail:String(item.detail||'').slice(0,160)
   }));
+  // Reuse the server-accepted DDE result detail, never add a new JSON field or
+  // an unknown result id to the strict receiving endpoint.
+  const dpf=report.dpfSnapshot;
+  if(dpf&&dpf.ok===true&&['B57','B47'].includes(dpf.engine)&&dpf.values&&
+    ['soot','ash','since','average'].every(key=>Number.isFinite(dpf.values[key])&&
+      dpf.values[key]>=0&&dpf.values[key]<=10000000)){
+    const values=dpf.values;
+    const packed='DPF '+dpf.engine+' S='+values.soot+'g A='+values.ash+
+      'g D='+values.since+'km AVG='+values.average+'km';
+    const dde=safe.results.find(row=>row.id==='dde'&&row.status==='PASS');
+    if(dde)dde.detail=(packed+'; '+dde.detail).slice(0,160);
+  }
   const body=JSON.stringify(safe);
   if(Buffer.byteLength(body)>32768)return Promise.reject(new Error('Diagnostic report exceeds 32 KB'));
   return new Promise((resolve,reject)=>{
