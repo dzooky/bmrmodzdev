@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.17 — secure IPC readiness audit (2026-11-23)
+- **Implemented on feature branch:** adds 17th manual `Secure IPC readiness` check using Data Tool 0.1.15. It is `SKIP` (expected) when the owner-only 0600 test socket exists but peer identity is unverified and production access is disabled; FAIL if secure socket is not restricted. The existing 16 checks, three buttons and report sanitization are unchanged.
+- **Prior in-car evidence (v0.1.16):** 15 PASS / 0 FAIL / 1 SKIP, including successful two-consumer lease, expiry and restart. Does not authenticate application callers.
+- **Automated:** diagnostic readiness case, fail-closed secure IPC test; CI to verify. **v0.1.17 NOT VERIFIED IN CAR.**
+- **Next:** parked-car manual Run diagnostics / Send report. Expected: 15 PASS / 0 FAIL / 2 SKIP (active CDS config and unfinished production IPC authentication).
+
+
 ## v0.1.16 — two-consumer CDS lifecycle test (2026-11-23)
 - **Implemented on feature branch:** manual diagnostics now have 16 checks. The new `CDS multi-consumer lifecycle` test starts two test-only manifest consumers, verifies one shared worker and a filtered secondary cache, releases one consumer while keeping the stream alive for the other, verifies natural lease expiry, then restarts/stops the worker. No automatic startup or changes to DPF/OSA/CC. The existing three buttons, manual HTTPS sanitized reporting, and expected active-config SKIP remain unchanged.
 - **In-car evidence from v0.1.15:** individual CDS numeric values and shared stream refresh/stop PASS in a vehicle (14 PASS / 0 FAIL / 1 SKIP); the new two-consumer test is **not yet verified in car**.

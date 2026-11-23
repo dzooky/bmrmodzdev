@@ -21,13 +21,17 @@ async function run(){
  const mock={ready:true,async read(ecu,did){sent++;await new Promise(r=>setTimeout(r,30));return [0x62,did>>8,did&255,0x05];},close(){}};
  const socket=path.join(os.tmpdir(),'bmrmodz-data-test-'+process.pid+'.sock');
  let signalTests=0;
- const svc=serve(()=>mock,socket,{cdsEngine:{demand:()=>({ok:true,running:true}),snapshot:()=>({ok:true,fields:{}}),release:()=>({ok:true,running:false}),close:()=>{}},signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}},generator:{inspect:()=>({ok:false,stage:'missing'}),run:async()=>({ok:true,stage:'generated',aclRegistered:false})}});
+ const svc=serve(()=>mock,socket,{secureEndpoint:{inspect:()=>({present:true,mode:'0600',ownerOnly:true}),close:()=>{}},cdsEngine:{demand:()=>({ok:true,running:true}),snapshot:()=>({ok:true,fields:{}}),release:()=>({ok:true,running:false}),close:()=>{}},signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}},generator:{inspect:()=>({ok:false,stage:'missing'}),run:async()=>({ok:true,stage:'generated',aclRegistered:false})}});
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.14');
+   assert.strictEqual(status.version,'0.1.15');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
+   const security=await call(socket,{op:'securityCheck'});
+   assert.strictEqual(security.productionAccessEnabled,false);
+   assert.strictEqual(security.peerIdentityVerified,false);
+   assert.strictEqual(security.secureSocket.ownerOnly,true);
    const passive=await call(socket,{op:'signalEnvironment'});
    assert.strictEqual(passive.ok,true);
    assert.strictEqual(passive.mode,'passive-only');

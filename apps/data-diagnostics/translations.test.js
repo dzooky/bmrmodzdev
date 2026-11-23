@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.14');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.15');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -32,6 +32,7 @@ assert.ok(t('en','CDS ACL audit'));
 assert.ok(t('en','CDS numeric validation'));
 assert.ok(t('en','Shared CDS data engine'));
 assert.ok(t('en','CDS multi-consumer test'));
+assert.ok(t('en','Secure IPC audit'));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
 assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');

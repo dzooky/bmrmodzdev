@@ -3,6 +3,7 @@
 // Results are deliberately sanitised: no VIN, FA/VO, raw UDS data or position.
 const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
+  {id:'ipcSecurity',label:'Secure IPC readiness',request:{op:'securityCheck'},kind:'security'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -24,6 +25,14 @@ function resultFor(step,reply,duration){
   const base={id:step.id,label:step.label,status:'FAIL',durationMs:duration};
   if(!reply||typeof reply!=='object')return Object.assign(base,{detail:'Missing response'});
   if(step.kind==='status')return Object.assign(base,{status:reply.ok===true?'PASS':'FAIL',detail:reply.ok?'Service available':cleanError(reply.error)});
+  if(step.kind==='security'){
+    const sock=reply.secureSocket||{};
+    const restricted=reply.ok===true&&sock.present===true&&sock.mode==='0600'&&sock.ownerOnly===true;
+    const pending=reply.peerIdentityVerified===false&&reply.productionAccessEnabled===false;
+    return Object.assign(base,{status:restricted&&pending?'SKIP':'FAIL',
+      detail:restricted&&pending?'Owner-only test socket; app identity unverified, production disabled':
+        cleanError(reply.error||'Secure socket permission check failed')});
+  }
   if(step.kind==='environment'){
     const catalog=reply.catalog&&reply.catalog.present;
     const module=reply.nativeModule&&reply.nativeModule.resolved;

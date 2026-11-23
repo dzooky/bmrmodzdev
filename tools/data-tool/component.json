@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "title": "Data Tool Feasibility",
   "description": "Read-only BMRMODZ Data Tool diagnostic feasibility service, supporting the separate diagnostic MGU app",
   "optional": true,
@@ -17,6 +17,11 @@
     {
       "path": "service.js",
       "from": "service.js",
+      "mode": "0644"
+    },
+    {
+      "path": "secure-ipc.js",
+      "from": "secure-ipc.js",
       "mode": "0644"
     },
     {
