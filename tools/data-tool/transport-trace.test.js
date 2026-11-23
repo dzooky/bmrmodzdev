@@ -1,7 +1,7 @@
 'use strict';
 // Isolated read-only trace tests. No hmictl process or vehicle connection.
 const assert=require('assert');
-const {HmiTransport}=require('./transport');
+const {HmiTransport,decode,frameIssue}=require('./transport');
 const ecu=0x12,did=0x44BB;
 function fake(schedule){
   const transport=new HmiTransport('/not-used');
@@ -10,6 +10,19 @@ function fake(schedule){
   return transport;
 }
 async function main(){
+  // Frame taxonomy is read-only; no payload is stored in the diagnostic report.
+  const examples=[
+    [undefined,'missing'],['','missing'],['zzzzzzzz000000000000','nonHex'],
+    ['0000000900000000000','oddLength'],['00000009','shortFrame'],
+    ['00000008000000000000000000','shortHeader'],
+    ['00000012000000000000000000','lengthOverflow'],
+    ['00000009000000000000000000',null]
+  ];
+  for(const [hex,reason] of examples){
+    assert.strictEqual(frameIssue(hex),reason);
+    if(reason!==null)assert.strictEqual(decode(hex),null);
+  }
+
   const trace={};
   const success=fake(t=>{
     t.pendingRead.consume({ecu:0x18,uds:[0x62,0x44,0xBB]});
