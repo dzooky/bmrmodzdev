@@ -51,7 +51,7 @@ for(const text of [
  'We still working on it and will be available soon.',
  'Thank you'
 ])assert.ok(main.includes(text));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','Share']"));
+assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
 assert.ok(!main.includes("ui.onClick('BTN_EXPORT'"));
 assert.ok(!main.includes("ui.onClick('BTN_PREV'"));
