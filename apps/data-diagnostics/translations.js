@@ -72,6 +72,7 @@ const catalogs={
     "Native kernel peer compatibility": "Native kernel peer compatibility",
     "Process isolation feasibility": "Process isolation feasibility",
     "DPF read compatibility test": "DPF read compatibility test",
+    "DDE F150 identification check": "DDE F150 identification check",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",
