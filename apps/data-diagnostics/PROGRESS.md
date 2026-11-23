@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.10 — restore visible Send report action (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** removed unused Export report button from the OAP manifest and UI button binding, keeping Run diagnostics, Generate CDS test, Send report, Previous page, Next page in that order. Six declared actions had crowded out Send report on MGU. Manual HTTPS upload logic is unchanged; data/QR export internals are retained, with no visible Export button.
+- **Automated:** manifest ordering and button bindings asserted in regression; final CI to be checked. **In-car:** new button layout and report upload from v0.1.10 not yet verified.
+- Data Tool remains v0.1.7. No other application or generator logic changed.
+
+
 ## v0.1.9 — isolated CDS generator test control (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** manual `Generate CDS test` button triggers one bounded tool-level generator experiment (Data Tool 0.1.7), with in-app success/failure feedback. `CDS generator test` result row checks staged CDS JSON, fields and ACL file without registering ACLs; 16 results display in two columns. Existing Run, Send, export, UDS, network and SOME/IP native-load behavior is preserved.
 - **Safety:** staging-only output, no modification of active CDS config or other apps; normal CDS config/temperature/RPM tests remain FAIL/SKIP until authorized activation. Current local socket has broad access; this experimental write operation is intentionally one-shot and fixed-path, not a production feature.
