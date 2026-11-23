@@ -2,6 +2,7 @@
 // Explicit, sequential read-only MGU checks. No background activity, no writes.
 // Results are deliberately sanitised: no VIN, FA/VO, raw UDS data or position.
 const appIdentity=require('./identity-survey');
+const dpfValues=require('./dpf-values');
 const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
   {id:'ipcSecurity',label:'Secure IPC readiness',request:{op:'securityCheck'},kind:'security'},
@@ -24,6 +25,7 @@ const STEPS=[
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
   {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
+  {id:'dpfValues',label:'DPF decoded values',request:null,kind:'dpf'},
   {id:'cdsTemp',label:'CDS staged / temperatures',request:{op:'signalStaging',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
   {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'},
   {id:'cdsStream',label:'CDS shared data engine',request:{op:'cdsDemand',consumer:'diagnostics'},kind:'engine'},
@@ -134,6 +136,8 @@ function resultFor(step,reply,duration){
         cleanError(reply.error||'CDS shared stream did not refresh or stop')});
   }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
+  if(step.kind==='dpf')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',
+    detail:reply.ok?dpfValues.summary(reply):cleanError(reply.error)});
   if(step.kind==='uds'){
     const valid=reply.ok===true&&Array.isArray(reply.uds)&&reply.uds.length>=3&&reply.uds[0]===0x62&&reply.uds[1]===(step.request.did>>8)&&reply.uds[2]===(step.request.did&255);
     // Do not persist raw ECU bytes or identifying values.
@@ -287,30 +291,34 @@ async function testMulti(request){
 function createRunner(send,clock){
   const request=send,now=clock||Date.now;
   let active=false;
-  async function run(onProgress){
+  async function run(onProgress,phase){
     if(active)throw new Error('Diagnostics already running');
     active=true;
     const results=[],startedAt=new Date().toISOString();
+    if(phase!==undefined&&phase!=='before'&&phase!=='after')throw new Error('Invalid snapshot phase');
+    let dpfSnapshot=null;
     let serviceAvailable=false,stagingReady=false,nativeReady=false;
     let previousUds=false;
     try{
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
         const skip=step.id!=='service'&&!serviceAvailable?'Service unavailable'
+          :step.kind==='dpf'&&(!results.some(r=>r.id==='dde'&&r.status==='PASS'))?'DDE response unavailable'
           :(step.kind==='signal'||step.kind==='engine'||step.kind==='multi')&&!stagingReady?'Staged CDS config unavailable'
           :(step.kind==='signal'||step.kind==='engine')&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
         // Explicit manual diagnostics only: space ECU checks to test whether
         // TASU/ECU settling is related to intermittent DDE and EGS timeouts.
-        if(step.kind==='uds'&&previousUds)await delay(1000);
-        previousUds=step.kind==='uds';
+        if((step.kind==='uds'||step.kind==='dpf')&&previousUds)await delay(1000);
+        previousUds=step.kind==='uds'||step.kind==='dpf';
         const start=now();
         let result;
         try{
           const drivetrain=step.id==='dde'||step.id==='egs';
+          if(step.kind==='dpf')dpfSnapshot=await dpfValues.snapshot(request);
           const readResult=drivetrain?await drivetrainRead(request,step):null;
-          const reply=drivetrain?readResult.reply:step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
+          const reply=drivetrain?readResult.reply:step.kind==='dpf'?dpfSnapshot:step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
@@ -334,10 +342,12 @@ function createRunner(send,clock){
         skip:results.filter(x=>x.status==='SKIP').length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
         startedAt,finishedAt:new Date().toISOString(),totals,results,
+        snapshotPhase:phase||null,dpfSnapshot:dpfSnapshot&&dpfSnapshot.ok?dpfSnapshot:null,
         someipTimings:someipTimings(results),
         controlsTested:false,signalPermissionsVerified:false,
         deviceVerified:false,
-        notes:['Positive ECU responses are not proof of correct decoded values.',
+        notes:[phase==='before'?'Snapshot phase: before sleep':phase==='after'?'Snapshot phase: after wake':'Snapshot phase: unlabelled',
+          'Positive ECU responses are not proof of correct decoded values.',
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
           'No UDS 0x31 or 0x2E was issued by this test application.',
           'Staged CDS sampling does not register ACLs or prove installed system permissions.',
