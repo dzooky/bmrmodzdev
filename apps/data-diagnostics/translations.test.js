@@ -59,7 +59,12 @@ for(const text of [
  'We still working on it and will be available soon.',
  'Thank you'
 ])assert.ok(main.includes(text));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
+assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','All tests']"));
+assert.ok(main.includes("const priority=['ddeColdIdentity','dde','ddeIdentity']"));
+assert.ok(main.includes("if(page===6)drawAllTests(cv,theme)"));
+assert.ok(main.includes("const midpoint=Math.ceil(rows.length/2)"));
+assert.ok(!main.includes("column.forEach((item,i)=>resultLine("),
+  'the dense results grid must not draw overlapping two-line descriptions');
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
 assert.ok(main.includes('runTest(nextPhase)'));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
