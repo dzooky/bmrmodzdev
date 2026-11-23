@@ -18,6 +18,8 @@ jobs:
           node --check tools/data-tool/data-catalog.js
           node --check tools/data-tool/broker-gateway.js
           node --check tools/data-tool/broker-self-test.js
+          node --check tools/data-tool/auth-feasibility.js
+          node --check tools/data-tool/auth-policy.js
           node --check tools/data-tool/secure-peer-probe.js
           node --check tools/data-tool/secure-ipc.js
           node tools/data-tool/health-startup.test.js
@@ -39,6 +41,7 @@ jobs:
           node --check tools/data-tool/broker-self-test.js
           node --check tools/data-tool/secure-peer-probe.js
           node --check tools/data-tool/data-broker.test.js
+          node --check tools/data-tool/auth-feasibility.test.js
           node --check tools/data-tool/secure-ipc.js
           node --check tools/data-tool/identity-survey.js
           node --check apps/data-diagnostics/identity-survey.js
@@ -66,6 +69,7 @@ jobs:
           node tools/data-tool/test.js
           node tools/data-tool/data-broker.test.js
           node tools/data-tool/broker-gateway.test.js
+          node tools/data-tool/auth-feasibility.test.js
           node tools/data-tool/transport-trace.test.js
           node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js

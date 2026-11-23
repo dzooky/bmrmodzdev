@@ -5,6 +5,9 @@ async function run(){
   let commands=[];
   const sender=async req=>{
     commands.push(req);
+    if(req.op==='authFeasibility')return {ok:true,mode:'passive-auth-feasibility',
+      nativePeerApiAvailable:false,nativePeerIdentityVerified:false,appIdentityVerified:false,
+      productionAccessEnabled:false,procStatusAccessible:true,seccompActive:true,cgroupReadable:true};
     if(req.op==='status')return {ok:true,version:'0.1.5'};
     if(req.op==='brokerSelfTest')return {ok:true,mode:'explicit-test-only',productionAccessEnabled:false,applicationIdentityVerified:false,
       broker:{ok:true,vehicleReads:0,sharedUds:true,sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true,productionAccessEnabled:false},
@@ -27,6 +30,7 @@ async function run(){
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='brokerGateway').status,'PASS');
+  assert.strictEqual(result.results.find(r=>r.id==='authBoundary').status,'PASS');
   const brokerStep=STEPS.find(x=>x.id==='brokerGateway');
   const brokenIpc=resultFor(brokerStep,{ok:true,mode:'explicit-test-only',
     productionAccessEnabled:false,applicationIdentityVerified:false,
@@ -38,7 +42,7 @@ async function run(){
   assert.strictEqual(brokenIpc.status,'FAIL');
   assert.ok(brokenIpc.detail.includes('existing IPC check failed'));
   assert.ok(!brokenIpc.detail.includes('/run/'));
-  assert.strictEqual(STEPS.length,25);
+  assert.strictEqual(STEPS.length,26);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -65,9 +69,9 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,25);
+  assert.strictEqual(result.results.length,26);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -98,6 +102,9 @@ async function run(){
   }
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
+    if(req.op==='authFeasibility')return {ok:true,mode:'passive-auth-feasibility',
+      nativePeerApiAvailable:false,nativePeerIdentityVerified:false,appIdentityVerified:false,
+      productionAccessEnabled:false,procStatusAccessible:true,seccompActive:true,cgroupReadable:true};
     if(req.op==='status')return {ok:true};
     if(req.op==='brokerSelfTest')return {ok:true,mode:'explicit-test-only',productionAccessEnabled:false,applicationIdentityVerified:false,
       broker:{ok:true,vehicleReads:0,sharedUds:true,sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true,productionAccessEnabled:false},
@@ -125,6 +132,7 @@ async function run(){
     return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
   assert.strictEqual(staged.results.find(x=>x.id==='brokerGateway').status,'PASS');
+  assert.strictEqual(staged.results.find(x=>x.id==='authBoundary').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
@@ -141,6 +149,9 @@ async function run(){
   assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,4);
   assert.ok(staged.results.find(x=>x.id==='cdsTemp').detail.includes('numeric fields validated'));
   const invalid=await createRunner(async req=>{
+    if(req.op==='authFeasibility')return {ok:true,mode:'passive-auth-feasibility',
+      nativePeerApiAvailable:false,nativePeerIdentityVerified:false,appIdentityVerified:false,
+      productionAccessEnabled:false,procStatusAccessible:true,seccompActive:true,cgroupReadable:true};
     if(req.op==='status')return {ok:true};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
@@ -207,6 +218,9 @@ async function run(){
   const dpfCalls=[];
   const dpfPhase=await createRunner(async req=>{
     dpfCalls.push(req);
+    if(req.op==='authFeasibility')return {ok:true,mode:'passive-auth-feasibility',
+      nativePeerApiAvailable:false,nativePeerIdentityVerified:false,appIdentityVerified:false,
+      productionAccessEnabled:false,procStatusAccessible:true,seccompActive:true,cgroupReadable:true};
     if(req.op==='status')return {ok:true};
     if(req.op==='read'||req.op==='readTrace'){
       const values={
