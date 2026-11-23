@@ -70,35 +70,7 @@ class HmiTransport {
           if(line.startsWith('ev ')){
             const fields=line.split(' ');
             if(fields[1]!=='0xf8a6'||fields[2]!=='0x8001'||!this.pendingRead)continue;
-            const response=decode(fields[3]);
-            if(!response){
-              const t=this.pendingRead.trace;
-              if(t){t.malformedEvents++;const reason=frameIssue(fields[3]);
-                const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
-                if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
-                if(reason==='shortHeader'){
-                  const short=shortEnvelope(fields[3]);
-                  if(short){
-                    t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
-                    t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
-                    t[short.lengthBand==='0-4'?'shortLength0to4':'shortLength5to8']++;
-                    if(short.rejectMarker){
-                      if(short.statusCode===null)t.shortStatusAbsent++;
-                      else {
-                        const code=String(short.statusCode);
-                        // Bounded count map; numeric TASU status byte only.
-                        if(Object.prototype.hasOwnProperty.call(t.shortStatusCodes,code))
-                          t.shortStatusCodes[code]++;
-                        else if(Object.keys(t.shortStatusCodes).length<8)t.shortStatusCodes[code]=1;
-                        else t.shortStatusOverflow++;
-                      }
-                    }
-                  }
-                }
-              }
-              continue;
-            }
-            this.pendingRead.consume(response);
+            this.consumeEvent(fields[3]);
           } else if(/^(ok|error)\b/.test(line)&&this.pendingLine)this.pendingLine.resolve(line);
         }
       });
@@ -108,6 +80,36 @@ class HmiTransport {
       }).catch(fail);
     }).then(v=>{this.initPromise=null;return v;},e=>{this.initPromise=null;throw e;});
     return this.initPromise;
+  }
+  consumeEvent(hex){
+    if(!this.pendingRead)return;
+    const response=decode(hex);
+    if(response){this.pendingRead.consume(response);return;}
+    const t=this.pendingRead.trace,reason=frameIssue(hex);
+    const short=reason==='shortHeader'?shortEnvelope(hex):null;
+    // As in Car Equipment Tool, a valid short TASU 0x7F frame is terminal.
+    // The status byte is not a confirmed UDS NRC.
+    const rejected=!!(short&&short.rejectMarker&&short.lengthConsistent&&short.statusCode!==null);
+    if(t){
+      if(!rejected)t.malformedEvents++;
+      const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
+      if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
+      if(short){
+        t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
+        t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
+        t[short.lengthBand==='0-4'?'shortLength0to4':'shortLength5to8']++;
+        if(short.rejectMarker){
+          if(short.statusCode===null)t.shortStatusAbsent++;
+          else{
+            const code=String(short.statusCode);
+            if(Object.prototype.hasOwnProperty.call(t.shortStatusCodes,code))t.shortStatusCodes[code]++;
+            else if(Object.keys(t.shortStatusCodes).length<8)t.shortStatusCodes[code]=1;
+            else t.shortStatusOverflow++;
+          }
+        }
+      }
+    }
+    if(rejected)this.pendingRead.consume({error:'TASU rejected request'});
   }
   failPending(e){if(this.pendingLine)this.pendingLine.reject(e);if(this.pendingRead)this.pendingRead.reject(e);}
   line(s,timeout){
@@ -155,6 +157,9 @@ class HmiTransport {
       };
       this.pendingRead=pending;arm(10000);
     });
+      // TASU can answer before command ACK; rejection must not become an
+      // unhandled Promise rejection while line() is still awaiting that ACK.
+      received.catch(()=>{});
     try{
       const ack=await this.line(command(ecu,did),5000);
       if(!/^ok\b/.test(ack))throw new Error('TASU command rejected: '+ack);
