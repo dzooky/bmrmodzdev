@@ -21,11 +21,11 @@ async function run(){
  const mock={ready:true,async read(ecu,did){sent++;await new Promise(r=>setTimeout(r,30));return [0x62,did>>8,did&255,0x05];},close(){}};
  const socket=path.join(os.tmpdir(),'bmrmodz-data-test-'+process.pid+'.sock');
  let signalTests=0;
- const svc=serve(()=>mock,socket,{signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}}});
+ const svc=serve(()=>mock,socket,{signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}},generator:{inspect:()=>({ok:false,stage:'missing'}),run:async()=>({ok:true,stage:'generated',aclRegistered:false})}});
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.6');
+   assert.strictEqual(status.version,'0.1.7');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'isolated-on-demand-probe');
    const passive=await call(socket,{op:'signalEnvironment'});
@@ -36,6 +36,12 @@ async function run(){
    const setup=await call(socket,{op:'someipSetup'});
    assert.strictEqual(setup.mode,'passive-only');
    assert.strictEqual(setup.registration,'not verified');
+   assert.strictEqual(sent,0);
+   const generated=await call(socket,{op:'someipGenerated'});
+   assert.strictEqual(generated.ok,false);
+   const generation=await call(socket,{op:'someipGenerate'});
+   assert.strictEqual(generation.stage,'generated');
+   assert.strictEqual(generation.aclRegistered,false);
    assert.strictEqual(sent,0);
    const native=await call(socket,{op:'signalNative',mode:'load'});
    assert.strictEqual(native.ok,true);
