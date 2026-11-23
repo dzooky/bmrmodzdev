@@ -1,7 +1,7 @@
 # Data Tool Diagnostics progress
 
 ## v0.1.25 — short TASU status marker diagnostics (2026-11-23)
-- **Implemented on feature branch:** existing 22 checks retained; DDE/EGS trace detail now prioritizes sanitized short TASU marker counts (0x7F reject marker vs unknown), length consistency and bands before the 160-character upload detail limit. New Data Tool dependency 0.1.22. Manual ECU 1s spacing, three-attempt bounded read retry, CDS and IPC unchanged. Marker alone is NOT a confirmed UDS NRC, ECU response, or actionable rejection reason.
+- **Implemented on feature branch:** existing 22 checks retained, including all baseline regression checks. Manual HTTPS upload includes DDE, EGS and any other FAIL rows only, with original total PASS/FAIL/SKIP counts preserved; full results remain available in local export and in the app. DDE/EGS trace detail now prioritizes sanitized short TASU marker counts (0x7F reject marker vs unknown), length consistency and bands before the 160-character upload detail limit. New Data Tool dependency 0.1.22. Manual ECU 1s spacing, three-attempt bounded read retry, CDS and IPC unchanged. Marker alone is NOT a confirmed UDS NRC, ECU response, or actionable rejection reason.
 - **Observed on MGU before this update:** Diagnostics v0.1.24 + Data Tool v0.1.21: first run DDE/EGS FAIL with three shortHeader events each, second run both PASS first attempt; normal IHKA/BDC/ACSM/CDS checks PASS. Cause of intermittent framing is unverified. 0.1.25 not yet in-car verified.
 - **Automated:** synthetic frame marker/length classification, sanitized summary test and baseline regressions; CI to verify, then one parked read-only report for interpretation.
 
