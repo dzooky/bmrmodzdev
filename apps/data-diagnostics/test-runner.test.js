@@ -8,6 +8,7 @@ async function run(){
     if(req.op==='status')return {ok:true,version:'0.1.5'};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:false}};
     if(req.op==='configCheck')return {ok:false,error:'Missing CDS config'};
+    if(req.op==='someipSetup')return {ok:true,mode:'passive-only',checks:{catalogPresent:true,firmwareAppManagementPresent:true,toolManifestPresent:true,generatedCdsPresent:false},identity:{uid:0},registration:'not verified'};
     if(req.op==='signalNative')return {ok:false,stage:'module-load',error:'Native binding missing'};
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255,1]};
     throw Error('Unexpected operation');
@@ -20,10 +21,11 @@ async function run(){
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
+  assert.strictEqual(result.results.find(r=>r.id==='someipSetup').status,'PASS');
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','signalNative'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','signalNative'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
   assert.strictEqual(result.results.find(r=>r.id==='networkTcp').status,'FAIL');
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');},undefined,networkProbe).run();
