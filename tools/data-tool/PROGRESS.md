@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.28 — regression fix: older MGU Node service startup (2026-11-23)
+- **In-car failure reported:** after v0.1.27 update the Data Tool installer displayed `is not healthy`. v0.1.27 introduced a service-level require of `broker-self-test.js` -> `data-broker.js` at process startup; the existing broker used optional chaining (`?.`), which older MGU Node versions may reject during parsing, preventing the diagnostic socket from starting. This is a **high-confidence diagnosis, not confirmed without vehicle service logs**.
+- **Fix:** remove incompatible optional chaining from startup-loaded broker and preserve response timestamp using an explicit local variable. Replace `fs.rmSync` (unavailable on older Node) with test-owned socket unlink / directory rmdir. Keep the new broker security gate and synthetic test, legacy diagnostic socket protocol, no vehicle-on-boot behavior, and installed systemd unit unchanged.
+- **Prevention:** add Node 12 syntax validation for all startup-loaded service modules and Node 12 actual service health/startup checks to CI, then run all existing Node 18 regressions and offline MGU build. **In-car v0.1.28 NOT VERIFIED** until the user re-installs and confirms health; DPF/OSA/CC unchanged.
+
+
 ## v0.1.27 — complete test-only broker gateway, IPC loopback and on-device diagnostic pack (2026-11-23)
 - **Implemented:** `broker-gateway.js` dispatches only named `getData` fields to `data-broker.js` when a trusted in-process, package-aware identity resolver explicitly returns `verified:true` and an opaque Symbol capability. Client-supplied JSON UID, package and consumer labels never grant access; unauthorized and unknown requests are denied. No production resolver exists yet, so **actual secured data access remains disabled**.
 - **Controlled Unix integration:** opt-in `secure-ipc.js` can accept an explicitly injected gateway for isolated test harnesses only. The default production listener (if manually enabled) remains status-only and does not expose `getData`, UDS, CDS or vehicle controls. No systemd, socket permissions or production OAP dependencies are changed.
