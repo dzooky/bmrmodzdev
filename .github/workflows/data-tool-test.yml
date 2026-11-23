@@ -18,6 +18,8 @@ jobs:
           node --check apps/data-diagnostics/network.js
           node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
+          node --check tools/data-tool/cds-engine.js
+          node --check tools/data-tool/cds-stream-worker.js
           node --check tools/data-tool/signal-worker.js
           node --check tools/data-tool/signal-isolate.js
           node --check tools/data-tool/someip-setup.js
@@ -44,5 +46,6 @@ jobs:
           node tools/data-tool/cc-feasibility.test.js
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
+          node tools/data-tool/cds-engine.test.js
       - name: Offline MGU preview build
         run: python3 kit/tools/build.py --preview-only data-diagnostics
