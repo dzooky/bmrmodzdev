@@ -25,6 +25,19 @@ function decode(hex){
   if(b[2]===0x7f)return {error:'TASU reject '+b[4]};
   return {ecu:b[6],uds:Array.from(b.slice(9))};
 }
+// Classify rejected event framing without recording its content or byte values.
+// This is observational only; the existing decoder remains the authority.
+function frameIssue(hex){
+  if(typeof hex!=='string'||hex.length===0)return 'missing';
+  if(!/^[a-f0-9]+$/i.test(hex))return 'nonHex';
+  if(hex.length%2)return 'oddLength';
+  if(hex.length<20)return 'shortFrame';
+  const declared=parseInt(hex.slice(0,8),16);
+  const actual=(hex.length-8)/2;
+  if(declared<9)return 'shortHeader';
+  if(declared>actual)return 'lengthOverflow';
+  return null;
+}
 class HmiTransport {
   constructor(helper){this.helper=helper;this.child=null;this.ready=false;this.initPromise=null;this.pendingLine=null;this.pendingRead=null;this.buffer='';}
   init(){
@@ -44,7 +57,14 @@ class HmiTransport {
             const fields=line.split(' ');
             if(fields[1]!=='0xf8a6'||fields[2]!=='0x8001'||!this.pendingRead)continue;
             const response=decode(fields[3]);
-            if(!response){if(this.pendingRead.trace)this.pendingRead.trace.malformedEvents++;continue;}
+            if(!response){
+              const t=this.pendingRead.trace;
+              if(t){t.malformedEvents++;const reason=frameIssue(fields[3]);
+                const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
+                if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
+              }
+              continue;
+            }
             this.pendingRead.consume(response);
           } else if(/^(ok|error)\b/.test(line)&&this.pendingLine)this.pendingLine.resolve(line);
         }
@@ -73,7 +93,9 @@ class HmiTransport {
     if(this.pendingRead)throw new Error('read in flight');
     // Optional numeric/boolean observation only: never capture a payload or helper line.
     if(trace)Object.assign(trace,{ackAccepted:false,matchedEcuEvents:0,otherEcuEvents:0,
-      wrongDidEvents:0,pendingEvents:0,negativeEvents:0,malformedEvents:0,timedOut:false});
+      wrongDidEvents:0,pendingEvents:0,negativeEvents:0,malformedEvents:0,
+      frameMissing:0,frameNonHex:0,frameOddLength:0,frameShortFrame:0,
+      frameShortHeader:0,frameLengthOverflow:0,timedOut:false});
     let pending;
     const received=new Promise((resolve,reject)=>{
       let timer,done=false;
@@ -117,4 +139,4 @@ function createTransport(){
   if(!helper)throw new Error('No compatible installed hmictl helper');
   return new HmiTransport(helper);
 }
-module.exports={HmiTransport,createTransport,helperPath,command,decode,SUB};
+module.exports={HmiTransport,createTransport,helperPath,command,decode,frameIssue,SUB};
