@@ -62,6 +62,7 @@ const catalogs={
     "Before and after DPF snapshots": "Before and after DPF snapshots",
     "Visible report upload action": "Visible report upload action",
     "Corrected CDS temperature scaling": "Corrected CDS temperature scaling",
+    "Broker and IPC self-test": "Broker and IPC self-test",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",
