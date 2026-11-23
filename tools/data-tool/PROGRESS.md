@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.12 — validate CDS numeric payloads (2026-11-23)
+- **Implemented on feature branch:** isolated CDS worker now requires finite number values for `temperatureEngineDrive`, `temperatureEngineOilDrive` and `actualValueRPMEngineCrankshaft` before marking a sample usable. Zero is valid. Missing/NaN/Infinity/non-number fields produce `value-invalid` with field-validity flags but no raw payload. No speculative physical ranges or units are enforced.
+- **In-car evidence from v0.1.11 / Diagnostics v0.1.13:** both staged CDS probes returned native samples (13 PASS, 1 FAIL due to inactive config, 0 SKIP); numeric payload correctness was not tested. Five ECU echo checks passed. Explicit ACL registration remains unverified and is not required for these successful staging samples.
+- **Automated:** worker mock numeric/zero/missing-field regressions and companion report tests; verify CI separately. **v0.1.12 NOT YET VERIFIED IN CAR.**
+- **Next:** install v0.1.12 and Diagnostics v0.1.14; Run diagnostics and Send report. Proceed to shared continuous data broker only after verifying usable data and operating constraints.
+
+
 ## v0.1.11 — isolated staged CDS sampling experiment (2026-11-23)
 - **Implemented on feature branch:** explicit read-only `signalStaging` operation launches the existing bounded isolated SOME/IP worker with the generated CDS config at `/var/opt/bmrmodz-data-tool/generator-test/de_bmw_infotainment_vehicle_CDS.json`. Only `statusEngineTemperature` and `statusEngineSpeed2` are allowed; a single worker at a time, 8s hard deadline. The active CDS config and ACL are not installed, registered, modified or copied.
 - **Prior in-car evidence (v0.1.10 with Diagnostics v0.1.12):** staged config and ACL audit PASS, requests 1, offers 0, UID 0. Active config absent, native module loads, and UDS response echoes present. This does not prove ACL registration or native signal reception.
