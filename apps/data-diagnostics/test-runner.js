@@ -6,6 +6,7 @@ const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
+  {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
   {id:'someipLoad',label:'SOME/IP native',request:{op:'signalNative',mode:'load'},kind:'native'},
   {id:'dde',label:'DDE / DPF',request:{op:'read',ecu:0x12,did:0x44BB},kind:'uds'},
   {id:'egs',label:'EGS / transmission',request:{op:'read',ecu:0x18,did:0x6000},kind:'uds'},
@@ -30,6 +31,13 @@ function resultFor(step,reply,duration){
     return Object.assign(base,{status:ok?'PASS':'FAIL',detail:'Catalog '+(catalog?'yes':'no')+', native module '+(module?'resolved':'not resolved')});
   }
   if(step.kind==='config')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Tool-owned CDS config present':cleanError(reply.error||'CDS config missing or incomplete')});
+  if(step.kind==='setup'){
+    const c=reply.checks||{};
+    const uid=reply.identity&&reply.identity.uid;
+    const valid=reply.ok===true&&reply.mode==='passive-only';
+    const detail='Catalog '+(c.catalogPresent?'yes':'no')+', generator '+(c.firmwareAppManagementPresent?'yes':'no')+', manifest '+(c.toolManifestPresent?'yes':'no')+', CDS '+(c.generatedCdsPresent?'yes':'no')+', UID '+(Number.isInteger(uid)?uid:'?')+', ACL unverified';
+    return Object.assign(base,{status:valid?'PASS':'FAIL',detail:valid?detail:cleanError(reply.error)});
+  }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
   if(step.kind==='uds'){
     const valid=reply.ok===true&&Array.isArray(reply.uds)&&reply.uds.length>=3&&reply.uds[0]===0x62&&reply.uds[1]===(step.request.did>>8)&&reply.uds[2]===(step.request.did&255);
