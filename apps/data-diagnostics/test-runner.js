@@ -12,6 +12,7 @@ const STEPS=[
   {id:'ipcDac',label:'Experimental DAC socket',request:{op:'securityCheck'},kind:'dac'},
   {id:'ipcAppIdentity',label:'Diagnostics app identity',request:null,kind:'appIdentity'},
   {id:'ipcPeerAuth',label:'Authenticated IPC capability',request:{op:'identitySurvey'},kind:'peerAuth'},
+  {id:'brokerGateway',label:'Broker and secure IPC test',request:{op:'brokerSelfTest'},kind:'brokerTest'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -95,6 +96,22 @@ function resultFor(step,reply,duration){
       detail:safelyDisabled?'Secure IPC disabled for startup compatibility; production access disabled':
         restricted&&pending?'Owner-only test socket; app identity unverified, production disabled':
         cleanError(reply.error||'Secure socket permission check failed')});
+  }
+  if(step.kind==='brokerTest'){
+    const b=reply.broker||{},ipc=reply.ipc||{};
+    const safe=reply.productionAccessEnabled===false&&
+      reply.applicationIdentityVerified===false&&b.productionAccessEnabled===false&&
+      ipc.productionAccessEnabled===false;
+    const good=reply.ok===true&&reply.mode==='explicit-test-only'&&safe&&
+      b.ok===true&&b.vehicleReads===0&&b.sharedUds===true&&b.sharedCds===true&&
+      b.unauthorizedDenied===true&&b.gatewayFailClosed===true&&
+      ipc.ok===true&&ipc.socketOwnerOnly===true&&ipc.unauthorizedDenied===true;
+    const detail=good?
+      'Synthetic broker PASS; local IPC denies unauthorized; peer API '+
+      (ipc.kernelCredentialsAvailable?'present':'unavailable')+
+      '; application identity unverified; production OFF':
+      'Broker/IPC self-test incomplete; production OFF';
+    return Object.assign(base,{status:good?'PASS':'FAIL',detail});
   }
   if(step.kind==='environment'){
     const catalog=reply.catalog&&reply.catalog.present;
@@ -375,6 +392,8 @@ function createRunner(send,clock){
         notes:[phase==='before'?'Snapshot phase: before sleep':phase==='after'?'Snapshot phase: after wake':'Snapshot phase: unlabelled',
           'Positive ECU responses are not proof of correct decoded values.',
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
+          'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
+            ' (synthetic broker plus local socket only; production authorization not verified).',
           'No UDS 0x31 or 0x2E was issued by this test application.',
           'Staged CDS sampling does not register ACLs or prove installed system permissions.',
           'Only the tester can confirm installation and results in a real car.']};
