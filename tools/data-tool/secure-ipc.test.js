@@ -37,6 +37,7 @@ async function main(){
     });
     assert.strictEqual(observePeer({getPeerCredentials:()=>({uid:12252,gid:12252,pid:123})},12253).dacUidMatch,false);
     assert.strictEqual(observePeer({getPeerCredentials:()=>({uid:'12252',gid:12252,pid:123})},12252).kernelCredentialsObserved,false);
+    assert.strictEqual(observePeer({getPeerCredentials:()=>({uid:12252,gid:12252,pid:0})},12252).kernelCredentialsObserved,false);
     assert.strictEqual(observePeer({getPeerCredentials:()=>{throw Error('unavailable');}},12252).kernelCredentialsObserved,false);
     const status=await request(location,{op:'securityStatus',consumer:'osa',uid:12252});
     assert.strictEqual(status.ok,true);
