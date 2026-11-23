@@ -1,4 +1,10 @@
-# Data Tool feasibility progress
+# Data Tool progress
+
+## v0.1.37 — DPF read contract and name continuity (2026-11-23)
+- **Implemented on development branch:** rename the Store display title from `Data Tool Feasibility` to `Data Tool`, retaining technical ID `bmrmodz-data-tool`, service unit and socket path; version 0.1.37 so it supersedes the already installed 0.1.36.
+- **DPF integration compatibility:** keep the existing explicit read-only `{op:'read',ecu,did}` API used by DPF Status 0.1.68 in `dzooky/bmrmodz`. Added offline socket integration regression for positive DID echo, simultaneous read coalescing, cache use, and fail-closed getData/controls. No new ECU command, no production app authentication or background polling.
+- **Preserved:** CDS engine, broker experiments, native peer probe, 0.1.36 behavior. CI and in-car installation results must be recorded separately; application identity remains NO-GO.
+
 
 ## v0.1.36 — native peer process boundary observability (2026-11-23)
 - **In-car baseline:** Data Tool v0.1.35 / Diagnostics v0.1.40: 23 PASS, 0 FAIL, 5 SKIP (2026-11-23 21:17 UTC). Real MGU Linux x86_64 SO_PEERCRED succeeded on the existing IPC client; DDE/EGS/CDS still pass. Kernel-provided peer PID/UID/GID were NOT returned in the diagnostic report. Application identity remains NO-GO.
