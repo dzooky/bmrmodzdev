@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.28 — immediate TASU rejection and no redundant retries (2026-11-23)
+- **Implemented in branch:** Data Tool dependency 0.1.24; explicit DDE/EGS `readTrace` returns a sanitized `TASU rejected request` error promptly on a well-formed short TASU `0x7F` rejection, while preserving aggregated TASU status code. Existing diagnostics retries only `No matching response`; therefore explicit TASU rejection does not trigger repeated attempts, avoiding the previous ~12-second first-run failure delay. All 22 manual read-only checks, 1-second inter-ECU spacing, compact server-compatible HTTPS schema and SOME/IP/CDS timing result rows unchanged. New visible What's New and regression test assert no retry on TASU rejection.
+- **Vehicle evidence before change:** first MGU test DDE and EGS each TASU `0x25` x3, 3/3 timeouts; next run DDE/EGS immediately PASS, SOME/IP environment/native/load differences small. This **does not** prove first-run rejection is fixed, only that the tool can now report it promptly and accurately. Physical DDE/EGS routing remains unverified.
+- **Automated:** transport/diagnostics retry tests plus whole CI; **in-car v0.1.28 not verified.** Next explicit parked first run and one repeat to confirm shorter rejection response and whether subsequent requests succeed.
+
+
 ## v0.1.27 — restore HTTPS upload schema compatibility (2026-11-23)
 - **Regression fix (feature branch):** v0.1.26 introduced a new top-level `someipTimings` JSON property; the real report endpoint rejected it with `Unknown report field`. Remove the unsupported field from the transmitted payload. Continue measuring SOME/IP/CDS durations locally; transmit three established result rows (`someipEnvironment`, `someipLoad`, `cdsStream`) with existing `durationMs` fields alongside DDE/EGS and unexpected FAILs. No backend schema change, raw data, new vehicle requests or Data Tool update; the 22 checks and local full report remain intact.
 - **Automated:** strict upload top-level-field assertion, allowed timing row tests and existing upload/runner regression suite; verify CI. **In-car:** actual server acceptance of v0.1.27 not yet verified; request retry of existing report after app update (no new car test needed).
