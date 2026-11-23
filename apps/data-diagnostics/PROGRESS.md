@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.24 — TASU framing taxonomy and 1s inter-ECU interval (2026-11-23)
+- **Implemented (feature branch):** manual DDE/EGS trace report now includes sanitized malformed event reason counts (short frame/header, length overflow, non-hex, odd length, missing). In response to user request, insert a 1000ms interval between successive **different ECU checks** (DDE, EGS, IHKA, BDC, ACSM); existing per-ECU three-attempt DDE/EGS retry and 600ms retry gaps are unchanged. No extra requests, no changes to regular Data Tool reads, security, CDS, background behavior or controls.
+- **Observed before this change (v0.1.23 + tool 0.1.20):** first explicit run 15 PASS/2 FAIL/5 SKIP: DDE and EGS `ack 3/3`, `ecu 0`, `malformed 3`, `timeout 3`; second immediate run 17 PASS/0 FAIL/5 SKIP: both 1/3 ACK+ECU match and no malformed/timeout; user reports third run again failed with `malformed 3` (full third report not provided). Cause is not established.
+- **Automated:** existing runner/transport regressions and new frame classification summary test, CI to verify. **In-car v0.1.24 not verified.** Run once parked, send sanitized result, compare malformed subclasses; do not conclude that a delay fixes routing without evidence.
+
+
 ## v0.1.23 — DDE/EGS TASU response routing trace (2026-11-23)
 - **Implemented on feature branch:** existing 22 manual rows remain; only the DDE/EGS three-attempt read-only checks call the new Data Tool `readTrace` diagnostic-only operation and append aggregated, sanitized command-ACK, matching/other ECU frame, DID mismatch, negative/pending, malformed and timeout counts. Other ECU, CDS and IPC tests remain unchanged. Requires Data Tool v0.1.20.
 - **Vehicle evidence from v0.1.22 (2026-11-23):** 15 PASS / 2 FAIL / 5 SKIP, DDE and EGS `No matching response; attempt 3/3` (~11.7s each). No claim of vehicle-verification for v0.1.23; diagnostic traces do not include raw UDS content or prove ECU wake state.
