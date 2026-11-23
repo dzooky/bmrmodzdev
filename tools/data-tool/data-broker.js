@@ -67,7 +67,7 @@ function createBroker(options){
      const replies=new Map(await Promise.all(Array.from(reads,async([key,p])=>[key,await p])));
      for(const e of entries){
        const s=e.spec;
-       let measure=null;
+       let measure=null,sampleAt=null;
        if(s.source==='cds'){
          const f=snapshot&&snapshot.fields&&snapshot.fields[s.field];
          if(f&&f.valid===true&&typeof f.ageMs==='number'&&f.ageMs>=0&&f.ageMs<=2000)
@@ -75,6 +75,7 @@ function createBroker(options){
        }else{
          const variant=s.variants&&s.variants[identityDde],did=variant?variant.did:s.did;
          const reply=replies.get(s.ecu+':'+did);
+         if(reply&&typeof reply.at==='string')sampleAt=reply.at;
          measure=s.profile==='ihka'?decodeFootwell(reply,s):
            decode(reply,s,s.profile==='dde'?identityDde:identityEgs);
          // A previously cached or delayed UDS response cannot be advertised as live.
@@ -82,7 +83,7 @@ function createBroker(options){
          if(!Number.isFinite(age)||age<0||age>10000)measure=null;
        }
        results[e.key]=measure?{valid:true,value:measure.value,unit:measure.unit,
-         sampledAt:s.source==='uds'&&reply&&typeof reply.at==='string'?reply.at:null,
+         sampledAt:s.source==='uds'?sampleAt:null,
          ageMs:s.source==='cds'?snapshot.fields[s.field].ageMs:null}:
          {valid:false,value:null,unit:s.unit,sampledAt:null,ageMs:null};
      }
