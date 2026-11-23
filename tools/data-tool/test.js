@@ -25,9 +25,14 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.16');
+   assert.strictEqual(status.version,'0.1.17');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
+   const identity=await call(socket,{op:'identitySurvey'});
+   assert.strictEqual(identity.ok,true);
+   assert.strictEqual(identity.peerIdentityVerified,false);
+   assert.strictEqual(identity.productionAccessEnabled,false);
+   assert.strictEqual(identity.diagnosticSocket.present,true);
    const security=await call(socket,{op:'securityCheck'});
    assert.strictEqual(security.productionAccessEnabled,false);
    assert.strictEqual(security.peerIdentityVerified,false);

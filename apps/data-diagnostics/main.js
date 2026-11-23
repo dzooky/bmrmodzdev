@@ -106,9 +106,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+24,14,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.18 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.19 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.18 — '+word('Data Tool startup recovery'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.19 — '+word('Process identity survey'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -139,11 +139,11 @@ mgu.run({
     return;
    }
    const rows=STEPS.map(step=>report.results.find(r=>r.id===step.id)||{label:step.label});
-   const cols=[rows.slice(0,8),rows.slice(8)];
+   const cols=[rows.slice(0,10),rows.slice(10)];
    cols.forEach((column,c)=>{
     const x=c===0?24:809, w=767;
     G.panel(cv,theme,x,115,w,380,null);
-    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,151+i*42,w-48));
+    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*35,w-48));
    });
    // Dedicated footer line outside both results panels (panels end at y=495).
    // Show one message at a time; never paint over the final result row.

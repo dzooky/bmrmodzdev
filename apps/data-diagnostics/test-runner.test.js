@@ -7,6 +7,7 @@ async function run(){
     commands.push(req);
     if(req.op==='status')return {ok:true,version:'0.1.5'};
     if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
+    if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:false}};
     if(req.op==='configCheck')return {ok:false,error:'Missing CDS config'};
     if(req.op==='someipSetup')return {ok:true,mode:'passive-only',checks:{catalogPresent:true,firmwareAppManagementPresent:true,toolManifestPresent:true,generatedCdsPresent:false},identity:{uid:0},registration:'not verified'};
@@ -31,9 +32,9 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','securityCheck','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,17);
+  assert.strictEqual(result.results.length,20);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
   let snapshots=0,mockStarts=0;
@@ -75,6 +76,9 @@ async function run(){
   assert.strictEqual(staged.signalPermissionsVerified,false);
   assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='ipcSecurity').status,'SKIP');
+  assert.strictEqual(staged.results.find(x=>x.id==='ipcServiceIdentity').status,'PASS');
+  assert.strictEqual(staged.results.find(x=>x.id==='ipcAppIdentity').status,'PASS');
+  assert.strictEqual(staged.results.find(x=>x.id==='ipcPeerAuth').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsStream').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsMulti').status,'PASS');
   assert.strictEqual(liveCommands.filter(x=>x.op==='cdsDemand').length,4);
