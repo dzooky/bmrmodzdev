@@ -67,6 +67,7 @@ const catalogs={
     "Runtime IPC socket compatibility": "Runtime IPC socket compatibility",
     "Existing IPC peer capability test": "Existing IPC peer capability test",
     "Application authentication feasibility": "Application authentication feasibility",
+    "Native peer ABI survey": "Native peer ABI survey",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",
