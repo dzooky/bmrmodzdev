@@ -49,9 +49,9 @@ async function check(extraEnv){
     const broker=await new Promise((resolve,reject)=>{
       const c=net.createConnection(socket);let raw='';
       c.setTimeout(3000,()=>c.destroy(Error('broker test timeout')));
-      c.on('connect',()=>c.write(JSON.stringify({op:'brokerSelfTest'})+'\\n'));
-      c.on('data',d=>{raw+=d.toString();if(raw.includes('\\n')){
-        c.end();try{resolve(JSON.parse(raw.split('\\n')[0]));}catch(error){reject(error);}
+      c.on('connect',()=>c.write(JSON.stringify({op:'brokerSelfTest'})+'\n'));
+      c.on('data',d=>{raw+=d.toString();if(raw.includes('\n')){
+        c.end();try{resolve(JSON.parse(raw.split('\n')[0]));}catch(error){reject(error);}
       }});
       c.on('error',reject);
     });
