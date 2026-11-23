@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.5 — MGU internet access declaration (2026-11-23)
+- **Implemented in dzooky/bmrmodzdev main:** matched working Spritmonitor's `app.json` by adding `mguInternet: true` to the Data Tool Diagnostics app. MGU App Kit `kit/tools/build.py` passes this flag through to its generated application `package.json`. This flag was missing in v0.1.4 and is a likely cause of `ENOTFOUND`/`ENETUNREACH` from the OAP process, but the diagnosis is not yet vehicle-confirmed.
+- Updated version, English What's New, CI regression assertion and documentation. Preserved the explicit HTTPS `https://dzooky.eu/brmmodz.php` upload with its existing uplink-DNS lookup, and all read-only tests; Data Tool 0.1.5 is unchanged.
+- **Testing:** automated build and regression status to be verified after latest commit. **In-car:** upload over public HTTPS still NOT VERIFIED; request user to update/reinstall the app to ensure the new package's internet declaration takes effect, run manually parked, and report the exact upload result.
+- **Security:** the temporary unauthenticated public receiver is for controlled testing only. No new secrets, VINs, or vehicle identification are transmitted intentionally.
+
+
 ## Public PHP receiver for v0.1.4 (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** `server/brmmodz.php` is a temporary HTTPS-only POST receiver compatible with no-token v0.1.4. Validates 32 KB schema and result allowlist; stores anonymized report data under `bmrmodz_reports` next to the deployed PHP script, creates the directory if writable, enforces a global 30/hour and 500-total quota, and returns the 24-character report ID with HTTP 201.
 - **Direct web access mitigation:** Stored reports use `.php` with a 404 guard and JSON after the first line, not raw `.json`; **requires PHP execution for all report files** to prevent disclosure. If hosting serves PHP as static text, reports WILL be exposed; a true private storage path outside document root is preferable for production. Files and upload endpoint remain publicly exposed to unauthenticated abuse/traffic within their quotas, so use for short controlled tests only. This receiver is not deployed or verified on dzooky.eu.
