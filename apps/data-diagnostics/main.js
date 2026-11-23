@@ -11,7 +11,7 @@ const qrReport=require('./qr-report');
 const uploader=require('./upload');
 const W=1600,H=520;
 const REPORT_NAME='data-tool-diagnostic-report.json';
-const pages=['Info','Diagnostics','Results','DPF comparison','Share'];
+const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -82,7 +82,7 @@ mgu.run({
     fs.writeFileSync(reportFile,JSON.stringify(report,null,2)+'\n',{encoding:'utf8',mode:0o600});
     reportQr=qrReport.create(report);
     exportState=word('Exported to app data')+': '+REPORT_NAME;
-    page=4;
+    page=5;
    }catch(error){
     exportState=word('Export failed')+': '+safeValue(error.message);
     log.warn('Data Tool export: '+error.message);
@@ -190,6 +190,36 @@ mgu.run({
    label(cv,engine+' | '+word('Before sleep')+': '+start+' | '+word('After wake')+': '+end,
     800,475,16,theme.dim,{align:'center'});
   }
+  function drawVehicleComparison(cv,theme){
+   header(cv,theme,word('Vehicle comparison'),word('Read-only'));
+   G.panel(cv,theme,24,115,1552,380,null);
+   label(cv,word('Before sleep'),600,157,21,theme.accent2,{align:'right',font:'bold'});
+   label(cv,word('After wake'),1090,157,21,theme.accent2,{align:'right',font:'bold'});
+   const a=before&&before.vehicleSnapshot||{},b=after&&after.vehicleSnapshot||{};
+   const get=(v,key)=>key.indexOf('.')<0?v[key]:(v[key.split('.')[0]]||{})[key.split('.')[1]];
+   const entries=[
+    ['Transmission oil (C)','transmissionOil'],
+    ['Engine oil (C)','engine.oil'],
+    ['Coolant (C)','engine.coolant'],
+    ['Engine speed (RPM)','engine.rpm'],
+    ['Footwell front left (C)','footwell.frontLeft'],
+    ['Footwell front right (C)','footwell.frontRight'],
+    ['Footwell rear left (C)','footwell.rearLeft'],
+    ['Footwell rear right (C)','footwell.rearRight']
+   ];
+   entries.forEach(([name,key],i)=>{
+    const y=190+i*34;
+    const beforeValue=get(a,key),afterValue=get(b,key);
+    label(cv,name,62,y,18,theme.text);
+    label(cv,Number.isFinite(beforeValue)?String(beforeValue):'--',600,y,20,theme.text,{align:'right',font:'num'});
+    label(cv,Number.isFinite(afterValue)?String(afterValue):'--',1090,y,20,theme.text,{align:'right',font:'num'});
+    if(Number.isFinite(beforeValue)&&Number.isFinite(afterValue)){
+     const delta=Math.round((afterValue-beforeValue)*100)/100;
+     label(cv,(delta>=0?'+':'')+delta,1505,y,19,theme.dim,{align:'right',font:'num'});
+    }
+   });
+   label(cv,word('Measurements are independent snapshots'),800,474,16,theme.dim,{align:'center'});
+  }
   function drawShare(cv,theme){
    header(cv,theme,word('Share'),word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
@@ -210,7 +240,8 @@ mgu.run({
    if(page===1)drawDiagnostics(cv,theme);
    if(page===2)drawResults(cv,theme);
    if(page===3)drawComparison(cv,theme);
-   if(page===4)drawShare(cv,theme);
+   if(page===4)drawVehicleComparison(cv,theme);
+   if(page===5)drawShare(cv,theme);
    G.frame(cv,theme,pages.map(word),page,[]);
    return ui.image('MAIN_GFX',cv);
   }
