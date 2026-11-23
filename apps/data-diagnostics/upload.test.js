@@ -43,15 +43,21 @@ async function main(){
    {id:'dde',label:'DDE / DPF',status:'FAIL',detail:'No matching response; shortTASU reject 3'},
    {id:'egs',label:'EGS / transmission',status:'PASS',detail:'Matching response'},
    {id:'ihka',label:'IHKA',status:'PASS',detail:'Successful'},
-   {id:'cdsStream',label:'CDS',status:'FAIL',detail:'Unexpected stream failure'},
+   {id:'someipEnvironment',label:'SOME/IP environment',status:'PASS',durationMs:540,detail:'Catalog yes'},
+   {id:'someipLoad',label:'SOME/IP native',status:'PASS',durationMs:241,detail:'Native loaded'},
+   {id:'cdsStream',label:'CDS',status:'FAIL',durationMs:1930,detail:'Unexpected stream failure'},
    {id:'someipConfig',label:'SOME/IP config',status:'SKIP',detail:'Expected skip'}
  ]};
  await upload(focused,'/unused',{https:fake});
  const transmitted=JSON.parse(body);
  assert.strictEqual(transmitted.totals.pass,17);
  assert.strictEqual(transmitted.totals.fail,1);
- assert.deepStrictEqual(transmitted.someipTimings,{environmentMs:540,nativeLoadMs:241,cdsStreamMs:1930});
- assert.deepStrictEqual(transmitted.results.map(x=>x.id),['dde','egs','cdsStream']);
+ assert.strictEqual(Object.hasOwn(transmitted,'someipTimings'),false);
+ assert.deepStrictEqual(Object.keys(transmitted).sort(),
+   ['schema','application','startedAt','finishedAt','totals','results','deviceVerified'].sort());
+ assert.strictEqual(transmitted.results.find(x=>x.id==='someipEnvironment').durationMs,540);
+ assert.strictEqual(transmitted.results.find(x=>x.id==='someipLoad').durationMs,241);
+ assert.deepStrictEqual(transmitted.results.map(x=>x.id),['dde','egs','someipEnvironment','someipLoad','cdsStream']);
  assert.ok(transmitted.results[0].detail.includes('shortTASU reject 3'));
  assert.strictEqual(transmitted.results.some(x=>x.id==='ihka'||x.id==='service'),false);
 
