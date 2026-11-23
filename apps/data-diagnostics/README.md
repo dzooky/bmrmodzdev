@@ -1,6 +1,6 @@
-# BMRMODZ Data Tool Diagnostics v0.1.18
+# BMRMODZ Data Tool Diagnostics v0.1.19
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.16. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.17. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic. In v0.1.7 the corrected BMR endpoint is used and upload feedback is shown in a separate footer beneath results, with totals at the top.
 
@@ -48,3 +48,5 @@ In v0.1.16 a sixteenth test exercises two independent manifest consumers: one sh
 In v0.1.17 a seventeenth `Secure IPC readiness` check reports SKIP when the new owner-only test socket is correctly restricted but real peer-identity authentication remains unavailable. This is deliberately NOT a production security PASS. No changes to legacy diagnostics requests or raw data reporting.
 
 In v0.1.18 the security readiness check correctly SKIPs while the optional secure IPC listener is disabled to preserve the Data Tool startup path following the 0.1.15 installation-health regression. Other checks are unchanged. The precise MGU failure is not proven; verify with fresh manual diagnostics.
+
+In v0.1.19 the Run diagnostics result has 20 checks including passive Data Tool and app UID/GID self-observations and a peer-authentication capability SKIP. The report records only numeric OS UID/GID and socket metadata (no PIDs, process command lines or identifying vehicle data). This is not authenticated process identification. The Results page is split into two ten-row columns.
