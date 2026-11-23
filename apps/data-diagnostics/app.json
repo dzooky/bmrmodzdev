@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -22,10 +22,6 @@
         [
           "BTN_GEN",
           "Generate CDS test"
-        ],
-        [
-          "BTN_EXPORT",
-          "Export report"
         ],
         [
           "BTN_SEND",
