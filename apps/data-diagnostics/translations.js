@@ -44,6 +44,7 @@ const catalogs={
     "Send report button restored": "Send report button restored",
     "Focused diagnostics": "Focused diagnostics",
     "CDS ACL audit": "CDS ACL audit",
+    "Staged CDS signal probe": "Staged CDS signal probe",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
