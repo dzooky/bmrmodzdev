@@ -102,7 +102,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.18',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.19',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
