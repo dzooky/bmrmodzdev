@@ -28,12 +28,18 @@ async function main(){
   const shortUnknown='00000008'+Buffer.from([0xf0,0xf2,0x20,0,0,0,0,0]).toString('hex');
   const shortTruncated='00000008'+Buffer.from([0xf0,0xf2,0x7f,0,0,0,0]).toString('hex');
   assert.deepStrictEqual(shortEnvelope(shortReject),
-    {rejectMarker:true,lengthConsistent:true,lengthBand:'5-8'});
+    {rejectMarker:true,statusCode:0,lengthConsistent:true,lengthBand:'5-8'});
   assert.deepStrictEqual(shortEnvelope(shortUnknown),
-    {rejectMarker:false,lengthConsistent:true,lengthBand:'5-8'});
+    {rejectMarker:false,statusCode:null,lengthConsistent:true,lengthBand:'5-8'});
   assert.deepStrictEqual(shortEnvelope(shortTruncated),
-    {rejectMarker:true,lengthConsistent:false,lengthBand:'5-8'});
+    {rejectMarker:true,statusCode:0,lengthConsistent:false,lengthBand:'5-8'});
   assert.strictEqual(shortEnvelope('00000009000000000000000000'),null);
+  const rejectWithCode='00000008'+Buffer.from([0xF0,0xF2,0x7F,0,0x31,0,0,0]).toString('hex');
+  assert.strictEqual(shortEnvelope(rejectWithCode).statusCode,0x31);
+  assert.strictEqual(shortEnvelope(shortReject).statusCode,0);
+  assert.strictEqual(shortEnvelope(shortUnknown).statusCode,null);
+  const noCode='00000004'+Buffer.from([0xF0,0xF2,0x7F,0]).toString('hex');
+  assert.strictEqual(shortEnvelope(noCode).statusCode,null);
   const trace={};
   const success=fake(t=>{
     t.pendingRead.consume({ecu:0x18,uds:[0x62,0x44,0xBB]});
