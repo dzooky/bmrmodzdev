@@ -17,7 +17,7 @@ assert.deepStrictEqual(spec.signals,{});
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.24');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
-assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
+assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_AFTER','BTN_GEN','BTN_SEND']);
 assert.ok(t('en','Secure upload'));
 assert.ok(t('en','Network diagnostics'));
 assert.ok(t('en','HTTPS report upload'));
