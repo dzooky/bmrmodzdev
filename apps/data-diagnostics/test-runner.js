@@ -1,6 +1,7 @@
 'use strict';
 // Explicit, sequential read-only MGU checks. No background activity, no writes.
 // Results are deliberately sanitised: no VIN, FA/VO, raw UDS data or position.
+const network=require('./network');
 const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
@@ -12,7 +13,10 @@ const STEPS=[
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'cdsTemp',label:'CDS / temperatures',request:{op:'signalNative',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
-  {id:'cdsRpm',label:'CDS / engine speed',request:{op:'signalNative',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'}
+  {id:'cdsRpm',label:'CDS / engine speed',request:{op:'signalNative',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'},
+  {id:'networkInterfaces',label:'Network / IP interfaces',kind:'network'},
+  {id:'networkRoute',label:'Network / route',kind:'network'},
+  {id:'networkTcp',label:'Network / TCP server',kind:'network'}
 ];
 function cleanError(value){return String(value||'Unknown error').replace(/[\r\n]/g,' ').slice(0,140);}
 function resultFor(step,reply,duration){
@@ -40,8 +44,8 @@ function resultFor(step,reply,duration){
 }
 function failure(step,err,duration){return {id:step.id,label:step.label,status:'FAIL',durationMs:duration,detail:cleanError(err&&err.message||err)};}
 function skipped(step,reason){return {id:step.id,label:step.label,status:'SKIP',durationMs:0,detail:reason};}
-function createRunner(send,clock){
-  const request=send,now=clock||Date.now;
+function createRunner(send,clock,networkCheck){
+  const request=send,now=clock||Date.now,probe=networkCheck||network.check;
   let active=false;
   async function run(onProgress){
     if(active)throw new Error('Diagnostics already running');
@@ -51,7 +55,7 @@ function createRunner(send,clock){
     try{
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
-        const skip=step.id!=='service'&&!serviceAvailable?'Service unavailable'
+        const skip=step.kind!=='network'&&step.id!=='service'&&!serviceAvailable?'Service unavailable'
           :step.kind==='signal'&&!configReady?'CDS config unavailable'
           :step.kind==='signal'&&!nativeReady?'Native SOME/IP unavailable'
           :null;
@@ -59,8 +63,14 @@ function createRunner(send,clock){
         const start=now();
         let result;
         try{
-          const reply=await request(step.request,{timeoutMs:15000});
-          result=resultFor(step,reply,Math.max(0,now()-start));
+          if(step.kind==='network'){
+            const outcome=await probe(step.id);
+            result={id:step.id,label:step.label,status:outcome.status==='PASS'?'PASS':'FAIL',
+              durationMs:Math.max(0,now()-start),detail:cleanError(outcome.detail)};
+          }else{
+            const reply=await request(step.request,{timeoutMs:15000});
+            result=resultFor(step,reply,Math.max(0,now()-start));
+          }
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
         if(step.id==='service')serviceAvailable=result.status==='PASS';
