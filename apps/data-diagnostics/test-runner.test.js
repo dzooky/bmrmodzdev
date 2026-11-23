@@ -15,8 +15,7 @@ async function run(){
     throw Error('Unexpected operation');
   };
   let updates=0;
-  const networkProbe=async id=>({status:id==='networkTcp'?'FAIL':'PASS',detail:id==='networkTcp'?'192.168.0.10:80 ENETUNREACH':'Network sample available'});
-  const result=await createRunner(sender,undefined,networkProbe).run(()=>updates++);
+  const result=await createRunner(sender).run(()=>updates++);
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
   assert.strictEqual(updates,STEPS.length);
@@ -29,12 +28,12 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','signalNative'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.find(r=>r.id==='networkTcp').status,'FAIL');
-  const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');},undefined,networkProbe).run();
+  assert.strictEqual(result.results.length,13);
+  assert.ok(!result.results.some(r=>r.id.startsWith('network')));
+  const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
-  assert.strictEqual(unavailable.results.filter(r=>r.id.startsWith('network')).length,3);
-  assert.strictEqual(unavailable.results.filter(r=>!r.id.startsWith('network')).slice(1).every(r=>r.status==='SKIP'),true);
-  const unexpected=await createRunner(async req=>req.op==='status'?{ok:true}:{ok:true,uds:[0x62,0xff,0xff]},undefined,networkProbe).run();
+  assert.strictEqual(unavailable.results.slice(1).every(r=>r.status==='SKIP'),true);
+  const unexpected=await createRunner(async req=>req.op==='status'?{ok:true}:{ok:true,uds:[0x62,0xff,0xff]}).run();
   assert.strictEqual(unexpected.results.find(r=>r.id==='dde').status,'FAIL');
   console.log('Data Diagnostics: safe staged runner, UDS echo, skipped signals, no control, sanitized report passed');
 }
