@@ -71,12 +71,26 @@ async function main(){
  assert.strictEqual(Object.hasOwn(dpfPayload,'dpfSnapshot'),false);
  assert.strictEqual(Object.hasOwn(dpfPayload,'snapshotPhase'),false);
  assert.strictEqual(body.includes('PRIVATE_TEST_MARKER'),false);
+ const measured={...before,results:[
+  {id:'dde',label:'DDE',status:'PASS',detail:'Matching response'},
+  {id:'egs',label:'EGS',status:'PASS',detail:'Matching response'},
+  {id:'cdsStream',label:'CDS',status:'PASS',detail:'Shared CDS refreshed'}],
+  vehicleSnapshot:{transmissionOil:61,engine:{oil:90,coolant:85,rpm:750},
+   footwell:{frontLeft:18,frontRight:19,rearLeft:17,rearRight:16},
+   forbiddenId:'PRIVATE_TEST_MARKER'}};
+ await upload(measured,'/unused',{https:fake});
+ const vehiclePayload=JSON.parse(body);
+ assert.ok(vehiclePayload.results.find(x=>x.id==='egs').detail.includes('ATF=61C'));
+ assert.ok(vehiclePayload.results.find(x=>x.id==='egs').detail.includes('IHKA FL=18'));
+ assert.ok(vehiclePayload.results.find(x=>x.id==='cdsStream').detail.includes('CDS oil=90C'));
+ assert.strictEqual(Object.hasOwn(vehiclePayload,'vehicleSnapshot'),false);
+ assert.strictEqual(body.includes('PRIVATE_TEST_MARKER'),false);
  const malicious={...before,dpfSnapshot:{ok:true,engine:'B57',
   values:{soot:'12;123',ash:1,since:100,average:200}}};
  await upload(malicious,'/unused',{https:fake});
  assert.strictEqual(JSON.parse(body).results[0].detail,'Matching UDS response received');
  await assert.rejects(upload({},'/unused',{https:fake}),/Invalid diagnostic report/);
- assert.strictEqual(calls,4);
+ assert.strictEqual(calls,5);
  // Simulate common hosting error pages and a response larger than the 4 KB cap.
  async function rejectReply(status,contentType,payload,pattern){
    const backend={request(options,callback){
