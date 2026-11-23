@@ -41,7 +41,7 @@ async function run(){
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:true,stage:'module-load'};
-    if(req.op==='signalStaging')return {ok:true,stage:'sample',received:true};
+    if(req.op==='signalStaging')return {ok:true,stage:'sample',received:true,validated:true,validFields:req.field==='statusEngineTemperature'?{oil:true,coolant:true}:{rpm:true}};
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
     return {ok:false,error:'Inactive config missing'};
   }).run();
@@ -49,6 +49,24 @@ async function run(){
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
+  assert.ok(staged.results.find(x=>x.id==='cdsTemp').detail.includes('numeric fields validated'));
+  const invalid=await createRunner(async req=>{
+    if(req.op==='status')return {ok:true};
+    if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
+    if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
+    if(req.op==='signalNative')return {ok:true,stage:'module-load'};
+    if(req.op==='signalStaging')return {ok:false,stage:'value-invalid',received:true,validated:false,
+      validFields:req.field==='statusEngineTemperature'?{oil:false,coolant:true}:{rpm:false},
+      error:'CDS sample missing numeric field'};
+    if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
+    return {ok:false,error:'Inactive config missing'};
+  }).run();
+  assert.strictEqual(invalid.results.find(x=>x.id==='cdsTemp').status,'FAIL');
+  assert.ok(invalid.results.find(x=>x.id==='cdsTemp').detail.includes('oil'));
+  assert.strictEqual(invalid.results.find(x=>x.id==='cdsRpm').status,'FAIL');
+  assert.ok(invalid.results.find(x=>x.id==='cdsRpm').detail.includes('rpm'));
+  assert.strictEqual(JSON.stringify(invalid).includes('"value"'),false);
+  assert.strictEqual(invalid.signalPermissionsVerified,false);
   assert.strictEqual(liveCommands.filter(x=>x.op==='signalStaging').length,2);
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
