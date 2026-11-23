@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## Public PHP receiver for v0.1.4 (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** `server/brmmodz.php` is a temporary HTTPS-only POST receiver compatible with no-token v0.1.4. Validates 32 KB schema and result allowlist; stores anonymized report data under `bmrmodz_reports` next to the deployed PHP script, creates the directory if writable, enforces a global 30/hour and 500-total quota, and returns the 24-character report ID with HTTP 201.
+- **Direct web access mitigation:** Stored reports use `.php` with a 404 guard and JSON after the first line, not raw `.json`; **requires PHP execution for all report files** to prevent disclosure. If hosting serves PHP as static text, reports WILL be exposed; a true private storage path outside document root is preferable for production. Files and upload endpoint remain publicly exposed to unauthenticated abuse/traffic within their quotas, so use for short controlled tests only. This receiver is not deployed or verified on dzooky.eu.
+- **Local validation:** `php -l` succeeded, simulated HTTPS POST returned HTTP 201 and direct report URL returned HTTP 404 in local PHP test server; no real-host or MGU upload validation.
+
+
 ## v0.1.4 — public HTTPS report endpoint (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** manual Send report now targets `https://dzooky.eu/brmmodz.php` on TCP 443 with TLS verification; no automatic uploads or token; field allowlisting and the 32 KB limit remain. MGU uplink DNS lease lookup fallback is restored for HTTPS host resolution.
 - **Diagnostics/UI:** TCP probe now targets `dzooky.eu:443`, while route probe requires a default route. App version and English What's New updated to 0.1.4; tests updated for new endpoint and scheme.
