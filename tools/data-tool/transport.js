@@ -84,39 +84,32 @@ class HmiTransport {
   consumeEvent(hex){
     if(!this.pendingRead)return;
     const response=decode(hex);
-    if(!response){
-      const t=this.pendingRead.trace;
-      const reason=frameIssue(hex);
-      // Car Equipment Tool treats a TASU 0x7F envelope as a terminal
-      // rejection; don't discard short valid rejects and wait for timeout.
-      const short=reason==='shortHeader'?shortEnvelope(hex):null;
-      const rejected=!!(short&&short.rejectMarker&&short.lengthConsistent&&short.statusCode!==null);
-      if(t){if(!rejected)t.malformedEvents++;
-        const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
-        if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
-        if(reason==='shortHeader'){
-          if(short){
-            t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
-            t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
-            t[short.lengthBand==='0-4'?'shortLength0to4':'shortLength5to8']++;
-            if(short.rejectMarker){
-      if(short.statusCode===null)t.shortStatusAbsent++;
-      else {
-        const code=String(short.statusCode);
-        // Bounded count map; numeric TASU status byte only.
-        if(Object.prototype.hasOwnProperty.call(t.shortStatusCodes,code))
-          t.shortStatusCodes[code]++;
-        else if(Object.keys(t.shortStatusCodes).length<8)t.shortStatusCodes[code]=1;
-        else t.shortStatusOverflow++;
-      }
-            }
+    if(response){this.pendingRead.consume(response);return;}
+    const t=this.pendingRead.trace,reason=frameIssue(hex);
+    const short=reason==='shortHeader'?shortEnvelope(hex):null;
+    // As in Car Equipment Tool, a valid short TASU 0x7F frame is terminal.
+    // The status byte is not a confirmed UDS NRC.
+    const rejected=!!(short&&short.rejectMarker&&short.lengthConsistent&&short.statusCode!==null);
+    if(t){
+      if(!rejected)t.malformedEvents++;
+      const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
+      if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
+      if(short){
+        t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
+        t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
+        t[short.lengthBand==='0-4'?'shortLength0to4':'shortLength5to8']++;
+        if(short.rejectMarker){
+          if(short.statusCode===null)t.shortStatusAbsent++;
+          else{
+            const code=String(short.statusCode);
+            if(Object.prototype.hasOwnProperty.call(t.shortStatusCodes,code))t.shortStatusCodes[code]++;
+            else if(Object.keys(t.shortStatusCodes).length<8)t.shortStatusCodes[code]=1;
+            else t.shortStatusOverflow++;
           }
         }
       }
-      if(rejected)this.pendingRead.consume({error:'TASU rejected request'});
-    return;
     }
-    this.pendingRead.consume(response);
+    if(rejected)this.pendingRead.consume({error:'TASU rejected request'});
   }
   failPending(e){if(this.pendingLine)this.pendingLine.reject(e);if(this.pendingRead)this.pendingRead.reject(e);}
   line(s,timeout){
