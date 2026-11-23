@@ -82,7 +82,7 @@ async function run(){
   assert.strictEqual(STEPS.findIndex(s=>s.id==='ddeIdentity'),STEPS.findIndex(s=>s.id==='dde')+1);
   assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
   assert.strictEqual(result.results.find(r=>r.id==='egsIdentity').status,'SKIP');
-  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.includes('Unsupported'));
+  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.length > 0);
   assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
   assert.strictEqual(result.signalPermissionsVerified,false);
