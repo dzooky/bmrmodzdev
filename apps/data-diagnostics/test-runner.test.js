@@ -6,6 +6,9 @@ async function run(){
   const sender=async req=>{
     commands.push(req);
     if(req.op==='status')return {ok:true,version:'0.1.5'};
+    if(req.op==='brokerSelfTest')return {ok:true,mode:'explicit-test-only',productionAccessEnabled:false,applicationIdentityVerified:false,
+      broker:{ok:true,vehicleReads:0,sharedUds:true,sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true,productionAccessEnabled:false},
+      ipc:{ok:true,socketOwnerOnly:true,unauthorizedDenied:true,kernelCredentialsAvailable:false,productionAccessEnabled:false}};
     if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},legacySocketWorldAccessible:true,legacySocketProductionSafe:false,peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:false}};
@@ -21,7 +24,8 @@ async function run(){
   const result=await createRunner(sender).run(()=>updates++);
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
-  assert.strictEqual(STEPS.length,24);
+  assert.strictEqual(result.results.find(r=>r.id==='brokerGateway').status,'PASS');
+  assert.strictEqual(STEPS.length,25);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -48,9 +52,9 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,24);
+  assert.strictEqual(result.results.length,25);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -82,6 +86,9 @@ async function run(){
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
     if(req.op==='status')return {ok:true};
+    if(req.op==='brokerSelfTest')return {ok:true,mode:'explicit-test-only',productionAccessEnabled:false,applicationIdentityVerified:false,
+      broker:{ok:true,vehicleReads:0,sharedUds:true,sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true,productionAccessEnabled:false},
+      ipc:{ok:true,socketOwnerOnly:true,unauthorizedDenied:true,kernelCredentialsAvailable:false,productionAccessEnabled:false}};
     if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},legacySocketWorldAccessible:true,legacySocketProductionSafe:false,peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
     if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
@@ -102,6 +109,7 @@ async function run(){
     if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
     return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
+  assert.strictEqual(staged.results.find(x=>x.id==='brokerGateway').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
