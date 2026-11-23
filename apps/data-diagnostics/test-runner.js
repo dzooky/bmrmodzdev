@@ -164,6 +164,9 @@ function traceSummary(traces){
     ', ecu '+count('matchedEcuEvents')+', other '+count('otherEcuEvents')+
     ', DID mismatch '+count('wrongDidEvents')+', NRC '+count('negativeEvents')+
     ', pending '+count('pendingEvents')+', malformed '+count('malformedEvents')+
+    ' [short '+count('frameShortFrame')+', header '+count('frameShortHeader')+
+    ', length '+count('frameLengthOverflow')+', hex '+count('frameNonHex')+
+    ', odd '+count('frameOddLength')+', missing '+count('frameMissing')+']'+
     ', timeout '+valid.filter(t=>t.timedOut===true).length;
 }
 async function drivetrainRead(request,step){
