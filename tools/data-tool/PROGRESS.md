@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.20 — explicit sanitized DDE/EGS TASU response trace (2026-11-23)
+- **Implemented on feature branch:** only explicit `readTrace` calls for existing allowlisted DDE 0x12/0x44BB and EGS 0x18/0x6000 capture boolean TASU command acknowledgement and bounded counts of matching ECU frames, other ECU frames, DID mismatches, UDS negative/pending frames, malformed frames and timeout. No raw UDS replies, VIN, payloads or helper lines are added to diagnostic reports. Trace reads bypass the 500 ms positive cache to guarantee fresh observations, retain the 200 ms serialized read gap and existing 3.5-second per-request timeout; default `read` remains unchanged. Production access remains disabled and controls are absent.
+- **Vehicle evidence before change:** Diagnostics v0.1.22 showed both DDE and EGS time out after three attempts (~11.7s each) while IHKA, BDC, ACSM and CDS passed. Root cause is unknown; results do not establish ECU wake state or valid sensor decoding.
+- **Automated:** isolated TASU read trace simulation and diagnostics regression tests added to CI. **In-car:** v0.1.20 not yet tested; confirm main service health, existing CDS/IPC and DDE/EGS trace results after CI success.
+
+
 - **MGU report 2026-11-23 (Data Tool v0.1.19 + Diagnostics v0.1.21):** 15 PASS, 2 FAIL, 5 SKIP. Tool starts and CDS staged numeric checks/shared stream/multi-consumer test pass. DDE and EGS returned `No matching response` after ~3.5 seconds each, whereas IHKA/BDC/ACSM responded. This is a read timeout/no matching UDS reply, not a verified tool regression or decoded ECU failure. The optional DAC probe remains disabled. Preserve current read parameters pending repeat parked test with drivetrain awake. CI detected and corrected stale passive report version 0.1.18 in service (status correctly reported 0.1.19); no change to UDS transport logic.
 
 ## v0.1.19 — opt-in UID/DAC experimental status socket (2026-11-23)
