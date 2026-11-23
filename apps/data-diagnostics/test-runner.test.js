@@ -332,7 +332,9 @@ async function run(){
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='dpfValues').status,'PASS');
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeIdentity').status,'PASS');
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeColdIdentity').status,'PASS');
-  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,7);
+  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,5);
+  assert.strictEqual(dpfCalls.filter(x=>x.op==='readTrace'&&x.ecu===0x12&&x.did===0xF150).length,2,
+    'both F150 reads must preserve TASU evidence');
   assert.strictEqual(dpfCalls.find(x=>x.op==='read'||x.op==='readTrace').did,0xF150,
     'cold F150 must be first vehicle read');
   assert.ok(!JSON.stringify(dpfPhase.dpfSnapshot).includes('"uds"'));
