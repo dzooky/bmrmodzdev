@@ -101,3 +101,7 @@ Data Tool 0.1.27 was reported `is not healthy` by the vehicle installer. The lik
 
 ### v0.1.30 — temporary IPC runtime socket correction
 The manual, test-only socket now binds within the proven Data Tool service runtime directory, under a short random name instead of `os.tmpdir()`. The legacy ctl.sock is never modified. Failures expose only a bounded stage and safe error category. New Diagnostics v0.1.35 reports these in existing notes. No production client data access is enabled. Vehicle retest remains necessary.
+
+
+### v0.1.31 — live diagnostic connection peer survey
+Two parked MGU diagnostics runs reproduced `local IPC listen` failures on the **extra temporary socket** while all original vehicle reads continued passing. The normal `brokerSelfTest` now reuses the existing, already-connected `ctl.sock` peer to observe whether the MGU Node runtime exposes kernel peer credentials; it no longer tries to create a second socket. Synthetic DPF/OSA/CC isolation and sharing tests remain unchanged. The legacy socket is world-accessible and not a trusted app identity gateway: kernel credential API observation is not production authorization. The separate optional secure socket remains disabled by default. Companion Diagnostics 0.1.36 reports this result in the usual one-run/sent-report workflow.
