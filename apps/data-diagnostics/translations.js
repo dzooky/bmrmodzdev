@@ -58,6 +58,7 @@ const catalogs={
     "TASU status and SOME/IP timing": "TASU status and SOME/IP timing",
     "Report upload compatibility fix": "Report upload compatibility fix",
     "Immediate TASU rejection handling": "Immediate TASU rejection handling",
+    "Established ECU-first diagnostics": "Established ECU-first diagnostics",
     "Legacy IPC exposure audit": "Legacy IPC exposure audit",
     "Experimental DAC socket audit": "Experimental DAC socket audit",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
