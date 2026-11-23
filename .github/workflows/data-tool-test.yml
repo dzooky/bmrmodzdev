@@ -15,11 +15,14 @@ jobs:
         run: |
           node --check apps/data-diagnostics/main.js
           node --check apps/data-diagnostics/upload.js
+          node --check apps/data-diagnostics/network.js
+          node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
           node -e "JSON.parse(require('fs').readFileSync('mgu-repo.json'))"
       - name: Data Tool regression tests
         run: |
           node apps/data-diagnostics/upload.test.js
+          node apps/data-diagnostics/network.test.js
           node apps/data-diagnostics/client.test.js
           node apps/data-diagnostics/qr-report.test.js
           node apps/data-diagnostics/test-runner.test.js
