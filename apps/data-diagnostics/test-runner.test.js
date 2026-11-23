@@ -21,7 +21,7 @@ async function run(){
   const result=await createRunner(sender).run(()=>updates++);
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
-  assert.strictEqual(STEPS.length,23);
+  assert.strictEqual(STEPS.length,24);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -36,6 +36,7 @@ async function run(){
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
+  assert.strictEqual(result.results.find(r=>r.id==='egsIdentity').status,'SKIP');
   assert.ok(result.results.find(r=>r.id==='dpfValues').detail.includes('Unsupported'));
   assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
