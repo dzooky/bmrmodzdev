@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.43 — isolated DDE F150 identification test (2026-11-23)
+- **Vehicle evidence (other repo):** DPF Status v0.1.70 (`dzooky/bmrmodz`) had TASU Ready and Data Tool status Responding but `0xF150` read failed with `TOOL_TIMEOUT` and TASU fallback `NO_MATCHING_RESPONSE`. User reported existing Data Tool Diagnostics tests all PASS; they previously exercised DDE `0x44BB`, not this exact `0xF150` identification.
+- **Implemented:** add manual `ddeIdentity` step using already allowlisted `{op:'read',ecu:0x12,did:0xF150}` immediately after the successful/attempted `0x44BB` DDE step, with existing 1-second ECU settling and 15-second client timeout. Require positive UDS `62 F1 50` response with at least three identification bytes to PASS; no raw ECU data or identity values persisted in report. FAIL reports a sanitized reason. This checks the disputed DID directly; a PASS alone does not validate DPF integration or startup timing.
+- **Scope:** Data Tool service, transport, security policy, DPF app, EGS/CDS tests and reporting schema unchanged. One extra read-only DDE request **only during explicitly started diagnostics**. Diagnostic run now has 30 steps; Info/What's New version updated to 0.1.43, English-only catalog key added.
+- **Verification:** automated test and CI pending. In-car v0.1.43 F150 result pending.
+
+
 ## v0.1.42 — depend on Data Tool 0.1.37 (2026-11-23)
 - **Implemented on development branch:** companion manifest now requires Data Tool 0.1.37 instead of 0.1.36; Info version and English release note updated. Existing manual diagnostic protocol and report workflow preserved.
 - **Automated CI and in-car update:** unverified at time of writing. This version does not prove DPF integration or application identity.
