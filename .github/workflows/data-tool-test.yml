@@ -19,6 +19,8 @@ jobs:
           node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
           node --check tools/data-tool/secure-ipc.js
+          node --check tools/data-tool/identity-survey.js
+          node --check apps/data-diagnostics/identity-survey.js
           node --check tools/data-tool/cds-engine.js
           node --check tools/data-tool/cds-stream-worker.js
           node --check tools/data-tool/signal-worker.js
@@ -41,6 +43,8 @@ jobs:
           node tools/data-tool/test.js
           node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js
+          node tools/data-tool/identity-survey.test.js
+          node apps/data-diagnostics/identity-survey.test.js
           node tools/data-tool/someip-setup.test.js
           node tools/data-tool/someip-audit.test.js
           node tools/data-tool/someip-generate.test.js
