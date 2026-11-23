@@ -4,11 +4,11 @@ const {interfaces,route,tcp,check}=require('./network');
 async function run(){
  assert.strictEqual(interfaces({networkInterfaces:()=>({lo:[{family:'IPv4',internal:true,address:'127.0.0.1'}],wlan0:[{family:'IPv4',internal:false,address:'192.168.0.201',mac:'hidden'}]})}).status,'PASS');
  assert.strictEqual(interfaces({networkInterfaces:()=>({lo:[{family:'IPv4',internal:true,address:'127.0.0.1'}]})}).status,'FAIL');
- const withLan='Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT\nwlan0 0000A8C0 00000000 0001 0 0 0 00FFFFFF 0 0 0\n';
+ const withLan='Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT\nwlan0 00000000 0100A8C0 0003 0 0 0 00000000 0 0 0\n';
  assert.strictEqual(route({readFileSync:()=>withLan}).status,'PASS');
  assert.strictEqual(route({readFileSync:()=>('Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT\n')}).status,'FAIL');
  const fake={createConnection(opts){
-  assert.strictEqual(opts.host,'192.168.0.10');assert.strictEqual(opts.port,80);
+  assert.strictEqual(opts.host,'dzooky.eu');assert.strictEqual(opts.port,443);
   const s=new EventEmitter();s.destroy=()=>{};s.setTimeout=()=>{};
   process.nextTick(()=>{const e=new Error('unreachable');e.code='ENETUNREACH';s.emit('error',e);});
   return s;
