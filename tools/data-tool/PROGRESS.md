@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.7 — manual isolated BMW CDS generator experiment (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** fixed-path, one-shot, bounded `someipGenerate` command manually invokes firmware-backed BMW generator with the tool-owned read-only CDS manifest. Output goes exclusively to `/var/opt/bmrmodz-data-tool/generator-test`, and is checked via passive `someipGenerated`. If staging already exists, generation refuses to overwrite it. Config/ACL files are not activated or registered; no ECU access, controls, or boot-time generation.
+- **Safety and limitations:** the Unix socket is shared by local clients (current experimental access model), so generator request is permitted only once per service start and uses fixed paths and a 12s subprocess timeout. Generated ACL file is not proof of authorization. `configCheck` still reads the separate active config and CDI sampling remains blocked until separate verification.
+- **Automated:** static safe-mode/no-ACL assertions, missing-firmware precheck tests, socket mock and diagnostics runner coverage; final CI status must be checked. **In car: NOT YET VERIFIED**. User-reported v0.1.6 environment check had catalog yes, generator yes, manifest yes, CDS no, UID 0, ACL unverified.
+- **Next step:** install Data Tool 0.1.7 and Diagnostics 0.1.9, manually press Generate CDS test once, run diagnostics and upload report. Check generation results before considering any ACL registration or CDS subscription.
+
+
 ## v0.1.6 — passive SOME/IP setup survey (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** new on-demand, read-only `someipSetup` operation checks whether the BMW catalog, firmware AppManagement generator bundle, Data Tool signal manifest and tool-owned generated CDS config exist, and reports process UID/GID with ACL registration explicitly `not verified`. Also exposed via `probe.js someipSetup`.
 - **Safety:** does not run a generator, register ACLs, inspect private OAP application configs, create SOME/IP proxies, or poll any ECU. Existing UDS transport and allowlist remain unchanged. Standalone tool ACL registration / usable CDS subscription remain unresolved.
