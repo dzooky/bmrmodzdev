@@ -34,7 +34,8 @@ const catalogs={
     "Secure upload": "Secure upload",
     "LAN report upload": "LAN report upload",
     "Network diagnostics": "Network diagnostics",
-    "HTTPS report upload": "HTTPS report upload"
+    "HTTPS report upload": "HTTPS report upload",
+    "MGU internet access": "MGU internet access"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
