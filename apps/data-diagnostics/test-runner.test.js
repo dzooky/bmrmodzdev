@@ -5,6 +5,14 @@ async function run(){
   let commands=[];
   const sender=async req=>{
     commands.push(req);
+    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
+      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
+      sameUidAsService:true,peerCgroupReadable:true,
+      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
+      peerProcStatReadable:true,peerExeLinkReadable:true,
+      installedPackageIdentityVerified:false,processInstanceVerified:false,
+      observationOnly:true,applicationIdentityVerified:false,
+      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -43,6 +51,7 @@ async function run(){
   assert.strictEqual(result.results.find(r=>r.id==='authBoundary').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='nativePeer').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='nativeKernel').status,'PASS');
+  assert.strictEqual(result.results.find(r=>r.id==='processBoundary').status,'PASS');
   const brokerStep=STEPS.find(x=>x.id==='brokerGateway');
   const brokenIpc=resultFor(brokerStep,{ok:true,mode:'explicit-test-only',
     productionAccessEnabled:false,applicationIdentityVerified:false,
@@ -54,7 +63,7 @@ async function run(){
   assert.strictEqual(brokenIpc.status,'FAIL');
   assert.ok(brokenIpc.detail.includes('existing IPC check failed'));
   assert.ok(!brokenIpc.detail.includes('/run/'));
-  assert.strictEqual(STEPS.length,28);
+  assert.strictEqual(STEPS.length,29);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -81,9 +90,9 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility','nativePeerProbe'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility','nativePeerProbe','processBoundaryProbe'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,28);
+  assert.strictEqual(result.results.length,29);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -114,6 +123,14 @@ async function run(){
   }
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
+    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
+      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
+      sameUidAsService:true,peerCgroupReadable:true,
+      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
+      peerProcStatReadable:true,peerExeLinkReadable:true,
+      installedPackageIdentityVerified:false,processInstanceVerified:false,
+      observationOnly:true,applicationIdentityVerified:false,
+      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -157,6 +174,7 @@ async function run(){
   assert.strictEqual(staged.results.find(x=>x.id==='authBoundary').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='nativePeer').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='nativeKernel').status,'PASS');
+  assert.strictEqual(staged.results.find(x=>x.id==='processBoundary').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
@@ -173,6 +191,14 @@ async function run(){
   assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,4);
   assert.ok(staged.results.find(x=>x.id==='cdsTemp').detail.includes('numeric fields validated'));
   const invalid=await createRunner(async req=>{
+    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
+      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
+      sameUidAsService:true,peerCgroupReadable:true,
+      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
+      peerProcStatReadable:true,peerExeLinkReadable:true,
+      installedPackageIdentityVerified:false,processInstanceVerified:false,
+      observationOnly:true,applicationIdentityVerified:false,
+      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -252,6 +278,14 @@ async function run(){
   const dpfCalls=[];
   const dpfPhase=await createRunner(async req=>{
     dpfCalls.push(req);
+    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
+      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
+      sameUidAsService:true,peerCgroupReadable:true,
+      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
+      peerProcStatReadable:true,peerExeLinkReadable:true,
+      installedPackageIdentityVerified:false,processInstanceVerified:false,
+      observationOnly:true,applicationIdentityVerified:false,
+      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,

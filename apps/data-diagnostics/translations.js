@@ -70,6 +70,7 @@ const catalogs={
     "Native peer ABI survey": "Native peer ABI survey",
     "Native kernel peer test": "Native kernel peer test",
     "Native kernel peer compatibility": "Native kernel peer compatibility",
+    "Process isolation feasibility": "Process isolation feasibility",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",

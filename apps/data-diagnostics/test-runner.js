@@ -16,6 +16,7 @@ const STEPS=[
   {id:'authBoundary',label:'Application authentication feasibility',request:{op:'authFeasibility'},kind:'authFeasibility'},
   {id:'nativePeer',label:'Native peer ABI feasibility',request:{op:'nativePeerFeasibility'},kind:'nativePeer'},
   {id:'nativeKernel',label:'Native kernel SO_PEERCRED experiment',request:{op:'nativePeerProbe'},kind:'nativeKernel'},
+  {id:'processBoundary',label:'Native process isolation survey',request:{op:'processBoundaryProbe'},kind:'processBoundary'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -133,6 +134,24 @@ function resultFor(step,reply,duration){
       '; app authentication NO-GO':
       'Identity isolation survey unavailable; production remains OFF';
     return Object.assign(base,{status:safe&&observed?'PASS':'FAIL',detail});
+  }
+  if(step.kind==='processBoundary'){
+    const safe=reply.mode==='passive-process-boundary'&&
+      reply.applicationIdentityVerified===false&&
+      reply.installedPackageIdentityVerified===false&&
+      reply.processInstanceVerified===false&&
+      reply.productionAccessEnabled===false&&reply.observationOnly===true;
+    const ok=safe&&reply.ok===true&&reply.stage==='kernel-peer-observed'&&
+      reply.kernelPeerObserved===true;
+    const detail=ok?
+      'Kernel peer /proc: cgroup '+(reply.peerCgroupReadable?'readable':'unavailable')+
+      ', separate '+(reply.peerCgroupDifferentFromService?'yes':'no')+
+      ', same UID '+(reply.sameUidAsService?'yes':'no')+
+      ', process stat '+(reply.peerProcStatReadable?'readable':'unavailable')+
+      '; installed package NOT verified; production OFF':
+      'Native process boundary unavailable: '+String(reply.stage||'unknown').replace(/[^a-z-]/g,'').slice(0,35)+
+      '; package identity NOT verified; production OFF';
+    return Object.assign(base,{status:ok?'PASS':safe?'SKIP':'FAIL',detail});
   }
   if(step.kind==='nativeKernel'){
     const safe=reply&&reply.mode==='mgu-native-peer-probe'&&
@@ -447,6 +466,7 @@ function createRunner(send,clock){
           'Authentication: '+String((results.find(x=>x.id==='authBoundary')||{}).detail||'not run').slice(0,125)+'.',
           'Native peer: '+String((results.find(x=>x.id==='nativePeer')||{}).detail||'not run').slice(0,125)+'.',
           'Kernel peer: '+String((results.find(x=>x.id==='nativeKernel')||{}).detail||'not run').slice(0,125)+'.',
+          'Process boundary: '+String((results.find(x=>x.id==='processBoundary')||{}).detail||'not run').slice(0,125)+'.',
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
