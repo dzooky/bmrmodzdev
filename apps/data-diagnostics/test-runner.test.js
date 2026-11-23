@@ -10,6 +10,7 @@ async function run(){
     if(req.op==='configCheck')return {ok:false,error:'Missing CDS config'};
     if(req.op==='someipSetup')return {ok:true,mode:'passive-only',checks:{catalogPresent:true,firmwareAppManagementPresent:true,toolManifestPresent:true,generatedCdsPresent:false},identity:{uid:0},registration:'not verified'};
     if(req.op==='someipGenerated')return {ok:false,mode:'staging-only',error:'Staging unavailable'};
+    if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:2},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:false,stage:'module-load',error:'Native binding missing'};
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255,1]};
     throw Error('Unexpected operation');
@@ -23,12 +24,14 @@ async function run(){
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='someipSetup').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='someipGenerated').status,'FAIL');
+  assert.strictEqual(result.results.find(r=>r.id==='someipAudit').status,'PASS');
+  assert.ok(result.results.find(r=>r.id==='someipAudit').detail.includes('NOT registered'));
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','signalNative'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,13);
+  assert.strictEqual(result.results.length,14);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');

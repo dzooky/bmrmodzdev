@@ -49,3 +49,7 @@ Implemented in source only. CI is checked separately; installation, native bindi
 ### v0.1.9 — older MGU Node directory handling
 
 The manual CDS generator creates tool-owned root/staging directories only when absent. It reuses an existing empty staging directory, preserves partial output without overwriting it, and does not activate CDS or register ACLs. Data Tool Diagnostics v0.1.11 remains unchanged.
+
+### v0.1.10 — passive staged ACL audit
+
+Manual `someipAudit` inspects only the Data Tool-owned staged CDS config and ACL file and reports field-presence flags, offer/request counts, and service UID/GID. It does not return ACL content, register a BMW SOME/IP ACL, change installed configuration, create proxies, or issue vehicle requests. A positive audit indicates structurally present generator output, not authorization or CDS reception.

@@ -43,6 +43,8 @@ const catalogs={
     "CDS generation test": "CDS generation test",
     "Send report button restored": "Send report button restored",
     "Focused diagnostics": "Focused diagnostics",
+    "CDS ACL audit": "CDS ACL audit",
+    "CDS configuration and ACL audit": "CDS configuration and ACL audit",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
     "Generation failed": "Generation failed"

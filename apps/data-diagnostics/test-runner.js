@@ -7,6 +7,7 @@ const STEPS=[
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
   {id:'someipGenerated',label:'CDS generator test',request:{op:'someipGenerated'},kind:'generated'},
+  {id:'someipAudit',label:'CDS ACL audit',request:{op:'someipAudit'},kind:'audit'},
   {id:'someipLoad',label:'SOME/IP native',request:{op:'signalNative',mode:'load'},kind:'native'},
   {id:'dde',label:'DDE / DPF',request:{op:'read',ecu:0x12,did:0x44BB},kind:'uds'},
   {id:'egs',label:'EGS / transmission',request:{op:'read',ecu:0x18,did:0x6000},kind:'uds'},
@@ -38,6 +39,14 @@ function resultFor(step,reply,duration){
   if(step.kind==='generated'){
     const good=reply.ok===true&&reply.mode==='staging-only'&&reply.configGenerated===true&&reply.aclFileGenerated===true&&reply.aclRegistered===false;
     return Object.assign(base,{status:good?'PASS':'FAIL',detail:good?'Staged CDS and ACL generated; NOT registered':cleanError(reply.error||reply.note||'No staged generator output')});
+  }
+  if(step.kind==='audit'){
+    const verified=reply.ok===true&&reply.mode==='passive-only'&&reply.aclRegistered===false;
+    const c=reply.aclCounts||{},id=reply.identity||{};
+    const detail=verified?'Staged fields yes, ACL requests '+(Number.isInteger(c.requests)?c.requests:'?')+
+      ', offers '+(Number.isInteger(c.offers)?c.offers:'?')+', UID '+(Number.isInteger(id.uid)?id.uid:'?')+
+      '; ACL NOT registered':cleanError(reply.error||reply.note||'CDS ACL audit unavailable');
+    return Object.assign(base,{status:verified?'PASS':'FAIL',detail});
   }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
   if(step.kind==='uds'){
