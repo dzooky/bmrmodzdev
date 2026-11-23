@@ -34,24 +34,16 @@ function upload(report,dataDir,options){
   const safe={};
   allowed.forEach(key=>{if(Object.prototype.hasOwnProperty.call(report,key))safe[key]=report[key];});
   // Whitelist each result property too.
-  // Preserve full test totals, but only transmit the active drivetrain investigation
-  // and unexpected FAILs. All 22 checks still execute and remain in the local report.
+  // Preserve full test totals. Use existing result rows and their durationMs for
+  // SOME/IP timing, because the receiving endpoint rejects new top-level fields.
+  // All 22 checks still run and remain in the local report.
   safe.results=report.results.filter(item=>item&&(
-    item.id==='dde'||item.id==='egs'||item.status==='FAIL'
+    item.id==='dde'||item.id==='egs'||item.id==='someipEnvironment'||
+    item.id==='someipLoad'||item.id==='cdsStream'||item.status==='FAIL'
   )).map(item=>({
     id:String(item.id||''),label:String(item.label||''),status:String(item.status||''),
     durationMs:Number(item.durationMs)||0,detail:String(item.detail||'').slice(0,160)
   }));
-  // Only timing metadata for known read-only SOME/IP/CDS checks, no signal values.
-  const timingKeys=['environmentMs','configMs','setupMs','generationMs','auditMs',
-    'nativeLoadMs','cdsTempMs','cdsRpmMs','cdsStreamMs','cdsMultiMs'];
-  if(report.someipTimings&&typeof report.someipTimings==='object'){
-    safe.someipTimings={};
-    for(const key of timingKeys){
-      const value=report.someipTimings[key];
-      if(Number.isSafeInteger(value)&&value>=0&&value<=60000)safe.someipTimings[key]=value;
-    }
-  }
   const body=JSON.stringify(safe);
   if(Buffer.byteLength(body)>32768)return Promise.reject(new Error('Diagnostic report exceeds 32 KB'));
   return new Promise((resolve,reject)=>{
