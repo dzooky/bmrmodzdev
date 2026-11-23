@@ -1,5 +1,7 @@
 # Data Tool Diagnostics progress
 
+- **User-supplied MGU report 2026-11-23:** 21 explicit checks: 17 PASS / 0 FAIL / 4 SKIP. The added legacy IPC exposure SKIP confirms the mode-0666 socket is not production-safe. Tool and app identity observations PASS. `deviceVerified:false` remains in report, and these results do not authorize production consumption or verify ECU value semantics.
+
 ## v0.1.20 — legacy diagnostic socket exposure audit (2026-11-23)
 - **Implemented on development branch:** adds one read-only manual check (`Legacy IPC exposure`, 21 checks total) using Data Tool v0.1.18 identity data. World-accessible legacy socket is explicitly `SKIP`, not a security success; invalid or missing exposure information is `FAIL`. No new car data polling, socket permissions, or production app access.
 - Update manifest dependency to Data Tool v0.1.18; report remains sanitized, with no vehicle values or identifying data. Expected on the previously observed MGU socket mode `0666`: 17 PASS / 0 FAIL / 4 SKIP if all previous checks still pass; **not verified in car**.

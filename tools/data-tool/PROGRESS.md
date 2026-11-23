@@ -1,5 +1,7 @@
 # Data Tool feasibility progress
 
+- **In-car report received 2026-11-23 (v0.1.18 / Diagnostics v0.1.20):** 17 PASS / 0 FAIL / 4 SKIP; UDS responses, staged CDS samples and two-consumer lifecycle passed. Tool UID 0/GID 0, legacy socket mode 0666, app UID/GID 12252. Peer authentication and production permissions remain unverified. User-supplied diagnostic results; decoded sensor semantics and vehicle controls not verified.
+
 ## v0.1.18 — passive legacy socket exposure reporting (2026-11-23)
 - **Implemented on development branch:** report the legacy diagnostic socket's access bits in the existing passive identity survey as `legacySocketWorldAccessible`, explicitly retaining `legacySocketProductionSafe:false`. No new listener, credentials claim, privilege change, or vehicle requests.
 - Correct the stale passive diagnostic report version (was hardcoded `0.1.5`), with regression assertions. CDS, UDS, startup compatibility, and secure IPC disabled-by-default remain unchanged.

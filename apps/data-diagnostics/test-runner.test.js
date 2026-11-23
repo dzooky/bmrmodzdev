@@ -52,7 +52,7 @@ async function run(){
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
     if(req.op==='status')return {ok:true};
-    if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
+    if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},legacySocketWorldAccessible:true,legacySocketProductionSafe:false,peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
     if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
