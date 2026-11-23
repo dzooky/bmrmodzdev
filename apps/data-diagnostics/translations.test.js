@@ -45,6 +45,8 @@ assert.ok(t('en','Established ECU-first diagnostics'));
 assert.ok(t('en','Visible report upload action'));
 assert.ok(t('en','Corrected CDS temperature scaling'));
 assert.ok(t('en','Broker and IPC self-test'));
+assert.ok(t('en','DDE F150 identification check'));
+assert.strictEqual(spec.version,'0.1.43');
 for(const key of ['Run before sleep','Run after wake','DPF comparison','Vehicle comparison','Before sleep','After wake'])assert.ok(t('en',key));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
 assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');
