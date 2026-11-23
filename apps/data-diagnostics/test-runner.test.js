@@ -47,7 +47,7 @@ async function run(){
     if(req.op==='cdsSnapshot')return {ok:true,fields:{oil:{valid:true},coolant:{valid:true},rpm:{valid:true}},stats:{samples:++snapshots}};
     if(req.op==='cdsRelease')return {ok:true,running:false,consumers:0};
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
-    return {ok:false,error:'Inactive config missing'};
+    return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
   assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'FAIL');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
@@ -67,7 +67,7 @@ async function run(){
       validFields:req.field==='statusEngineTemperature'?{oil:false,coolant:true}:{rpm:false},
       error:'CDS sample missing numeric field'};
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
-    return {ok:false,error:'Inactive config missing'};
+    return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
   assert.strictEqual(invalid.results.find(x=>x.id==='cdsTemp').status,'FAIL');
   assert.ok(invalid.results.find(x=>x.id==='cdsTemp').detail.includes('oil'));
