@@ -6,6 +6,7 @@ async function run(){
   const sender=async req=>{
     commands.push(req);
     if(req.op==='status')return {ok:true,version:'0.1.5'};
+    if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:false}};
     if(req.op==='configCheck')return {ok:false,error:'Missing CDS config'};
     if(req.op==='someipSetup')return {ok:true,mode:'passive-only',checks:{catalogPresent:true,firmwareAppManagementPresent:true,toolManifestPresent:true,generatedCdsPresent:false},identity:{uid:0},registration:'not verified'};
@@ -30,9 +31,9 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||['status','securityCheck','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,16);
+  assert.strictEqual(result.results.length,17);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
   let snapshots=0,mockStarts=0;
@@ -50,6 +51,7 @@ async function run(){
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
     if(req.op==='status')return {ok:true};
+    if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:true,stage:'module-load'};
@@ -72,6 +74,7 @@ async function run(){
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
   assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'SKIP');
+  assert.strictEqual(staged.results.find(x=>x.id==='ipcSecurity').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsStream').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsMulti').status,'PASS');
   assert.strictEqual(liveCommands.filter(x=>x.op==='cdsDemand').length,4);
