@@ -39,6 +39,24 @@ async function main(){
  assert.strictEqual(JSON.parse(body).results[0].id,'dde');
  await assert.rejects(upload({},'/unused',{https:fake}),/Invalid diagnostic report/);
  assert.strictEqual(calls,1);
- console.log('Data Diagnostics: public HTTPS destination, no token and allowlisted JSON passed');
+ // Simulate common hosting error pages and a response larger than the 4 KB cap.
+ async function rejectReply(status,contentType,payload,pattern){
+   const backend={request(options,callback){
+     const req=new EventEmitter();
+     req.end=()=>{
+       const res=new EventEmitter();
+       res.statusCode=status;res.headers={'content-type':contentType};res.setEncoding=()=>{};
+       res.destroy=()=>res.emit('error',new Error('stream closed'));
+       process.nextTick(()=>{callback(res);res.emit('data',payload);res.emit('end');});
+     };
+     req.destroy=e=>req.emit('error',e);
+     return req;
+   }};
+   await assert.rejects(upload(result,'/unused',{https:backend}),pattern);
+ }
+ await rejectReply(403,'application/json',JSON.stringify({ok:false,error:'HTTPS required'}),/HTTP 403 application\\/json: HTTPS required/);
+ await rejectReply(404,'text/html','<html><body>Not Found</body></html>',/HTTP 404 text\\/html: Non-JSON reply Not Found/);
+ await rejectReply(200,'text/html','<html><body>'+('A'.repeat(4400))+'</body></html>',/HTTP 200 text\\/html: Reply >4 KB/);
+ console.log('Data Diagnostics: HTTPS upload status, content type, sanitized preview and reply cap passed');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
