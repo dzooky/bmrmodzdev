@@ -51,6 +51,7 @@ const catalogs={
     "Secure IPC audit": "Secure IPC audit",
     "Data Tool startup recovery": "Data Tool startup recovery",
     "Process identity survey": "Process identity survey",
+    "Drivetrain ECU retry test": "Drivetrain ECU retry test",
     "Legacy IPC exposure audit": "Legacy IPC exposure audit",
     "Experimental DAC socket audit": "Experimental DAC socket audit",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
