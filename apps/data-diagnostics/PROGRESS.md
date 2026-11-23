@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.4 — public HTTPS report endpoint (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** manual Send report now targets `https://dzooky.eu/brmmodz.php` on TCP 443 with TLS verification; no automatic uploads or token; field allowlisting and the 32 KB limit remain. MGU uplink DNS lease lookup fallback is restored for HTTPS host resolution.
+- **Diagnostics/UI:** TCP probe now targets `dzooky.eu:443`, while route probe requires a default route. App version and English What's New updated to 0.1.4; tests updated for new endpoint and scheme.
+- **Server prerequisite (not done):** the LAN-only `server/bmrmodz.php` cannot be copied unchanged: its `192.168.0.x` remote-IP check rejects public requests. Public hosting also needs effective access control/rate limits and stored report download protection. The application presently supplies no auth token; token-enforcing PHP cannot accept it without a separate client change. Do not expose a writable unauthenticated JSON collector or reports directory to the internet.
+- **Vehicle:** latest observed 0.1.3 in-car network route/TCP failures, SOME/IP config ENOENT, intermittent ECU results; 0.1.4 public HTTPS transfer **not yet vehicle tested**. CI result must be checked independently.
+
+
 ## v0.1.3 — OAP network route diagnostics (2026-11-23)
 - **In-car observation (user):** Data Tool Diagnostics 0.1.2 was installed and run on a parked MGU connected to home Wi-Fi. Manual Send report failed with `ENETUNREACH`; LAN server had independently accepted an HTTP 201 and written a test report from DietPi. The MGU-side application-to-server network path remains unverified; do not assume Wi-Fi association implies an OAP network route.
 - **Implemented in dzooky/bmrmodzdev main:** Manual Run diagnostics now also checks OAP-process non-loopback IPv4 interfaces, reads `/proc/net/route` (no shell), and attempts an outbound TCP connection to `192.168.0.10:80` with a short timeout. Three separate PASS/FAIL results and sanitised short details are included in the existing Results page and report, independent of Data Tool service availability. Existing ECU and CDS read-only probes remain unchanged.
