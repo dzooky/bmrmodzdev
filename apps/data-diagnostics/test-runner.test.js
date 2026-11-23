@@ -32,10 +32,21 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,15);
+  assert.strictEqual(result.results.length,16);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
-  let snapshots=0;
+  let snapshots=0,mockStarts=0;
+  const leaseTimes=new Map();
+  function mockState(consumer){
+    const t=Date.now();
+    for(const [id,end] of leaseTimes)if(end<=t)leaseTimes.delete(id);
+    const active=leaseTimes.size,fields={};
+    for(const field of (consumer==='diagnostics-secondary'?['coolant','rpm']:['oil','coolant','rpm']))
+      fields[field]={valid:active>0&&leaseTimes.has(consumer),ageMs:0};
+    return {ok:true,consumers:active,running:active>0,fields,
+      values:active>0?{coolant:90,rpm:0,...(consumer==='diagnostics-secondary'?{}:{oil:95})}:{},
+      stats:{starts:mockStarts,samples:++snapshots}};
+  }
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
     if(req.op==='status')return {ok:true};
@@ -43,9 +54,17 @@ async function run(){
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:1},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:true,stage:'module-load'};
     if(req.op==='signalStaging')return {ok:true,stage:'sample',received:true,validated:true,validFields:req.field==='statusEngineTemperature'?{oil:true,coolant:true}:{rpm:true}};
-    if(req.op==='cdsDemand')return {ok:true,running:true};
-    if(req.op==='cdsSnapshot')return {ok:true,fields:{oil:{valid:true},coolant:{valid:true},rpm:{valid:true}},stats:{samples:++snapshots}};
-    if(req.op==='cdsRelease')return {ok:true,running:false,consumers:0};
+    if(req.op==='cdsDemand'){
+      mockState(req.consumer);
+      if(leaseTimes.size===0)mockStarts++;
+      leaseTimes.set(req.consumer,Date.now()+3000);
+      return mockState(req.consumer);
+    }
+    if(req.op==='cdsSnapshot')return mockState(req.consumer||'diagnostics');
+    if(req.op==='cdsRelease'){
+      leaseTimes.delete(req.consumer);
+      return mockState(req.consumer);
+    }
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
     return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
@@ -54,8 +73,9 @@ async function run(){
   assert.strictEqual(staged.signalPermissionsVerified,false);
   assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsStream').status,'PASS');
-  assert.strictEqual(liveCommands.filter(x=>x.op==='cdsDemand').length,1);
-  assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,1);
+  assert.strictEqual(staged.results.find(x=>x.id==='cdsMulti').status,'PASS');
+  assert.strictEqual(liveCommands.filter(x=>x.op==='cdsDemand').length,4);
+  assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,3);
   assert.ok(staged.results.find(x=>x.id==='cdsTemp').detail.includes('numeric fields validated'));
   const invalid=await createRunner(async req=>{
     if(req.op==='status')return {ok:true};
@@ -75,6 +95,7 @@ async function run(){
   assert.strictEqual(JSON.stringify(invalid).includes('"value"'),false);
   assert.strictEqual(invalid.signalPermissionsVerified,false);
   assert.strictEqual(invalid.results.find(x=>x.id==='cdsStream').status,'FAIL');
+  assert.strictEqual(invalid.results.find(x=>x.id==='cdsMulti').status,'FAIL');
   assert.strictEqual(liveCommands.filter(x=>x.op==='signalStaging').length,2);
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
