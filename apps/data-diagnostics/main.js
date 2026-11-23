@@ -24,6 +24,7 @@ mgu.run({
   const runner=createRunner(client.request);
   let page=0,running=false,sending=false,generating=false,genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
   let before=null,after=null;
+  let nextPhase='before';
   const currentLanguage=()=>ctx.settings.get('language')||'en';
   const word=key=>t(currentLanguage(),key);
   const reportFile=path.join(ctx.dataDir,REPORT_NAME);
@@ -38,8 +39,9 @@ mgu.run({
    const previous=JSON.parse(fs.readFileSync(reportFile,'utf8'));
    if(previous&&previous.schema===1&&Array.isArray(previous.results))report=previous;
   }catch(_){}
+  nextPhase=before&&!after?'after':'before';
   function refreshButtons(){
-   for(const [button,key] of [['BTN_RUN','Run before sleep'],['BTN_AFTER','Run after wake'],
+   for(const [button,key] of [['BTN_RUN',nextPhase==='after'?'Run after wake':'Run before sleep'],
      ['BTN_GEN','Generate CDS test'],['BTN_SEND','Send report']]){
     try{ui.text(button,word(key));}catch(_){}
    }
@@ -54,7 +56,9 @@ mgu.run({
      progress=Math.floor(100*completed/total);lastResult=item;
     },phase);
     report=output;page=2;
-    if(phase==='before')before=output;else after=output;
+    if(phase==='before'){before=output;after=null;}else after=output;
+    nextPhase=phase==='before'?'after':'before';
+    refreshButtons();
     try{
      fs.writeFileSync(phaseFile(phase),JSON.stringify(output,null,2)+'\n',{encoding:'utf8',mode:0o600});
      fs.writeFileSync(reportFile,JSON.stringify(output,null,2)+'\n',{encoding:'utf8',mode:0o600});
@@ -100,8 +104,7 @@ mgu.run({
    }finally{sending=false;}
   }
   ui.onClick('BTN_GEN',()=>{generateCds().catch(e=>log.warn('Generate: '+e));});
-  ui.onClick('BTN_RUN',()=>{runTest('before').catch(error=>log.warn('Before: '+error));});
-  ui.onClick('BTN_AFTER',()=>{runTest('after').catch(error=>log.warn('After: '+error));});
+  ui.onClick('BTN_RUN',()=>{runTest(nextPhase).catch(error=>log.warn('Snapshot: '+error));});
   ui.onClick('BTN_SEND',()=>{sendReport().catch(error=>log.warn('Send: '+error));});
   ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
   function label(cv,text,x,y,size,color,opts){
@@ -120,9 +123,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+24,14,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.30 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.31 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.30 — '+word('Before and after DPF snapshots'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.31 — '+word('Visible report upload action'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
