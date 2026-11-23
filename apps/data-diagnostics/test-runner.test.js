@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert');
-const {createRunner,STEPS,drivetrainRead,resultFor,traceSummary}=require('./test-runner');
+const {createRunner,STEPS,drivetrainRead,resultFor,traceSummary,tasuStatusSummary,someipTimings}=require('./test-runner');
 async function run(){
   let commands=[];
   const sender=async req=>{
@@ -21,6 +21,13 @@ async function run(){
   const result=await createRunner(sender).run(()=>updates++);
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
+  assert.ok(result.someipTimings&&Number.isSafeInteger(result.someipTimings.environmentMs));
+  assert.strictEqual(result.someipTimings.ddeMs,undefined);
+  assert.deepStrictEqual(someipTimings([{id:'someipLoad',status:'PASS',durationMs:236},
+    {id:'someipConfig',status:'SKIP',durationMs:0}]),{nativeLoadMs:236});
+  assert.strictEqual(tasuStatusSummary([{shortStatusCodes:{49:2,16:1},
+    shortStatusAbsent:1,shortStatusOverflow:0}]),'TASU status 0x10 x1,0x31 x2, absent 1');
+
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
