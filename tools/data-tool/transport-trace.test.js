@@ -38,7 +38,7 @@ async function main(){
   assert.strictEqual(shortEnvelope(rejectWithCode).statusCode,0x31);
   assert.strictEqual(shortEnvelope(shortReject).statusCode,0);
   assert.strictEqual(shortEnvelope(shortUnknown).statusCode,null);
-  const noCode='00000004'+Buffer.from([0xF0,0xF2,0x7F,0]).toString('hex');
+  const noCode='00000004'+Buffer.from([0xF0,0xF2,0x7F,0,0,0]).toString('hex');
   assert.strictEqual(shortEnvelope(noCode).statusCode,null);
   const trace={};
   const success=fake(t=>{
