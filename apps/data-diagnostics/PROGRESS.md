@@ -1,5 +1,13 @@
 # Data Tool Diagnostics progress
 
+## v0.1.3 — OAP network route diagnostics (2026-11-23)
+- **In-car observation (user):** Data Tool Diagnostics 0.1.2 was installed and run on a parked MGU connected to home Wi-Fi. Manual Send report failed with `ENETUNREACH`; LAN server had independently accepted an HTTP 201 and written a test report from DietPi. The MGU-side application-to-server network path remains unverified; do not assume Wi-Fi association implies an OAP network route.
+- **Implemented in dzooky/bmrmodzdev main:** Manual Run diagnostics now also checks OAP-process non-loopback IPv4 interfaces, reads `/proc/net/route` (no shell), and attempts an outbound TCP connection to `192.168.0.10:80` with a short timeout. Three separate PASS/FAIL results and sanitised short details are included in the existing Results page and report, independent of Data Tool service availability. Existing ECU and CDS read-only probes remain unchanged.
+- **Version/UI:** app 0.1.3, English What's New "Network diagnostics", adjusted result grid to fit 14 entries. No new network permissions claimed, no automatic uploads, no vehicle controls.
+- **Validation:** GitHub Actions test workflow triggered; check actual result before calling CI passed. Real-car results for 0.1.3 are **not tested**.
+- **Next:** install 0.1.3 via `dzooky/bmrmodzdev`, run diagnostics parked, inspect the three Network results, and report their exact text. Do not change DietPi or Wi-Fi configuration until evidence identifies the failure point.
+
+
 ## v0.1.2 — LAN HTTP manual report upload (2026-11-23)
 - **Implemented on draft PR #48:** `apps/data-diagnostics/upload.js` sends sanitized reports only on explicit **Send report** to `http://192.168.0.10/bmrmodz.php` using HTTP port 80, with no DNS fallback, internet hostname, or authentication token. All allowlist, request-size and response-ID checks remain.
 - **Updated:** English What's New `0.1.2 — LAN report upload`, app manifest version, README and mock upload regression checks. The prior HTTPS flow remains documented below as historical v0.1.1 implementation.
