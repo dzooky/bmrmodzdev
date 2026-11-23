@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## PHP receiver counter fix (2026-11-23)
+- **In-car/user-host evidence:** Data Tool Diagnostics 0.1.7 reached `https://dzooky.eu/bmrmodz.php` but received HTTP 500 with a non-JSON body. The user-provided PHP error log identified a fatal `TypeError: json_decode() expects parameter 1 to be string, bool given` at the hourly counter decode; only `.upload-lock.php` was present in the reports directory.
+- **Implemented on dzooky/bmrmodzdev main:** `server/bmrmodz.php` validates the counter file content and newline before passing a nonempty string to `json_decode()`. Missing/malformed counters safely default to zero. Data Tool Diagnostics app remains at 0.1.7 and is unchanged.
+- **Locally tested:** `php -l` succeeded and a simulated HTTPS POST through PHP's built-in server with a missing counter returned HTTP 201, creating an anonymized report and `.hourly-count.php`. **Public hosting / in-car end-to-end: NOT YET VERIFIED**. User must replace the PHP receiver on hosting, then retry Send report. Public unauthenticated receiver remains temporary.
+
+
 ## v0.1.7 — corrected BMR upload path and footer layout (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** fixed the manual HTTPS report URL from the mistakenly ordered `/brmmodz.php` to the user's actual `/bmrmodz.php`. Updated upload tests and renamed the repository PHP receiver file accordingly; no changes to installed public hosting were made.
 - **UI:** upload/export feedback now uses the single footer line at y=506 outside the Results panels instead of rendering over the final diagnostic row (y=460/479). PASS/FAIL/SKIP totals are displayed in the top-right Results header. Existing HTTP diagnostic details and protections remain unchanged.
