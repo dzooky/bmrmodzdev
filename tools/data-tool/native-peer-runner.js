@@ -26,13 +26,14 @@ function run(socket,directory,options){
    return Promise.resolve(out('unsupported'));
  let file=null,fd=null,child=null,finished=false;
  return new Promise(resolve=>{
-  const timeoutMs=1000;
-  let timer=null,seen='',result=out('unavailable');
+  const opts=options||{};
+  const timeoutMs=opts.timeoutMs||2000;
+  let timer=null,seen='',result=out('unavailable'),exited=false,exitCode=null,stdoutEnded=false,spawned=false;
   const finish=value=>{
    if(finished)return;finished=true;
    clearTimeout(timer);
    result=value;
-   if(child&&!child.killed){try{child.kill('SIGKILL');}catch(_){}}
+   if(child&&!exited&&!child.killed){try{child.kill('SIGKILL');}catch(_){}}
    if(fd!==null){try{fs.closeSync(fd);}catch(_){}fd=null;}
    if(file){try{fs.unlinkSync(file);}catch(_){}}
    resolve(result);
@@ -52,24 +53,30 @@ function run(socket,directory,options){
    if(fs.writeSync(fd,code,0,code.length,0)!==code.length)throw Error('Short write');
    fs.fchmodSync(fd,0o700);
    fs.closeSync(fd);fd=null;
-   child=cp.spawn(file,[],{stdio:['ignore','pipe','ignore',socket]});
-   timer=setTimeout(()=>finish(out('timeout')),timeoutMs);
-   child.on('error',()=>finish(out('unavailable')));
-   child.stdout.on('data',chunk=>{
-    seen+=String(chunk);
-    if(seen.length>512)finish(out('invalid-response'));
-   });
-   child.on('close',code=>{
-    if(finished)return;
+   child=(opts.spawn||cp.spawn)(file,[],{stdio:['ignore','pipe','ignore',socket]});
+   // On Node 8 'close' can be delayed by the still-connected inherited FD3.
+   // Observe process exit AND stdout EOF; neither waits for FD3 to close.
+   const complete=()=>{
+    if(finished||!exited||!stdoutEnded)return;
     let parsed=null;
     try{parsed=JSON.parse(seen.trim());}catch(_){}
     const safe=parsed&&parsed.mode==='mgu-native-peer-probe'&&
       parsed.applicationIdentityVerified===false&&
       parsed.productionAccessEnabled===false&&
-      parsed.unixSocket===true&&parsed.kernelPeerObserved===true&&code===0;
+      parsed.unixSocket===true&&parsed.kernelPeerObserved===true&&exitCode===0;
     finish(safe?out('kernel-peer-observed',{ok:true,unixSocket:true,
       kernelPeerObserved:true}):out('kernel-peer-unavailable'));
+   };
+   timer=setTimeout(()=>finish(out(exited?'timeout-after-exit':
+     spawned?'timeout-after-spawn':'timeout-before-spawn')),timeoutMs);
+   spawned=true; // Node 8 ChildProcess does not expose a 'spawn' event.
+   child.on('error',()=>finish(out('spawn-error')));
+   child.stdout.on('data',chunk=>{
+    seen+=String(chunk);
+    if(seen.length>512)finish(out('invalid-response'));
    });
+   child.stdout.on('end',()=>{stdoutEnded=true;complete();});
+   child.on('exit',code=>{exited=true;exitCode=code;complete();});
   }catch(_){finish(out('unavailable'));}
  });
 }

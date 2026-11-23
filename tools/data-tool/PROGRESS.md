@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.35 — Node 8 native probe lifecycle timeout regression (2026-11-23)
+- **Observed in car:** Data Tool 0.1.34 / Diagnostics 0.1.39, 22 PASS, 0 FAIL, 6 SKIP. Only `nativeKernel` skipped with `Native test unavailable: timeout`. DDE, EGS, CDS, synthetic broker and existing IPC remain functional. This is **not** evidence that the kernel lacks SO_PEERCRED.
+- **Fix:** use child process `exit` plus stdout `end` rather than `close`, which can be delayed by the inherited live FD3 on older Node. Keep the same existing Unix socket, pinned ELF, exclusive temporary file, cleanup and fail-closed service. Increase bounded timeout from 1s to 2s to account for slow MGU scheduling and distinguish timeout-before-spawn / timeout-after-spawn / timeout-after-exit without exposing identity or filesystem data. Test process exit and stdout EOF with deliberately no close event, plus simulated hung child.
+- **Security:** no app ID, UID/PID, production gateway or ECU traffic exposed. SO_PEERCRED kernel proof on MGU remains **unverified** pending one parked retest; DPF/OSA/CC not changed.
+
+
 ## v0.1.34 — bounded native SO_PEERCRED experiment on MGU existing socket (2026-11-23)
 - **In-car baseline:** Data Tool 0.1.33 / Diagnostics 0.1.38: 22 PASS, 0 FAIL, 5 SKIP. Report: x86_64, ELF 64-bit, Node 8 / N-API 4, native Node peer API unavailable, broker/UDS/CDS passes. App authentication NO-GO.
 - **Implemented:** static, libc-free x86_64 Linux `SO_PEERCRED` helper from `native/peercred-static-x86_64.S`, pinned compressed ELF payload embedded in `native-peer-runner.js`. The binary is unpacked **only** when an explicit `nativePeerProbe` request arrives on the existing Data Tool diagnostic Unix socket, using a verified owner-only-writable runtime directory, exclusive 0700 temporary file, SHA-256/ELF architecture checks, bounded child stdout, one-second kill timeout, safe cleanup, and inherited accepted client socket on FD 3. It never creates a second listener, reads client packets or vehicle data, and does not execute at boot. Errors (missing exec permission/noexec, spawn issues, unsupported platform) return bounded `SKIP`-capable status without affecting service health.
