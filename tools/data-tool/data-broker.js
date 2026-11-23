@@ -82,7 +82,7 @@ function createBroker(options){
          if(!Number.isFinite(age)||age<0||age>10000)measure=null;
        }
        results[e.key]=measure?{valid:true,value:measure.value,unit:measure.unit,
-         sampledAt:s.source==='uds'?replies.get(s.ecu+':'+(s.variants&&s.variants[identityDde]?s.variants[identityDde].did:s.did))?.at||null:null,
+         sampledAt:s.source==='uds'&&reply&&typeof reply.at==='string'?reply.at:null,
          ageMs:s.source==='cds'?snapshot.fields[s.field].ageMs:null}:
          {valid:false,value:null,unit:s.unit,sampledAt:null,ageMs:null};
      }
