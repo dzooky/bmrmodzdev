@@ -167,7 +167,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
-          else if(req.op==='readTrace'&&((req.ecu===0x12&&req.did===0x44BB)||(req.ecu===0x18&&req.did===0x6000)))reply=await read(req.ecu,req.did,true);
+          else if(req.op==='readTrace'&&((req.ecu===0x12&&(req.did===0x44BB||req.did===0xF150))||(req.ecu===0x18&&req.did===0x6000)))reply=await read(req.ecu,req.did,true);
           else if(req.op==='read'&&Number.isInteger(req.ecu)&&Number.isInteger(req.did))reply=await read(req.ecu,req.did);
           else reply={ok:false,error:'Unsupported request'};
         }catch(e){reply={ok:false,error:String(e.message||e)};}
