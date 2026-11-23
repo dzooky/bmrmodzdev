@@ -47,12 +47,12 @@ async function run(){
    assert.strictEqual(brokerTest.ipc.applicationIdentityVerified,false);
    assert.strictEqual(brokerTest.ipc.legacySocketProductionSafe,false);
    assert.strictEqual(sent,0,'broker test must never use injected vehicle transport');
-   const native=await call(socket,{op:'nativePeerFeasibility'});
-   assert.strictEqual(native.ok,true);
-   assert.strictEqual(native.mode,'passive-native-peer-feasibility');
-   assert.strictEqual(native.mgubinaryInstalled,false);
-   assert.strictEqual(native.kernelPeerProvenOnMgu,false);
-   assert.strictEqual(native.productionAccessEnabled,false);
+   const nativeAbi=await call(socket,{op:'nativePeerFeasibility'});
+   assert.strictEqual(nativeAbi.ok,true);
+   assert.strictEqual(nativeAbi.mode,'passive-native-peer-feasibility');
+   assert.strictEqual(nativeAbi.mgubinaryInstalled,false);
+   assert.strictEqual(nativeAbi.kernelPeerProvenOnMgu,false);
+   assert.strictEqual(nativeAbi.productionAccessEnabled,false);
    assert.strictEqual(sent,0);
    const auth=await call(socket,{op:'authFeasibility'});
    assert.strictEqual(auth.ok,true);
