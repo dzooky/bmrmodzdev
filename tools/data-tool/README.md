@@ -53,3 +53,7 @@ The manual CDS generator creates tool-owned root/staging directories only when a
 ### v0.1.10 — passive staged ACL audit
 
 Manual `someipAudit` inspects only the Data Tool-owned staged CDS config and ACL file and reports field-presence flags, offer/request counts, and service UID/GID. It does not return ACL content, register a BMW SOME/IP ACL, change installed configuration, create proxies, or issue vehicle requests. A positive audit indicates structurally present generator output, not authorization or CDS reception.
+
+### v0.1.11 staged CDS sampling experiment
+
+On explicit request, `signalStaging` (mode `sample`, allowlisted `statusEngineTemperature` or `statusEngineSpeed2`) runs a short-lived isolated native SOME/IP worker using the generated tool-owned staging configuration. Worker hard timeout is 8 seconds. No active configuration installation, ACL registration, background polling, or vehicle control. Receiving native field events is not proof of correct decoded values.
