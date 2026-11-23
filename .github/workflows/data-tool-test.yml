@@ -19,6 +19,7 @@ jobs:
           node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
           node -e "JSON.parse(require('fs').readFileSync('mgu-repo.json'))"
+          node -e "const s=JSON.parse(require('fs').readFileSync('apps/data-diagnostics/app.json')); if(s.mguInternet!==true)process.exit(1)"
       - name: Data Tool regression tests
         run: |
           node apps/data-diagnostics/upload.test.js
