@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.27 — restore HTTPS upload schema compatibility (2026-11-23)
+- **Regression fix (feature branch):** v0.1.26 introduced a new top-level `someipTimings` JSON property; the real report endpoint rejected it with `Unknown report field`. Remove the unsupported field from the transmitted payload. Continue measuring SOME/IP/CDS durations locally; transmit three established result rows (`someipEnvironment`, `someipLoad`, `cdsStream`) with existing `durationMs` fields alongside DDE/EGS and unexpected FAILs. No backend schema change, raw data, new vehicle requests or Data Tool update; the 22 checks and local full report remain intact.
+- **Automated:** strict upload top-level-field assertion, allowed timing row tests and existing upload/runner regression suite; verify CI. **In-car:** actual server acceptance of v0.1.27 not yet verified; request retry of existing report after app update (no new car test needed).
+
+
 ## v0.1.26 — TASU status code histogram + SOME/IP step timing (2026-11-23)
 - **Implemented on feature branch:** DDE/EGS details prioritize sanitized numeric TASU short-reject status histogram, retaining up to three attempts and prior trace counters. Read-only manual diagnostics still execute all 22 checks; compact upload still includes DDE/EGS and any other FAIL rows, plus an allowlist of millisecond durations for SOME/IP environment/config/setup/staging/native load and CDS checks. No raw signal values or extra ECU reads; the durations measure individual checks, not proof of an active SOME/IP registration or complete warm-up.
 - **Real-car baseline (Diagnostics v0.1.25 + Data Tool v0.1.22):** first run 15 PASS / 2 FAIL / 5 SKIP with DDE/EGS each 3 short, length-consistent 0x7F TASU reject-marker frames; second 17 PASS / 0 FAIL / 5 SKIP with DDE 193ms, EGS 211ms. User observed faster SOME/IP UI progression on second run; earlier compact reports lacked per-step timings, so not yet quantitatively confirmed. Neither observed reject byte nor ECU wake state is established as cause.
