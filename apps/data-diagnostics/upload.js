@@ -52,16 +52,43 @@ function upload(report,dataDir,options){
       headers:{'Content-Type':'application/json','Accept':'application/json',
         'Content-Length':Buffer.byteLength(body)}
     },response=>{
+      const status=Number(response.statusCode)||0;
+      const type=String(response.headers&&response.headers['content-type']||'unknown')
+        .split(';')[0].trim().toLowerCase().slice(0,36)||'unknown';
+      const meta='HTTP '+status+' '+type;
+      let size=0;
+      function preview(value){
+        // Never display raw HTML, control characters, or long server replies.
+        return String(value).replace(/<[^>]*>/g,' ').replace(/&(?:nbsp|amp|lt|gt|quot|#39);/gi,' ')
+          .replace(/[\\x00-\\x1f\\x7f]/g,' ').replace(/\\s+/g,' ').trim().slice(0,38);
+      }
+      function fail(reason){
+        return done(new Error(meta+': '+reason));
+      }
       response.setEncoding('utf8');
-      response.on('data',part=>{buffer+=part;if(buffer.length>4096)req.destroy(new Error('Oversized server reply'));});
+      response.on('data',part=>{
+        if(finished)return;
+        size+=Buffer.byteLength(part,'utf8');
+        if(size>4096){
+          const hint=preview(buffer+String(part).slice(0,256));
+          fail('Reply >4 KB'+(hint?' '+hint:''));
+          response.destroy();
+          return;
+        }
+        buffer+=part;
+      });
       response.on('end',()=>{
+        if(finished)return;
         let answer;
-        try{answer=JSON.parse(buffer);}catch(_){return done(new Error('Invalid server response'));}
-        if(response.statusCode!==201||!answer||answer.ok!==true||!/^([0-9a-f]{24})$/.test(answer.id||''))
-          return done(new Error('Upload rejected (HTTP '+response.statusCode+')'));
+        try{answer=JSON.parse(buffer);}
+        catch(_){return fail('Non-JSON reply'+(preview(buffer)?' '+preview(buffer):''));}
+        if(status!==201||!answer||answer.ok!==true||!/^([0-9a-f]{24})$/.test(answer.id||'')){
+          const reason=answer&&typeof answer.error==='string'?preview(answer.error):'Upload rejected';
+          return fail(reason||'Upload rejected');
+        }
         done(null,{ok:true,id:answer.id});
       });
-      response.on('error',done);
+      response.on('error',error=>done(error));
     });
     req.on('timeout',()=>req.destroy(new Error('Upload timeout')));
     req.on('error',done);
