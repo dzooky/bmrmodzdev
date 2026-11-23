@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "apps": {
+    "path": "apps/*",
+    "manifest": "app.json",
+    "icon": "icon.png",
+    "mguHmi": [
+      "ID7"
+    ],
+    "build": {
+      "python": "kit/tools/build.py",
+      "args": [
+        "{id}"
+      ],
+      "sdk": "oap-sdk",
+      "shared": [
+        "kit/runtime",
+        "kit/platform",
+        "kit/localization",
+        "kit/tools/build.py",
+        "kit/tools/pack_data.py",
+        "kit/tools/localize.py",
+        "kit/tools/locale-revisions.json",
+        "kit/tools/oapgen"
+      ]
+    }
+  },
+  "tools": [
+    {
+      "id": "bmrmodz-car-equipment",
+      "path": "tools/car-equipment"
+    },
+    {
+      "id": "bmrmodz-notification",
+      "path": "tools/notification"
+    },
+    {
+      "id": "bmrmodz-data-tool",
+      "path": "tools/data-tool"
+    }
+  ]
+}
