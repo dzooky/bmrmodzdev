@@ -1,6 +1,6 @@
-# BMRMODZ Data Tool Diagnostics v0.1.17
+# BMRMODZ Data Tool Diagnostics v0.1.18
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.15. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.16. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic. In v0.1.7 the corrected BMR endpoint is used and upload feedback is shown in a separate footer beneath results, with totals at the top.
 
@@ -46,3 +46,5 @@ In v0.1.15 a fifteenth check exercises the experimental shared CDS Data Engine: 
 In v0.1.16 a sixteenth test exercises two independent manifest consumers: one shared stream, isolated cached fields, survival after first consumer release, expiry of the remaining lease, restart, and explicit final stop. The test is read-only, runs only via Run diagnostics, and does not emit actual sensor values in the uploaded report.
 
 In v0.1.17 a seventeenth `Secure IPC readiness` check reports SKIP when the new owner-only test socket is correctly restricted but real peer-identity authentication remains unavailable. This is deliberately NOT a production security PASS. No changes to legacy diagnostics requests or raw data reporting.
+
+In v0.1.18 the security readiness check correctly SKIPs while the optional secure IPC listener is disabled to preserve the Data Tool startup path following the 0.1.15 installation-health regression. Other checks are unchanged. The precise MGU failure is not proven; verify with fresh manual diagnostics.

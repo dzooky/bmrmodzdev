@@ -39,6 +39,7 @@ jobs:
           node apps/data-diagnostics/test-runner.test.js
           node apps/data-diagnostics/translations.test.js
           node tools/data-tool/test.js
+          node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js
           node tools/data-tool/someip-setup.test.js
           node tools/data-tool/someip-audit.test.js

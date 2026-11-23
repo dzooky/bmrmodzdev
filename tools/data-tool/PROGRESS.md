@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.16 — installation health regression hotfix (2026-11-23)
+- **Reported in-car:** installer rejected Data Tool v0.1.15 as `Data Tool is not healthy`; no journal or exact exception was available. Root cause has **not** been proven; the only new startup dependency in v0.1.15 was the experimental secure IPC listener. Prior v0.1.14 plus Diagnostics v0.1.16 successfully completed 15 PASS / 0 FAIL / 1 SKIP.
+- **Implemented on branch:** restore legacy 0.1.14-style health by disabling optional secure IPC startup by default. Only `BMRMODZ_SECURE_IPC_EXPERIMENT=1` opts into a separate owner-only fail-closed listener; synchronous setup failure falls back to disabled endpoint without stopping Data Tool. Existing `ctl.sock` diagnostics, CDS and UDS are unchanged. `securityCheck` reports `present:false` and production access disabled; no attempt to claim actual peer identity authentication.
+- **Automated:** added actual child-process startup/health test with no secure listener and with deliberate ENOTDIR optional secure-listener failure; existing security endpoint tests remain. CI to verify. **v0.1.16 is NOT yet verified on MGU.**
+- **Next:** install 0.1.16 / Diagnostics 0.1.18, run 17 diagnostic checks and send report. The secure IPC audit SKIP is expected, alongside staged CDS active-config SKIP. Investigate MGU journal/installer logs before claiming exact v0.1.15 failure mechanism.
+
+
 ## v0.1.15 — fail-closed IPC security foundation (2026-11-23)
 - **Implemented on feature branch:** separate owner-only `/run/bmrmodz-data-tool/secure.sock` (0600) exposes only `securityStatus`. All requests for CDS/UDS readings, subscriptions, generation or controls are rejected at that endpoint; no process name or JSON consumer ID is trusted as authentication. The existing `ctl.sock` remains unchanged for backward-compatible experimental Diagnostics. Its current 0666 mode means production apps MUST NOT be enabled yet.
 - **Security gate:** standalone Node 18 `net.Socket` has no established, deployment-verified peer-credential integration in this project. Secure endpoint explicitly reports `peerIdentityVerified:false` and `productionAccessEnabled:false`. The diagnostic `securityCheck` reports owner-only permission as readiness, not application authentication. No credential spoofing workaround, no production DPF/OSA/CC consumer IDs, no ACL or vehicle controls.

@@ -28,9 +28,11 @@ function resultFor(step,reply,duration){
   if(step.kind==='security'){
     const sock=reply.secureSocket||{};
     const restricted=reply.ok===true&&sock.present===true&&sock.mode==='0600'&&sock.ownerOnly===true;
-    const pending=reply.peerIdentityVerified===false&&reply.productionAccessEnabled===false;
-    return Object.assign(base,{status:restricted&&pending?'SKIP':'FAIL',
-      detail:restricted&&pending?'Owner-only test socket; app identity unverified, production disabled':
+    const pending=reply.ok===true&&reply.peerIdentityVerified===false&&reply.productionAccessEnabled===false;
+    const safelyDisabled=pending&&sock.present===false;
+    return Object.assign(base,{status:(restricted&&pending)||safelyDisabled?'SKIP':'FAIL',
+      detail:safelyDisabled?'Secure IPC disabled for startup compatibility; production access disabled':
+        restricted&&pending?'Owner-only test socket; app identity unverified, production disabled':
         cleanError(reply.error||'Secure socket permission check failed')});
   }
   if(step.kind==='environment'){

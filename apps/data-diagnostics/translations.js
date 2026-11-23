@@ -49,6 +49,7 @@ const catalogs={
     "Shared CDS data engine": "Shared CDS data engine",
     "CDS multi-consumer test": "CDS multi-consumer test",
     "Secure IPC audit": "Secure IPC audit",
+    "Data Tool startup recovery": "Data Tool startup recovery",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",

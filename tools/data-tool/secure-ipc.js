@@ -41,6 +41,8 @@ function createEndpoint(socketPath,options){
       client.end(JSON.stringify(answer)+'\n');
     });
   });
+  // Experimental listener errors must never become unhandled exceptions in Data Tool.
+  server.on('error',()=>{try{server.close();}catch(_){} });
   server.listen(socket,()=>{
     try{
       io.chmodSync(socket,0o600);
