@@ -108,7 +108,7 @@ mgu.run({
   function drawInfo(cv,theme){
    header(cv,theme,'BMRMODZ DATA TOOL','0.1.19 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.19 — '+word('Process identity survey'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.22 — '+word('Drivetrain ECU retry test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
