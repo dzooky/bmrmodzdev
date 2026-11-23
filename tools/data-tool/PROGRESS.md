@@ -1,5 +1,13 @@
 # Data Tool feasibility progress
 
+## v0.1.15 — fail-closed IPC security foundation (2026-11-23)
+- **Implemented on feature branch:** separate owner-only `/run/bmrmodz-data-tool/secure.sock` (0600) exposes only `securityStatus`. All requests for CDS/UDS readings, subscriptions, generation or controls are rejected at that endpoint; no process name or JSON consumer ID is trusted as authentication. The existing `ctl.sock` remains unchanged for backward-compatible experimental Diagnostics. Its current 0666 mode means production apps MUST NOT be enabled yet.
+- **Security gate:** standalone Node 18 `net.Socket` has no established, deployment-verified peer-credential integration in this project. Secure endpoint explicitly reports `peerIdentityVerified:false` and `productionAccessEnabled:false`. The diagnostic `securityCheck` reports owner-only permission as readiness, not application authentication. No credential spoofing workaround, no production DPF/OSA/CC consumer IDs, no ACL or vehicle controls.
+- **In-car evidence (v0.1.14 + Diagnostics v0.1.16):** 15 PASS, 0 FAIL, 1 SKIP; the two test-only CDS consumers shared one stream, survived first release, expired and restarted. This establishes CDS lifecycle only; it does NOT validate the new secure socket.
+- **Automated:** 0600 socket, fail-closed operation allowlist, existing legacy API regression and diagnostic security-state assertions. Check CI separately. **v0.1.15 NOT VERIFIED IN CAR.**
+- **Next:** test secure socket mode and legacy diagnostics on MGU; then research deployed app UIDs/groups and native Linux peer credentials before any production authentication or socket mode change. Do not enable production calls merely because the owner-only socket exists.
+
+
 ## v0.1.14 — test-only multi-consumer CDS manifest (2026-11-23)
 - **Implemented on feature branch:** `data-manifest.json` declares CDS signals and two bounded diagnostic test consumers with independent 3-second leases. The one shared CDS worker continues until the last lease expires or is released. Each consumer receives only its manifest-declared fields and requires an active lease. Stopped streams clear cached values. The manifest is test-only and does **not** authorize production DPF, OSA or CC; the current world-accessible local socket is not yet an authenticated per-app interface.
 - **In-car evidence from v0.1.13 + Diagnostics v0.1.15:** 14 PASS, 0 FAIL, 1 SKIP. The single-consumer streaming test confirmed repeated cache refresh and clean stop in the real vehicle. Multi-consumer concurrency and lease expiry/restart are **not yet verified in car**.
