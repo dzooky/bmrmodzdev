@@ -23,6 +23,7 @@ async function run(){
   assert.strictEqual(result.results.length,STEPS.length);
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
+  assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
   assert.strictEqual(result.signalPermissionsVerified,false);
   assert.strictEqual(result.results.find(r=>r.id==='someipSetup').status,'PASS');
@@ -34,7 +35,7 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,21);
+  assert.strictEqual(result.results.length,22);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
   let snapshots=0,mockStarts=0;
@@ -77,6 +78,7 @@ async function run(){
   assert.strictEqual(staged.signalPermissionsVerified,false);
   assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='ipcSecurity').status,'SKIP');
+  assert.strictEqual(staged.results.find(x=>x.id==='ipcDac').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='ipcLegacyPermissions').status,'SKIP');
   assert.strictEqual(staged.results.find(x=>x.id==='ipcServiceIdentity').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='ipcAppIdentity').status,'PASS');
@@ -106,6 +108,18 @@ async function run(){
   assert.strictEqual(invalid.results.find(x=>x.id==='cdsStream').status,'FAIL');
   assert.strictEqual(invalid.results.find(x=>x.id==='cdsMulti').status,'FAIL');
   assert.strictEqual(liveCommands.filter(x=>x.op==='signalStaging').length,2);
+  const dacStep=STEPS.find(x=>x.id==='ipcDac');
+  const ownIdentity=require('./identity-survey').inspect();
+  if(Number.isInteger(ownIdentity.uid)){
+    const ready=require('./test-runner').resultFor(dacStep,{ok:true,productionAccessEnabled:false,
+      peerIdentityVerified:false,secureSocket:{present:true,mode:'0600',ownerOnly:true,
+        dacTargetUid:ownIdentity.uid,ownerUid:ownIdentity.uid,dacOwnershipReady:true}},0);
+    assert.strictEqual(ready.status,'PASS');
+    const mismatch=require('./test-runner').resultFor(dacStep,{ok:true,productionAccessEnabled:false,
+      peerIdentityVerified:false,secureSocket:{present:true,mode:'0600',ownerOnly:true,
+        dacTargetUid:ownIdentity.uid+1,ownerUid:ownIdentity.uid+1,dacOwnershipReady:true}},0);
+    assert.strictEqual(mismatch.status,'FAIL');
+  }
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
   assert.strictEqual(unavailable.results.slice(1).every(r=>r.status==='SKIP'),true);
