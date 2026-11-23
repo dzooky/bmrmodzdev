@@ -30,7 +30,7 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||['status','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
   assert.strictEqual(result.results.length,16);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
