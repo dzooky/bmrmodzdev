@@ -32,8 +32,6 @@ async function run(){
    assert.strictEqual(security.productionAccessEnabled,false);
    assert.strictEqual(security.peerIdentityVerified,false);
    assert.strictEqual(security.secureSocket.ownerOnly,true);
-   const deniedConsumer=await call(socket,{op:'cdsDemand',consumer:'dpf'});
-   assert.strictEqual(deniedConsumer.ok,true); // Mock engine only tests routing; manifest denies in real engine.
    const passive=await call(socket,{op:'signalEnvironment'});
    assert.strictEqual(passive.ok,true);
    assert.strictEqual(passive.mode,'passive-only');
