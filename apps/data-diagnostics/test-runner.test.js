@@ -45,6 +45,9 @@ async function run(){
       frameNonHex:0,frameOddLength:0,frameMissing:0,timedOut:true}
   ]);
   assert.ok(traceClassified.includes('malformed 3 [short 1, header 1, length 1'));
+  assert.ok(traceSummary([{ackAccepted:true,shortRejectMarkers:2,shortUnknownMarkers:1,
+    shortLengthConsistent:2,shortLengthTruncated:1,shortLength0to4:0,shortLength5to8:3}]).includes('shortTASU reject 2, unknown 1'));
+
 
   assert.ok(commands.filter(x=>x.op==='readTrace').length===2);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
