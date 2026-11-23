@@ -25,13 +25,17 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.5');
+   assert.strictEqual(status.version,'0.1.6');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'isolated-on-demand-probe');
    const passive=await call(socket,{op:'signalEnvironment'});
    assert.strictEqual(passive.ok,true);
    assert.strictEqual(passive.mode,'passive-only');
    assert.ok(passive.limitations.includes('No SOME/IP subscription was attempted'));
+   assert.strictEqual(sent,0);
+   const setup=await call(socket,{op:'someipSetup'});
+   assert.strictEqual(setup.mode,'passive-only');
+   assert.strictEqual(setup.registration,'not verified');
    assert.strictEqual(sent,0);
    const native=await call(socket,{op:'signalNative',mode:'load'});
    assert.strictEqual(native.ok,true);
