@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.37');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.38');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -46,9 +46,12 @@ assert.ok(t('en','Visible report upload action'));
 assert.ok(t('en','Corrected CDS temperature scaling'));
 assert.ok(t('en','Broker and IPC self-test'));
 assert.ok(t('en','DDE F150 identification check'));
-assert.strictEqual(spec.version,'0.1.45');
+assert.strictEqual(spec.version,'0.1.46');
 for(const key of ['All tests','DPF / DDE checks','Other failed checks','No other failures','No details','More failures in All tests','Readable DDE test results'])assert.strictEqual(t('en',key),key);
 assert.ok(t('en','DDE F150 first-read check'));
+assert.ok(t('en','ECU reads'));
+assert.ok(t('en','Real ECU read status and TASU retry'));
+
 assert.ok(require('./test-runner').STEPS.some(s=>s.id==='ddeColdIdentity'));
 for(const key of ['Run before sleep','Run after wake','DPF comparison','Vehicle comparison','Before sleep','After wake'])assert.ok(t('en',key));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
