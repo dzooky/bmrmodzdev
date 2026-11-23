@@ -1,7 +1,7 @@
 'use strict';
 // Isolated read-only trace tests. No hmictl process or vehicle connection.
 const assert=require('assert');
-const {HmiTransport,decode,frameIssue}=require('./transport');
+const {HmiTransport,decode,frameIssue,shortEnvelope}=require('./transport');
 const ecu=0x12,did=0x44BB;
 function fake(schedule){
   const transport=new HmiTransport('/not-used');
@@ -23,6 +23,17 @@ async function main(){
     if(reason!==null)assert.strictEqual(decode(hex),null);
   }
 
+  // Distinguish a short TASU reject marker from an unknown short envelope.
+  const shortReject='00000008'+Buffer.from([0xf0,0xf2,0x7f,0,0,0,0,0]).toString('hex');
+  const shortUnknown='00000008'+Buffer.from([0xf0,0xf2,0x20,0,0,0,0,0]).toString('hex');
+  const shortTruncated='00000008'+Buffer.from([0xf0,0xf2,0x7f,0,0,0,0]).toString('hex');
+  assert.deepStrictEqual(shortEnvelope(shortReject),
+    {rejectMarker:true,lengthConsistent:true,lengthBand:'5-8'});
+  assert.deepStrictEqual(shortEnvelope(shortUnknown),
+    {rejectMarker:false,lengthConsistent:true,lengthBand:'5-8'});
+  assert.deepStrictEqual(shortEnvelope(shortTruncated),
+    {rejectMarker:true,lengthConsistent:false,lengthBand:'5-8'});
+  assert.strictEqual(shortEnvelope('00000009000000000000000000'),null);
   const trace={};
   const success=fake(t=>{
     t.pendingRead.consume({ecu:0x18,uds:[0x62,0x44,0xBB]});

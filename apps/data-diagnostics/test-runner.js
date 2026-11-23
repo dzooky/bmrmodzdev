@@ -167,6 +167,9 @@ function traceSummary(traces){
     ' [short '+count('frameShortFrame')+', header '+count('frameShortHeader')+
     ', length '+count('frameLengthOverflow')+', hex '+count('frameNonHex')+
     ', odd '+count('frameOddLength')+', missing '+count('frameMissing')+']'+
+    ', shortTASU reject '+count('shortRejectMarkers')+', unknown '+count('shortUnknownMarkers')+
+    ', consistent '+count('shortLengthConsistent')+', truncated '+count('shortLengthTruncated')+
+    ', len0-4 '+count('shortLength0to4')+', len5-8 '+count('shortLength5to8')+
     ', timeout '+valid.filter(t=>t.timedOut===true).length;
 }
 async function drivetrainRead(request,step){
@@ -272,7 +275,14 @@ function createRunner(send,clock){
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
-          if(drivetrain)result.detail=(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+traceSummary(readResult.traces)).slice(0,240);
+          if(drivetrain){
+            const traces=readResult.traces.filter(t=>t&&typeof t.ackAccepted==='boolean');
+            const cnt=k=>traces.reduce((n,t)=>n+(Number.isSafeInteger(t[k])&&t[k]>=0?Math.min(t[k],99):0),0);
+            const short='shortTASU reject '+cnt('shortRejectMarkers')+', unknown '+cnt('shortUnknownMarkers')+
+              ', consistent '+cnt('shortLengthConsistent')+', truncated '+cnt('shortLengthTruncated')+
+              ', len0-4 '+cnt('shortLength0to4')+', len5-8 '+cnt('shortLength5to8');
+            result.detail=(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+short+'; '+traceSummary(readResult.traces)).slice(0,240);
+          }
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
         if(step.id==='service')serviceAvailable=result.status==='PASS';

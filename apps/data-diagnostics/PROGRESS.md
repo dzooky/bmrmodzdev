@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.25 — short TASU status marker diagnostics (2026-11-23)
+- **Implemented on feature branch:** existing 22 checks retained, including all baseline regression checks. Manual HTTPS upload includes DDE, EGS and any other FAIL rows only, with original total PASS/FAIL/SKIP counts preserved; full results remain available in local export and in the app. DDE/EGS trace detail now prioritizes sanitized short TASU marker counts (0x7F reject marker vs unknown), length consistency and bands before the 160-character upload detail limit. New Data Tool dependency 0.1.22. Manual ECU 1s spacing, three-attempt bounded read retry, CDS and IPC unchanged. Marker alone is NOT a confirmed UDS NRC, ECU response, or actionable rejection reason.
+- **Observed on MGU before this update:** Diagnostics v0.1.24 + Data Tool v0.1.21: first run DDE/EGS FAIL with three shortHeader events each, second run both PASS first attempt; normal IHKA/BDC/ACSM/CDS checks PASS. Cause of intermittent framing is unverified. 0.1.25 not yet in-car verified.
+- **Automated:** synthetic frame marker/length classification, sanitized summary test and baseline regressions; CI to verify, then one parked read-only report for interpretation.
+
+
 ## v0.1.24 — TASU framing taxonomy and 1s inter-ECU interval (2026-11-23)
 - **Implemented (feature branch):** manual DDE/EGS trace report now includes sanitized malformed event reason counts (short frame/header, length overflow, non-hex, odd length, missing). In response to user request, insert a 1000ms interval between successive **different ECU checks** (DDE, EGS, IHKA, BDC, ACSM); existing per-ECU three-attempt DDE/EGS retry and 600ms retry gaps are unchanged. No extra requests, no changes to regular Data Tool reads, security, CDS, background behavior or controls.
 - **Observed before this change (v0.1.23 + tool 0.1.20):** first explicit run 15 PASS/2 FAIL/5 SKIP: DDE and EGS `ack 3/3`, `ecu 0`, `malformed 3`, `timeout 3`; second immediate run 17 PASS/0 FAIL/5 SKIP: both 1/3 ACK+ECU match and no malformed/timeout; user reports third run again failed with `malformed 3` (full third report not provided). Cause is not established.

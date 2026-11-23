@@ -34,7 +34,11 @@ function upload(report,dataDir,options){
   const safe={};
   allowed.forEach(key=>{if(Object.prototype.hasOwnProperty.call(report,key))safe[key]=report[key];});
   // Whitelist each result property too.
-  safe.results=report.results.map(item=>({
+  // Preserve full test totals, but only transmit the active drivetrain investigation
+  // and unexpected FAILs. All 22 checks still execute and remain in the local report.
+  safe.results=report.results.filter(item=>item&&(
+    item.id==='dde'||item.id==='egs'||item.status==='FAIL'
+  )).map(item=>({
     id:String(item.id||''),label:String(item.label||''),status:String(item.status||''),
     durationMs:Number(item.durationMs)||0,detail:String(item.detail||'').slice(0,160)
   }));
