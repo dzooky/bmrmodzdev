@@ -1,6 +1,6 @@
-# BMRMODZ Data Tool Diagnostics v0.1.14
+# BMRMODZ Data Tool Diagnostics v0.1.15
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.12. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.13. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic. In v0.1.7 the corrected BMR endpoint is used and upload feedback is shown in a separate footer beneath results, with totals at the top.
 
@@ -40,3 +40,5 @@ In v0.1.12 a fourteenth diagnostic row, `CDS ACL audit`, passively checks staged
 In v0.1.13 the existing two CDS temperature/RPM diagnostics explicitly sample via the generated staging configuration using the isolated native worker, without installing config or registering ACLs. Run diagnostics and Send report manually after updating Data Tool to 0.1.11; a successful sample is not validated decoded sensor data.
 
 In v0.1.14 CDS temperature/RPM steps require validated numeric payloads; the report includes only validation results, no actual field values. Inactive CDS config remains unmodified. The existing three buttons and 14 results are unchanged.
+
+In v0.1.15 a fifteenth check exercises the experimental shared CDS Data Engine: one leased stream, two consecutive freshness snapshots with increasing sample count, then explicit release and verified stop. Active config absence is reported SKIP in staging mode, not an operational CDS failure. Original staged numeric signal tests remain. Manual report strips numeric values.

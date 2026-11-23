@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.13 — experimental request-driven shared CDS Data Engine (2026-11-23)
+- **Implemented on feature branch:** a single demand-started long-lived CDS worker creates one SOME/IP proxy subscribing to engine oil temperature, coolant temperature, and RPM. The Data Tool manages a 3-second renewable lease for the experimental `diagnostics` consumer, a 2-second freshness window, timestamped cache and update counters. Read-only `cdsDemand`, `cdsSnapshot`, `cdsRelease` operations. Snapshots/status do not renew leases; no boot-time CDS activity, automatic startup, or new ACL registration. Expired/released subscriptions stop the worker. A worker exit does not automatically restart until new demand.
+- **In-car evidence from v0.1.12 / Diagnostics v0.1.14:** both staged signal samples passed finite-number checks and five ECU UDS echoes passed. The active CDS configuration path remained absent, which is expected because the tests use staged files. This does not prove sustained subscriptions or cross-application arbitration.
+- **Automated:** fake process tests for on-demand startup, one shared worker, snapshot freshness, renewable lease, stop/restart and expiry; run GitHub CI. **v0.1.13 continuous engine NOT VERIFIED IN CAR.** The API currently authorizes only the diagnostic consumer, not production apps.
+- **Next:** parked-car Diagnostics v0.1.15 Run diagnostics / Send report to verify streaming, freshness and shutdown before designing per-app Data Manifest and multi-consumer permissions.
+
+
 ## v0.1.12 — validate CDS numeric payloads (2026-11-23)
 - **Implemented on feature branch:** isolated CDS worker now requires finite number values for `temperatureEngineDrive`, `temperatureEngineOilDrive` and `actualValueRPMEngineCrankshaft` before marking a sample usable. Zero is valid. Missing/NaN/Infinity/non-number fields produce `value-invalid` with field-validity flags but no raw payload. No speculative physical ranges or units are enforced.
 - **In-car evidence from v0.1.11 / Diagnostics v0.1.13:** both staged CDS probes returned native samples (13 PASS, 1 FAIL due to inactive config, 0 SKIP); numeric payload correctness was not tested. Five ECU echo checks passed. Explicit ACL registration remains unverified and is not required for these successful staging samples.

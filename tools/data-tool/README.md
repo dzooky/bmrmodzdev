@@ -61,3 +61,7 @@ On explicit request, `signalStaging` (mode `sample`, allowlisted `statusEngineTe
 ### v0.1.12 CDS sample numeric validation
 
 The isolated staged CDS worker reports a usable sample only when engine coolant temperature, oil temperature, or RPM fields required by the requested signal are finite JavaScript numbers. Zero RPM is valid. No plausible-range assumptions are made; invalid results return field validity flags without leaking raw vehicle values. No system ACL or config change is performed.
+
+### v0.1.13 — experimental CDS Data Engine
+
+Explicit `cdsDemand` for consumer `diagnostics` starts one shared, isolated, read-only CDS stream using the existing generator-test configuration. `cdsSnapshot` reports fresh oil, coolant and RPM values plus per-field age, with 2-second freshness validity. `cdsRelease` or a 3-second unrenewed lease stops it. A separate worker reads both CDS fields with one SOME/IP proxy. No auto-start, unattended polling, ECU controls, system ACL registration or active config installation. Production apps are not yet authorized consumers. No continuous in-car verification yet.

@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.15 — shared CDS streaming lifecycle check (2026-11-23)
+- **Implemented on feature branch:** 15 manual checks, adding a bounded `CDS shared data engine` test that demands a stream, reads two snapshots about 0.9s apart, verifies cached oil/coolant/RPM freshness and increasing sample count, then releases the demand and verifies shutdown. The old active CDS config check is a documented SKIP when absent in experimental staging mode; staged config and ACL audits are still separate PASS/FAIL checks. No fake active config or ACL registration.
+- Keeps Run diagnostics / Generate CDS test / Send report, no raw sensor data in uploaded report. Requires Data Tool v0.1.13. **In-car unverified**; successful individual numeric samples from v0.1.14 do not prove the persistent engine.
+- **Automated:** streaming report, inactive config handling, existing UDS and language checks; CI pending.
+
+
 ## v0.1.14 — validate numeric staged CDS samples (2026-11-23)
 - **Implemented on feature branch:** CDS temperature/RPM PASS requires the isolated worker to report explicitly validated finite numeric fields. Invalid fields report their keys only (no numeric values transmitted). Existing 14 checks, three actions, manual HTTPS Send report and UDS tests remain unchanged. Requires Data Tool v0.1.12.
 - **In-car evidence from v0.1.13:** received native staged temperature and RPM samples in 266/297 ms, respectively, but the old test did not verify numeric payloads. Inactive CDS config still missing; no ACL registration proven.

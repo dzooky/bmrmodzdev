@@ -21,13 +21,13 @@ async function run(){
  const mock={ready:true,async read(ecu,did){sent++;await new Promise(r=>setTimeout(r,30));return [0x62,did>>8,did&255,0x05];},close(){}};
  const socket=path.join(os.tmpdir(),'bmrmodz-data-test-'+process.pid+'.sock');
  let signalTests=0;
- const svc=serve(()=>mock,socket,{signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}},generator:{inspect:()=>({ok:false,stage:'missing'}),run:async()=>({ok:true,stage:'generated',aclRegistered:false})}});
+ const svc=serve(()=>mock,socket,{cdsEngine:{demand:()=>({ok:true,running:true}),snapshot:()=>({ok:true,fields:{}}),release:()=>({ok:true,running:false}),close:()=>{}},signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}},generator:{inspect:()=>({ok:false,stage:'missing'}),run:async()=>({ok:true,stage:'generated',aclRegistered:false})}});
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.12');
+   assert.strictEqual(status.version,'0.1.13');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
-   assert.strictEqual(status.capabilities.signals.mode,'isolated-on-demand-probe');
+   assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const passive=await call(socket,{op:'signalEnvironment'});
    assert.strictEqual(passive.ok,true);
    assert.strictEqual(passive.mode,'passive-only');
