@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.8 — retry and original-error reporting (2026-11-23)
+- **Implemented in dzooky/bmrmodzdev main:** generation prechecks can retry; one generator process at a time; retry only if the fixed staging directory is empty, without overwriting partial output. Generator exit/stderr failure is returned and retained by `someipGenerated` for the next diagnostic report. At most three launched generator attempts per service start. No ACL registration, active config modification, or autonomous reads.
+- **In-car observation of v0.1.7:** displayed `One generator test per service start`, while report recorded no generated CDS JSON; original first failure was lost. This update addresses diagnostic visibility but does not yet prove generator success.
+- **Automated:** unit regression for precheck retry, stderr retention, staging protection and socket behavior; CI status to verify. **In car: v0.1.8 NOT VERIFIED.**
+
+
 ## v0.1.7 — manual isolated BMW CDS generator experiment (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** fixed-path, one-shot, bounded `someipGenerate` command manually invokes firmware-backed BMW generator with the tool-owned read-only CDS manifest. Output goes exclusively to `/var/opt/bmrmodz-data-tool/generator-test`, and is checked via passive `someipGenerated`. If staging already exists, generation refuses to overwrite it. Config/ACL files are not activated or registered; no ECU access, controls, or boot-time generation.
 - **Safety and limitations:** the Unix socket is shared by local clients (current experimental access model), so generator request is permitted only once per service start and uses fixed paths and a 12s subprocess timeout. Generated ACL file is not proof of authorization. `configCheck` still reads the separate active config and CDI sampling remains blocked until separate verification.
