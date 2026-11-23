@@ -38,6 +38,17 @@ function frameIssue(hex){
   if(declared>actual)return 'lengthOverflow';
   return null;
 }
+// Observational classification of a short, otherwise well-formed TASU envelope.
+// 0x7f is the existing TASU reject marker. The other short forms are unknown,
+// not proof of a UDS negative response or a successfully addressed ECU.
+function shortEnvelope(hex){
+  if(frameIssue(hex)!=='shortHeader')return null;
+  const declared=parseInt(hex.slice(0,8),16);
+  const bytes=Buffer.from(hex.slice(8),'hex');
+  return {rejectMarker:declared>=3&&bytes[2]===0x7f,
+    lengthConsistent:declared<=bytes.length,
+    lengthBand:declared<=4?'0-4':'5-8'};
+}
 class HmiTransport {
   constructor(helper){this.helper=helper;this.child=null;this.ready=false;this.initPromise=null;this.pendingLine=null;this.pendingRead=null;this.buffer='';}
   init(){
@@ -62,6 +73,14 @@ class HmiTransport {
               if(t){t.malformedEvents++;const reason=frameIssue(fields[3]);
                 const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
                 if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
+                if(reason==='shortHeader'){
+                  const short=shortEnvelope(fields[3]);
+                  if(short){
+                    t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
+                    t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
+                    t[short.lengthBand==='0-4'?'shortLength0to4':'shortLength5to8']++;
+                  }
+                }
               }
               continue;
             }
@@ -95,7 +114,9 @@ class HmiTransport {
     if(trace)Object.assign(trace,{ackAccepted:false,matchedEcuEvents:0,otherEcuEvents:0,
       wrongDidEvents:0,pendingEvents:0,negativeEvents:0,malformedEvents:0,
       frameMissing:0,frameNonHex:0,frameOddLength:0,frameShortFrame:0,
-      frameShortHeader:0,frameLengthOverflow:0,timedOut:false});
+      frameShortHeader:0,frameLengthOverflow:0,
+      shortRejectMarkers:0,shortUnknownMarkers:0,shortLengthConsistent:0,
+      shortLengthTruncated:0,shortLength0to4:0,shortLength5to8:0,timedOut:false});
     let pending;
     const received=new Promise((resolve,reject)=>{
       let timer,done=false;
@@ -139,4 +160,4 @@ function createTransport(){
   if(!helper)throw new Error('No compatible installed hmictl helper');
   return new HmiTransport(helper);
 }
-module.exports={HmiTransport,createTransport,helperPath,command,decode,frameIssue,SUB};
+module.exports={HmiTransport,createTransport,helperPath,command,decode,frameIssue,shortEnvelope,SUB};
