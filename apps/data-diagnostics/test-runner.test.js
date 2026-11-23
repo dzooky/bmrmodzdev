@@ -63,7 +63,7 @@ async function run(){
   assert.strictEqual(brokenIpc.status,'FAIL');
   assert.ok(brokenIpc.detail.includes('existing IPC check failed'));
   assert.ok(!brokenIpc.detail.includes('/run/'));
-  assert.strictEqual(STEPS.length,30);
+  assert.strictEqual(STEPS.length,31);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -78,6 +78,8 @@ async function run(){
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='ddeIdentity').status,'PASS');
+  assert.strictEqual(result.results.find(r=>r.id==='ddeColdIdentity').status,'PASS');
+  assert.strictEqual(STEPS.find(x=>x.id==='ddeColdIdentity').request.did,0xF150);
   assert.deepStrictEqual(STEPS.find(s=>s.id==='ddeIdentity').request,{op:'read',ecu:0x12,did:0xF150});
   assert.strictEqual(STEPS.findIndex(s=>s.id==='ddeIdentity'),STEPS.findIndex(s=>s.id==='dde')+1);
   assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
@@ -95,7 +97,7 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility','nativePeerProbe','processBoundaryProbe'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,30);
+  assert.strictEqual(result.results.length,31);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -322,7 +324,10 @@ async function run(){
   assert.strictEqual(dpfPhase.dpfSnapshot.values.since,123.46);
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='dpfValues').status,'PASS');
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeIdentity').status,'PASS');
-  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,6);
+  assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeColdIdentity').status,'PASS');
+  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,7);
+  assert.strictEqual(dpfCalls.find(x=>x.op==='read'||x.op==='readTrace').did,0xF150,
+    'cold F150 must be first vehicle read');
   assert.ok(!JSON.stringify(dpfPhase.dpfSnapshot).includes('"uds"'));
   assert.ok(staged.results.find(x=>x.id==='dde').detail.includes('attempt 1/3'));
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
