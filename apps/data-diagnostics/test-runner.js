@@ -28,12 +28,12 @@ const STEPS=[
   // no requests and does not change the transport, ECU addresses or DIDs.
   // Cold DDE baseline: the first actual ECU read of a diagnostic run must
   // reproduce DPF startup (F150 before any other ECU reads or warm-up).
-  {id:'ddeColdIdentity',label:'DDE F150 first read',request:{op:'read',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
+  {id:'ddeColdIdentity',label:'DDE F150 first read',request:{op:'readTrace',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
   {id:'ihka',label:'IHKA / climate',request:{op:'read',ecu:0x78,did:0xD8D7},kind:'uds'},
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
-  {id:'ddeIdentity',label:'DDE F150 identification',request:{op:'read',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
+  {id:'ddeIdentity',label:'DDE F150 identification',request:{op:'readTrace',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
   {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
   {id:'dpfValues',label:'DPF decoded values',request:null,kind:'dpf'},
   {id:'egsIdentity',label:'EGS variant identification',request:{op:'read',ecu:0x18,did:0xF150},kind:'egsIdentity'},
@@ -234,8 +234,14 @@ function resultFor(step,reply,duration){
     const uds=reply.uds;
     const valid=reply.ok===true&&Array.isArray(uds)&&uds.length>=6&&
       uds[0]===0x62&&uds[1]===0xF1&&uds[2]===0x50;
+    // Report the actual ECU read, not a successful socket or passive status.
+    const tasu=Number.isInteger(reply.tasuStatus)?' TASU status 0x'+
+      reply.tasuStatus.toString(16).toUpperCase().padStart(2,'0'):'';
+    const tries=reply.trace&&Number.isInteger(reply.trace.attempts)?
+      '; attempts '+reply.trace.attempts:'';
     return Object.assign(base,{status:valid?'PASS':'FAIL',
-      detail:valid?'Matching F150 DDE identification response received':cleanError(reply.error||'Invalid or missing F150 response')});
+      detail:(valid?'Matching F150 DDE identification response received':
+        cleanError(reply.error||'Invalid or missing F150 response')+tasu)+tries});
   }
   if(step.kind==='egsIdentity')return Object.assign(base,{status:reply.ok?'PASS':'SKIP',
     detail:reply.ok?'Verified OSA EGS profile '+reply.index:cleanError(reply.error)});
@@ -464,8 +470,16 @@ function createRunner(send,clock){
       }
       const totals={pass:results.filter(x=>x.status==='PASS').length,fail:results.filter(x=>x.status==='FAIL').length,
         skip:results.filter(x=>x.status==='SKIP').length};
+      // A passing passive check, mock broker or service status is NOT a
+      // successful ECU read. Count only real UDS response validations.
+      const ecuStepIds=['ddeColdIdentity','ihka','bdc','acsm','dde','ddeIdentity','egs'];
+      const ecuResults=ecuStepIds.map(id=>results.find(r=>r.id===id));
+      const ecuReads={pass:ecuResults.filter(r=>r&&r.status==='PASS').length,
+        fail:ecuResults.filter(r=>r&&r.status==='FAIL').length,
+        skip:ecuResults.filter(r=>!r||r.status==='SKIP').length,
+        total:ecuStepIds.length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
-        startedAt,finishedAt:new Date().toISOString(),totals,results,
+        startedAt,finishedAt:new Date().toISOString(),totals,ecuReads,results,
         snapshotPhase:phase||null,dpfSnapshot:dpfSnapshot&&dpfSnapshot.ok?dpfSnapshot:null,
         vehicleSnapshot,
         someipTimings:someipTimings(results),
