@@ -11,11 +11,13 @@ const fake={
   calls++;
   assert.strictEqual(options.hostname,HOST);
   assert.strictEqual(options.path,ENDPOINT);
-  assert.strictEqual(options.port,80);
+  assert.strictEqual(HOST,'dzooky.eu');
+  assert.strictEqual(ENDPOINT,'/brmmodz.php');
+  assert.strictEqual(options.port,443);
   assert.strictEqual(options.timeout,12000);
   assert.strictEqual(options.headers['Content-Type'],'application/json');
   assert.strictEqual(Object.hasOwn(options.headers,'X-BMRMODZ-Token'),false);
-  assert.strictEqual(Object.hasOwn(options,'lookup'),false);
+  assert.strictEqual(typeof options.lookup,'function');
   assert.strictEqual(options.method,'POST');
   const req=new EventEmitter();
   req.end=content=>{
@@ -30,13 +32,13 @@ const fake={
  }
 };
 async function main(){
- const answer=await upload(result,'/unused',{http:fake});
+ const answer=await upload(result,'/unused',{https:fake});
  assert.strictEqual(answer.id,reportId);
  assert.strictEqual(calls,1);
  assert.strictEqual(body.includes('SHOULD_NEVER_LEAVE_MGU'),false);
  assert.strictEqual(JSON.parse(body).results[0].id,'dde');
- await assert.rejects(upload({},'/unused',{http:fake}),/Invalid diagnostic report/);
+ await assert.rejects(upload({},'/unused',{https:fake}),/Invalid diagnostic report/);
  assert.strictEqual(calls,1);
- console.log('Data Diagnostics: LAN HTTP destination, no token and allowlisted JSON passed');
+ console.log('Data Diagnostics: public HTTPS destination, no token and allowlisted JSON passed');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
