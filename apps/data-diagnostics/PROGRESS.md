@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.36 — test actual connected IPC without creating second socket (2026-11-23)
+- **In-car evidence:** 2026-11-23 19:30 UTC, v0.1.35 + Tool 0.1.30: 19 PASS, 1 FAIL, 5 SKIP; new `brokerGateway` failed solely in second socket `listen OTHER`. The DDE/EGS/CDS and SOME/IP checks passed again.
+- **Fix:** with Tool 0.1.31, the same `brokerGateway` step retains the synthetic three-app broker test but observes kernel credential API support on the actual, already connected diagnostic socket. The check no longer creates an extra socket; any supported credential observations are **NOT package authentication**. Existing 25 tests, before/after snapshots, strictly sanitized HTTPS report and 3-button UI remain intact. No production data access or background polling. Automated tests verify the new response contract; **in-car 0.1.36 unverified** until one new report.
+
+
 ## v0.1.35 — corrected MGU runtime IPC probe (2026-11-23)
 - **In-car observation:** v0.1.34 with Data Tool 0.1.29 produced 19 PASS, 1 FAIL, 5 SKIP. Only brokerGateway failed at `local IPC listen`. The existing DDE/EGS/SOME-IP/CDS tests passed.
 - **Implemented:** new Data Tool v0.1.30 test probes an independent short-lived socket inside the established working Data Tool runtime directory instead of `/tmp`. Diagnostics v0.1.35 reports an allowlisted OS error category along with failure stage, while preserving all 25 steps, the three buttons and existing HTTPS report schema. In-car v0.1.35 remains unverified pending one parked test.
