@@ -74,7 +74,16 @@ if ($lock === false || !flock($lock, LOCK_EX)) reply(503, ['ok' => false, 'error
 $hour = gmdate('YmdH');
 $counterFile = $directory . DIRECTORY_SEPARATOR . '.hourly-count.php';
 $counterRaw = is_file($counterFile) ? file_get_contents($counterFile) : '';
-$counter = is_string($counterRaw) ? json_decode(substr($counterRaw, strpos($counterRaw, "\n") + 1), true) : null;
+$counter = null;
+if (is_string($counterRaw) && $counterRaw !== '') {
+    $newline = strpos($counterRaw, "\n");
+    if ($newline !== false) {
+        $payload = substr($counterRaw, $newline + 1);
+        if (is_string($payload) && $payload !== '') {
+            $counter = json_decode($payload, true);
+        }
+    }
+}
 $used = is_array($counter) && ($counter['hour'] ?? '') === $hour ? (int) ($counter['count'] ?? 0) : 0;
 if ($used >= 30 || count(glob($directory . DIRECTORY_SEPARATOR . '*.php') ?: []) >= 501) {
     flock($lock, LOCK_UN);
