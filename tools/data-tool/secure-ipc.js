@@ -22,11 +22,12 @@ function createEndpoint(socketPath,options){
   try{io.unlinkSync(socket);}catch(e){if(e.code!=='ENOENT')throw e;}
   const server=net.createServer(client=>{
     client.setEncoding('utf8');
-    let bytes=0,responded=false;
+    let bytes=0,responded=false,buffer='';
     client.setTimeout(3000,()=>client.destroy());
     client.on('data',chunk=>{
       if(responded)return;
       bytes+=Buffer.byteLength(chunk,'utf8');
+      buffer+=chunk;
       if(bytes>4096){client.destroy();return;}
       if(!chunk.includes('\n'))return;
       responded=true;
