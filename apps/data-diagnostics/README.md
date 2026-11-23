@@ -1,6 +1,6 @@
-# BMRMODZ Data Tool Diagnostics v0.1.8
+# BMRMODZ Data Tool Diagnostics v0.1.10
 
-Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.6. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
+Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.7. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
 In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic. In v0.1.7 the corrected BMR endpoint is used and upload feedback is shown in a separate footer beneath results, with totals at the top.
 
@@ -10,7 +10,7 @@ In v0.1.6, failed manual uploads show HTTP status, response content type, a shor
 3. Select Diagnostics and press **Run diagnostics**. This runs passive SOME/IP setup checks (presence of generator/catalog, tool manifest/config, UID and unverified ACL status) and allowlisted read-only operations against Data Tool and checks the app process's network interfaces, route table and TCP connectivity to dzooky.eu:443. Network checks also run if the Data Tool is unavailable. Nothing runs automatically.
 4. On Results, review individual PASS/FAIL/SKIP states. Missing tool, module or configuration produces an explicit failure or skip.
 5. Press **Send report** to POST the sanitized JSON over HTTPS to `https://dzooky.eu/bmrmodz.php`. The receiver should return an anonymous report ID. This button never sends automatically. Currently no upload token is sent. An MGU internet route, TLS trust and an adapted receiver are necessary.
-6. Press **Export report** to save the sanitized JSON in the app data folder and show a QR code carrying a compact summary. Scan it on a phone and paste the summary into the development chat. No internet connection or SSH is needed to share the compact summary. Full JSON is only available from the app data directory by a separately supported file-transfer method.
+6. The **Export report** button was removed in v0.1.10 to fit the manual **Generate CDS test** and **Send report** controls. HTTPS Send report remains available.
 
 ## Temporary public HTTPS receiver
 
