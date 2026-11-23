@@ -73,11 +73,15 @@ class HmiTransport {
             const response=decode(fields[3]);
             if(!response){
               const t=this.pendingRead.trace;
-              if(t){t.malformedEvents++;const reason=frameIssue(fields[3]);
+              const reason=frameIssue(fields[3]);
+              // Car Equipment Tool treats a TASU 0x7F envelope as a terminal
+              // rejection; don't discard short valid rejects and wait for timeout.
+              const short=reason==='shortHeader'?shortEnvelope(fields[3]):null;
+              const rejected=!!(short&&short.rejectMarker&&short.lengthConsistent&&short.statusCode!==null);
+              if(t){if(!rejected)t.malformedEvents++;
                 const key=reason&&'frame'+reason[0].toUpperCase()+reason.slice(1);
                 if(key&&Object.prototype.hasOwnProperty.call(t,key))t[key]++;
                 if(reason==='shortHeader'){
-                  const short=shortEnvelope(fields[3]);
                   if(short){
                     t[short.rejectMarker?'shortRejectMarkers':'shortUnknownMarkers']++;
                     t[short.lengthConsistent?'shortLengthConsistent':'shortLengthTruncated']++;
@@ -96,6 +100,7 @@ class HmiTransport {
                   }
                 }
               }
+              if(rejected)this.pendingRead.consume({error:'TASU rejected request'});
               continue;
             }
             this.pendingRead.consume(response);
@@ -155,6 +160,9 @@ class HmiTransport {
       };
       this.pendingRead=pending;arm(10000);
     });
+      // TASU can answer before command ACK; rejection must not become an
+      // unhandled Promise rejection while line() is still awaiting that ACK.
+      received.catch(()=>{});
     try{
       const ack=await this.line(command(ecu,did),5000);
       if(!/^ok\b/.test(ack))throw new Error('TASU command rejected: '+ack);
