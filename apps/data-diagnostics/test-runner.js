@@ -15,6 +15,7 @@ const STEPS=[
   {id:'brokerGateway',label:'Broker and secure IPC test',request:{op:'brokerSelfTest'},kind:'brokerTest'},
   {id:'authBoundary',label:'Application authentication feasibility',request:{op:'authFeasibility'},kind:'authFeasibility'},
   {id:'nativePeer',label:'Native peer ABI feasibility',request:{op:'nativePeerFeasibility'},kind:'nativePeer'},
+  {id:'nativeKernel',label:'Native kernel SO_PEERCRED experiment',request:{op:'nativePeerProbe'},kind:'nativeKernel'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -132,6 +133,19 @@ function resultFor(step,reply,duration){
       '; app authentication NO-GO':
       'Identity isolation survey unavailable; production remains OFF';
     return Object.assign(base,{status:safe&&observed?'PASS':'FAIL',detail});
+  }
+  if(step.kind==='nativeKernel'){
+    const safe=reply&&reply.mode==='mgu-native-peer-probe'&&
+      reply.productionAccessEnabled===false&&
+      reply.applicationIdentityVerified===false&&
+      reply.packageIdentityVerified===false;
+    const success=safe&&reply.ok===true&&reply.stage==='kernel-peer-observed'&&
+      reply.unixSocket===true&&reply.kernelPeerObserved===true;
+    const reason=String(reply.stage||'unavailable').replace(/[^a-z-]/g,'').slice(0,32);
+    return Object.assign(base,{status:success?'PASS':safe?'SKIP':'FAIL',
+      detail:success?'Kernel SO_PEERCRED observed on MGU; package identity NOT verified; production OFF':
+      safe?'Native test unavailable: '+reason+'; package identity NOT verified; production OFF':
+      'Native test response invalid; production remains OFF'});
   }
   if(step.kind==='nativePeer'){
     const safe=reply.ok===true&&reply.mode==='passive-native-peer-feasibility'&&
@@ -432,6 +446,7 @@ function createRunner(send,clock){
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
           'Authentication: '+String((results.find(x=>x.id==='authBoundary')||{}).detail||'not run').slice(0,125)+'.',
           'Native peer: '+String((results.find(x=>x.id==='nativePeer')||{}).detail||'not run').slice(0,125)+'.',
+          'Kernel peer: '+String((results.find(x=>x.id==='nativeKernel')||{}).detail||'not run').slice(0,125)+'.',
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
