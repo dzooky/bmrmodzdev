@@ -75,7 +75,7 @@ async function run(){
   assert.strictEqual(staged.results.find(x=>x.id==='cdsStream').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsMulti').status,'PASS');
   assert.strictEqual(liveCommands.filter(x=>x.op==='cdsDemand').length,4);
-  assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,3);
+  assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,4);
   assert.ok(staged.results.find(x=>x.id==='cdsTemp').detail.includes('numeric fields validated'));
   const invalid=await createRunner(async req=>{
     if(req.op==='status')return {ok:true};
