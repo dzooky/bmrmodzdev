@@ -60,6 +60,7 @@ const catalogs={
     "Immediate TASU rejection handling": "Immediate TASU rejection handling",
     "Established ECU-first diagnostics": "Established ECU-first diagnostics",
     "Before and after DPF snapshots": "Before and after DPF snapshots",
+    "Visible report upload action": "Visible report upload action",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",
