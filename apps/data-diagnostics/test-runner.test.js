@@ -21,6 +21,8 @@ async function run(){
   const result=await createRunner(sender).run(()=>updates++);
   assert.strictEqual(result.schema,1);
   assert.strictEqual(result.results.length,STEPS.length);
+  assert.strictEqual(STEPS.length,23);
+  assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
     'Use existing responsive ECUs before drivetrain: no added requests');
@@ -33,6 +35,8 @@ async function run(){
 
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
+  assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
+  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.includes('Unsupported'));
   assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
   assert.strictEqual(result.signalPermissionsVerified,false);
@@ -45,7 +49,7 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,22);
+  assert.strictEqual(result.results.length,23);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -174,6 +178,27 @@ async function run(){
   let transportCalls=0;
   await assert.rejects(drivetrainRead(async()=>{transportCalls++;throw Error('Socket unavailable');},ddeStep),/Socket unavailable/);
   assert.strictEqual(transportCalls,1);
+  // Manual phase and full sanitized DPF snapshots use only existing
+  // DDE allowlisted reads, preserving all baseline checks and their order.
+  const dpfCalls=[];
+  const dpfPhase=await createRunner(async req=>{
+    dpfCalls.push(req);
+    if(req.op==='status')return {ok:true};
+    if(req.op==='read'||req.op==='readTrace'){
+      const values={
+        0xF150:[0x0F,0x1F,0xE8],0x44BE:[0,100],0x44BD:[0,120],
+        0x44BF:[0,1,0xE2,0x40],0x4B2F:[0,5,0x45,0xB0]
+      };
+      return {ok:true,uds:[0x62,req.did>>8,req.did&255,...(values[req.did]||[0])]};
+    }
+    return {ok:false,error:'Not staged'};
+  }).run(null,'before');
+  assert.strictEqual(dpfPhase.snapshotPhase,'before');
+  assert.strictEqual(dpfPhase.dpfSnapshot.engine,'B57');
+  assert.strictEqual(dpfPhase.dpfSnapshot.values.since,123.46);
+  assert.strictEqual(dpfPhase.results.find(x=>x.id==='dpfValues').status,'PASS');
+  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,5);
+  assert.ok(!JSON.stringify(dpfPhase.dpfSnapshot).includes('"uds"'));
   assert.ok(staged.results.find(x=>x.id==='dde').detail.includes('attempt 1/3'));
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
   assert.strictEqual(unavailable.results[0].status,'FAIL');
