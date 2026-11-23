@@ -69,7 +69,7 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.11',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.12',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='signalEnvironment')reply=signalEnvironment.inspect();
           else if(req.op==='configCheck')reply=configCheck.inspect();
