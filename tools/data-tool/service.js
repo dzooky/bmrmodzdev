@@ -27,7 +27,7 @@ function serve(factory,socketPath,options){
   let secureEndpoint={inspect:()=>({present:false,mode:null,ownerOnly:false}),close:()=>{}};
   if(options&&options.secureEndpoint)secureEndpoint=options.secureEndpoint;
   else if(process.env.BMRMODZ_SECURE_IPC_EXPERIMENT==='1'){
-    try{secureEndpoint=createEndpoint(options&&options.secureSocket);}
+    try{secureEndpoint=createEndpoint(options&&options.secureSocket||process.env.BMRMODZ_SECURE_IPC_SOCKET);}
     catch(_){/* Fail closed: no secure data endpoint, retain legacy diagnostics. */}
   }
   const inflight=new Map(),cache=new Map();
