@@ -1,4 +1,4 @@
-# BMRMODZ Data Tool — feasibility v0.1.8
+# BMRMODZ Data Tool — experimental v0.1.37
 
 This is **not** a ready-for-migration data broker. It is an MGU-installable, on-demand, read-only experimental service to prove whether a standalone tool can read the diagnostic ECUs needed by OSA, DPF and Climate Comfort.
 
