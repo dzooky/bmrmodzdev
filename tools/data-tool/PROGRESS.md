@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.18 — passive legacy socket exposure reporting (2026-11-23)
+- **Implemented on development branch:** report the legacy diagnostic socket's access bits in the existing passive identity survey as `legacySocketWorldAccessible`, explicitly retaining `legacySocketProductionSafe:false`. No new listener, credentials claim, privilege change, or vehicle requests.
+- Correct the stale passive diagnostic report version (was hardcoded `0.1.5`), with regression assertions. CDS, UDS, startup compatibility, and secure IPC disabled-by-default remain unchanged.
+- **Automated:** tests included; CI status must be checked. **In-car:** not yet verified. Legacy socket accessibility is observational and does not establish client authentication.
+
+# Data Tool feasibility progress
+
 ## v0.1.17 — passive process and socket identity survey (2026-11-23)
 - **Implemented on feature branch:** new read-only `identitySurvey` command returns Data Tool's own UID/GID, legacy socket mode/owner UID/GID, Node major version and whether a `getPeerCredentials` method exists on the running Node socket prototype. **No new socket, no authentication, no /proc enumeration and no startup dependency.** `peerIdentityVerified:false` and `productionAccessEnabled:false` remain explicit.
 - **In-car evidence from v0.1.16 + Diagnostics v0.1.18 (2026-11-23):** 15 PASS, 0 FAIL, 2 SKIP, including healthy service and previously validated CDS/UDS/multi-consumer lifecycle; secure IPC remains intentionally disabled. App UID/GID and peer credential support were **not previously measured in-car**.
