@@ -120,7 +120,7 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+24,14,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.19 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.30 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
    label(cv,word("What's New")+' 0.1.30 — '+word('Before and after DPF snapshots'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
@@ -153,11 +153,11 @@ mgu.run({
     return;
    }
    const rows=STEPS.map(step=>report.results.find(r=>r.id===step.id)||{label:step.label});
-   const cols=[rows.slice(0,10),rows.slice(10)];
+   const cols=[rows.slice(0,12),rows.slice(12)];
    cols.forEach((column,c)=>{
     const x=c===0?24:809, w=767;
     G.panel(cv,theme,x,115,w,380,null);
-    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*35,w-48));
+    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*29,w-48));
    });
    // Dedicated footer line outside both results panels (panels end at y=495).
    // Show one message at a time; never paint over the final result row.
