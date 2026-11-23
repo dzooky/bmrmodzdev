@@ -82,7 +82,7 @@ class HmiTransport {
       pending={
         reject:e=>finish(reject,e),trace,
         consume:response=>{
-          if(response.error){if(trace)trace.negativeEvents++;return finish(reject,new Error('TASU rejected frame'));}
+          if(response.error){if(trace)trace.negativeEvents++;return finish(reject,new Error(trace?'TASU rejected frame':response.error));}
           if(response.ecu!==ecu){if(trace)trace.otherEcuEvents++;return;}
           if(trace)trace.matchedEcuEvents++;
           const u=response.uds;
