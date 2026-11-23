@@ -1,5 +1,13 @@
 # Data Tool progress
 
+## v0.1.38 — TASU status 0x21 read-only recovery and truthful ECU outcomes (2026-11-23)
+- **In-car evidence:** Data Tool Diagnostics 0.1.44 screenshot showed 17 PASS / 7 FAIL / 7 SKIP; all seven major ECU UDS checks failed (including both DDE F150 reads, DDE 44BB, EGS, IHKA, BDC, ACSM), with TASU short-envelope status 0x21 observed. The 17 other PASS checks are mostly passive IPC/service/security operations and do NOT demonstrate vehicle ECU access. DPF 0.1.73 also failed with NO_MATCHING_RESPONSE. Vehicle root cause is unproven.
+- **Implemented in Data Tool:** short TASU rejection preserves its numeric envelope status as `tasuStatus`, separate from UDS NRC. For an explicit allowlisted read returning **TASU 0x21 only**, retry up to two more times via the **same serialized transport** after 700 and 1,400 ms; on further rejection return `ok:false`, `tasuStatus:33`, never PASS. No retries for other status codes, timeouts, negative UDS, malformed replies or other operations; no background activity or new ECU commands. Error replies are never cached. Preserve 200ms shared queue, coalescing, health and all security gates. Status exposes numeric retry counter but is **not** proof of ECU readiness.
+- **Real diagnostic visibility:** permit explicitly requested F150 `readTrace` and expose bounded `attempts` and `tasu21Retries` counters without raw ECU bytes/identity. Diagnostics v0.1.46 consumes this trace and displays **ECU reads x/7** separately from overall/passive counts.
+- **Testing:** dedicated socket tests simulate transient status 0x21 → third valid UDS PASS; persistent 0x21 → FAIL after exactly 3 attempts; other rejection status and timeout → no retry; passive status sends no ECU requests. Native transport test checks numeric rejection code. These are simulated, not in-car verification.
+- **Known:** This is a bounded recovery for a directly observed failure mode, NOT a validated solution for an unknown TASU rejection origin. Actual ECU reads remain unverified until real-car test.
+
+
 ## v0.1.37 — DPF read contract and name continuity (2026-11-23)
 - **Implemented on development branch:** rename the Store display title from `Data Tool Feasibility` to `Data Tool`, retaining technical ID `bmrmodz-data-tool`, service unit and socket path; version 0.1.37 so it supersedes the already installed 0.1.36.
 - **DPF integration compatibility:** keep the existing explicit read-only `{op:'read',ecu,did}` API used by DPF Status 0.1.68 in `dzooky/bmrmodz`. Added offline socket integration regression for positive DID echo, simultaneous read coalescing, cache use, and fail-closed getData/controls. No new ECU command, no production app authentication or background polling.
