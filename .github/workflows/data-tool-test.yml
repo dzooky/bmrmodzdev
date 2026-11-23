@@ -10,6 +10,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          node-version: '12'
+      - name: Validate installed service syntax with legacy Node 12
+        run: |
+          node --check tools/data-tool/service.js
+          node --check tools/data-tool/data-broker.js
+          node --check tools/data-tool/data-catalog.js
+          node --check tools/data-tool/broker-gateway.js
+          node --check tools/data-tool/broker-self-test.js
+          node --check tools/data-tool/secure-peer-probe.js
+          node --check tools/data-tool/secure-ipc.js
+          node tools/data-tool/health-startup.test.js
+      - uses: actions/setup-node@v4
+        with:
           node-version: '18'
       - name: Validate JavaScript and JSON
         run: |

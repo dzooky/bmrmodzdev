@@ -45,7 +45,11 @@ async function run(){
  }catch(_){/* Always return bounded booleans; socket creation may be unsupported. */}
  finally{
   if(endpoint){try{endpoint.close();}catch(_){}}
-  if(dir){try{fs.rmSync(dir,{recursive:true,force:true});}catch(_){}}
+  if(dir){
+   // MGU Node may predate fs.rmSync (Node 14.14); remove test-owned files only.
+   try{fs.unlinkSync(path.join(dir,'secure.sock'));}catch(_){}
+   try{fs.rmdirSync(dir);}catch(_){}
+  }
  }
  return result;
 }
