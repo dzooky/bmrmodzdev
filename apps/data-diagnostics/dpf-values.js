@@ -10,7 +10,7 @@ function decodeUds(reply,did,length,factor){
   const bytes=reply&&reply.uds;
   if(reply&&reply.ok===false)return {ok:false,error:String(reply.error||'ECU read failed').slice(0,70)};
   if(!reply||reply.ok!==true||!Array.isArray(bytes)||bytes.length!==length+3||
-    bytes[0]!==0x62||bytes[1]!==did>>8||bytes[2]!==did&255||
+    bytes[0]!==0x62||bytes[1]!==(did>>8)||bytes[2]!==(did&255)||
     !bytes.every(b=>Number.isInteger(b)&&b>=0&&b<=255))
     return {ok:false,error:'Unexpected UDS response length or DID'};
   let n=0;
