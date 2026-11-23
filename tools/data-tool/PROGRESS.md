@@ -1,5 +1,12 @@
 # Data Tool feasibility progress
 
+## v0.1.6 — passive SOME/IP setup survey (2026-11-23)
+- **Implemented on dzooky/bmrmodzdev main:** new on-demand, read-only `someipSetup` operation checks whether the BMW catalog, firmware AppManagement generator bundle, Data Tool signal manifest and tool-owned generated CDS config exist, and reports process UID/GID with ACL registration explicitly `not verified`. Also exposed via `probe.js someipSetup`.
+- **Safety:** does not run a generator, register ACLs, inspect private OAP application configs, create SOME/IP proxies, or poll any ECU. Existing UDS transport and allowlist remain unchanged. Standalone tool ACL registration / usable CDS subscription remain unresolved.
+- **In-car evidence from uploaded report:** native SOME/IP module loaded, UDS positive responses from DDE/EGS/IHKA/BDC/ACSM, config missing ENOENT; CDS sampling skipped. New 0.1.6 tool and 0.1.8 companion are **not yet vehicle tested**.
+- **Automated:** mock missing/present file regression and socket-level zero-UDS test; verify GitHub Actions separately before claiming pass.
+
+
 ## v0.1.5 — separate Data Tool Diagnostics MGU companion (2026-11-22)
 - **Implemented on draft PR #48:** tool version increased to 0.1.5 for an explicitly read-only companion app (`apps/data-diagnostics`, 0.1.0). The app calls only the Data Tool socket and provides a parked-car smoke test and sanitized offline QR report.
 - **Scope:** no ECU control, no automatic polling, no changes to OSA/DPF/CC/Spritmonitor, no migration. A QR summary is not equivalent to full JSON export.
