@@ -25,7 +25,7 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.31');
+   assert.strictEqual(status.version,'0.1.32');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const plan=await call(socket,{op:'brokerPlan'});
@@ -47,6 +47,12 @@ async function run(){
    assert.strictEqual(brokerTest.ipc.applicationIdentityVerified,false);
    assert.strictEqual(brokerTest.ipc.legacySocketProductionSafe,false);
    assert.strictEqual(sent,0,'broker test must never use injected vehicle transport');
+   const auth=await call(socket,{op:'authFeasibility'});
+   assert.strictEqual(auth.ok,true);
+   assert.strictEqual(auth.appIdentityVerified,false);
+   assert.strictEqual(auth.productionAccessEnabled,false);
+   assert.strictEqual(auth.mode,'passive-auth-feasibility');
+   assert.strictEqual(sent,0);
    const identity=await call(socket,{op:'identitySurvey'});
    assert.strictEqual(identity.ok,true);
    assert.strictEqual(identity.peerIdentityVerified,false);
@@ -80,7 +86,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
-   assert.strictEqual(report.service.version,'0.1.31');
+   assert.strictEqual(report.service.version,'0.1.32');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});
