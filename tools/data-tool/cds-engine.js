@@ -2,6 +2,8 @@
 // One shared CDS child per Data Tool. Leases are renewed only by explicit
 // consumer demand; status/snapshot reads never extend a subscription.
 const {spawn}=require('child_process'),path=require('path');
+const manifest=require('./data-manifest.json');
+const CONSUMERS=manifest.consumers;
 const FIELDS=['oil','coolant','rpm'];
 function createEngine(options){
   const opts=options||{},now=opts.now||Date.now;
@@ -20,6 +22,8 @@ function createEngine(options){
     const previous=child;
     child=null;ready=false;buffer='';
     stats.stops++;
+    // Never expose data left by a stopped subscription as current.
+    FIELDS.forEach(k=>{updates[k]=0;delete cache[k];});
     try{previous.kill('SIGTERM');}catch(_){}
     const hard=setTimeout(()=>{try{previous.kill('SIGKILL');}catch(_){}},500);
     if(hard.unref)hard.unref();
@@ -61,9 +65,9 @@ function createEngine(options){
   }
   function demand(id){
     if(closed)return {ok:false,error:'CDS engine closed'};
-    if(id!=='diagnostics')return {ok:false,error:'Consumer is not allowlisted'};
+    if(typeof id!=='string'||!Object.prototype.hasOwnProperty.call(CONSUMERS,id))return {ok:false,error:'Consumer is not allowlisted'};
     active();
-    leases.set(id,now()+leaseMs);
+    leases.set(id,now()+Math.min(leaseMs,CONSUMERS[id].leaseMs));
     if(!child)start();
     return status();
   }
@@ -78,14 +82,22 @@ function createEngine(options){
     return {ok:true,mode:'request-driven',running:!!child,ready,consumers:count,
       fields,stats:Object.assign({},stats),error};
   }
-  function snapshot(){
-    const state=status(),values={};
-    FIELDS.forEach(k=>{if(state.fields[k].valid)values[k]=cache[k];});
+  function snapshot(id){
+    const consumer=id||'diagnostics'; // Compatible with existing diagnostic probes.
+    if(!Object.prototype.hasOwnProperty.call(CONSUMERS,consumer))
+      return {ok:false,error:'Consumer is not allowlisted'};
+    const state=status(),values={},fields={};
+    const owned=leases.has(consumer);
+    CONSUMERS[consumer].fields.forEach(k=>{
+      fields[k]=owned?state.fields[k]:{valid:false,ageMs:null};
+      if(owned&&state.fields[k].valid)values[k]=cache[k];
+    });
     state.values=values;
+    state.fields=fields;
     return state;
   }
   function release(id){
-    if(id!=='diagnostics')return {ok:false,error:'Consumer is not allowlisted'};
+    if(typeof id!=='string'||!Object.prototype.hasOwnProperty.call(CONSUMERS,id))return {ok:false,error:'Consumer is not allowlisted'};
     leases.delete(id);
     if(active()===0)stop();
     return status();
