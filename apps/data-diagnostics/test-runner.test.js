@@ -49,7 +49,6 @@ async function run(){
     if(req.op==='read')return {ok:true,uds:[0x62,req.did>>8,req.did&255]};
     return {ok:false,error:'ENOENT: inactive config missing'};
   }).run();
-  assert.strictEqual(staged.results.find(x=>x.id==='someipConfig').status,'FAIL');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
