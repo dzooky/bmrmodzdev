@@ -2,7 +2,9 @@
 
 Development-only MGU OAP application, installed alongside experimental Data Tool v0.1.5. Since application v0.1.5, its manifest sets `mguInternet: true`, matching Spritmonitor's MGU Store internet-access declaration; MGU network reachability still requires real-car verification. This application never opens TASU or CDS connections itself. It uses the local Unix socket provided by the systemd tool.
 
-In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic.\n\n## Operation
+In v0.1.6, failed manual uploads show HTTP status, response content type, a short sanitized error excerpt, and preserve a 4 KB maximum response size. No upload is automatic.
+
+## Operation
 1. Park securely. Install **both** components from an approved test build, not merely a draft GitHub PR.
 2. Open the app. The first tab is Info with the required development notice.
 3. Select Diagnostics and press **Run diagnostics**. This runs allowlisted read-only operations against Data Tool and checks the app process's network interfaces, route table and TCP connectivity to dzooky.eu:443. Network checks also run if the Data Tool is unavailable. Nothing runs automatically.
