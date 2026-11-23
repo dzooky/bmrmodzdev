@@ -160,7 +160,8 @@ async function run(){
   assert.strictEqual(exhausted.attempts,3);
   assert.strictEqual(exhaustedCount,3);
   assert.strictEqual(resultFor(ddeStep,exhausted.reply,0).status,'FAIL');
-  for(const unexpectedReply of [{ok:false,error:'UDS negative response',nrc:0x31},
+  for(const unexpectedReply of [{ok:false,error:'TASU rejected request'},
+    {ok:false,error:'UDS negative response',nrc:0x31},
     {ok:false,error:'Unexpected response'}, {ok:true,uds:[0x62,0,0]}]){
     let count=0;
     const noRetry=await drivetrainRead(async()=>{count++;return unexpectedReply;},ddeStep);
