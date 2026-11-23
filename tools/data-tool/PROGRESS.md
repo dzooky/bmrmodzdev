@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.29 — isolate MGU broker/IPC diagnostic failure (2026-11-23)
+- **Real car:** Data Tool v0.1.28 installed and Diagnostics 0.1.33 completed 19 PASS, 1 FAIL, 5 SKIP. DDE, EGS, SOME/IP and CDS passed; the only failure was new `brokerGateway` self-test. The uploaded strict-backend report exposed only overall `Broker IPC: FAIL`, so the particular subcheck remains **unknown**. No evidence of a DDE, EGS, CDS or startup regression.
+- **Correction:** the one-shot local Unix socket probe now reports only a bounded failure stage (`create-temp-directory`, `listen`, `security-status`, `socket-permissions` or `unauthorized-request`). No raw errors, paths, UID/PID or credentials. Diagnostics v0.1.34 includes this stage or synthetic broker failure in the existing uploaded `notes`, preserving server compatibility. This improves diagnosis rather than falsely declaring the failure fixed. No change to vehicle traffic or production gateway state.
+- **CI:** service health/Node 12/IPC and Diagnostics upload tests. **In-car v0.1.29 / Diagnostics 0.1.34 unverified.** One parked Run + Send report is required to identify whether the problem is sandbox/Unix socket environment, runtime IPC or a broker test mismatch.
+
+
 ## v0.1.28 — regression fix: older MGU Node service startup (2026-11-23)
 - **In-car failure reported:** after v0.1.27 update the Data Tool installer displayed `is not healthy`. v0.1.27 introduced a service-level require of `broker-self-test.js` -> `data-broker.js` at process startup; the existing broker used optional chaining (`?.`), which older MGU Node versions may reject during parsing, preventing the diagnostic socket from starting. This is a **high-confidence diagnosis, not confirmed without vehicle service logs**.
 - **Fix:** remove incompatible optional chaining from startup-loaded broker and preserve response timestamp using an explicit local variable. Replace `fs.rmSync` (unavailable on older Node) with test-owned socket unlink / directory rmdir. Keep the new broker security gate and synthetic test, legacy diagnostic socket protocol, no vehicle-on-boot behavior, and installed systemd unit unchanged.
