@@ -18,6 +18,8 @@ jobs:
           node --check apps/data-diagnostics/network.js
           node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
+          node --check tools/data-tool/signal-worker.js
+          node --check tools/data-tool/signal-isolate.js
           node --check tools/data-tool/someip-setup.js
           node --check tools/data-tool/someip-audit.js
           node --check tools/data-tool/someip-generate.js
