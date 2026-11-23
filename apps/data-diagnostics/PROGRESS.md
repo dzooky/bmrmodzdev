@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.11 — focused generator/UDS diagnostics (2026-11-23)
+- **Implemented in dzooky/bmrmodzdev main:** only Run diagnostics, Generate CDS test, and Send report are declared and bound; removed Next/Previous actions while tab switching stays. Removed network interfaces, route and TCP tests from the run and uploaded JSON (16 -> 13 checks). Manual HTTPS report upload remains unchanged.
+- **Dependency:** Data Tool 0.1.8; its `someipGenerated` status retains the original generator failure for diagnostic report instead of losing it behind a one-attempt message. No automatic activation of CDS or ACL changes.
+- **In-car evidence on previous version:** user received `One generator test per service start`; 0.1.10 report showed 10 PASS, 4 FAIL, 2 SKIP, with staged CDS missing. **This v0.1.11 is NOT YET verified in-car.**
+- **Automated tests:** runner checks 13 results and no network entries; manifest requires three visible actions, upload client retained. Final GitHub CI to verify.
+
+
 ## v0.1.10 — restore visible Send report action (2026-11-23)
 - **Implemented on dzooky/bmrmodzdev main:** removed unused Export report button from the OAP manifest and UI button binding, keeping Run diagnostics, Generate CDS test, Send report, Previous page, Next page in that order. Six declared actions had crowded out Send report on MGU. Manual HTTPS upload logic is unchanged; data/QR export internals are retained, with no visible Export button.
 - **Automated:** manifest ordering and button bindings asserted in regression; final CI to be checked. **In-car:** new button layout and report upload from v0.1.10 not yet verified.
