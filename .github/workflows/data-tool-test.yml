@@ -1,0 +1,35 @@
+name: Data Tool test build
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Validate JavaScript and JSON
+        run: |
+          node --check apps/data-diagnostics/main.js
+          node --check apps/data-diagnostics/upload.js
+          node --check tools/data-tool/service.js
+          node -e "JSON.parse(require('fs').readFileSync('mgu-repo.json'))"
+      - name: Data Tool regression tests
+        run: |
+          node apps/data-diagnostics/upload.test.js
+          node apps/data-diagnostics/client.test.js
+          node apps/data-diagnostics/qr-report.test.js
+          node apps/data-diagnostics/test-runner.test.js
+          node apps/data-diagnostics/translations.test.js
+          node tools/data-tool/test.js
+          node tools/data-tool/signal-environment.test.js
+          node tools/data-tool/signal-isolate.test.js
+          node tools/data-tool/diagnostic-report.test.js
+          node tools/data-tool/cc-feasibility.test.js
+          node tools/data-tool/signal-manifest.test.js
+          node tools/data-tool/signal-worker.test.js
+      - name: Offline MGU preview build
+        run: python3 kit/tools/build.py --preview-only data-diagnostics
