@@ -30,6 +30,7 @@ const STEPS=[
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
+  {id:'ddeIdentity',label:'DDE F150 identification',request:{op:'read',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
   {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
   {id:'dpfValues',label:'DPF decoded values',request:null,kind:'dpf'},
   {id:'egsIdentity',label:'EGS variant identification',request:{op:'read',ecu:0x18,did:0xF150},kind:'egsIdentity'},
@@ -226,6 +227,13 @@ function resultFor(step,reply,duration){
         cleanError(reply.error||'CDS shared stream did not refresh or stop')});
   }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
+  if(step.kind==='ddeIdentity'){
+    const uds=reply.uds;
+    const valid=reply.ok===true&&Array.isArray(uds)&&uds.length>=6&&
+      uds[0]===0x62&&uds[1]===0xF1&&uds[2]===0x50;
+    return Object.assign(base,{status:valid?'PASS':'FAIL',
+      detail:valid?'Matching F150 DDE identification response received':cleanError(reply.error||'Invalid or missing F150 response')});
+  }
   if(step.kind==='egsIdentity')return Object.assign(base,{status:reply.ok?'PASS':'SKIP',
     detail:reply.ok?'Verified OSA EGS profile '+reply.index:cleanError(reply.error)});
   if(step.kind==='dpf')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',
@@ -406,8 +414,8 @@ function createRunner(send,clock){
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
         // Explicit manual diagnostics only: space ECU checks to test whether
         // TASU/ECU settling is related to intermittent DDE and EGS timeouts.
-        if((step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity')&&previousUds)await delay(1000);
-        previousUds=step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity';
+        if((step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity'||step.kind==='ddeIdentity')&&previousUds)await delay(1000);
+        previousUds=step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity'||step.kind==='ddeIdentity';
         const start=now();
         let result;
         try{

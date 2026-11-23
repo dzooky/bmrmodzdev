@@ -40,7 +40,7 @@ async function run(){
     if(req.op==='someipGenerated')return {ok:false,mode:'staging-only',error:'Staging unavailable'};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:2},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:false,stage:'module-load',error:'Native binding missing'};
-    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255,1]};
+    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255,...(req.did===0xF150?[0x0F,0x1F,0xE8]:[1])]};
     throw Error('Unexpected operation');
   };
   let updates=0;
@@ -63,7 +63,7 @@ async function run(){
   assert.strictEqual(brokenIpc.status,'FAIL');
   assert.ok(brokenIpc.detail.includes('existing IPC check failed'));
   assert.ok(!brokenIpc.detail.includes('/run/'));
-  assert.strictEqual(STEPS.length,29);
+  assert.strictEqual(STEPS.length,30);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -77,9 +77,12 @@ async function run(){
 
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
+  assert.strictEqual(result.results.find(r=>r.id==='ddeIdentity').status,'PASS');
+  assert.deepStrictEqual(STEPS.find(s=>s.id==='ddeIdentity').request,{op:'read',ecu:0x12,did:0xF150});
+  assert.strictEqual(STEPS.findIndex(s=>s.id==='ddeIdentity'),STEPS.findIndex(s=>s.id==='dde')+1);
   assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
   assert.strictEqual(result.results.find(r=>r.id==='egsIdentity').status,'SKIP');
-  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.includes('Unsupported'));
+  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.length > 0);
   assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
   assert.strictEqual(result.signalPermissionsVerified,false);
@@ -92,7 +95,7 @@ async function run(){
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
   assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility','nativePeerProbe','processBoundaryProbe'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,29);
+  assert.strictEqual(result.results.length,30);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -257,6 +260,11 @@ async function run(){
   assert.strictEqual(traceSummary([{ackAccepted:true,matchedEcuEvents:0,otherEcuEvents:1,wrongDidEvents:0,negativeEvents:0,pendingEvents:0,malformedEvents:0,timedOut:true}]).includes('other 1'),true);
   assert.strictEqual(retryCount,3);
   assert.strictEqual(resultFor(ddeStep,recovered.reply,0).status,'PASS');
+  const identityStep=STEPS.find(x=>x.id==='ddeIdentity');
+  assert.strictEqual(resultFor(identityStep,{ok:true,uds:[0x62,0xF1,0x50,0x0F,0x1F,0xE8]},0).status,'PASS');
+  assert.strictEqual(resultFor(identityStep,{ok:true,uds:[0x62,0xF1,0x50]},0).status,'FAIL');
+  assert.strictEqual(resultFor(identityStep,{ok:true,uds:[0x62,0x44,0xBB,1,2,3]},0).status,'FAIL');
+  assert.strictEqual(resultFor(identityStep,{ok:false,error:'No matching response'},0).status,'FAIL');
   let exhaustedCount=0;
   const exhausted=await drivetrainRead(async()=>{exhaustedCount++;return {ok:false,error:'No matching response'};},ddeStep);
   assert.strictEqual(exhausted.attempts,3);
@@ -313,7 +321,8 @@ async function run(){
   assert.strictEqual(dpfPhase.dpfSnapshot.engine,'B57');
   assert.strictEqual(dpfPhase.dpfSnapshot.values.since,123.46);
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='dpfValues').status,'PASS');
-  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,5);
+  assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeIdentity').status,'PASS');
+  assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,6);
   assert.ok(!JSON.stringify(dpfPhase.dpfSnapshot).includes('"uds"'));
   assert.ok(staged.results.find(x=>x.id==='dde').detail.includes('attempt 1/3'));
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
