@@ -13,11 +13,10 @@ const someipAudit=require('./someip-audit');
 const ccFeasibility=require('./cc-feasibility');
 const {createRunner}=require('./signal-isolate');
 const {createEngine}=require('./cds-engine');
-const {createEndpoint}=require('./secure-ipc');
+const {createEndpoint,observePeer}=require('./secure-ipc');
 const identitySurvey=require('./identity-survey');
 const dataCatalog=require('./data-catalog');
 const brokerSelfTest=require('./broker-self-test');
-const peerProbe=require('./secure-peer-probe');
 const SOCKET=process.env.BMRMODZ_DATA_SOCKET||'/run/bmrmodz-data-tool/ctl.sock';
 const GAP_MS=200, CACHE_MS=500;
 function serve(factory,socketPath,options){
@@ -91,13 +90,22 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.30',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.31',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='brokerPlan')reply={ok:true,broker:dataCatalog.describe()};
           else if(req.op==='brokerSelfTest'){
             // Explicit one-shot synthetic broker + local IPC loopback only.
             // No vehicle reads and no secured data gateway is enabled.
-            const [broker,ipc]=await Promise.all([brokerSelfTest.run(),peerProbe.run({socketDirectory:path.dirname(socket)})]);
+            const broker=await brokerSelfTest.run();
+            // Inspect the authenticated-by-kernel *capability* of the already
+            // connected diagnostics socket. This is NOT app authentication.
+            // Never try binding a second Unix socket during normal diagnostics.
+            const observed=observePeer(client);
+            const ipc={ok:true,mode:'existing-diagnostic-connection',
+              transportConfirmed:true,kernelCredentialsAvailable:observed.kernelCredentialsAvailable,
+              kernelCredentialsObserved:observed.kernelCredentialsObserved,
+              applicationIdentityVerified:false,productionAccessEnabled:false,
+              productionDataGatewayEnabled:false,legacySocketProductionSafe:false};
             reply={ok:true,mode:'explicit-test-only',broker,ipc,
               productionAccessEnabled:false,applicationIdentityVerified:false};
           }
@@ -115,7 +123,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.30',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.31',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);

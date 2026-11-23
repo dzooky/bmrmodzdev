@@ -65,6 +65,7 @@ const catalogs={
     "Broker and IPC self-test": "Broker and IPC self-test",
     "Broker and IPC failure diagnosis": "Broker and IPC failure diagnosis",
     "Runtime IPC socket compatibility": "Runtime IPC socket compatibility",
+    "Existing IPC peer capability test": "Existing IPC peer capability test",
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",

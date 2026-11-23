@@ -101,19 +101,18 @@ function resultFor(step,reply,duration){
     const b=reply.broker||{},ipc=reply.ipc||{};
     const safe=reply.productionAccessEnabled===false&&
       reply.applicationIdentityVerified===false&&b.productionAccessEnabled===false&&
-      ipc.productionAccessEnabled===false;
+      ipc.productionAccessEnabled===false&&ipc.productionDataGatewayEnabled===false&&
+      ipc.applicationIdentityVerified===false&&ipc.legacySocketProductionSafe===false;
     const good=reply.ok===true&&reply.mode==='explicit-test-only'&&safe&&
       b.ok===true&&b.vehicleReads===0&&b.sharedUds===true&&b.sharedCds===true&&
       b.unauthorizedDenied===true&&b.gatewayFailClosed===true&&
-      ipc.ok===true&&ipc.socketOwnerOnly===true&&ipc.unauthorizedDenied===true;
+      ipc.ok===true&&ipc.mode==='existing-diagnostic-connection'&&
+      ipc.transportConfirmed===true;
     const detail=good?
-      'Synthetic broker PASS; local IPC denies unauthorized; peer API '+
-      (ipc.kernelCredentialsAvailable?'present':'unavailable')+
+      'Broker simulation PASS; existing IPC connected; peer API '+
+      (ipc.kernelCredentialsAvailable?'available':'unavailable')+
       '; application identity unverified; production OFF':
-      'Broker/IPC self-test incomplete; '+
-      (!b.ok?'synthetic broker failed':!ipc.ok?'local IPC '+String(ipc.failureStage||'unknown').slice(0,30)+
-        ' '+String(ipc.failureCode||'unknown').slice(0,15):'policy mismatch')+
-      '; production OFF';
+      'Broker simulation or existing IPC check failed; production OFF';
     return Object.assign(base,{status:good?'PASS':'FAIL',detail});
   }
   if(step.kind==='environment'){
