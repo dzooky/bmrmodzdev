@@ -42,6 +42,7 @@ const catalogs={
     "Generate CDS test": "Generate CDS test",
     "CDS generation test": "CDS generation test",
     "Send report button restored": "Send report button restored",
+    "Focused diagnostics": "Focused diagnostics",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
     "Generation failed": "Generation failed"
