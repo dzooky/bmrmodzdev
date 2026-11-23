@@ -11,7 +11,7 @@ const qrReport=require('./qr-report');
 const uploader=require('./upload');
 const W=1600,H=520;
 const REPORT_NAME='data-tool-diagnostic-report.json';
-const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share'];
+const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','All tests'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -126,9 +126,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.44 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.45 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.44 — '+word('DDE F150 first-read check'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.45 — '+word('Readable DDE test results'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -149,6 +149,21 @@ mgu.run({
    label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
    label(cv,genStatus||word('Stay parked during the test'),60,474,17,theme.warn);
   }
+  // The Results page is a readable DDE-first overview. Full, unabridged
+  // details stay in the saved JSON report; the All tests tab exposes every status.
+  function shortDetail(item,limit){
+   const message=String(item&&item.detail||'');
+   if(!message)return word('No details');
+   const max=limit||65;
+   return message.length>max?message.slice(0,max-3)+'...':message;
+  }
+  function showFocusRow(cv,theme,item,x,y,width){
+   const status=item&&item.status||'NOT_RUN';
+   const color=status==='PASS'?theme.ok:status==='FAIL'?theme.crit:theme.dim;
+   label(cv,item&&item.label||'',x,y,23,theme.text,{font:'bold'});
+   label(cv,status==='NOT_RUN'?word('Not tested'):word(status),x+width,y,22,color,{align:'right',font:'bold'});
+   label(cv,shortDetail(item,66),x,y+27,17,theme.dim);
+  }
   function drawResults(cv,theme){
    const totals=report&&report.totals;
    const totalsText=totals?word('PASS')+': '+totals.pass+'   '+word('FAIL')+': '+totals.fail+'   '+word('SKIP')+': '+totals.skip:word('No report yet');
@@ -158,17 +173,48 @@ mgu.run({
     label(cv,running?word('Running'):word('No report yet'),800,282,34,theme.dim,{align:'center'});
     return;
    }
-   const rows=STEPS.map(step=>report.results.find(r=>r.id===step.id)||{label:step.label});
-   const cols=[rows.slice(0,14),rows.slice(14)];
-   cols.forEach((column,c)=>{
-    const x=c===0?24:809, w=767;
-    G.panel(cv,theme,x,115,w,380,null);
-    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*27,w-48));
+   const byId=id=>report.results.find(r=>r.id===id)||STEPS.find(s=>s.id===id)||{label:id};
+   G.panel(cv,theme,24,115,767,380,null);
+   G.panel(cv,theme,809,115,767,380,null);
+   label(cv,word('DPF / DDE checks'),52,153,24,theme.accent2,{font:'bold'});
+   const priority=['ddeColdIdentity','dde','ddeIdentity'];
+   priority.forEach((id,i)=>showFocusRow(cv,theme,byId(id),52,195+i*93,700));
+   label(cv,word('Other failed checks'),837,153,24,theme.accent2,{font:'bold'});
+   const other=report.results.filter(r=>r.status==='FAIL'&&priority.indexOf(r.id)<0);
+   if(!other.length)label(cv,word('No other failures'),837,203,22,theme.ok);
+   other.slice(0,6).forEach((item,i)=>{
+    const y=196+i*47;
+    label(cv,item.label,837,y,19,theme.text);
+    label(cv,word('FAIL'),1540,y,19,theme.crit,{align:'right',font:'bold'});
+    label(cv,shortDetail(item,70),837,y+20,15,theme.dim);
    });
-   // Dedicated footer line outside both results panels (panels end at y=495).
-   // Show one message at a time; never paint over the final result row.
-   const footer=sendStatus||exportState;
-   if(footer)label(cv,footer,800,506,16,sendStatus?theme.text:theme.warn,{align:'center'});
+   if(other.length>6)label(cv,word('More failures in All tests'),837,478,17,theme.warn);
+   // The All tests page contains every row. No long diagnostic detail is
+   // painted below another row in this narrow 520px MGU canvas.
+  }
+  function drawAllTests(cv,theme){
+   const totals=report&&report.totals;
+   const totalsText=totals?word('PASS')+': '+totals.pass+'   '+word('FAIL')+': '+totals.fail+'   '+word('SKIP')+': '+totals.skip:word('No report yet');
+   header(cv,theme,word('All tests'),totalsText);
+   if(!report){
+    G.panel(cv,theme,24,115,1552,380,null);
+    label(cv,word('No report yet'),800,282,34,theme.dim,{align:'center'});
+    return;
+   }
+   const rows=STEPS.map(step=>report.results.find(r=>r.id===step.id)||{label:step.label});
+   const midpoint=Math.ceil(rows.length/2);
+   [rows.slice(0,midpoint),rows.slice(midpoint)].forEach((column,c)=>{
+    const x=c===0?24:809,w=767;
+    G.panel(cv,theme,x,115,w,380,null);
+    column.forEach((item,i)=>{
+     const y=140+i*22;
+     const status=item&&item.status||'NOT_RUN';
+     const color=status==='PASS'?theme.ok:status==='FAIL'?theme.crit:theme.dim;
+     // One row per check, no second-line description overlapping next row.
+     label(cv,item&&item.label||'',x+20,y,18,theme.text);
+     label(cv,status==='NOT_RUN'?word('Not tested'):word(status),x+w-20,y,18,color,{align:'right',font:'bold'});
+    });
+   });
   }
   function drawComparison(cv,theme){
    header(cv,theme,word('DPF comparison'),word('Read-only'));
@@ -248,6 +294,7 @@ mgu.run({
    if(page===3)drawComparison(cv,theme);
    if(page===4)drawVehicleComparison(cv,theme);
    if(page===5)drawShare(cv,theme);
+   if(page===6)drawAllTests(cv,theme);
    G.frame(cv,theme,pages.map(word),page,[]);
    return ui.image('MAIN_GFX',cv);
   }
