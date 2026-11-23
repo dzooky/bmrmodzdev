@@ -250,6 +250,7 @@ function createRunner(send,clock){
     active=true;
     const results=[],startedAt=new Date().toISOString();
     let serviceAvailable=false,stagingReady=false,nativeReady=false;
+    let previousUds=false;
     try{
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
@@ -258,6 +259,10 @@ function createRunner(send,clock){
           :(step.kind==='signal'||step.kind==='engine')&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
+        // Explicit manual diagnostics only: space ECU checks to test whether
+        // TASU/ECU settling is related to intermittent DDE and EGS timeouts.
+        if(step.kind==='uds'&&previousUds)await delay(1000);
+        previousUds=step.kind==='uds';
         const start=now();
         let result;
         try{
