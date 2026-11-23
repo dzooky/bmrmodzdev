@@ -7,6 +7,7 @@ const {READS,getRead}=require('./profiles');
 const signalEnvironment=require('./signal-environment');
 const diagnosticReport=require('./diagnostic-report');
 const configCheck=require('./config-check');
+const {createGenerator}=require('./someip-generate');
 const someipSetup=require('./someip-setup');
 const ccFeasibility=require('./cc-feasibility');
 const {createRunner}=require('./signal-isolate');
@@ -16,6 +17,7 @@ function serve(factory,socketPath,options){
   const socket=socketPath||SOCKET;
   let transport=null,queue=Promise.resolve(),lastRequest=0;
   const signalRunner=options&&options.signalRunner||createRunner();
+  const generator=options&&options.generator||createGenerator();
   const inflight=new Map(),cache=new Map();
   const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0};
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -66,11 +68,13 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.6',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.7',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='signalEnvironment')reply=signalEnvironment.inspect();
           else if(req.op==='configCheck')reply=configCheck.inspect();
           else if(req.op==='someipSetup')reply=someipSetup.inspect();
+          else if(req.op==='someipGenerate')reply=await generator.run();
+          else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
           else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.5',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
