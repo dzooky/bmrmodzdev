@@ -20,7 +20,6 @@ function unpack(){
  return code;
 }
 function run(socket,directory,options){
- const opts=options||{};
  // Installed service may run on Node 8. No optional chaining or fs.rmSync.
  if(process.platform!=='linux'||process.arch!=='x64'||!socket||
     typeof socket.address!=='function')
@@ -60,7 +59,7 @@ function run(socket,directory,options){
     seen+=String(chunk);
     if(seen.length>512)finish(out('invalid-response'));
    });
-   child.on('exit',code=>{
+   child.on('close',code=>{
     if(finished)return;
     let parsed=null;
     try{parsed=JSON.parse(seen.trim());}catch(_){}
