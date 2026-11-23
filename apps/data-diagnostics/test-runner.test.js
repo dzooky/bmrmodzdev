@@ -36,6 +36,16 @@ async function run(){
   assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
   assert.strictEqual(result.results.length,22);
+  // At least four 1-second gaps across five sequential ECU checks are deliberate.
+  assert.ok(result.results.some(x=>x.id==='egs'));
+  const traceClassified=require('./test-runner').traceSummary([
+    {ackAccepted:true,matchedEcuEvents:0,otherEcuEvents:0,wrongDidEvents:0,
+      pendingEvents:0,negativeEvents:0,malformedEvents:3,
+      frameShortFrame:1,frameShortHeader:1,frameLengthOverflow:1,
+      frameNonHex:0,frameOddLength:0,frameMissing:0,timedOut:true}
+  ]);
+  assert.ok(traceClassified.includes('malformed 3 [short 1, header 1, length 1'));
+
   assert.ok(commands.filter(x=>x.op==='readTrace').length===2);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];

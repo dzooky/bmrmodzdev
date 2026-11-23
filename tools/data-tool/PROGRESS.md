@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.21 — TASU malformed event classification (2026-11-23)
+- **Implemented (feature branch):** retain the v0.1.20 sanitized trace API and classify previously aggregated malformed TASU event envelopes as missing, non-hex, odd hex length, short frame, short header or declared-length overflow, using counters only. No raw frames, VIN, hex contents or ECU values are retained; decoding/response acceptance is unchanged.
+- **In-car baseline (v0.1.20 with Diagnostics v0.1.23):** first run DDE/EGS both FAIL after 3/3 reads with `ack 3/3`, `ecu 0`, `malformed 3`, `timeout 3` each; immediate second run both PASS on first attempt (ACK 1/1, ECU 1, malformed 0); user observed third FAIL with malformed 3. The correlation is known, root cause unverified.
+- **Automated:** frame taxonomy checks added to transport trace regression. **In-car v0.1.21: not verified.** Transport read timeout, retry count, UDS allowlist, regular read and CDS engine are not changed.
+
+
 ## v0.1.20 — explicit sanitized DDE/EGS TASU response trace (2026-11-23)
 - **Implemented on feature branch:** only explicit `readTrace` calls for existing allowlisted DDE 0x12/0x44BB and EGS 0x18/0x6000 capture boolean TASU command acknowledgement and bounded counts of matching ECU frames, other ECU frames, DID mismatches, UDS negative/pending frames, malformed frames and timeout. No raw UDS replies, VIN, payloads or helper lines are added to diagnostic reports. Trace reads bypass the 500 ms positive cache to guarantee fresh observations, retain the 200 ms serialized read gap and existing 3.5-second per-request timeout; default `read` remains unchanged. Production access remains disabled and controls are absent.
 - **Vehicle evidence before change:** Diagnostics v0.1.22 showed both DDE and EGS time out after three attempts (~11.7s each) while IHKA, BDC, ACSM and CDS passed. Root cause is unknown; results do not establish ECU wake state or valid sensor decoding.

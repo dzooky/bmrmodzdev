@@ -164,6 +164,9 @@ function traceSummary(traces){
     ', ecu '+count('matchedEcuEvents')+', other '+count('otherEcuEvents')+
     ', DID mismatch '+count('wrongDidEvents')+', NRC '+count('negativeEvents')+
     ', pending '+count('pendingEvents')+', malformed '+count('malformedEvents')+
+    ' [short '+count('frameShortFrame')+', header '+count('frameShortHeader')+
+    ', length '+count('frameLengthOverflow')+', hex '+count('frameNonHex')+
+    ', odd '+count('frameOddLength')+', missing '+count('frameMissing')+']'+
     ', timeout '+valid.filter(t=>t.timedOut===true).length;
 }
 async function drivetrainRead(request,step){
@@ -247,6 +250,7 @@ function createRunner(send,clock){
     active=true;
     const results=[],startedAt=new Date().toISOString();
     let serviceAvailable=false,stagingReady=false,nativeReady=false;
+    let previousUds=false;
     try{
       for(let i=0;i<STEPS.length;i++){
         const step=STEPS[i];
@@ -255,6 +259,10 @@ function createRunner(send,clock){
           :(step.kind==='signal'||step.kind==='engine')&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
+        // Explicit manual diagnostics only: space ECU checks to test whether
+        // TASU/ECU settling is related to intermittent DDE and EGS timeouts.
+        if(step.kind==='uds'&&previousUds)await delay(1000);
+        previousUds=step.kind==='uds';
         const start=now();
         let result;
         try{
@@ -264,7 +272,7 @@ function createRunner(send,clock){
           if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
-          if(drivetrain)result.detail=cleanError(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+traceSummary(readResult.traces));
+          if(drivetrain)result.detail=(result.detail+'; attempt '+readResult.attempts+'/'+DRIVE_READ_ATTEMPTS+'; '+traceSummary(readResult.traces)).slice(0,240);
         }catch(e){result=failure(step,e,Math.max(0,now()-start));}
         results.push(result);
         if(step.id==='service')serviceAvailable=result.status==='PASS';
