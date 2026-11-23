@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.16 — two-consumer CDS lifecycle test (2026-11-23)
+- **Implemented on feature branch:** manual diagnostics now have 16 checks. The new `CDS multi-consumer lifecycle` test starts two test-only manifest consumers, verifies one shared worker and a filtered secondary cache, releases one consumer while keeping the stream alive for the other, verifies natural lease expiry, then restarts/stops the worker. No automatic startup or changes to DPF/OSA/CC. The existing three buttons, manual HTTPS sanitized reporting, and expected active-config SKIP remain unchanged.
+- **In-car evidence from v0.1.15:** individual CDS numeric values and shared stream refresh/stop PASS in a vehicle (14 PASS / 0 FAIL / 1 SKIP); the new two-consumer test is **not yet verified in car**.
+- **Automated:** fixture coverage for two leases, expiry, lifecycle and separate fields, plus existing checks; CI to verify. Requires Data Tool v0.1.14.
+
+
 ## v0.1.15 — shared CDS streaming lifecycle check (2026-11-23)
 - **Implemented on feature branch:** 15 manual checks, adding a bounded `CDS shared data engine` test that demands a stream, reads two snapshots about 0.9s apart, verifies cached oil/coolant/RPM freshness and increasing sample count, then releases the demand and verifies shutdown. The old active CDS config check is a documented SKIP when absent in experimental staging mode; staged config and ACL audits are still separate PASS/FAIL checks. No fake active config or ACL registration.
 - Keeps Run diagnostics / Generate CDS test / Send report, no raw sensor data in uploaded report. Requires Data Tool v0.1.13. **In-car unverified**; successful individual numeric samples from v0.1.14 do not prove the persistent engine.

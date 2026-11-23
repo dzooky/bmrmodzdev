@@ -46,7 +46,24 @@ async function main(){
     await sleep(700);
     assert.strictEqual(engine.status().running,false);
     assert.strictEqual(engine.status().consumers,0);
-    console.log('CDS engine: shared subscriptions, fresh cache, lease renewal, expiry and stop passed');
+    // Second test identity has its own lease and receives only manifest fields.
+    const starts=engine.status().stats.starts;
+    engine.demand('diagnostics');
+    engine.demand('diagnostics-secondary');
+    assert.strictEqual(engine.status().stats.starts,starts+1);
+    await sleep(200);
+    const second=engine.snapshot('diagnostics-secondary');
+    assert.strictEqual(second.fields.rpm.valid,true);
+    assert.strictEqual(second.fields.coolant.valid,true);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(second.fields,'oil'),false);
+    assert.strictEqual(Object.prototype.hasOwnProperty.call(second.values,'oil'),false);
+    assert.strictEqual(engine.snapshot('unknown').ok,false);
+    assert.strictEqual(engine.release('diagnostics').running,true);
+    assert.strictEqual(engine.status().consumers,1);
+    assert.strictEqual(engine.release('diagnostics-secondary').running,false);
+    assert.strictEqual(engine.snapshot('diagnostics-secondary').fields.rpm.valid,false);
+    assert.strictEqual(engine.demand('unknown').ok,false);
+    console.log('CDS engine: shared subscriptions, independent consumers, filtered cache, lease expiry and stop passed');
   }finally{engine.close();fs.unlinkSync(worker);}
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
