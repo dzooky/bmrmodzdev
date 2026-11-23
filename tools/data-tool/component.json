@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "title": "Data Tool Feasibility",
   "description": "Read-only BMRMODZ Data Tool diagnostic feasibility service, supporting the separate diagnostic MGU app",
   "optional": true,
@@ -72,6 +72,11 @@
     {
       "path": "someip-setup.js",
       "from": "someip-setup.js",
+      "mode": "0644"
+    },
+    {
+      "path": "someip-audit.js",
+      "from": "someip-audit.js",
       "mode": "0644"
     },
     {
