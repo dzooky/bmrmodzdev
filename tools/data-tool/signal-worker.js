@@ -55,7 +55,18 @@ async function main(){
     const raw=field==='statusEngineTemperature'
       ? {oil:v&&v.temperatureEngineOilDrive,coolant:v&&v.temperatureEngineDrive}
       : {rpm:v&&v.actualValueRPMEngineCrankshaft};
-    finish({ok:true,stage:'sample',interface:CDS,field,received:true,value:raw});
+    // A native callback alone does not prove that the payload has numeric data.
+    // Validate representation, not speculative ranges or physical units.
+    const validFields={};
+    Object.keys(raw).forEach(name=>{
+      validFields[name]=typeof raw[name]==='number'&&Number.isFinite(raw[name]);
+    });
+    const valid=Object.keys(validFields).every(name=>validFields[name]);
+    if(!valid)return finish({ok:false,stage:'value-invalid',interface:CDS,field,
+      received:true,validated:false,validFields,
+      error:'CDS sample missing numeric field'});
+    finish({ok:true,stage:'sample',interface:CDS,field,received:true,
+      validated:true,validFields,value:raw});
   };
   try{
     await new Promise((resolve,reject)=>setImmediate(()=>{
