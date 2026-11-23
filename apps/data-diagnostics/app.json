@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -18,10 +18,6 @@
         [
           "BTN_RUN",
           "Run before sleep"
-        ],
-        [
-          "BTN_AFTER",
-          "Run after wake"
         ],
         [
           "BTN_GEN",
