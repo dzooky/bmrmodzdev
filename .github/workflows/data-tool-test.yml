@@ -20,6 +20,9 @@ jobs:
           node --check apps/data-diagnostics/network.js
           node --check apps/data-diagnostics/network.test.js
           node --check tools/data-tool/service.js
+          node --check tools/data-tool/data-catalog.js
+          node --check tools/data-tool/data-broker.js
+          node --check tools/data-tool/data-broker.test.js
           node --check tools/data-tool/secure-ipc.js
           node --check tools/data-tool/identity-survey.js
           node --check apps/data-diagnostics/identity-survey.js
@@ -45,6 +48,7 @@ jobs:
           node apps/data-diagnostics/vehicle-values.test.js
           node apps/data-diagnostics/translations.test.js
           node tools/data-tool/test.js
+          node tools/data-tool/data-broker.test.js
           node tools/data-tool/transport-trace.test.js
           node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js

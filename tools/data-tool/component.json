@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "title": "Data Tool Feasibility",
   "description": "Read-only BMRMODZ Data Tool diagnostic feasibility service, supporting the separate diagnostic MGU app",
   "optional": true,
@@ -17,6 +17,16 @@
     {
       "path": "service.js",
       "from": "service.js",
+      "mode": "0644"
+    },
+    {
+      "path": "data-catalog.js",
+      "from": "data-catalog.js",
+      "mode": "0644"
+    },
+    {
+      "path": "data-broker.js",
+      "from": "data-broker.js",
       "mode": "0644"
     },
     {
