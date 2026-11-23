@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.10 — passive CDS staging/ACL audit (2026-11-23)
+- **Implemented on feature branch:** new read-only `someipAudit` socket command inspects the two staged generator files, validates the two requested CDS field entries, counts ACL offers/requests, and reports Data Tool UID/GID. ACL entries, authorization details and raw config are never transmitted. The standalone service's ACL registration mechanism remains **unknown/unverified**; no file installation, permission change, native subscription, or ECU traffic.
+- **Confirmed in car for v0.1.9:** staged CDS and ACL generation PASS, native SOME/IP load PASS, five ECU UDS replies PASS; active CDS config absent, temperature and RPM SKIP. These results do **not** confirm service-side ACL authorization or signal delivery.
+- **Automated:** staging audit structural tests and diagnostic report coverage; CI to be verified. **v0.1.10 audit NOT YET VEHICLE VERIFIED.** Companion Diagnostics v0.1.12 required for the new report row.
+
+
 ## v0.1.9 — MGU Node EEXIST generator fix (2026-11-23)
 - **Implemented on feature branch:** the manual CDS generator checks its tool-owned root and staging paths before mkdir. It reuses an empty staging directory and never deletes or overwrites partial outputs; files in place of directories are rejected. Active CDS config, ACL registration, ECU reads and existing applications are unchanged.
 - **In-car evidence (v0.1.8, Diagnostics v0.1.11):** uploaded report showed `EEXIST: file already exists, mkdir '/var/opt/bmrmodz-data-tool'`; generator did not produce a staged CDS config. The same test series observed intermittent DDE/EGS misses followed by valid responses. CDS reception remains unverified.
