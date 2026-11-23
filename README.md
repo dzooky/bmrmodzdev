@@ -1,6 +1,6 @@
 # BMRMODZ DEV
 
-Isolated temporary MGU Store repository for testing **Data Tool Diagnostics v0.1.4** and **BMRMODZ Data Tool v0.1.5**.
+Isolated temporary MGU Store repository for testing **Data Tool Diagnostics v0.1.5** and **BMRMODZ Data Tool v0.1.5**.
 
 Add source in MGU Store: `dzooky/bmrmodzdev` (default branch `main`).
 
