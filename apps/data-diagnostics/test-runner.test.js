@@ -101,7 +101,9 @@ async function run(){
     if(req.op==='status')return {ok:true};
     if(req.op==='brokerSelfTest')return {ok:true,mode:'explicit-test-only',productionAccessEnabled:false,applicationIdentityVerified:false,
       broker:{ok:true,vehicleReads:0,sharedUds:true,sharedCds:true,unauthorizedDenied:true,gatewayFailClosed:true,productionAccessEnabled:false},
-      ipc:{ok:true,socketOwnerOnly:true,unauthorizedDenied:true,kernelCredentialsAvailable:false,productionAccessEnabled:false}};
+      ipc:{ok:true,mode:'existing-diagnostic-connection',transportConfirmed:true,
+        kernelCredentialsAvailable:false,productionAccessEnabled:false,
+        applicationIdentityVerified:false,productionDataGatewayEnabled:false,legacySocketProductionSafe:false}};
     if(req.op==='identitySurvey')return {ok:true,mode:'passive-observation',identity:{uid:0,gid:0},diagnosticSocket:{present:true,mode:'0666',uid:0,gid:0},legacySocketWorldAccessible:true,legacySocketProductionSafe:false,peerIdentityVerified:false,productionAccessEnabled:false,nativePeerCredentialMethod:false};
     if(req.op==='securityCheck')return {ok:true,secureSocket:{present:true,mode:'0600',ownerOnly:true},peerIdentityVerified:false,productionAccessEnabled:false};
     if(req.op==='signalEnvironment')return {ok:true,catalog:{present:true},nativeModule:{resolved:true}};
