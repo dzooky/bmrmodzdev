@@ -3,6 +3,7 @@
 // Results are deliberately sanitised: no VIN, FA/VO, raw UDS data or position.
 const appIdentity=require('./identity-survey');
 const dpfValues=require('./dpf-values');
+const vehicleValues=require('./vehicle-values');
 const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
   {id:'ipcSecurity',label:'Secure IPC readiness',request:{op:'securityCheck'},kind:'security'},
@@ -26,6 +27,7 @@ const STEPS=[
   {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
   {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
   {id:'dpfValues',label:'DPF decoded values',request:null,kind:'dpf'},
+  {id:'egsIdentity',label:'EGS variant identification',request:{op:'read',ecu:0x18,did:0xF150},kind:'egsIdentity'},
   {id:'cdsTemp',label:'CDS staged / temperatures',request:{op:'signalStaging',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
   {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'},
   {id:'cdsStream',label:'CDS shared data engine',request:{op:'cdsDemand',consumer:'diagnostics'},kind:'engine'},
@@ -136,6 +138,8 @@ function resultFor(step,reply,duration){
         cleanError(reply.error||'CDS shared stream did not refresh or stop')});
   }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
+  if(step.kind==='egsIdentity')return Object.assign(base,{status:reply.ok?'PASS':'SKIP',
+    detail:reply.ok?'Verified OSA EGS profile '+reply.index:cleanError(reply.error)});
   if(step.kind==='dpf')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',
     detail:reply.ok?dpfValues.summary(reply):cleanError(reply.error)});
   if(step.kind==='uds'){
@@ -228,6 +232,7 @@ async function drivetrainRead(request,step){
   return {reply,attempts,traces};
 }
 async function testEngine(request){
+  testEngine.lastValues=null;
   const consumer='diagnostics';
   let initial=null,second=null,third=null;
   try{
@@ -237,6 +242,7 @@ async function testEngine(request){
     second=await request({op:'cdsSnapshot'},{timeoutMs:6000});
     await delay(900);
     third=await request({op:'cdsSnapshot'},{timeoutMs:6000});
+    testEngine.lastValues=vehicleValues.engineCds(third);
     const fields=third&&third.fields||{};
     const fresh=['oil','coolant','rpm'].every(k=>fields[k]&&fields[k].valid===true);
     const updated=!!(second&&third&&second.stats&&third.stats&&
@@ -296,7 +302,8 @@ function createRunner(send,clock){
     active=true;
     const results=[],startedAt=new Date().toISOString();
     if(phase!==undefined&&phase!=='before'&&phase!=='after')throw new Error('Invalid snapshot phase');
-    let dpfSnapshot=null;
+    let dpfSnapshot=null,vehicleSnapshot={};
+    let egsReply=null;
     let serviceAvailable=false,stagingReady=false,nativeReady=false;
     let previousUds=false;
     try{
@@ -304,22 +311,40 @@ function createRunner(send,clock){
         const step=STEPS[i];
         const skip=step.id!=='service'&&!serviceAvailable?'Service unavailable'
           :step.kind==='dpf'&&(!results.some(r=>r.id==='dde'&&r.status==='PASS'))?'DDE response unavailable'
+          :step.kind==='egsIdentity'&&(!results.some(r=>r.id==='egs'&&r.status==='PASS'))?'EGS response unavailable'
           :(step.kind==='signal'||step.kind==='engine'||step.kind==='multi')&&!stagingReady?'Staged CDS config unavailable'
           :(step.kind==='signal'||step.kind==='engine')&&!nativeReady?'Native SOME/IP unavailable'
           :null;
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
         // Explicit manual diagnostics only: space ECU checks to test whether
         // TASU/ECU settling is related to intermittent DDE and EGS timeouts.
-        if((step.kind==='uds'||step.kind==='dpf')&&previousUds)await delay(1000);
-        previousUds=step.kind==='uds'||step.kind==='dpf';
+        if((step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity')&&previousUds)await delay(1000);
+        previousUds=step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity';
         const start=now();
         let result;
         try{
           const drivetrain=step.id==='dde'||step.id==='egs';
           if(step.kind==='dpf')dpfSnapshot=await dpfValues.snapshot(request);
+          if(step.kind==='egsIdentity'){
+            const identity=vehicleValues.identification(await request(step.request,{timeoutMs:15000}));
+            const temp=vehicleValues.transmission(egsReply,identity);
+            if(temp!==null)vehicleSnapshot.transmissionOil=temp;
+            vehicleSnapshot.egsVariant=identity===vehicleValues.EGS_INDEX?'supported':'unsupported';
+          }
           const readResult=drivetrain?await drivetrainRead(request,step):null;
-          const reply=drivetrain?readResult.reply:step.kind==='dpf'?dpfSnapshot:step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
-          if(step.kind==='engine')reply.stopped=testEngine.lastRelease===true;
+          const reply=drivetrain?readResult.reply:step.kind==='dpf'?dpfSnapshot:
+            step.kind==='egsIdentity'?{ok:vehicleSnapshot.egsVariant==='supported',
+              index:vehicleSnapshot.egsVariant==='supported'?vehicleValues.EGS_INDEX:null,error:'EGS variant not verified'}:
+            step.kind==='appIdentity'?appIdentity.inspect():step.kind==='engine'?await testEngine(request):step.kind==='multi'?await testMulti(request):await request(step.request,{timeoutMs:15000});
+          if(step.id==='egs')egsReply=reply;
+          if(step.id==='ihka'){
+            const decoded=vehicleValues.footwell(reply);
+            if(decoded)vehicleSnapshot.footwell=decoded;
+          }
+          if(step.kind==='engine'){
+            reply.stopped=testEngine.lastRelease===true;
+            if(testEngine.lastValues)vehicleSnapshot.engine=testEngine.lastValues;
+          }
           if(step.kind==='multi')reply.stopped=testMulti.lastStopped===true;
           result=resultFor(step,reply,Math.max(0,now()-start));
           if(drivetrain){
@@ -343,6 +368,7 @@ function createRunner(send,clock){
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
         startedAt,finishedAt:new Date().toISOString(),totals,results,
         snapshotPhase:phase||null,dpfSnapshot:dpfSnapshot&&dpfSnapshot.ok?dpfSnapshot:null,
+        vehicleSnapshot,
         someipTimings:someipTimings(results),
         controlsTested:false,signalPermissionsVerified:false,
         deviceVerified:false,
