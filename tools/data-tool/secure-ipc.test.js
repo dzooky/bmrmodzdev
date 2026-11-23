@@ -20,6 +20,13 @@ async function main(){
     assert.strictEqual(stat.present,true);
     assert.strictEqual(stat.mode,'0600');
     assert.strictEqual(stat.ownerOnly,true);
+    assert.strictEqual(stat.dacOwnershipReady,false);
+    assert.strictEqual(stat.dacTargetUid,null);
+    const fake={statSync:()=>({isSocket:()=>true,mode:0o140600,uid:12252,gid:12252})};
+    assert.strictEqual(describe('/fake.sock',fake,12252).dacOwnershipReady,true);
+    assert.strictEqual(describe('/fake.sock',fake,12253).dacOwnershipReady,false);
+    assert.throws(()=>createEndpoint(location,{targetUid:0}),/Invalid experimental DAC target UID/);
+    assert.throws(()=>createEndpoint(location,{targetUid:NaN}),/Invalid experimental DAC target UID/);
     const status=await request(location,{op:'securityStatus'});
     assert.strictEqual(status.ok,true);
     assert.strictEqual(status.productionAccessEnabled,false);

@@ -31,7 +31,7 @@ async function check(extraEnv){
       try{status=await probe(socket);break;}catch(_){await new Promise(r=>setTimeout(r,50));}
     }
     assert.ok(status,'status socket did not become healthy: '+errorText);
-    assert.strictEqual(status.version,'0.1.17');
+    assert.strictEqual(status.version,'0.1.19');
     assert.strictEqual(status.ok,true);
     assert.strictEqual(status.stats.sent,0);
     assert.strictEqual(child.exitCode,null);
@@ -54,6 +54,7 @@ async function main(){
   await check({BMRMODZ_SECURE_IPC_EXPERIMENT:'0'});
   // Uncreatable optional secure socket: must not break the original tool.
   await check({BMRMODZ_SECURE_IPC_EXPERIMENT:'1',BMRMODZ_SECURE_IPC_SOCKET:'/dev/null/uncreatable.sock'});
+  await check({BMRMODZ_SECURE_IPC_EXPERIMENT:'1',BMRMODZ_SECURE_IPC_TARGET_UID:'invalid'});
   console.log('Data Tool health: normal service startup and optional secure endpoint failure passed');
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});

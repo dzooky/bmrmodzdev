@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.19 — opt-in UID/DAC experimental status socket (2026-11-23)
+- **Implemented on development branch:** optional experimental secure socket may be assigned to an explicitly configured non-root UID using `BMRMODZ_SECURE_IPC_EXPERIMENT=1` plus `BMRMODZ_SECURE_IPC_TARGET_UID`. The socket remains `0600` and **status-only**; all CDS/UDS/control operations remain denied. No target UID is hardcoded, no peer credentials are claimed, and no production API is enabled.
+- Default boot and legacy diagnostic socket remain unchanged. Bad UID, failed socket ownership setup, or unavailable optional socket must not block main tool health; diagnostics keep showing production disabled. UID ownership is kernel filesystem access control, **not** proof of authenticated peers or a per-app policy. The observed app UID 12252 is not assumed stable across installations.
+- **Automated:** DAC metadata checks, invalid UID, child-process health regression, and 0.1.19 version assertions. **In-car:** new opt-in socket NOT verified. Do not set experimental environment variables in production deployments; leave secure IPC disabled until an explicitly controlled parked test is designed.
+
+
 - **In-car report received 2026-11-23 (v0.1.18 / Diagnostics v0.1.20):** 17 PASS / 0 FAIL / 4 SKIP; UDS responses, staged CDS samples and two-consumer lifecycle passed. Tool UID 0/GID 0, legacy socket mode 0666, app UID/GID 12252. Peer authentication and production permissions remain unverified. User-supplied diagnostic results; decoded sensor semantics and vehicle controls not verified.
 
 ## v0.1.18 — passive legacy socket exposure reporting (2026-11-23)
