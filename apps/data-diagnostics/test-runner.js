@@ -6,6 +6,7 @@ const STEPS=[
   {id:'service',label:'Service',request:{op:'status'},kind:'status'},
   {id:'ipcSecurity',label:'Secure IPC readiness',request:{op:'securityCheck'},kind:'security'},
   {id:'ipcServiceIdentity',label:'Tool process identity',request:{op:'identitySurvey'},kind:'serviceIdentity'},
+  {id:'ipcLegacyPermissions',label:'Legacy IPC exposure',request:{op:'identitySurvey'},kind:'legacyPermissions'},
   {id:'ipcAppIdentity',label:'Diagnostics app identity',request:null,kind:'appIdentity'},
   {id:'ipcPeerAuth',label:'Authenticated IPC capability',request:{op:'identitySurvey'},kind:'peerAuth'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
@@ -37,6 +38,16 @@ function resultFor(step,reply,duration){
     return Object.assign(base,{status:ok?'PASS':'FAIL',detail:ok?
       'Tool UID '+user.uid+', GID '+user.gid+'; socket UID '+socket.uid+', GID '+socket.gid+', mode '+socket.mode:
       cleanError(reply.error||'Tool process identity unavailable')});
+  }
+  if(step.kind==='legacyPermissions'){
+    const sock=reply.diagnosticSocket||{};
+    const valid=reply.ok===true&&reply.mode==='passive-observation'&&sock.present===true&&
+      typeof sock.mode==='string'&&reply.legacySocketProductionSafe===false&&
+      typeof reply.legacySocketWorldAccessible==='boolean';
+    return Object.assign(base,{status:!valid?'FAIL':reply.legacySocketWorldAccessible?'SKIP':'PASS',
+      detail:!valid?'Socket exposure could not be assessed':reply.legacySocketWorldAccessible?
+        'Legacy socket is accessible to other users; production access disabled':
+        'Legacy socket not world-accessible; peer authentication still unverified'});
   }
   if(step.kind==='appIdentity'){
     const ok=reply.ok===true&&reply.mode==='self-observation'&&
