@@ -1,8 +1,29 @@
 'use strict';
-// Explicit manual HTTP upload of sanitized reports to the LAN receiver only.
-// No token, DNS resolution, internet endpoint or automatic background sending.
-const http=require('http');
-const HOST='192.168.0.10',ENDPOINT='/bmrmodz.php';
+// Explicit manual HTTPS upload of sanitized diagnostic reports to the configured server.
+// Never auto-send; do not include vehicle identifiers or authentication secrets.
+const fs=require('fs'),path=require('path'),https=require('https'),dns=require('dns'),net=require('net');
+const HOST='dzooky.eu',ENDPOINT='/brmmodz.php';
+// MGU's OAP resolver may not see the Wi-Fi DNS servers. Prefer the uplink lease
+// when available, otherwise use the default resolver, preserving TLS validation.
+function uplinkLookup(dataDir){
+  return (hostname,opts,cb)=>{
+    let lease=null;
+    for(const f of [path.join(dataDir,'uplink.json'),'/run/mgu-uplink/lease.json']){
+      try{const candidate=JSON.parse(fs.readFileSync(f,'utf8'));if(Array.isArray(candidate.dns)){lease=candidate;break;}}catch(_){}
+    }
+    const servers=lease?lease.dns.filter(ip=>net.isIP(ip)):[];
+    if(!servers.length)return dns.lookup(hostname,opts,cb);
+    const resolver=new dns.Resolver();
+    resolver.setServers(servers);
+    const timer=setTimeout(()=>resolver.cancel(),6000);
+    resolver.resolve4(hostname,(error,addresses)=>{
+      clearTimeout(timer);
+      if(error||!addresses||!addresses.length)return cb(error||new Error('No DNS address'));
+      if(opts.all)return cb(null,addresses.map(address=>({address,family:4})));
+      cb(null,addresses[0],4);
+    });
+  };
+}
 function upload(report,dataDir,options){
   const opts=options||{};
   if(!report||report.schema!==1||report.application!=='bmrmodz-data-diagnostics'||!Array.isArray(report.results))
@@ -25,9 +46,9 @@ function upload(report,dataDir,options){
       if(finished)return;finished=true;
       if(error)reject(error);else resolve(response);
     };
-    const req=(opts.http||http).request({
-      hostname:HOST,port:80,path:ENDPOINT,method:'POST',agent:false,
-      timeout:12000,
+    const req=(opts.https||https).request({
+      hostname:HOST,port:443,path:ENDPOINT,method:'POST',agent:false,
+      lookup:uplinkLookup(dataDir),timeout:12000,
       headers:{'Content-Type':'application/json','Accept':'application/json',
         'Content-Length':Buffer.byteLength(body)}
     },response=>{
