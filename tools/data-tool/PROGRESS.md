@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.25 — passive kernel-peer capability survey on opt-in secure IPC (2026-11-23)
+- **Implemented:** experimental `secure.sock` `securityStatus` now reports a limited passive `peer` object from Node's native `getPeerCredentials()` when present: kernel API availability, valid numeric kernel UID/GID/PID observation, and optional configured socket owner UID match. Missing API, throwing API, malformed credentials, spoofed request JSON identities and mismatched UID fail closed. Neither a matching UID nor peer credentials prove the requesting app's package identity; `applicationIdentityVerified:false`, `productionAccessEnabled:false` and the existing `peerIdentityVerified:false` explicitly remain. No data, CDS, raw UDS or controls can be requested through this endpoint.
+- **Deployment safety:** secure endpoint remains opt-in with `BMRMODZ_SECURE_IPC_EXPERIMENT=1`; normal systemd unit and legacy `ctl.sock` unchanged. The existing no-socket default and installer health fallback remain. Repair fragmented JSON input handling, bounded to existing 4096-byte limit.
+- **Automated:** deterministic tests for absent/throwing native API, valid/invalid kernel credentials, UID mismatch, spoofed JSON identity and denied data commands; existing service startup and legacy tests to verify in CI. **In-car status: NOT VERIFIED.** Do not enable experimental listener during ordinary installation or migrate production apps. Next: controlled MGU capability/status test, then design a separate authenticated per-app authorization gate before any data API.
+
+
 ## v0.1.24 — terminal short TASU rejection handling (2026-11-23)
 - **CI correction (2026-11-23):** the first v0.1.24 post-merge run failed because transport trace test expected `TASU rejected request` while the existing generic diagnostic error wrapper emitted `TASU rejected frame`. Preserve the strictly sanitized exact short-rejection error in the transport's trace mode, matching the service handler and test; no vehicle read behavior change. Re-run CI after merge.
 
