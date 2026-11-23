@@ -13,6 +13,7 @@ const STEPS=[
   {id:'ipcAppIdentity',label:'Diagnostics app identity',request:null,kind:'appIdentity'},
   {id:'ipcPeerAuth',label:'Authenticated IPC capability',request:{op:'identitySurvey'},kind:'peerAuth'},
   {id:'brokerGateway',label:'Broker and secure IPC test',request:{op:'brokerSelfTest'},kind:'brokerTest'},
+  {id:'authBoundary',label:'Application authentication feasibility',request:{op:'authFeasibility'},kind:'authFeasibility'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -114,6 +115,22 @@ function resultFor(step,reply,duration){
       '; application identity unverified; production OFF':
       'Broker simulation or existing IPC check failed; production OFF';
     return Object.assign(base,{status:good?'PASS':'FAIL',detail});
+  }
+  if(step.kind==='authFeasibility'){
+    const safe=reply.ok===true&&reply.mode==='passive-auth-feasibility'&&
+      reply.nativePeerIdentityVerified===false&&reply.appIdentityVerified===false&&
+      reply.productionAccessEnabled===false;
+    const observed=typeof reply.nativePeerApiAvailable==='boolean'&&
+      typeof reply.procStatusAccessible==='boolean'&&
+      typeof reply.seccompActive==='boolean'&&
+      typeof reply.cgroupReadable==='boolean';
+    const detail=safe&&observed?'Read-only survey; native peer API '+
+      (reply.nativePeerApiAvailable?'available':'unavailable')+
+      ', seccomp '+(reply.seccompActive?'active':'not observed')+
+      ', cgroup '+(reply.cgroupReadable?'readable':'unavailable')+
+      '; app authentication NO-GO':
+      'Identity isolation survey unavailable; production remains OFF';
+    return Object.assign(base,{status:safe&&observed?'PASS':'FAIL',detail});
   }
   if(step.kind==='environment'){
     const catalog=reply.catalog&&reply.catalog.present;
@@ -394,6 +411,7 @@ function createRunner(send,clock){
         notes:[phase==='before'?'Snapshot phase: before sleep':phase==='after'?'Snapshot phase: after wake':'Snapshot phase: unlabelled',
           'Positive ECU responses are not proof of correct decoded values.',
           'The report contains no raw UDS replies, VIN, vehicle order, position, or credentials.',
+          'Authentication: '+String((results.find(x=>x.id==='authBoundary')||{}).detail||'not run').slice(0,125)+'.',
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
