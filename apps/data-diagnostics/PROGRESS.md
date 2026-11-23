@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.33 — integrated safe broker and local IPC diagnostic (2026-11-23)
+- **Implemented:** existing manual Run test adds `brokerGateway` as step 25, calling Data Tool v0.1.27 `brokerSelfTest`. The tool performs a synthetic per-app authorization/concurrency check and a local-only, temporary Unix socket deny/peer capability test. No real vehicle reads originate from this step and no production secure data gateway is enabled.
+- **UI:** keep exactly three MGU buttons: phase-aware Run, Generate CDS test, Send report. Results displayed in two columns with 13/12 shorter rows to fit 520px; no additional buttons or screens. Old before/after reports remain readable. A sanitized summary is included in the existing `notes` array accepted by the upload API, not in a new result row or top-level property.
+- **Dependencies:** Diagnostics now requires Data Tool >=0.1.27. DPF, OSA and Climate Comfort unchanged. Tests added for the 25th step, gateway response validation and report compatibility. **In-car 0.1.33: NOT VERIFIED**, nor are real peer credentials or package identity. Next: one combined parked run + report; do not re-run unnecessary sleep/heat tests.
+ 
+
 ## v0.1.32 — correct CDS temperature and RPM conversion (2026-11-23)
 - **In-car issue:** v0.1.31 before-sleep report passed 19/24 checks (19 PASS, 0 FAIL, 5 SKIP), but transmitted CDS raw oil 58 and coolant 64 as °C. Production OSA `kit/runtime/car.js` uses temperature raw minus 48 °C, and RPM raw times 0.25. Thus the same captured raw values correspond to 10 °C oil and 16 °C coolant; RPM was zero so unaffected in that report. These are corrected interpretations, not new readings.
 - **Fix:** apply verified OSA CDS scaling and reject invalid sentinels (temperature 255, RPM 65535) in Diagnostics `vehicle-values.js` before showing, comparing or uploading CDS measures. Preserve Data Tool v0.1.24, existing read-only ECU steps, DPF/EGS/IHKA handling, three-button MGU layout, persisted phase snapshots and upload schema. Do not rewrite any previous already-sent report.
