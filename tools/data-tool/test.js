@@ -25,7 +25,7 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.17');
+   assert.strictEqual(status.version,'0.1.18');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const identity=await call(socket,{op:'identitySurvey'});
@@ -33,6 +33,8 @@ async function run(){
    assert.strictEqual(identity.peerIdentityVerified,false);
    assert.strictEqual(identity.productionAccessEnabled,false);
    assert.strictEqual(identity.diagnosticSocket.present,true);
+   assert.strictEqual(identity.legacySocketWorldAccessible,true);
+   assert.strictEqual(identity.legacySocketProductionSafe,false);
    const security=await call(socket,{op:'securityCheck'});
    assert.strictEqual(security.productionAccessEnabled,false);
    assert.strictEqual(security.peerIdentityVerified,false);
@@ -59,6 +61,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
+   assert.strictEqual(report.service.version,'0.1.18');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});

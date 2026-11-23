@@ -17,8 +17,11 @@ function inspectSocket(filename,io){
 }
 function inspectService(socket,options){
   const opts=options||{},proc=opts.process||process;
+  const diagnosticSocket=inspectSocket(socket,opts.fs);
+  const legacySocketWorldAccessible=diagnosticSocket.present&&parseInt(diagnosticSocket.mode,8)&0o006?true:false;
   return {ok:true,mode:'passive-observation',identity:identity(opts),
-    diagnosticSocket:inspectSocket(socket,opts.fs),
+    diagnosticSocket,legacySocketWorldAccessible:!!legacySocketWorldAccessible,
+    legacySocketProductionSafe:false,
     nodeMajor:Number.parseInt(String(proc.versions&&proc.versions.node||'').split('.')[0],10)||null,
     nativePeerCredentialMethod:typeof (opts.socketPrototype||net.Socket.prototype).getPeerCredentials==='function',
     peerIdentityVerified:false,productionAccessEnabled:false,

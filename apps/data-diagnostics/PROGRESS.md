@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.20 — legacy diagnostic socket exposure audit (2026-11-23)
+- **Implemented on development branch:** adds one read-only manual check (`Legacy IPC exposure`, 21 checks total) using Data Tool v0.1.18 identity data. World-accessible legacy socket is explicitly `SKIP`, not a security success; invalid or missing exposure information is `FAIL`. No new car data polling, socket permissions, or production app access.
+- Update manifest dependency to Data Tool v0.1.18; report remains sanitized, with no vehicle values or identifying data. Expected on the previously observed MGU socket mode `0666`: 17 PASS / 0 FAIL / 4 SKIP if all previous checks still pass; **not verified in car**.
+- **Automated:** runner assertions updated; CI status must be checked independently.
+
+# Data Tool Diagnostics progress
+
 ## v0.1.19 — passive application and tool identity survey (2026-11-23)
 - **Implemented on feature branch:** three additional manual rows (20 total): Data Tool self UID/GID and diagnostic socket owner/mode, Diagnostics app process self UID/GID, and reported native peer credential API availability. The peer-auth check remains SKIP by design because `peerIdentityVerified:false` and production access is disabled. Own-process readings are observational, not a trusted authentication handshake.
 - **In-car evidence from 0.1.18:** 15 PASS, 0 FAIL, 2 SKIP. Shared stream, UDS, and installation health pass; secure IPC disabled. **0.1.19 not yet tested in car**.

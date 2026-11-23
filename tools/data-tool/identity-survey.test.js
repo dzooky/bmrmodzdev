@@ -11,10 +11,13 @@ server.listen(socket,()=>{
     assert.strictEqual(survey.peerIdentityVerified,false);
     assert.strictEqual(survey.productionAccessEnabled,false);
     assert.strictEqual(survey.diagnosticSocket.present,true);
+    assert.strictEqual(survey.legacySocketProductionSafe,false);
+    assert.strictEqual(typeof survey.legacySocketWorldAccessible,'boolean');
     assert.strictEqual(survey.identity.uid,process.getuid());
     assert.strictEqual(survey.identity.gid,process.getgid());
     const unavailable=inspectService('/path/does/not/exist');
     assert.strictEqual(unavailable.diagnosticSocket.present,false);
+    assert.strictEqual(unavailable.legacySocketWorldAccessible,false);
     assert.strictEqual(identity({process:{}}).uid,null);
     const mock=inspectService(socket,{process:{getuid:()=>77,getgid:()=>88,versions:{node:'18.0.0'}},socketPrototype:{getPeerCredentials:()=>{}}});
     assert.strictEqual(mock.identity.uid,77);
