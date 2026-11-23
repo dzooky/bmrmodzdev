@@ -111,7 +111,7 @@ async function run(){
    const traced=await call(socket,{op:'readTrace',ecu:0x12,did:0x44BB});
    assert.strictEqual(traced.ok,true);
    assert.strictEqual(traced.cached,undefined);
-   assert.deepStrictEqual(traced.trace,{}); // Mock transport does not emit trace metadata.
+   assert.deepStrictEqual(traced.trace,{attempts:1}); // Service records physical attempts even with a mock transport.
    assert.strictEqual(sent,1);
    sent=0;
    const [a,b]=await Promise.all([call(socket,{op:'read',ecu:0x12,did:0x44BB}),call(socket,{op:'read',ecu:0x12,did:0x44BB})]);
