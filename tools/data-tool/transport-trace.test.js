@@ -40,6 +40,34 @@ async function main(){
   assert.strictEqual(shortEnvelope(shortUnknown).statusCode,null);
   const noCode='00000004'+Buffer.from([0xF0,0xF2,0x7F,0,0,0]).toString('hex');
   assert.strictEqual(shortEnvelope(noCode).statusCode,null);
+  // A short consistent TASU 0x7F rejection terminates the pending read
+  // immediately, rather than being mislabeled as malformed and timing out.
+  const fastRejectTrace={};
+  const fastReject=fake(t=>t.consumeEvent(rejectWithCode));
+  await assert.rejects(fastReject.read(ecu,did,fastRejectTrace),/TASU rejected request/);
+  assert.strictEqual(fastRejectTrace.ackAccepted,true);
+  assert.strictEqual(fastRejectTrace.shortRejectMarkers,1);
+  assert.strictEqual(fastRejectTrace.shortStatusCodes[49],1);
+  assert.strictEqual(fastRejectTrace.negativeEvents,1);
+  assert.strictEqual(fastRejectTrace.timedOut,false);
+  assert.strictEqual(fastRejectTrace.malformedEvents,0);
+  assert.strictEqual(fastReject.pendingRead,null);
+  const ignoredUnknownTrace={};
+  const ignoredUnknown=fake(t=>{
+    t.consumeEvent(shortUnknown);
+    t.pendingRead.arm(15);
+  });
+  assert.strictEqual(await ignoredUnknown.read(ecu,did,ignoredUnknownTrace),null);
+  assert.strictEqual(ignoredUnknownTrace.shortUnknownMarkers,1);
+  assert.strictEqual(ignoredUnknownTrace.timedOut,true);
+  const truncatedRejectTrace={};
+  const truncatedReject=fake(t=>{
+    t.consumeEvent(shortTruncated);
+    t.pendingRead.arm(15);
+  });
+  assert.strictEqual(await truncatedReject.read(ecu,did,truncatedRejectTrace),null);
+  assert.strictEqual(truncatedRejectTrace.shortLengthTruncated,1);
+  assert.strictEqual(truncatedRejectTrace.negativeEvents,0);
   const trace={};
   const success=fake(t=>{
     t.pendingRead.consume({ecu:0x18,uds:[0x62,0x44,0xBB]});
