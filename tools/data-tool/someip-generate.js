@@ -1,6 +1,7 @@
 'use strict';
-// Explicit one-shot BMW generator experiment. Only isolated staging files are
-// written; no ACL installation, active configuration replacement, or ECU I/O.
+// Explicit manual BMW generator probe. A failed preflight is retryable.
+// A failed generator keeps its original error visible; partial output is never
+// overwritten. No ACL installation, active config, or ECU operations.
 const fs=require('fs'),path=require('path'),cp=require('child_process');
 const ROOT='/var/opt/bmrmodz-data-tool';
 const STAGING=path.join(ROOT,'generator-test');
@@ -9,68 +10,93 @@ const MANIFEST=path.join(__dirname,'signal-manifest.json');
 const GENERATOR=path.join(__dirname,'someip-generator.js');
 const CDS='de_bmw_infotainment_vehicle_CDS.json';
 const MAX=1024*1024;
-function readJson(file){
-  const st=fs.statSync(file);
-  if(!st.isFile()||st.size<2||st.size>MAX)throw new Error('Invalid generator output file');
-  return JSON.parse(fs.readFileSync(file,'utf8'));
+const MESSAGE=140;
+function clean(error){
+  return String(error&&error.message||error||'Unknown generator error')
+    .replace(/[\r\n\t]/g,' ').slice(0,MESSAGE);
 }
-function inspect(){
+function readJson(file,io){
+  const stat=io.statSync(file);
+  if(!stat.isFile()||stat.size<2||stat.size>MAX)throw new Error('Invalid generator output file');
+  return JSON.parse(io.readFileSync(file,'utf8'));
+}
+function checkStaging(directory,io){
   try{
-    const config=readJson(path.join(STAGING,CDS));
-    const acl=readJson(path.join(STAGING,'acl.json'));
-    const fields=config&&config.fields;
-    const ok=!!fields&&!!fields.statusEngineTemperature&&!!fields.statusEngineSpeed2
-      &&acl&&Array.isArray(acl.offers)&&Array.isArray(acl.requests);
-    return {ok:!!ok,mode:'staging-only',configGenerated:true,
-      fields:{temperature:!!(fields&&fields.statusEngineTemperature),rpm:!!(fields&&fields.statusEngineSpeed2)},
-      aclFileGenerated:!!(acl&&Array.isArray(acl.offers)&&Array.isArray(acl.requests)),
+    const cfg=readJson(path.join(directory,CDS),io);
+    const acl=readJson(path.join(directory,'acl.json'),io);
+    const fields=cfg&&cfg.fields;
+    const validAcl=!!acl&&Array.isArray(acl.offers)&&Array.isArray(acl.requests);
+    const temperature=!!(fields&&fields.statusEngineTemperature);
+    const rpm=!!(fields&&fields.statusEngineSpeed2);
+    const ok=temperature&&rpm&&validAcl;
+    return {ok,mode:'staging-only',configGenerated:true,
+      fields:{temperature,rpm},aclFileGenerated:validAcl,
       aclRegistered:false,activeConfigChanged:false,
-      note:ok?'Generated in isolated staging; ACL registration and CDS reception unverified':'Generator output incomplete'};
-  }catch(e){
+      note:ok?'Staged CDS and ACL generated; not registered':'Generated fields or ACL incomplete'};
+  }catch(error){
     return {ok:false,mode:'staging-only',configGenerated:false,aclFileGenerated:false,
-      aclRegistered:false,activeConfigChanged:false,
-      error:String(e&&e.message||e).slice(0,140)};
+      aclRegistered:false,activeConfigChanged:false,error:clean(error)};
   }
 }
+function inspect(){return checkStaging(STAGING,fs);}
 function createGenerator(options){
-  const opts=options||{},spawn=opts.spawn||cp.spawn,timeoutMs=opts.timeoutMs||12000;
-  let attempted=false;
+  const opts=options||{},io=opts.fs||fs,spawn=opts.spawn||cp.spawn;
+  const paths=opts.paths||{root:ROOT,staging:STAGING,catalog:CATALOG,manifest:MANIFEST,generator:GENERATOR};
+  const timeoutMs=opts.timeoutMs||12000;
+  let running=false,attempts=0,last=null;
+  function record(value){
+    last=value;
+    return value;
+  }
+  function status(){
+    const check=checkStaging(paths.staging,io);
+    if(check.ok)return check;
+    if(last&&!last.ok)return Object.assign({},check,{stage:last.stage,error:last.error||check.error,
+      note:'Previous generator attempt failed; active config and ACL remain unchanged'});
+    return check;
+  }
   function run(){
-    if(attempted)return Promise.resolve({ok:false,stage:'already-attempted',error:'One generator test per service start'});
-    attempted=true;
-    // A fixed, tool-owned output folder and fixed manifest avoid caller-controlled writes.
+    if(running)return Promise.resolve({ok:false,stage:'busy',error:'Generator test is still running'});
+    if(status().ok)return Promise.resolve(record(Object.assign({stage:'already-generated'},status())));
+    if(attempts>=3)return Promise.resolve(last||{ok:false,stage:'attempt-limit',error:'Generator attempt limit reached; restart service to retry'});
     try{
-      if(!fs.statSync(CATALOG).isFile())throw new Error('BMW catalog unavailable');
-      if(!fs.statSync(MANIFEST).isFile())throw new Error('Tool manifest unavailable');
-      if(!fs.statSync(GENERATOR).isFile())throw new Error('Generator script unavailable');
-      fs.mkdirSync(ROOT,{recursive:true,mode:0o700});
-      if(fs.existsSync(STAGING))throw new Error('Staging already exists; no overwrite attempted');
-      fs.mkdirSync(STAGING,{mode:0o700});
-    }catch(e){return Promise.resolve({ok:false,stage:'precheck',error:String(e&&e.message||e).slice(0,140)});}
+      for(const [file,label] of [[paths.catalog,'BMW catalog'],[paths.manifest,'Tool manifest'],[paths.generator,'Generator script']]){
+        if(!io.statSync(file).isFile())throw new Error(label+' unavailable');
+      }
+      io.mkdirSync(paths.root,{recursive:true,mode:0o700});
+      if(io.existsSync(paths.staging)){
+        // Only remove an EMPTY tool-owned test directory; never touch partial output.
+        if(io.readdirSync(paths.staging).length!==0)
+          return Promise.resolve(record({ok:false,stage:'partial-output',error:'Staging contains partial files; preserved for review'}));
+        io.rmdirSync(paths.staging);
+      }
+      io.mkdirSync(paths.staging,{mode:0o700});
+    }catch(error){return Promise.resolve(record({ok:false,stage:'precheck',error:clean(error)}));}
+    running=true;attempts++;
     return new Promise(resolve=>{
-      let child,output='',finished=false;
-      const finish=value=>{
-        if(finished)return;finished=true;
-        clearTimeout(timer);
+      let child=null,output='',finished=false,timer=null;
+      function finish(value){
+        if(finished)return;
+        finished=true;running=false;clearTimeout(timer);
         if(child&&!child.killed)try{child.kill('SIGKILL');}catch(_){}
-        resolve(value);
-      };
-      const timer=setTimeout(()=>finish({ok:false,stage:'timeout',error:'BMW generator timed out'}),timeoutMs);
+        resolve(record(value));
+      }
+      timer=setTimeout(()=>finish({ok:false,stage:'timeout',error:'BMW generator timed out'}),timeoutMs);
       try{
-        child=spawn(process.execPath,[GENERATOR,CATALOG,MANIFEST,String(process.getuid?process.getuid():0),STAGING],
+        child=spawn(process.execPath,[paths.generator,paths.catalog,paths.manifest,
+          String(process.getuid?process.getuid():0),paths.staging],
           {stdio:['ignore','pipe','pipe'],env:process.env});
         const collect=part=>{output=(output+String(part)).slice(-3000);};
-        child.stdout.on('data',collect);
-        child.stderr.on('data',collect);
-        child.on('error',e=>finish({ok:false,stage:'spawn',error:String(e.message||e).slice(0,140)}));
+        child.stdout.on('data',collect);child.stderr.on('data',collect);
+        child.on('error',error=>finish({ok:false,stage:'spawn',error:clean(error)}));
         child.on('close',code=>{
-          if(code!==0)return finish({ok:false,stage:'generator',error:output.replace(/[\r\n]/g,' ').slice(-140)||'Generator exited '+code});
-          const check=inspect();
-          finish(Object.assign({stage:check.ok?'generated':'invalid-output'},check));
+          if(code!==0)return finish({ok:false,stage:'generator',error:clean(output||'Generator exit code '+code)});
+          const result=checkStaging(paths.staging,io);
+          finish(Object.assign({stage:result.ok?'generated':'invalid-output'},result));
         });
-      }catch(e){finish({ok:false,stage:'spawn',error:String(e.message||e).slice(0,140)});}
+      }catch(error){finish({ok:false,stage:'spawn',error:clean(error)});}
     });
   }
-  return {run,inspect};
+  return {run,inspect:status};
 }
-module.exports={createGenerator,inspect,STAGING};
+module.exports={createGenerator,inspect,STAGING,checkStaging};
