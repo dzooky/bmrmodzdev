@@ -28,7 +28,12 @@ function serve(factory,socketPath,options){
   let secureEndpoint={inspect:()=>({present:false,mode:null,ownerOnly:false}),close:()=>{}};
   if(options&&options.secureEndpoint)secureEndpoint=options.secureEndpoint;
   else if(process.env.BMRMODZ_SECURE_IPC_EXPERIMENT==='1'){
-    try{secureEndpoint=createEndpoint(options&&options.secureSocket||process.env.BMRMODZ_SECURE_IPC_SOCKET);}
+    try{
+      const raw=process.env.BMRMODZ_SECURE_IPC_TARGET_UID;
+      const uid=raw===undefined?undefined:/^[1-9][0-9]*$/.test(raw)?Number(raw):NaN;
+      secureEndpoint=createEndpoint(options&&options.secureSocket||process.env.BMRMODZ_SECURE_IPC_SOCKET,
+        {targetUid:uid});
+    }
     catch(_){/* Fail closed: no secure data endpoint, retain legacy diagnostics. */}
   }
   const inflight=new Map(),cache=new Map();
@@ -81,7 +86,7 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.18',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.19',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='identitySurvey')reply=identitySurvey.inspectService(socket);
           else if(req.op==='securityCheck')reply={ok:true,secureSocket:secureEndpoint.inspect(),
