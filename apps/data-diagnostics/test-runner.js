@@ -16,11 +16,14 @@ const STEPS=[
   {id:'someipGenerated',label:'CDS generator test',request:{op:'someipGenerated'},kind:'generated'},
   {id:'someipAudit',label:'CDS ACL audit',request:{op:'someipAudit'},kind:'audit'},
   {id:'someipLoad',label:'SOME/IP native',request:{op:'signalNative',mode:'load'},kind:'native'},
-  {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
-  {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
+  // Prime the already-tested TASU physical read path with existing supported
+  // ECU reads, before the intermittent DDE/EGS diagnostic checks. This adds
+  // no requests and does not change the transport, ECU addresses or DIDs.
   {id:'ihka',label:'IHKA / climate',request:{op:'read',ecu:0x78,did:0xD8D7},kind:'uds'},
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
+  {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
+  {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
   {id:'cdsTemp',label:'CDS staged / temperatures',request:{op:'signalStaging',mode:'sample',field:'statusEngineTemperature'},kind:'signal'},
   {id:'cdsRpm',label:'CDS staged / engine speed',request:{op:'signalStaging',mode:'sample',field:'statusEngineSpeed2'},kind:'signal'},
   {id:'cdsStream',label:'CDS shared data engine',request:{op:'cdsDemand',consumer:'diagnostics'},kind:'engine'},
