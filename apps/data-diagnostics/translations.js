@@ -52,6 +52,7 @@ const catalogs={
     "Data Tool startup recovery": "Data Tool startup recovery",
     "Process identity survey": "Process identity survey",
     "Legacy IPC exposure audit": "Legacy IPC exposure audit",
+    "Experimental DAC socket audit": "Experimental DAC socket audit",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
