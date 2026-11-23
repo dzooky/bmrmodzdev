@@ -43,7 +43,8 @@ class HmiTransport {
           if(line.startsWith('ev ')){
             const fields=line.split(' ');
             if(fields[1]!=='0xf8a6'||fields[2]!=='0x8001'||!this.pendingRead)continue;
-            const response=decode(fields[3]);if(!response)continue;
+            const response=decode(fields[3]);
+            if(!response){if(this.pendingRead.trace)this.pendingRead.trace.malformedEvents++;continue;}
             this.pendingRead.consume(response);
           } else if(/^(ok|error)\b/.test(line)&&this.pendingLine)this.pendingLine.resolve(line);
         }
@@ -67,23 +68,30 @@ class HmiTransport {
       this.child.stdin.write(s+'\n',e=>{if(e&&this.pendingLine)this.pendingLine.reject(e);});
     });
   }
-  async read(ecu,did){
+  async read(ecu,did,trace){
     if(!this.ready)await this.init();
     if(this.pendingRead)throw new Error('read in flight');
+    // Optional numeric/boolean observation only: never capture a payload or helper line.
+    if(trace)Object.assign(trace,{ackAccepted:false,matchedEcuEvents:0,otherEcuEvents:0,
+      wrongDidEvents:0,pendingEvents:0,negativeEvents:0,malformedEvents:0,timedOut:false});
     let pending;
     const received=new Promise((resolve,reject)=>{
       let timer,done=false;
       const finish=(fn,v)=>{if(done)return;done=true;clearTimeout(timer);this.pendingRead=null;fn(v);};
-      const arm=(ms)=>{clearTimeout(timer);timer=setTimeout(()=>finish(resolve,null),ms);};
+      const arm=(ms)=>{clearTimeout(timer);timer=setTimeout(()=>{if(trace)trace.timedOut=true;finish(resolve,null);},ms);};
       pending={
-        reject:e=>finish(reject,e),
+        reject:e=>finish(reject,e),trace,
         consume:response=>{
-          if(response.error)return finish(reject,new Error(response.error));
-          if(response.ecu!==ecu)return;
+          if(response.error){if(trace)trace.negativeEvents++;return finish(reject,new Error('TASU rejected frame'));}
+          if(response.ecu!==ecu){if(trace)trace.otherEcuEvents++;return;}
+          if(trace)trace.matchedEcuEvents++;
           const u=response.uds;
-          if(u[0]===0x7f&&u[1]===0x22&&u[2]===0x78){pending.sawPending=true;arm(10000);return;}
-          if(u[0]===0x7f&&u[1]===0x22)return finish(resolve,u);
-          if(u[0]===0x62&&u[1]===(did>>8)&&u[2]===(did&255))finish(resolve,u);
+          if(u[0]===0x7f&&u[1]===0x22&&u[2]===0x78){
+            if(trace)trace.pendingEvents++;pending.sawPending=true;arm(10000);return;
+          }
+          if(u[0]===0x7f&&u[1]===0x22){if(trace)trace.negativeEvents++;return finish(resolve,u);}
+          if(u[0]===0x62&&u[1]===(did>>8)&&u[2]===(did&255))return finish(resolve,u);
+          if(trace)trace.wrongDidEvents++;
         },
         arm
       };
@@ -92,6 +100,7 @@ class HmiTransport {
     try{
       const ack=await this.line(command(ecu,did),5000);
       if(!/^ok\b/.test(ack))throw new Error('TASU command rejected: '+ack);
+      if(trace)trace.ackAccepted=true;
       if(this.pendingRead===pending&&!pending.sawPending)pending.arm(3500);
       return await received;
     }catch(e){if(this.pendingRead===pending)pending.reject(e);received.catch(()=>{});throw e;}
