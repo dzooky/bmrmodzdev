@@ -46,6 +46,7 @@ const catalogs={
     "CDS ACL audit": "CDS ACL audit",
     "Staged CDS signal probe": "Staged CDS signal probe",
     "CDS numeric validation": "CDS numeric validation",
+    "Shared CDS data engine": "Shared CDS data engine",
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
