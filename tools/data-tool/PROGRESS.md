@@ -1,5 +1,11 @@
 # Data Tool progress
 
+## Approved development workflow documented (2026-11-24; documentation-only)
+- User-confirmed architecture and scope are recorded in [WORKFLOW.md](WORKFLOW.md): Tool owns acquisition and serial scheduling, consumers declare data/freshness demands, concurrent identical requests are shared, faster UI refresh uses validated cache, and new applications must not change functioning acquisition.
+- Preserve last in-car-working behavior; no speculative ECU order, new warm-ups or transport rewrites; isolate experiments and choose minimal regression tests. User-approved decisions must be read before future changes.
+- **State:** Documentation only. No service, transport, package version, vehicle behavior or production access changed. Current consumer gateway remains experimental and NOT verified for live multi-app operation. Root cause of observed ECU failures remains unproven.
+
+
 ## v0.1.38 — TASU status 0x21 read-only recovery and truthful ECU outcomes (2026-11-23)
 - **In-car evidence:** Data Tool Diagnostics 0.1.44 screenshot showed 17 PASS / 7 FAIL / 7 SKIP; all seven major ECU UDS checks failed (including both DDE F150 reads, DDE 44BB, EGS, IHKA, BDC, ACSM), with TASU short-envelope status 0x21 observed. The 17 other PASS checks are mostly passive IPC/service/security operations and do NOT demonstrate vehicle ECU access. DPF 0.1.73 also failed with NO_MATCHING_RESPONSE. Vehicle root cause is unproven.
 - **Implemented in Data Tool:** short TASU rejection preserves its numeric envelope status as `tasuStatus`, separate from UDS NRC. For an explicit allowlisted read returning **TASU 0x21 only**, retry up to two more times via the **same serialized transport** after 700 and 1,400 ms; on further rejection return `ok:false`, `tasuStatus:33`, never PASS. No retries for other status codes, timeouts, negative UDS, malformed replies or other operations; no background activity or new ECU commands. Error replies are never cached. Preserve 200ms shared queue, coalescing, health and all security gates. Status exposes numeric retry counter but is **not** proof of ECU readiness.
