@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.37 — explicit read-only authentication boundary survey (2026-11-23)
+- **Baseline real-car:** Tool 0.1.31 / Diagnostics 0.1.36 20 PASS, 0 FAIL, 5 SKIP; native Node peer API unavailable, application authentication NO-GO.
+- **Implemented:** one `authBoundary` check added to the existing manual Run sequence (26 checks), reading Tool 0.1.32 `authFeasibility`. Report includes booleans and sanitized textual readiness in the existing `notes` array (no new upload result IDs or fields); original three hardware buttons, before/after snapshots and existing vehicle tests preserved. A PASS for the survey only means observability and fail-closed state were checked; it **does not** mean an app has been authenticated. Without trusted per-app identity, OSA/DPF/CC cannot consume broker data.
+- **CI:** check staged fixtures, translation and strict upload payload, Node 12 startup and offline preview. **In-car v0.1.37 NOT VERIFIED**, one combined manual Run/Send report is needed to inspect /proc-based feasibility.
+
+
 ## v0.1.36 — test actual connected IPC without creating second socket (2026-11-23)
 - **In-car evidence:** 2026-11-23 19:30 UTC, v0.1.35 + Tool 0.1.30: 19 PASS, 1 FAIL, 5 SKIP; new `brokerGateway` failed solely in second socket `listen OTHER`. The DDE/EGS/CDS and SOME/IP checks passed again.
 - **Fix:** with Tool 0.1.31, the same `brokerGateway` step retains the synthetic three-app broker test but observes kernel credential API support on the actual, already connected diagnostic socket. The check no longer creates an extra socket; any supported credential observations are **NOT package authentication**. Existing 25 tests, before/after snapshots, strictly sanitized HTTPS report and 3-button UI remain intact. No production data access or background polling. Automated tests verify the new response contract; **in-car 0.1.36 unverified** until one new report.
