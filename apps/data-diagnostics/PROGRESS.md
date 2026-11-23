@@ -1,5 +1,12 @@
 # Data Tool Diagnostics progress
 
+## v0.1.45 — readable DDE-first diagnostics results (2026-11-23)
+- **In-car observation:** on Diagnostics v0.1.44 the photographed 31-check results screen was unreadable due to tiny overlapping 12px details and 17 result rows forced into a 380px panel; 17 PASS, 7 FAIL, 7 SKIP were reported. Failed checks included the cold F150, IHKA, BDC, ACSM, DDE 44BB, warm F150 and EGS, with visible TASU status `0x21`. This confirms broader ECU read failures at that time; cause is unresolved.
+- **Implemented:** Results tab now presents the three DDE/DPF stages in a spacious left panel with one concise diagnostic detail each; the right panel lists other failed tests and short errors. New `All tests` tab retains all 31 check statuses in two columns, exactly one row per check without overlapping second-line diagnostics. Complete unsanitized-by-UI (but still privacy-sanitized) result details remain in the existing local JSON report/upload unchanged. No diagnostic requests, backend logic, IPC security or ECU reads are modified.
+- **Manifest and translations:** v0.1.45; add seven English UI catalog strings (the only supported language) and updated visible What's New.
+- **Tests:** source/UI layout regression asserting the focus order, full-grid pagination-free layout, new tab and one-line rows; prior automated diagnostic tests preserved. CI and vehicle UI confirmation pending.
+
+
 ## v0.1.44 — cold DDE F150 as first ECU read (2026-11-23)
 - **Vehicle evidence:** DPF Status 0.1.72 still fails on Data Tool `TASU_REJECTED` when identifying DDE F150. Prior Diagnostics 0.1.43 F150 PASS occurred only **after other ECU reads** and DDE 44BB. PASS did not cover a first DDE request.
 - **Implemented:** manual `DDE F150 first read` step uses the unchanged Tool `{op:'read',ecu:0x12,did:0xF150}` before IHKA/BDC/ACSM and before the warm DDE 44BB/F150 checks. Strictly validate a 0x62 F1 50 response of at least 6 bytes, but never save identifying bytes. Existing 15s IPC timeout and UDS result classification remain. Runs only on user-initiated Diagnostics, not at boot or in background.
