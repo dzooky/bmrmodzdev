@@ -1,5 +1,11 @@
 # Data Tool feasibility progress
 
+## v0.1.22 — short TASU envelope marker/length audit (2026-11-23)
+- **Implemented on feature branch:** for explicit readTrace requests to existing DDE/EGS DID pairs, short-header event envelopes are further classified by the existing TASU 0x7F rejection marker versus unknown marker, declared length consistency, and length bands (0-4, 5-8 bytes). Only boolean/numeric counters are exposed. No raw byte contents, statuses, reason codes, VIN, UDS values or helper lines are persisted. A short reject marker is an observation, NOT an identified ECU response or proof of an exact TASU rejection reason. The legacy decoder and successful read path remain unchanged.
+- **In-car baseline (v0.1.21 + Diagnostics v0.1.24):** first run 15 PASS / 2 FAIL / 5 SKIP: DDE and EGS each `ack 3/3`, `shortHeader 3`, timeout 3; second run 17 PASS / 0 FAIL / 5 SKIP: both responded on attempt 1. 1-second inter-ECU pause did not eliminate first-run failure. v0.1.22 has not been tested in-car.
+- **Automated:** targeted synthetic short-envelope classification and existing transport/health regressions; verify CI before MGU test. Defaults, CDS/IPC, production access disabled, read gaps and ECU request counts unchanged.
+
+
 ## v0.1.21 — TASU malformed event classification (2026-11-23)
 - **Implemented (feature branch):** retain the v0.1.20 sanitized trace API and classify previously aggregated malformed TASU event envelopes as missing, non-hex, odd hex length, short frame, short header or declared-length overflow, using counters only. No raw frames, VIN, hex contents or ECU values are retained; decoding/response acceptance is unchanged.
 - **In-car baseline (v0.1.20 with Diagnostics v0.1.23):** first run DDE/EGS both FAIL after 3/3 reads with `ack 3/3`, `ecu 0`, `malformed 3`, `timeout 3` each; immediate second run both PASS on first attempt (ACK 1/1, ECU 1, malformed 0); user observed third FAIL with malformed 3. The correlation is known, root cause unverified.
