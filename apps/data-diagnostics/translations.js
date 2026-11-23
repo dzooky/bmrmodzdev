@@ -63,6 +63,8 @@ const catalogs={
     "Run before sleep": "Run before sleep",
     "Run after wake": "Run after wake",
     "DPF comparison": "DPF comparison",
+    "Vehicle comparison": "Vehicle comparison",
+    "Measurements are independent snapshots": "Measurements are independent snapshots",
     "Before sleep": "Before sleep",
     "After wake": "After wake",
     "Legacy IPC exposure audit": "Legacy IPC exposure audit",
