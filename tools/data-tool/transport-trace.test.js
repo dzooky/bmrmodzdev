@@ -45,6 +45,8 @@ async function main(){
   const fastRejectTrace={};
   const fastReject=fake(t=>t.consumeEvent(rejectWithCode));
   await assert.rejects(fastReject.read(ecu,did,fastRejectTrace),/TASU rejected request/);
+  const coded=fake(t=>t.consumeEvent(rejectWithCode));
+  await assert.rejects(coded.read(ecu,did),e=>e.tasuStatus===0x31&&e.message==='TASU rejected request');
   assert.strictEqual(fastRejectTrace.ackAccepted,true);
   assert.strictEqual(fastRejectTrace.shortRejectMarkers,1);
   assert.strictEqual(fastRejectTrace.shortStatusCodes[49],1);
