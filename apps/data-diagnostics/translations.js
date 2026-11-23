@@ -41,6 +41,7 @@ const catalogs={
     "SOME/IP setup diagnostics": "SOME/IP setup diagnostics",
     "Generate CDS test": "Generate CDS test",
     "CDS generation test": "CDS generation test",
+    "Send report button restored": "Send report button restored",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
     "Generation failed": "Generation failed"
