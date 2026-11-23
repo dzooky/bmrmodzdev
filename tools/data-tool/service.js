@@ -63,7 +63,7 @@ function serve(factory,socketPath,options){
         const result={ok:true,ecu,did,group,uds:reply,at:new Date().toISOString()};
         if(!withTrace)cache.set(key,{at:Date.now(),reply:result});
         return attach(result);
-      }catch(e){stats.error++;return attach({ok:false,ecu,did,error:withTrace?'Transport or TASU command error':String(e&&e.message||e)});}
+      }catch(e){stats.error++;return attach({ok:false,ecu,did,error:withTrace?(e&&e.message==='TASU rejected request'?'TASU rejected request':'Transport or TASU command error'):String(e&&e.message||e)});}
     });
     queue=request.then(()=>{},()=>{});
     inflight.set(key,request);
