@@ -111,7 +111,8 @@ function resultFor(step,reply,duration){
       (ipc.kernelCredentialsAvailable?'present':'unavailable')+
       '; application identity unverified; production OFF':
       'Broker/IPC self-test incomplete; '+
-      (!b.ok?'synthetic broker failed':!ipc.ok?'local IPC '+String(ipc.failureStage||'unknown').slice(0,35):'policy mismatch')+
+      (!b.ok?'synthetic broker failed':!ipc.ok?'local IPC '+String(ipc.failureStage||'unknown').slice(0,30)+
+        ' '+String(ipc.failureCode||'unknown').slice(0,15):'policy mismatch')+
       '; production OFF';
     return Object.assign(base,{status:good?'PASS':'FAIL',detail});
   }
