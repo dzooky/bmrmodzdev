@@ -22,7 +22,7 @@ mgu.run({
  start(ctx){
   const {ui,log}=ctx;
   const runner=createRunner(client.request);
-  let page=0,running=false,sending=false,report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
+  let page=0,running=false,sending=false,generating=false,genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
   const currentLanguage=()=>ctx.settings.get('language')||'en';
   const word=key=>t(currentLanguage(),key);
   const reportFile=path.join(ctx.dataDir,REPORT_NAME);
@@ -32,7 +32,7 @@ mgu.run({
   }catch(_){}
   function refreshButtons(){
    for(const [button,key] of [['BTN_RUN','Run diagnostics'],['BTN_EXPORT','Export report'],
-     ['BTN_SEND','Send report'],['BTN_PREV','Previous page'],['BTN_NEXT','Next page']]){
+     ['BTN_SEND','Send report'],['BTN_GEN','Generate CDS test'],['BTN_PREV','Previous page'],['BTN_NEXT','Next page']]){
     try{ui.text(button,word(key));}catch(_){}
    }
   }
@@ -50,6 +50,16 @@ mgu.run({
     log.warn('Data Tool diagnostic run: '+error.message);
     exportState=word('Export failed')+': '+safeValue(error.message);
    }finally{running=false;}
+  }
+  async function generateCds(){
+   if(generating||running||sending)return;
+   generating=true;page=1;genStatus=word('Generating CDS');
+   try{
+    const result=await client.request({op:'someipGenerate'},{timeoutMs:15000});
+    genStatus=(result.ok?word('Generation succeeded'):word('Generation failed'))+': '+safeValue(result.stage||result.error);
+    if(!result.ok&&result.error)genStatus=word('Generation failed')+': '+safeValue(result.error);
+   }catch(e){genStatus=word('Generation failed')+': '+safeValue(e.message);}
+   finally{generating=false;}
   }
   function exportReport(){
    page=2;
@@ -76,6 +86,7 @@ mgu.run({
     log.warn('Data Tool report upload: '+error.message);
    }finally{sending=false;}
   }
+  ui.onClick('BTN_GEN',()=>{generateCds().catch(e=>log.warn('Generate: '+e));});
   ui.onClick('BTN_RUN',()=>{runTest().catch(error=>log.warn('Run: '+error));});
   ui.onClick('BTN_SEND',()=>{sendReport().catch(error=>log.warn('Send: '+error));});
   ui.onClick('BTN_EXPORT',exportReport);
@@ -98,9 +109,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+24,14,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.8 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.9 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.8 — '+word('SOME/IP setup diagnostics'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.9 — '+word('CDS generation test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -119,7 +130,7 @@ mgu.run({
    cv.roundRect(60,366,1480,25,6,theme.track);
    cv.roundRect(60,366,Math.max(0,Math.floor(1480*progress/100)),25,6,theme.accent2);
    label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
-   label(cv,word('Stay parked during the test'),60,474,17,theme.warn);
+   label(cv,genStatus||word('Stay parked during the test'),60,474,17,theme.warn);
   }
   function drawResults(cv,theme){
    const totals=report&&report.totals;
