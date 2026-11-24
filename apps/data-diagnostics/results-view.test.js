@@ -7,11 +7,11 @@ function render(results){
  drawFocusedResults({},theme,{results},(_,text,x,y,size,color,opts)=>calls.push({text,x,y,size,opts}),x=>x,()=>{});
  return calls;
 }
-const sample={id:'processBoundary',status:'PASS',packageSurvey:{available:true,layout:true,uidMatches:true,sourceProtected:true,protectionReason:'protected',metadata:{ancestor:'mixed',source:'root shared-write',manifest:'peer no-shared-write'},candidate:'data-diagnostics',processStable:true},detail:'Kernel peer /proc: cgroup readable, separate yes, same UID no, process stat readable; installed package NOT verified; production OFF'};
+const sample={id:'processBoundary',status:'PASS',packageSurvey:{available:true,layout:true,uidMatches:true,sourceProtected:true,protectionReason:'protected',evidence:{ownerMatch:'match',peerWrite:'mode-risk',ownerAccount:'other-account'},candidate:'data-diagnostics',processStable:true},detail:'Kernel peer /proc: cgroup readable, separate yes, same UID no, process stat readable; installed package NOT verified; production OFF'};
 const input=[sample,{id:'dde',status:'PASS'},{id:'egs',status:'FAIL'},{id:'nativePeer',status:'PASS',detail:'old historical entry'}];
 const saved=JSON.stringify(input), rows=render(input);
 assert.strictEqual(JSON.stringify(input),saved);
-for(const text of ['Process boundary','PASS','FAIL','Ancestor modes','mixed','Source mode','root shared-write','Package identity NOT verified','Production access OFF','Not tested'])assert.ok(rows.some(r=>r.text===text),text);
+for(const text of ['Process boundary','PASS','FAIL','Owner consistency','match','Peer write mode','mode-risk','Package identity NOT verified','Production access OFF','Not tested'])assert.ok(rows.some(r=>r.text===text),text);
 assert.ok(!rows.some(r=>r.text.includes('old historical')));
 assert.ok(rows.every(r=>r.y>=115&&r.y<=495&&r.x>=24&&r.x<=1576));
 for(const x of [55,760,840,1545]){

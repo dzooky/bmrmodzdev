@@ -46,6 +46,13 @@ function safeMetadata(value){
  }
  return out;
 }
+function safeOwnerEvidence(value){
+ const out={};
+ for(const key of ["ownerMatch","ownerAccount","ancestorGuard","peerWrite","entryPoint","mountNamespace","capabilities"]){
+  const v=value&&value[key];out[key]=["unknown","match","different","root-account","peer-account","other-account","ambiguous","not-listed","mode-clear","mode-risk","mode-match","same","none","present","unavailable"].includes(v)?v:'unknown';
+ }
+ return out;
+}
 function safePackageSurvey(value){
   if(!value||value.observationOnly!==true||value.packageIdentityVerified!==false||
     value.productionAccessEnabled!==false||value.ok!==true||value.stage!=='observed')
@@ -53,6 +60,7 @@ function safePackageSurvey(value){
   return {available:true,layout:value.layout===true,uidMatches:value.uidMatches===true,
     sourceProtected:value.sourceProtected===true,processStable:value.processStable===true,
     metadata:safeMetadata(value.metadata),
+    evidence:safeOwnerEvidence(value.evidence),
     protectionReason:["protected","layout-unavailable","ancestor-stat","ancestor-symlink","ancestor-type","ancestor-owner","ancestor-write","app-root-stat","app-root-symlink","app-root-type","app-root-owner","app-root-write","source-stat","source-symlink","source-type","source-owner","source-write","manifest-stat","manifest-symlink","manifest-type","manifest-owner","manifest-write","manifest-size","open-flags","manifest-open","manifest-changed","manifest-read","manifest-invalid","unknown"].includes(value.protectionReason)?value.protectionReason:'unknown',
     candidate:['data-diagnostics','dpf-dev'].includes(value.candidate)&&value.sourceProtected===true?value.candidate:'unknown'};
 }
@@ -490,6 +498,7 @@ function createRunner(send,clock){
           'Process boundary: '+String((results.find(x=>x.id==='processBoundary')||{}).detail||'not run').slice(0,125)+'.',
           packageNote,
           'Metadata: '+Object.entries(packageSurvey.metadata||{}).map(([k,v])=>k+'='+v).join('; '),
+          'Owner evidence: '+Object.entries(packageSurvey.evidence||{}).map(([k,v])=>k+'='+v).join('; '),
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',

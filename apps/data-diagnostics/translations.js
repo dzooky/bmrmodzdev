@@ -212,7 +212,26 @@ const catalogs={
     "wrong-type": "wrong-type",
     "deleted": "deleted",
     "match": "match",
-    "different": "different"
+    "different": "different",
+    "OAP owner evidence survey": "OAP owner evidence survey",
+    "Owner consistency": "Owner consistency",
+    "Owner account": "Owner account",
+    "Ancestor mode guard": "Ancestor mode guard",
+    "Peer write mode": "Peer write mode",
+    "Entry point mode": "Entry point mode",
+    "Mount namespace": "Mount namespace",
+    "Effective capabilities": "Effective capabilities",
+    "root-account": "root-account",
+    "peer-account": "peer-account",
+    "other-account": "other-account",
+    "ambiguous": "ambiguous",
+    "not-listed": "not-listed",
+    "mode-clear": "mode-clear",
+    "mode-risk": "mode-risk",
+    "mode-match": "mode-match",
+    "same": "same",
+    "none": "none",
+    "present": "present"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

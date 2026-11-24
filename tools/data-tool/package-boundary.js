@@ -124,6 +124,73 @@ function inspectProcessMetadata(io,pid,uid,result){
  }catch(_){result.uidSet='unavailable';}
  return result;
 }
+// Metadata-only evidence, not an attestor. Do not open a peer-controlled
+// manifest or accept an owner merely because it is not the client UID.
+function ownerEvidence(io,root,pid,uid){
+ const result={ownerMatch:'unknown',ownerAccount:'unknown',ancestorGuard:'unknown',
+  peerWrite:'unknown',entryPoint:'unknown',mountNamespace:'unknown',capabilities:'unknown'};
+ const nodes=[],target=path.join(root,'source');
+ let current='/';
+ for(const part of [''].concat(target.split('/').filter(Boolean))){
+  if(part)current=path.join(current,part);
+  try{
+   const st=io.lstatSync(current);
+   if(st.isSymbolicLink()||!st.isDirectory())return result;
+   nodes.push({st,role:current===root?'root':current===target?'source':'ancestor'});
+  }catch(_){return result;}
+ }
+ let manifest;
+ try{manifest=io.lstatSync(path.join(target,'package.json'));
+  if(!manifest.isFile()||manifest.isSymbolicLink())return result;
+ }catch(_){return result;}
+ const app=nodes.filter(n=>n.role!=='ancestor').map(n=>n.st).concat(manifest);
+ const owner=app[0].uid;
+ result.ownerMatch=app.every(x=>x.uid===owner)?'match':'different';
+ result.ancestorGuard=nodes.filter(n=>n.role==='ancestor').every(n=>n.st.uid!==uid&&(n.st.mode&0o022)===0)?'mode-clear':'mode-risk';
+ result.peerWrite=nodes.map(n=>n.st).concat(manifest).every(st=>st.uid!==uid&&(st.mode&0o022)===0)?'mode-clear':'mode-risk';
+ // Only read the fixed system account database after verifying its path
+ // metadata. Report account classification, never account names or IDs.
+ try{
+  const accountPath='/etc/passwd';
+  const safe=['/','/etc'].every(p=>{const st=io.lstatSync(p);return st.isDirectory()&&!st.isSymbolicLink()&&st.uid===0&&(st.mode&0o022)===0;});
+  const st=io.lstatSync(accountPath);
+  if(safe&&st.isFile()&&!st.isSymbolicLink()&&st.uid===0&&(st.mode&0o022)===0&&st.size>0&&st.size<=65536){
+   let fd=null;
+   try{
+    if(typeof fs.constants.O_NOFOLLOW==='number'&&typeof fs.constants.O_NONBLOCK==='number'){
+     fd=io.openSync(accountPath,fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW|fs.constants.O_NONBLOCK);
+     const actual=io.fstatSync(fd);
+     if(actual.isFile()&&actual.uid===0&&(actual.mode&0o022)===0&&actual.dev===st.dev&&actual.ino===st.ino&&actual.size===st.size){
+      const buf=Buffer.alloc(st.size);let used=0;
+      while(used<buf.length){const n=io.readSync(fd,buf,used,buf.length-used,null);if(n<=0)break;used+=n;}
+      if(used===buf.length){
+       const accounts=buf.toString('utf8').split('\n').map(l=>l.split(':')).filter(p=>p.length===7&&/^\d+$/.test(p[2])&&Number(p[2])===owner);
+       result.ownerAccount=accounts.length===1?(owner===0?'root-account':owner===uid?'peer-account':'other-account'):accounts.length>1?'ambiguous':'not-listed';
+      }
+     }
+    }
+   }finally{if(fd!==null)io.closeSync(fd);}
+  }
+ }catch(_){}
+ // Check the fixed entrypoint's metadata only, not its contents.
+ try{
+  const js=io.lstatSync(path.join(target,'javascript'));
+  if(js.isDirectory()&&!js.isSymbolicLink()){
+   const st=io.lstatSync(path.join(target,'javascript','app.js'));
+   result.entryPoint=st.isFile()&&!st.isSymbolicLink()&&js.uid===owner&&st.uid===owner&&((js.mode|st.mode)&0o022)===0?'mode-match':'mode-risk';
+  }else result.entryPoint='mode-risk';
+ }catch(_){result.entryPoint='unavailable';}
+ try{
+  const a=io.readlinkSync('/proc/'+pid+'/ns/mnt'),b=io.readlinkSync('/proc/self/ns/mnt');
+  result.mountNamespace=a===b?'same':'different';
+ }catch(_){result.mountNamespace='unavailable';}
+ try{
+  const st=String(io.readFileSync('/proc/'+pid+'/status','utf8'));
+  const cap=st.match(/^CapEff:\s*([0-9a-fA-F]+)\s*$/m);
+  result.capabilities=cap?(/^0+$/.test(cap[1])?'none':'present'):'unavailable';
+ }catch(_){result.capabilities='unavailable';}
+ return result;
+}
 function inspectPeer(peer,io){
  const f=io||fs;
  if(!peer||!Number.isSafeInteger(peer.pid)||peer.pid<=0||!Number.isSafeInteger(peer.uid)||peer.uid<0)
@@ -137,11 +204,12 @@ function inspectPeer(peer,io){
   const candidate=layout?packageCandidate(f,root):{sourceProtected:false,candidate:'unknown',protectionReason:'layout-unavailable'};
   const metadata=layout?inspectHierarchy(f,root,peer.uid):{};
   inspectProcessMetadata(f,peer.pid,peer.uid,metadata);
+  const evidence=layout&&uidMatches?ownerEvidence(f,root,peer.pid,peer.uid):{};
   const last=processSample(f,peer.pid);
   if(!last||first.start!==last.start||first.uid!==last.uid||first.cwd!==last.cwd)
    return out('peer-changed');
   return out('observed',{ok:true,layout,uidMatches,sourceProtected:candidate.sourceProtected,
-   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason,metadata});
+   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason,metadata,evidence});
  }catch(_){return out('peer-unavailable');}
 }
 let active=false;

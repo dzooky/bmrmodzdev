@@ -41,6 +41,10 @@ async function main(){
  assert.strictEqual(writable.protectionReason,'source-write');
  assert.strictEqual(good.protectionReason,'protected');
  assert.strictEqual(good.metadata.source,'root no-shared-write');
+ assert.strictEqual(good.evidence.ownerMatch,'match');
+ assert.strictEqual(good.evidence.peerWrite,'mode-clear');
+ assert.strictEqual(inspectPeer(peer,fixture({owner:'/var/opt/oap_123'})).evidence.ownerMatch,'different');
+ assert.strictEqual(inspectPeer(peer,fixture({writable:true})).evidence.peerWrite,'mode-risk');
  assert.strictEqual(good.metadata.manifest,'root no-shared-write');
  const mixed=inspectPeer(peer,fixture({owner:'/var',writable:true,manifest:{uid:123}}));
  assert.strictEqual(mixed.protectionReason,'ancestor-owner');
@@ -63,7 +67,7 @@ async function main(){
   const actual=await result;
   assert.strictEqual(actual.ok,true,JSON.stringify(actual));assert.strictEqual(actual.processStable,true);
   assert.strictEqual(actual.packageIdentityVerified,false);assert.strictEqual(actual.productionAccessEnabled,false);
-  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason','metadata'].sort());
+  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason','metadata','evidence'].sort());
   assert.deepStrictEqual(fs.readdirSync(dir),['ctl.sock']);
  }finally{if(client)client.destroy();if(server)await new Promise(r=>server.close(r));try{fs.unlinkSync(address);}catch(_){}fs.rmdirSync(dir);}
  console.log('Package observation: private kernel credentials, stable process, protected candidate and no auth passed');

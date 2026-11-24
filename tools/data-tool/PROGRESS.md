@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.48 — OAP owner evidence (2026-11-24)
+- In-car 0.1.47 / Diagnostics 0.1.58: app root, source and manifest other-owned without shared write; ancestors mixed; executable/cgroup readable, UID set matches. All five ECU references PASS; DDE/EGS first attempt. Report two existing missing CDS config failures. PR #77 CI PASS 45474566515, merged 50dc42e5.
+- New read-only evidence checks owner equality, fixed protected account database classification, ancestor and peer-write mode, fixed entrypoint metadata, mount namespace and effective capabilities. No actual ACL or installer trust proof, no peer-controlled manifest read on failed strict gate, no permission changes. ECU transport unchanged, production authorization OFF. CI and in-car verification pending.
+
+
 ## v0.1.47 — combined metadata observations (2026-11-24)
 - In-car 0.1.46 / Diagnostics 0.1.57: ancestor-owner, OAP layout and UID match yes, process stable yes, candidate unknown, five ECU reference PASS. PR #76 CI PASS 45473429386, merged e30b12db.
 - Collect independent directory/manifest ownership classes and shared write mode, executable link, cgroup readability and UID set; no raw paths or credentials, no untrusted manifest reads, no authorization change. Original strict protection gate unchanged. Metadata traversal stops on symlink or unavailable entry. CI and car validation pending.
