@@ -73,6 +73,22 @@ const {build}=require('./dpf-demand-profile');
   assert.strictEqual(await retry.tick(),false,'failed reads back off');
   assert.strictEqual(attempts,2);
  }finally{retry.close();}
+ // Two distinct logical signals backed by one physical DID must share one read.
+ const a=Symbol('a'),b=Symbol('b'),fields=['left','right'];
+ let sharedReads=0;
+ const shared=createScheduler({now:()=>1000,grants:new Map([[a,new Set(['left'])],[b,new Set(['right'])]]),
+  definitions:{left:{ecu:0x78,did:0xD8D7,length:2},right:{ecu:0x78,did:0xD8D7,length:2}},
+  read:async(ecu,did)=>{sharedReads++;return {ok:true,uds:[0x62,0xD8,0xD7,0,1],at:new Date(1000).toISOString()};}
+ });
+ try{
+  assert.strictEqual(shared.demand(a,['left'],60000,10000).ok,true);
+  assert.strictEqual(shared.demand(b,['right'],5000,10000).ok,true);
+  assert.strictEqual(await shared.tick(),true);
+  assert.strictEqual(await shared.tick(),false);
+  assert.strictEqual(sharedReads,1);
+  assert.strictEqual(shared.snapshot(a).fields.left.valid,true);
+  assert.strictEqual(shared.snapshot(b).fields.right.valid,true);
+ }finally{shared.close();}
  assert.throws(()=>createScheduler({read:async()=>{},now:Date.now,
   grants:new Map([[Symbol('x'),new Set(['unlisted'])]]),
   definitions:{unlisted:{ecu:0x12,did:0x2E00,length:2}}}),/Non-allowlisted/);
