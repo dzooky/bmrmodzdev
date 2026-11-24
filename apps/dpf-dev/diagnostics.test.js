@@ -3,7 +3,7 @@ const assert=require('assert'),fs=require('fs'),path=require('path');
 const app=JSON.parse(fs.readFileSync(path.join(__dirname,'app.json'),'utf8'));
 const source=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 const adapter=fs.readFileSync(path.join(__dirname,'data-tool-read.js'),'utf8');
-assert.strictEqual(app.version,'0.1.76');
+assert.strictEqual(app.version,'0.1.77');
 assert.ok(source.includes("const TABS = ['Overview', 'Detail', 'Settings', 'About', 'Diagnostics']"));
 assert.ok(source.includes("renderDiagnostics(cv, t)"));
 assert.ok(source.includes("page !== 'diagnostics' && ui.isVisible('MAIN')"));
