@@ -128,6 +128,7 @@ function serve(factory,socketPath,options){
     queue=operation.then(()=>{},()=>{});
     return operation;
   }
+  const publicRuntime=require('./public-runtime').createRuntime(read);
   const capabilities=()=>({
     uds:{mode:'read-only-experimental',reads:READS,controls:'not implemented'},
     signals:{mode:'demand-driven-experimental',stagingOnly:true,aclRegistration:'unverified',fields:['oil','coolant','rpm']},
@@ -136,17 +137,23 @@ function serve(factory,socketPath,options){
   try{fs.mkdirSync(path.dirname(socket),{recursive:true});}catch(e){if(e.code!=='EEXIST')throw e;}
   try{fs.unlinkSync(socket);}catch(e){if(e.code!=='ENOENT')throw e;}
   const server=net.createServer(client=>{
-    client.setEncoding('utf8');let buffer='',lines=0;
+    client.setEncoding('utf8');let buffer='',lines=0,apiSession=null,apiBusy=false;
+    client.on('error',()=>client.destroy());
     client.on('data',async chunk=>{
       buffer+=chunk;
       if(buffer.length>8192){client.destroy();return;}
       let n;while((n=buffer.indexOf('\n'))>=0){
-        if(++lines>100){client.destroy();return;}
+        if(++lines>100&&!apiSession){client.destroy();return;}
         const raw=buffer.slice(0,n);buffer=buffer.slice(n+1);let req,reply;
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.53',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
+          if(apiSession||req.op==='apiHello'){
+            if(apiBusy){client.destroy();return;}
+            if(!apiSession)apiSession=publicRuntime.attach(client);
+            if(!apiSession){client.destroy();return;}
+            apiBusy=true;try{reply=await apiSession.request(req);}finally{apiBusy=false;}
+          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.54',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='tasuIdleProbe')reply=await tasuIdleProbe(req.mode);
           else if(req.op==='schedulerLiveTest'){
@@ -211,7 +218,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.53',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.54',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
@@ -224,7 +231,7 @@ function serve(factory,socketPath,options){
     });
   });
   server.listen(socket,()=>fs.chmodSync(socket,0o666));
-  function close(){secureEndpoint.close();cdsEngine.close();server.close();if(transport&&transport.close)transport.close();try{fs.unlinkSync(socket);}catch(_){}}
+  function close(){publicRuntime.close();secureEndpoint.close();cdsEngine.close();server.close();if(transport&&transport.close)transport.close();try{fs.unlinkSync(socket);}catch(_){}}
   return {server,read,close,stats};
 }
 if(require.main===module){

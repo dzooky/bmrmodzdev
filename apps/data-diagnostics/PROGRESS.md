@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## Diagnostics v0.1.64 — API background test
+- Separate API test button on existing Cache Test page; two live sessions, invalid interval rejection, shared timestamp/raw sample, wait without snapshot, repeated sample and release. Tool 0.1.54 required. Tests scheduler timer with Diagnostics process running, not MGU sleep or app suspension. CI and vehicle pending.
+
+## Runtime API v0.1.54
+- PR #84 merged 254b6ad3; both CI PASS. Experimental API protocol on existing ctl.sock; lazy DDE detection, shared timer, bounded sessions and JS client. CI and MGU background validation pending. Diagnostics version unchanged; no new UI test yet.
+
 ## Open API foundation — 2026-11-24
 - Mixed B57 freshness in-car screenshot 12/12 PASS (5.36/5.55 s fast, 60.40–61.20 s slow); installed revision ambiguous. PR #83 merged 09225816, both CI runs PASS.
 - User approved open local read-only API with enforced resource limits, no mandatory tokens. Offline dispatcher and draft API.md added; no runtime listener or consumer migration yet. CI pending. Background test remains next runtime milestone.
