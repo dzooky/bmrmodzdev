@@ -14,10 +14,10 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.40');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.41');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
-assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
+assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND','BTN_TASU']);
 assert.ok(t('en','Secure upload'));
 assert.ok(t('en','Network diagnostics'));
 assert.ok(t('en','HTTPS report upload'));
@@ -26,6 +26,7 @@ assert.ok(t('en','HTTP response diagnostics'));
 assert.ok(t('en','Corrected upload endpoint'));
 assert.ok(t('en','SOME/IP setup diagnostics'));
 assert.ok(t('en','Generate CDS test'));
+for(const key of ['Open TASU (no read)','Close TASU','TASU connected without ECU reads','TASU connection closed','TASU probe failed'])assert.ok(t('en',key));
 assert.ok(t('en','Send report button restored'));
 assert.ok(t('en','Focused diagnostics'));
 assert.ok(t('en','CDS ACL audit'));
@@ -56,6 +57,7 @@ for(const text of [
 ])assert.ok(main.includes(text));
 assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
+assert.ok(main.includes("ui.onClick('BTN_TASU'"));
 assert.ok(main.includes('runTest(nextPhase)'));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
 assert.ok(!main.includes("ui.onClick('BTN_AFTER'"));

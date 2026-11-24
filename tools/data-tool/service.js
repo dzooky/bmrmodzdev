@@ -74,6 +74,32 @@ function serve(factory,socketPath,options){
     request.then(()=>inflight.delete(key),()=>inflight.delete(key));
     return request;
   }
+  // Manual TASU lifecycle experiment. No vehicle request is sent on open/close.
+  // Serialized with UDS reads so closing cannot interrupt a queued Tool request.
+  function tasuIdleProbe(mode){
+    if(mode!=='open'&&mode!=='close')return Promise.resolve({ok:false,error:'Unsupported TASU probe mode'});
+    const operation=queue.then(async()=>{
+      try{
+        if(mode==='open'){
+          if(!transport)transport=factory();
+          // Only create the helper and subscribe to TASU; do not call read().
+          await transport.init();
+          return {ok:true,mode:'open',transportReady:!!transport.ready,vehicleReads:0};
+        }
+        if(transport&&transport.close)transport.close();
+        transport=null;
+        return {ok:true,mode:'close',transportReady:false,vehicleReads:0};
+      }catch(e){
+        if(mode==='open'){
+          try{if(transport&&transport.close)transport.close();}catch(_){}
+          transport=null;
+        }
+        return {ok:false,mode,error:'TASU lifecycle probe failed',transportReady:!!(transport&&transport.ready),vehicleReads:0};
+      }
+    });
+    queue=operation.then(()=>{},()=>{});
+    return operation;
+  }
   const capabilities=()=>({
     uds:{mode:'read-only-experimental',reads:READS,controls:'not implemented'},
     signals:{mode:'demand-driven-experimental',stagingOnly:true,aclRegistration:'unverified',fields:['oil','coolant','rpm']},
@@ -92,8 +118,9 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.40',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.41',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
+          else if(req.op==='tasuIdleProbe')reply=await tasuIdleProbe(req.mode);
           else if(req.op==='brokerPlan')reply={ok:true,broker:dataCatalog.describe()};
           else if(req.op==='brokerSelfTest'){
             // Explicit one-shot synthetic broker + local IPC loopback only.
@@ -128,7 +155,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.40',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.41',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);

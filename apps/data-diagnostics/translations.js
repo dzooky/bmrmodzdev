@@ -82,7 +82,15 @@ const catalogs={
     "CDS configuration and ACL audit": "CDS configuration and ACL audit",
     "Generating CDS": "Generating CDS",
     "Generation succeeded": "Generation succeeded",
-    "Generation failed": "Generation failed"
+    "Generation failed": "Generation failed",
+    "Open TASU (no read)": "Open TASU (no read)",
+    "Close TASU": "Close TASU",
+    "TASU probe running": "TASU probe running",
+    "TASU connected without ECU reads": "TASU connected without ECU reads",
+    "TASU connection closed": "TASU connection closed",
+    "TASU probe failed": "TASU probe failed",
+    "Manual TASU connection isolation": "Manual TASU connection isolation",
+    "Close TASU before running diagnostics": "Close TASU before running diagnostics"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
