@@ -111,7 +111,7 @@ test('DPF Settings uses OSA sheet rendering for English auto language', () => {
   assert.match(settings, /return ui\.image\('MAIN_GFX', cv\)/);
   const app = JSON.parse(fs.readFileSync(path.join(__dirname, 'app.json'), 'utf8'));
   assert.deepEqual(app.settings.find(s => s.key === 'language').options[0], ['en', 'English']);
-  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '../osa/app.json'), 'utf8')).settings.find(s => s.key === 'language').options[0], ['en', 'English']);
+  // DEV is a standalone app in a repo without OSA; verify DPF's own manifest.
 });
 
 test('DPF main Settings renders English auto legibly without changing other language rows', () => {
@@ -152,20 +152,17 @@ test('DPF main Settings renders English auto legibly without changing other lang
   assert.ok(opened.calls.some(c => c.value === 'English (auto)' && c.size === 28));
 });
 
-test('DPF uses exactly the OSA language controller with app-specific references', () => {
+test('DPF DEV retains production 0.1.74 language controller baseline', () => {
+  const crypto = require('crypto');
   const main = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf8');
-  const dpf = fs.readFileSync(path.join(__dirname, 'language.js'), 'utf8');
-  const osa = fs.readFileSync(path.join(__dirname, '../osa/language.js'), 'utf8');
-  const expected = osa
-    .replace("require('./locales')", "require('./translations')")
-    .replace("        BTN_PAGE: 'Next page',\n        BTN_PREV: 'Previous page',\n        BTN_SETTINGS: 'Settings',",
-      "        BTN_SETTINGS: 'Settings',")
-    .replace(/SID_OSA_SET_/g, 'SID_DPF_SET_')
-    .replace(/OSA setting language/g, 'DPF setting language');
-  assert.equal(dpf, expected, 'DPF language implementation must stay identical to OSA');
-  assert.match(main, /Language\.start\(ctx\)/);
-  assert.doesNotMatch(main, /function updateAutomaticLanguage\(/);
-  assert.doesNotMatch(main, /function applyLanguage\(/);
+  const dpf = fs.readFileSync(path.join(__dirname, 'language.js'));
+  // Production DPF 0.1.74 Git blob SHA; no cross-app OSA dependency in DEV.
+  const sha = crypto.createHash('sha1').update('blob ' + dpf.length + '\\0').update(dpf).digest('hex');
+  assert.equal(sha, '926246171ee77fa6c56dac066cb763ddb4a17d71',
+    'DPF DEV language controller must retain copied production baseline');
+  assert.match(main, /Language\\.start\\(ctx\\)/);
+  assert.doesNotMatch(main, /function updateAutomaticLanguage\\(/);
+  assert.doesNotMatch(main, /function applyLanguage\\(/);
 });
 
 test('reused DPF Recorder never stacks text auto-fit and Settings retains native font size', () => {
