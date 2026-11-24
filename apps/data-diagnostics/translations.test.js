@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.43');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.44');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -67,7 +67,7 @@ assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF compar
 assert.ok(main.includes("ctx.onTap((x,y)=>"));
 assert.ok(main.includes("cacheProbe.run(client.request)"));
 assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
-assert.strictEqual(spec.version,'0.1.53');
+assert.strictEqual(spec.version,'0.1.54');
 for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
 
 assert.ok(main.includes("{op:'status'}"));

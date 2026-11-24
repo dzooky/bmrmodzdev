@@ -25,6 +25,8 @@ jobs:
           node --check tools/data-tool/native-peer-runner.js
           node --check tools/data-tool/native-process-boundary.js
           node --check tools/data-tool/process-boundary-payload.js
+          node --check tools/data-tool/native-process-boundary.js
+          node --check tools/data-tool/process-boundary-payload.js
           node --check tools/data-tool/secure-peer-probe.js
           node --check tools/data-tool/secure-ipc.js
           node tools/data-tool/health-startup.test.js
