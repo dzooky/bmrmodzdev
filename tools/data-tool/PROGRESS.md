@@ -1,5 +1,11 @@
 # Data Tool progress
 
+## v0.1.40 — restore last in-car-positive v0.1.35 transport and UDS path (2026-11-24)
+- **Approved recovery:** restore `service.js` and `transport.js` from exact commit `7e0a47203c69ea2b94d9b146b71d494002560230` (Data Tool 0.1.35 / Diagnostics 0.1.40). Preserve single 200 ms serialized queue, 500 ms success cache, identical request deduplication and historical long-lived `hmictl` helper. Remove post-baseline TASU 0x21 retries and per-read helper teardown; no speculative warm-ups, request reordering or changed delays.
+- **Version/deployment:** publish as Data Tool 0.1.40 (upgrade from failed 0.1.39), retain existing component identity and dependency; historical runtime files unchanged except reported version. Diagnostics receives matching reference workflow as 0.1.47.
+- **Verification:** implementation in GitHub; CI and current in-car behavior are independent checkpoints. The original v0.1.35 + Diagnostics v0.1.40 combination previously passed real-car DDE/EGS/CDS checks, but **this new deployment is unverified**. Stop on shared ECU failures; do not repeat full diagnostics unnecessarily.
+
+
 ## Vehicle FAIL — Data Tool v0.1.39 (2026-11-24)
 - **User-reported in-car:** after installing the dev Data Tool 0.1.39, DPF/EGS reads already FAIL before starting Diagnostics; after running Diagnostics, all tested ECU consumers remain FAIL, including DPF. The per-read hmictl session release did **not** restore vehicle functionality. Do not claim this mitigation as verified or repeat disruptive full diagnostic runs. The underlying TASU condition remains unknown and may predate v0.1.39.
 - **NO-GO:** no further consumer migration or automatic retries/warm-ups. Stop in-car Diagnostics on shared ECU failures. Last documented positive baseline remains 0.1.35 paired with Diagnostics 0.1.40, not a verified fix for current conditions.
