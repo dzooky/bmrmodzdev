@@ -115,7 +115,7 @@ jobs:
           node tools/data-tool/scheduler-live-test.test.js
           node tools/data-tool/scheduler-profile-test.test.js
           node tools/data-tool/scheduler-compare.test.js
-          node tools/data-tool/uds-demand-gateway.test.js
+          node tools/data-tool/public-api.test.js\n          node tools/data-tool/uds-demand-gateway.test.js
           node apps/dpf-dev/data-demand-plan.test.js
           node tools/data-tool/cds-engine.test.js
           node tools/data-tool/data-manifest.test.js
