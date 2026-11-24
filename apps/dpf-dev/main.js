@@ -240,6 +240,7 @@ mgu.run({
             ? profile.overview.filter(([key]) => key === 'REQUEST' || key === 'MODE') : [];
         const hexBytes = a => a.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
         async function testSelected(regenOnly = false) {
+            if (sootComparisonBusy) return; // Never overlap manual reference acquisition.
             if (!identified || (!regenOnly && (page === 'about' || page === 'settings' || page === 'diagnostics'))) return;
             if (testing) {
                 readPending = true;
