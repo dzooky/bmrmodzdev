@@ -17,7 +17,7 @@ assert.deepStrictEqual(spec.signals,{});
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.41');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
-assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND','BTN_TASU']);
+assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
 assert.ok(t('en','Secure upload'));
 assert.ok(t('en','Network diagnostics'));
 assert.ok(t('en','HTTPS report upload'));
@@ -57,7 +57,8 @@ for(const text of [
 ])assert.ok(main.includes(text));
 assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
-assert.ok(main.includes("ui.onClick('BTN_TASU'"));
+assert.ok(main.includes('toggleTasuIdle().catch'));
+assert.ok(main.includes("if(page===1)toggleTasuIdle()"));
 assert.ok(main.includes('runTest(nextPhase)'));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
 assert.ok(!main.includes("ui.onClick('BTN_AFTER'"));
