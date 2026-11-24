@@ -44,7 +44,7 @@ function request(ecu,did,options){
       !uds.every(b=>Number.isInteger(b)&&b>=0&&b<=255)||
       uds[0]!==0x62||uds[1]!==((did>>8)&255)||uds[2]!==(did&255))
       {const e=new Error('Invalid Data Tool response');e.code='INVALID_RESPONSE';return done(e);}
-    done(null,uds);
+    done(null,opts.withMeta===true?{uds,at:typeof reply.at==='string'?reply.at:null,cached:reply.cached===true}:uds);
    }catch(e){done(e);}
   });
   socket.on('error',done);
