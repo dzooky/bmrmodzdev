@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.53",
+  "version": "0.1.54",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
@@ -197,6 +197,21 @@
     {
       "path": "scheduler-compare.js",
       "from": "scheduler-compare.js",
+      "mode": "0644"
+    },
+    {
+      "path": "public-api.js",
+      "from": "public-api.js",
+      "mode": "0644"
+    },
+    {
+      "path": "public-runtime.js",
+      "from": "public-runtime.js",
+      "mode": "0644"
+    },
+    {
+      "path": "public-client.js",
+      "from": "public-client.js",
       "mode": "0644"
     }
   ],

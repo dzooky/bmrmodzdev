@@ -21,7 +21,7 @@
 - **Freshness and error honesty.** Cache entries include sample time/age and validity; stale, missing and failed values must be identified explicitly, not reported as fresh successes. A consumer receives the last valid value only subject to an explicitly defined freshness policy.
 - **No speculative ECU ordering policy.** A serialized queue is agreed, but there is *no established proof* that successful reads require a fixed cross-ECU order. Do not add or impose order dependencies from assumptions. Preserve the last successful diagnostic baseline until evidence warrants a specific change.
 - **Background demand is distinct from foreground display.** The Tool should acquire only the minimum data justified by active consumer needs, including any approved background-only signals. Do not infer that all app screens or functions need continuous high-rate polling. Detailed background scheduling is still subject to verification.
-- **Consumer isolation and access control.** Only approved demands may affect the Tool. Keep existing fail-closed service/authentication gates; no production app-data gateway until app identity and access controls are proven. A conceptual consumer contract does not authorize exposing unauthenticated data endpoints.
+- **Open local API:** approved for all MGU apps; app ID informational, no mandatory tokens. Enforce named catalog, bounded sessions, intervals, leases and workload. Use existing ctl.sock with separate API session protocol.
 
 ## Adding an application / signal: compact acceptance workflow
 
@@ -36,9 +36,8 @@
 - Vehicle verified: Tool 0.1.51 / Diagnostics 0.1.62 B57 profile 12/12 repeated samples, measured 5.15–5.45 s; Tool 0.1.52 / DPF DEV 0.1.79 manual comparison 12/12 exact matches. No production app subscription yet.
 - Mixed freshness vehicle test: 12/12 PASS reported, exact installed revision ambiguous. Next: open API foundation and background validation. See PROGRESS for individual versions.
 
-## Roadmap — application identity (2026-11-24)
-- Approved for roadmap, not implementation: evaluate installer-generated unique random per-installation tokens. Trusted installer registers package and token, protected per-app storage, service verifies token and assigns scoped capabilities; revoke on uninstall, rotate on reinstall/update as appropriate. No static shared secrets, tokens in logs, or self-registration by untrusted apps. Verify installer privileges and storage isolation before production activation.
-- Continue functional scheduler validation first. Manual fixed read-only diagnostics remain distinct from production app subscriptions.
+## Roadmap — open API
+- Installer tokens deferred. Validate runtime limits and background acquisition before DPF DEV migration.
 
 ## Where to maintain decisions
 
