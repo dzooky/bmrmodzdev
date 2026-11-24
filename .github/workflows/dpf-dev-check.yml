@@ -41,6 +41,7 @@ jobs:
           node apps/dpf-dev/distance-record.test.js
           node apps/dpf-dev/data-tool-read.test.js
           node apps/dpf-dev/soot-compare.test.js
+          node apps/dpf-dev/data-demand-plan.test.js
           node apps/dpf-dev/all-fields-compare.test.js
           node apps/dpf-dev/reference-refresh.test.js
           node apps/dpf-dev/diagnostics.test.js
