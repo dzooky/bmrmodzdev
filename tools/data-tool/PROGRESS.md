@@ -1,5 +1,12 @@
 # Data Tool progress
 
+## v0.1.39 — close TASU helper after each queued read (2026-11-24)
+- **Observed in car:** with the dev Data Tool installed, DPF and EGS sometimes lose live diagnostic data after repeated Diagnostics runs; independent apps previously recovered after uninstalling dev components. This suggests but does not prove helper/session interference.
+- **Implemented:** close the per-read hmictl/TASU helper, awaiting child exit before the next queued physical read; preserve existing 0x21 bounded retry *inside* one request, 0x25 fail result, existing read cadence/timeouts, allowlist, shared queue, duplicate-read coalescing, cache, CDS and other APIs. No consumer app modifications.
+- **Regression:** mock coverage for released helpers after positive reads, coalesced and cached requests, and rejected F150 status 0x25 with no extra retry. CI and in-car verification to be recorded separately.
+- **Safety:** experimental only. No claim of root-cause resolution or car verification. Stop testing if other apps lose TASU values.
+
+
 ## Approved development workflow documented (2026-11-24; documentation-only)
 - User-confirmed architecture and scope are recorded in [WORKFLOW.md](WORKFLOW.md): Tool owns acquisition and serial scheduling, consumers declare data/freshness demands, concurrent identical requests are shared, faster UI refresh uses validated cache, and new applications must not change functioning acquisition.
 - Preserve last in-car-working behavior; no speculative ECU order, new warm-ups or transport rewrites; isolate experiments and choose minimal regression tests. User-approved decisions must be read before future changes.

@@ -175,7 +175,20 @@ class HmiTransport {
       return await received;
     }catch(e){if(this.pendingRead===pending)pending.reject(e);received.catch(()=>{});throw e;}
   }
-  close(){if(this.child)this.child.kill();this.child=null;this.ready=false;}
+  close(){
+    const child=this.child;
+    this.child=null;
+    this.ready=false;
+    if(!child)return Promise.resolve();
+    // Await helper exit so the next queued request cannot overlap the old TASU client.
+    if(child.exitCode!==null||child.signalCode!==null)return Promise.resolve();
+    return new Promise(resolve=>{
+      const done=()=>{child.removeListener('error',done);child.removeListener('exit',done);resolve();};
+      child.once('exit',done);
+      child.once('error',done);
+      try{if(!child.kill())done();}catch(_){done();}
+    });
+  }
 }
 function createTransport(){
   if(process.env.BMRMODZ_DATA_ADAPTER){
