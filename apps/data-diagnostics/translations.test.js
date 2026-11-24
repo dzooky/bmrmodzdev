@@ -56,7 +56,7 @@ for(const text of [
  'We still working on it and will be available soon.',
  'Thank you'
 ])assert.ok(main.includes(text));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
+assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
 assert.ok(main.includes('toggleTasuIdle().catch'));
 assert.strictEqual(spec.screens[0].buttons[1][1],'Open TASU (no read)');
