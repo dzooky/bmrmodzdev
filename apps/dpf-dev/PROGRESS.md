@@ -1,5 +1,11 @@
 # DPF Status DEV progress
 
+## v0.1.77 — distinguish comparison differences/missing data from read failures (2026-11-24)
+- **Observed in car, v0.1.76:** user reported one temperature difference of -0.5 C, all other compared readings OK, but overall Settings action showed `Failed`. On a subsequent attempt user reported nearly all N/A, only 3 OK. No per-field ECU failure evidence has been supplied. The original 30s native snapshot freshness requirement and 12 serial Tool reads can produce N/A; do not interpret missing native snapshots as a transport fault. The precise cause of each missing sample is unconfirmed.
+- **Regression fix:** retain existing bounded manual DPF comparison, but classify summary as `Responding` when all match, `Difference` when at least one nonzero delta and no errors, `Incomplete` when only valid matches plus missing/stale native references, and `Failed` only for an actual invalid/failed Tool read. Per-field OK / numeric delta / N/A / FAIL unchanged. All 21 non-English translation catalogs updated, unchanged Tool and production apps.
+- **CI and in-car status:** pending after branch integration; no vehicle verification for this fix yet.
+
+
 ## v0.1.76 — all DPF profile data, differences only (2026-11-24)
 **Integration:** PR #68 merged into dev `main` at `6b30ce3e920e4640619ce0eea59730837680134d`. DPF DEV test/preview CI #15 (PR), #16 (`main`) **PASS**; Data Tool regression #241 (PR), #242 (`main`) **PASS**. **DPF DEV v0.1.76 not yet tested in car.**
 - **Vehicle baseline:** DPF DEV 0.1.75 manual DDE B57 SOOT comparison showed 12.99 g on original TASU and 12.99 g via Tool, 0.00 g difference; ages 17 s / 1 s; Tool responding, native source selected. One successful in-car sample, not complete migration.
