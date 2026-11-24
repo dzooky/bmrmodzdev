@@ -1,5 +1,9 @@
 # Data Tool progress
 
+## Vehicle FAIL — Data Tool v0.1.39 (2026-11-24)
+- **User-reported in-car:** after installing the dev Data Tool 0.1.39, DPF/EGS reads already FAIL before starting Diagnostics; after running Diagnostics, all tested ECU consumers remain FAIL, including DPF. The per-read hmictl session release did **not** restore vehicle functionality. Do not claim this mitigation as verified or repeat disruptive full diagnostic runs. The underlying TASU condition remains unknown and may predate v0.1.39.
+- **NO-GO:** no further consumer migration or automatic retries/warm-ups. Stop in-car Diagnostics on shared ECU failures. Last documented positive baseline remains 0.1.35 paired with Diagnostics 0.1.40, not a verified fix for current conditions.
+
 ## v0.1.39 — close TASU helper after each queued read (2026-11-24)
 - **Observed in car:** with the dev Data Tool installed, DPF and EGS sometimes lose live diagnostic data after repeated Diagnostics runs; independent apps previously recovered after uninstalling dev components. This suggests but does not prove helper/session interference.
 - **Implemented:** close the per-read hmictl/TASU helper, awaiting child exit before the next queued physical read; preserve existing 0x21 bounded retry *inside* one request, 0x25 fail result, existing read cadence/timeouts, allowlist, shared queue, duplicate-read coalescing, cache, CDS and other APIs. No consumer app modifications.
