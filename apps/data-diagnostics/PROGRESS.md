@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.53 — isolated manual UDS cache/coalescing check (2026-11-24)
+- **Observed in car (previous 0.1.43/0.1.52 baseline):** user confirmed passive UDS Read Health rendered on MGU, reported **11 successful Data Tool ECU reads** after one diagnostic Run, and independently confirmed DPF, OSA EGS, and other apps continued functioning afterward. This demonstrates one successful coexistence observation, **not** long-term stability or proven cache sharing.
+- **Implemented in Diagnostics only:** seventh **Cache test** tab with an on-screen tap target. On an explicit tap, snapshot Tool UDS counters, send **two concurrent identical allowlisted IHKA 0x78 / DID 0xD8D7 reads** using the existing socket API, then immediately a third identical read and a final status snapshot. Report delta of physical ECU requests (expected 0 if already cached, else 1), coalesced requests, cache hits, success of three replies, and whether third reply was cached. No new background polling; no report upload; no raw ECU payload included in result. The existing three MGU hardware bar buttons, normal diagnostic Run/order, TASU idle probe, and DPF/OSA remain unchanged.
+- **Safety / limitations:** Only test parked in diagnostic mode, and avoid concurrent TASU idle experiment. One tap launches at most one bounded attempt. An existing fresh IHKA cache entry can yield 0 new ECU reads and 3 cache hits; this is a valid reused-cache outcome. An error/failure must be reported, not hidden. Real MGU touch behavior and coexistence of repeated requests are **not yet verified**; CI is offline only.
+
+
 ## v0.1.52 — dev MGU Store refresh experiment (2026-11-24)
 - **Problem:** user reports no available updates for Diagnostics 0.1.51 and Data Tool 0.1.42 in MGU Store, even after checking the dev source and restarting HU. Cause **not established**.
 - **Publication experiment:** bump Diagnostics to 0.1.52 and its Data Tool dependency to 0.1.43; keep static three-button MGU layout, passive read-health display, TASU action, normal diagnostic Run and Send action unchanged. Visible Info/version and What's New marker updated so the installed revision can be identified.
