@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.45');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.46');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -67,7 +67,7 @@ assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF compar
 assert.ok(main.includes("ctx.onTap((x,y)=>"));
 assert.ok(main.includes("cacheProbe.run(client.request)"));
 assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
-assert.strictEqual(spec.version,'0.1.56');
+assert.strictEqual(spec.version,'0.1.57');
 for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
 
 assert.ok(main.includes("{op:'status'}"));
@@ -81,3 +81,5 @@ console.log('Data Diagnostics: English-only translations, new app notice, tool-o
 for(const key of ["Readable focused results","Process boundary","Peer cgroup","Separate cgroup","Same UID","Process stat","readable","unavailable","yes","no","Boundary details unavailable","Package identity NOT verified","Production access OFF","ECU reference","DDE / DPF","EGS / transmission","IHKA / climate","BDC / steering","ACSM / seatbelts","Full report: Send report"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
 
 for(const key of ["Package boundary observation","Package survey","Observed","Unavailable","OAP layout","UID matches layout","Source mode protected","Package candidate","Process stable","DPF DEV"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
+
+for(const key of ["Source protection diagnosis","Protection reason","protected","layout-unavailable","ancestor-stat","ancestor-symlink","ancestor-type","ancestor-owner","ancestor-write","app-root-stat","app-root-symlink","app-root-type","app-root-owner","app-root-write","source-stat","source-symlink","source-type","source-owner","source-write","manifest-stat","manifest-symlink","manifest-type","manifest-owner","manifest-write","manifest-size","open-flags","manifest-open","manifest-changed","manifest-read","manifest-invalid","unknown"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);

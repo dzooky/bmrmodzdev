@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.57 — precise protection failure (2026-11-24)
+- In-car 0.1.56: readable view, five ECU references PASS, observed OAP layout and matching UID, stable process, source protection NO and candidate unknown; DPF DEV still has data.
+- Shows first protection failure category on Results and sanitized report note. Requires Tool 0.1.46; same manual Run, no change to vehicle reads. CI and MGU validation pending at authoring.
+
+
 ## v0.1.56 — focused package boundary observation (2026-11-24)
 - Shows Process boundary baseline plus package survey availability, OAP layout, UID match, protected source mode, candidate and stable process in the existing readable Results view. Package identity remains NOT verified. Sanitized report note includes these observations; no raw credentials, paths or identities.
 - Requires Tool 0.1.45. Same manual Run and ECU reference checks. English catalog and layout tests updated. CI and MGU verification pending.

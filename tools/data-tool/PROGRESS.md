@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.46 — source protection failure category (2026-11-24)
+- **In-car 0.1.45 / Diagnostics 0.1.56:** Process boundary PASS, OAP layout yes, UID matches yes, process stable yes, source mode protected no, package candidate unknown. Five reference ECUs PASS. User confirms DPF DEV data still available. PR #75 CI 45471414040 PASS, merged d90a8e1f.
+- **Implemented:** report first failing strict protection category using fixed enums (ancestor/app root/source/manifest, ownership/mode/symlink/type/stat/open/read/change). Existing fail-closed conditions unchanged; no raw paths, UID, permissions or arbitrary errors returned. No ECU transport, scheduler or production authorization change. CI and new in-car observation pending at authoring.
+
+
 ## v0.1.45 — manual package boundary observation (2026-11-24)
 - PR #74 private scheduler gateway merged at 4830704b; PR checks Data Tool 45469962408 and DPF DEV 45469962603 PASS. No runtime gateway.
 - Implemented isolated native helper obtains kernel peer credentials privately, then bounded /proc peer observation checks documented OAP cwd layout, UID suffix, stable start time/UID/cwd and root-owned non-writable source ancestry and manifest mode. Only fixed candidate names/booleans leave service. Candidate is an observation, NOT authoritative package authentication; ACL, installer registry, PID reuse and process isolation still require proof.

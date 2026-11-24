@@ -15,7 +15,13 @@ function fixture(options){
    return 'Uid:\t123\t'+(o.uid||123)+'\t123\t123\n';
   },
   readlinkSync:()=>o.cwd||'/var/opt/oap_123/data',
-  lstatSync:p=>p.endsWith('package.json')?manifest:p.endsWith('/source')&&o.writable?{...dir,mode:0o777}:dir,
+  lstatSync:p=>{
+   if(p===o.missing)throw Error('private path must not leak');
+   if(p.endsWith('package.json'))return {...manifest,...(o.manifest||{})};
+   if(p===o.owner)return {...dir,uid:123};
+   if(p===o.symlink)return {...dir,isSymbolicLink:()=>true};
+   return p.endsWith('/source')&&o.writable?{...dir,mode:0o777}:dir;
+  },
   openSync:()=>1,fstatSync:()=>manifest,
   readSync(fd,buf,offset,len){return content.copy(buf,offset,offset,Math.min(content.length,offset+len));},
   closeSync:()=>{}
@@ -32,6 +38,11 @@ async function main(){
  assert.strictEqual(inspectPeer(peer,fixture({uid:456})).ok,false);
  const writable=inspectPeer(peer,fixture({writable:true}));
  assert.strictEqual(writable.sourceProtected,false);assert.strictEqual(writable.candidate,'unknown');
+ assert.strictEqual(writable.protectionReason,'source-write');
+ assert.strictEqual(good.protectionReason,'protected');
+ for(const [opts,reason] of [[{owner:'/var'},'ancestor-owner'],[{owner:'/var/opt/oap_123'},'app-root-owner'],[{owner:'/var/opt/oap_123/source'},'source-owner'],[{symlink:'/var/opt'},'ancestor-symlink'],[{missing:'/var/opt/oap_123/source'},'source-stat'],[{manifest:{uid:123}},'manifest-owner'],[{manifest:{mode:0o666}},'manifest-write']]){
+  const value=inspectPeer(peer,fixture(opts));assert.strictEqual(value.protectionReason,reason);assert.strictEqual(value.sourceProtected,false);assert.strictEqual(value.candidate,'unknown');assert.strictEqual(value.productionAccessEnabled,false);
+ }
  assert.strictEqual(inspectPeer(peer,fixture({cwd:'/tmp/data'})).layout,false);
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'bmrmodz-package-peer-')),address=path.join(dir,'ctl.sock');
  let client,server;
@@ -43,7 +54,7 @@ async function main(){
   const actual=await result;
   assert.strictEqual(actual.ok,true,JSON.stringify(actual));assert.strictEqual(actual.processStable,true);
   assert.strictEqual(actual.packageIdentityVerified,false);assert.strictEqual(actual.productionAccessEnabled,false);
-  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable'].sort());
+  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason'].sort());
   assert.deepStrictEqual(fs.readdirSync(dir),['ctl.sock']);
  }finally{if(client)client.destroy();if(server)await new Promise(r=>server.close(r));try{fs.unlinkSync(address);}catch(_){}fs.rmdirSync(dir);}
  console.log('Package observation: private kernel credentials, stable process, protected candidate and no auth passed');

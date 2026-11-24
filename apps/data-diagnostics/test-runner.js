@@ -45,6 +45,7 @@ function safePackageSurvey(value){
     return {available:false};
   return {available:true,layout:value.layout===true,uidMatches:value.uidMatches===true,
     sourceProtected:value.sourceProtected===true,processStable:value.processStable===true,
+    protectionReason:["protected","layout-unavailable","ancestor-stat","ancestor-symlink","ancestor-type","ancestor-owner","ancestor-write","app-root-stat","app-root-symlink","app-root-type","app-root-owner","app-root-write","source-stat","source-symlink","source-type","source-owner","source-write","manifest-stat","manifest-symlink","manifest-type","manifest-owner","manifest-write","manifest-size","open-flags","manifest-open","manifest-changed","manifest-read","manifest-invalid","unknown"].includes(value.protectionReason)?value.protectionReason:'unknown',
     candidate:['data-diagnostics','dpf-dev'].includes(value.candidate)&&value.sourceProtected===true?value.candidate:'unknown'};
 }
 function resultFor(step,reply,duration){
@@ -462,7 +463,7 @@ function createRunner(send,clock){
       const packageSurvey=(results.find(x=>x.id==='processBoundary')||{}).packageSurvey||{available:false};
       const packageNote=packageSurvey.available?'Package survey: layout '+packageSurvey.layout+', UID match '+packageSurvey.uidMatches+
         ', protected source '+packageSurvey.sourceProtected+', stable '+packageSurvey.processStable+
-        ', candidate '+packageSurvey.candidate:'Package survey: unavailable';
+        ', candidate '+packageSurvey.candidate+', reason '+packageSurvey.protectionReason:'Package survey: unavailable';
       const totals={pass:results.filter(x=>x.status==='PASS').length,fail:results.filter(x=>x.status==='FAIL').length,
         skip:results.filter(x=>x.status==='SKIP').length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
