@@ -109,7 +109,7 @@ class HmiTransport {
         }
       }
     }
-    if(rejected)this.pendingRead.consume({error:'TASU rejected request',tasuStatus:short.statusCode});
+    if(rejected)this.pendingRead.consume({error:'TASU rejected request'});
   }
   failPending(e){if(this.pendingLine)this.pendingLine.reject(e);if(this.pendingRead)this.pendingRead.reject(e);}
   line(s,timeout){
@@ -142,14 +142,7 @@ class HmiTransport {
       pending={
         reject:e=>finish(reject,e),trace,
         consume:response=>{
-          if(response.error){
-            if(trace)trace.negativeEvents++;
-            const err=new Error(trace?(response.error==='TASU rejected request'?'TASU rejected request':'TASU rejected frame'):response.error);
-            // TASU status is not a UDS NRC. Preserve its numeric identity
-            // for a strictly bounded read-only 0x21 recovery in the service.
-            if(Number.isInteger(response.tasuStatus))err.tasuStatus=response.tasuStatus;
-            return finish(reject,err);
-          }
+          if(response.error){if(trace)trace.negativeEvents++;return finish(reject,new Error(trace?(response.error==='TASU rejected request'?'TASU rejected request':'TASU rejected frame'):response.error));}
           if(response.ecu!==ecu){if(trace)trace.otherEcuEvents++;return;}
           if(trace)trace.matchedEcuEvents++;
           const u=response.uds;
@@ -175,20 +168,7 @@ class HmiTransport {
       return await received;
     }catch(e){if(this.pendingRead===pending)pending.reject(e);received.catch(()=>{});throw e;}
   }
-  close(){
-    const child=this.child;
-    this.child=null;
-    this.ready=false;
-    if(!child)return Promise.resolve();
-    // Await helper exit so the next queued request cannot overlap the old TASU client.
-    if(child.exitCode!==null||child.signalCode!==null)return Promise.resolve();
-    return new Promise(resolve=>{
-      const done=()=>{child.removeListener('error',done);child.removeListener('exit',done);resolve();};
-      child.once('exit',done);
-      child.once('error',done);
-      try{if(!child.kill())done();}catch(_){done();}
-    });
-  }
+  close(){if(this.child)this.child.kill();this.child=null;this.ready=false;}
 }
 function createTransport(){
   if(process.env.BMRMODZ_DATA_ADAPTER){
