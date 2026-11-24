@@ -15,6 +15,8 @@ jobs:
       - name: Validate installed service syntax with legacy Node 12
         run: |
           node --check tools/data-tool/service.js
+          node --check tools/data-tool/uds-demand-scheduler.js
+          node --check tools/data-tool/scheduler-live-test.js
           node --check tools/data-tool/data-broker.js
           node --check tools/data-tool/data-catalog.js
           node --check tools/data-tool/broker-gateway.js
@@ -108,6 +110,7 @@ jobs:
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
           node tools/data-tool/uds-demand-scheduler.test.js
+          node tools/data-tool/scheduler-live-test.test.js
           node tools/data-tool/uds-demand-gateway.test.js
           node apps/dpf-dev/data-demand-plan.test.js
           node tools/data-tool/cds-engine.test.js

@@ -1,5 +1,11 @@
 # Data Tool progress
 
+## v0.1.50 — functional internal scheduler experiment (2026-11-24)
+- In-car 0.1.49 / Diagnostics 0.1.60: OAP parent group-write without sticky bit, app mode clear, protected ACL reader and AppManagement present, supplementary groups present; five ECU references PASS, DDE/EGS first attempt. PR #79 merged 0a9d3a45, CI 45478420641 PASS. Package identity remains unverified.
+- Stop iterative metadata-only releases. Explicit fixed diagnostic operation invokes existing private scheduler using the existing serialized allowlisted DDE regeneration request read; two internal consumers share one read call, snapshots are passive, release stops demand. No external demand parameters, raw UDS or app grant; no timer, no scheduler at boot, production gateway OFF. One read call may use existing service cache. CI and vehicle validation pending.
+- Next after vehicle success: validate larger fixed internal demand profile and measured cadence, then independently resolve authenticated consumer onboarding. Do not infer package identity from directory metadata.
+
+
 ## v0.1.49 — boundary details (2026-11-24)
 - In-car Tool 0.1.48 / Diagnostics 0.1.59: owner consistency match, account not-listed, ancestor and peer mode risk, entrypoint mode-match, same mount namespace, no effective capabilities; five ECU references PASS; DDE/EGS first attempt; two existing staged CDS failures. PR #78 CI PASS 45476752118 merged 05bac193.
 - Passive risk classification, sticky-bit observation, app-only mode check, fixed ACL reader and documented AppManagement file metadata, supplementary group presence. Neither tool presence nor sticky bit proves authorization; registry and actual ACL remain unverified. No ECU, permission or scheduler changes; production OFF. CI and in-car pending.
