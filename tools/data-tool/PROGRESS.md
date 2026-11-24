@@ -1,7 +1,8 @@
 # Data Tool progress
 
 ## v0.1.44 — restore manual process-boundary survey (2026-11-24)
-- **Implemented, awaiting CI and in-car proof:** restored the original explicit `processBoundaryProbe` handler from the earlier working source layout, and bundled the existing hash-validated `native-process-boundary.js` plus `process-boundary-payload.js`. The handler is only invoked by a user-initiated Diagnostics Run; it observes SO_PEERCRED and bounded /proc access booleans without revealing raw PID/UID/GID, executable names, process metadata or package identity. It cannot grant any app data permissions.
+**Integration:** PR #72 merged into dev `main` at `1b4b6e12169b438bb3b61d13a12692a9ce868dcb`; Data Tool CI #258 (PR) and #259 (`main`) **PASS**, including offline native boundary roundtrip and existing Data Tool Diagnostics regression tests. **MGU in-car v0.1.44/0.1.54 not yet tested.**
+- **Implemented, CI-tested, awaiting in-car proof:** restored the original explicit `processBoundaryProbe` handler from the earlier working source layout, and bundled the existing hash-validated `native-process-boundary.js` plus `process-boundary-payload.js`. The handler is only invoked by a user-initiated Diagnostics Run; it observes SO_PEERCRED and bounded /proc access booleans without revealing raw PID/UID/GID, executable names, process metadata or package identity. It cannot grant any app data permissions.
 - **Non-regression:** no change to the restored vehicle-read transport, ECU queue, retry policy, read order, cache, background scheduler or status socket permissions. The new UDS demand scheduler stays private/inactive; production apps untouched. Tool version is 0.1.44 solely to make the installed diagnostic change visible.
 - **Limits:** a PASS is kernel/process observability, NOT authenticated DPF DEV identity. No installed-package attestation and no production gateway.
 
