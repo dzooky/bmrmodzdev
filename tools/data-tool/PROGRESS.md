@@ -1,5 +1,11 @@
 # Data Tool progress
 
+## v0.1.43 — dev MGU Store refresh experiment (2026-11-24)
+- **Problem:** user reports no updates visible for Data Tool 0.1.42 / Diagnostics 0.1.51 in MGU Store; reboot of HU did not fix it. Root cause unconfirmed.
+- **Experiment:** manifest version 0.1.43, same value in passive service status/report and offline health test; no transport, ECU reads, cache, queue, scheduler or other functional behavior changed. Companion Diagnostics 0.1.52 requires Tool 0.1.43.
+- **Verification:** pending CI and MGU Store visibility; do not interpret merge as proof of Store publication.
+
+
 **Integration and verification:** PR #64 merged into dev `main` at `66c9cf453d78df1eeab0d963978e285a1a718aaf`. GitHub Actions #219 (PR) and #220 (`main`) **PASS**, including Tool regression and offline MGU preview. **No in-car verification of v0.1.42/v0.1.51 yet.**
 
 
