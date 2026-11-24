@@ -89,7 +89,8 @@ const catalogs={
     "TASU connected without ECU reads": "TASU connected without ECU reads",
     "TASU connection closed": "TASU connection closed",
     "TASU probe failed": "TASU probe failed",
-    "Manual TASU connection isolation": "Manual TASU connection isolation"
+    "Manual TASU connection isolation": "Manual TASU connection isolation",
+    "Close TASU before running diagnostics": "Close TASU before running diagnostics"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
