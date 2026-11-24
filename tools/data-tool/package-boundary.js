@@ -8,7 +8,7 @@ const SHA='37f2da772f05f2725456781b0d8020d8fb924dbeee8ce8420a195e2e28695340';
 const packages=['data-diagnostics','dpf-dev'];
 function out(stage,extra){return Object.assign({ok:false,stage,observationOnly:true,
  packageIdentityVerified:false,productionAccessEnabled:false,layout:false,uidMatches:false,
- sourceProtected:false,candidate:'unknown',processStable:false},extra||{});}
+ sourceProtected:false,candidate:'unknown',processStable:false,protectionReason:'unknown'},extra||{});}
 function unpack(){
  const code=zlib.gunzipSync(Buffer.from(PAYLOAD,'base64'));
  if(code.length<128||code.length>16384||code[0]!==127||code.toString('ascii',1,4)!=='ELF'||
@@ -29,38 +29,50 @@ function processSample(io,pid){
   !path.isAbsolute(cwd)||path.resolve(cwd)!==cwd||/[\x00-\x1f]/.test(cwd)||cwd.endsWith(' (deleted)'))return null;
  return {start,uid:Number(match[2]),cwd};
 }
-function safeDirectory(io,dir){
- // Lexical walk; do not follow symlinks or enter non-root-writable ancestry.
+function directoryReason(io,dir){
+ // Same strict policy as 0.1.45. Report the first failing category only.
  let current='/';
  const parts=dir.split('/').filter(Boolean);
  for(const part of [''].concat(parts)){
   if(part)current=path.join(current,part);
-  const st=io.lstatSync(current);
-  if(!st.isDirectory()||st.isSymbolicLink()||st.uid!==0||(st.mode&0o022)!==0)return false;
+  const kind=current===dir?'source':current===path.dirname(dir)?'app-root':'ancestor';
+  let st;try{st=io.lstatSync(current);}catch(_){return kind+'-stat';}
+  if(st.isSymbolicLink())return kind+'-symlink';
+  if(!st.isDirectory())return kind+'-type';
+  if(st.uid!==0)return kind+'-owner';
+  if((st.mode&0o022)!==0)return kind+'-write';
  }
- return true;
+ return 'protected';
 }
 function packageCandidate(io,dir){
  const source=path.join(dir,'source');
- let fd=null;
+ let fd=null,stage='manifest-stat';
+ const blocked=reason=>({sourceProtected:false,candidate:'unknown',protectionReason:reason});
  try{
-  if(!safeDirectory(io,source))return {sourceProtected:false,candidate:'unknown'};
+  const reason=directoryReason(io,source);
+  if(reason!=='protected')return blocked(reason);
   const filename=path.join(source,'package.json');
   const before=io.lstatSync(filename);
-  if(!before.isFile()||before.isSymbolicLink()||before.uid!==0||(before.mode&0o022)!==0||
-     before.size<2||before.size>16384)return {sourceProtected:false,candidate:'unknown'};
+  if(before.isSymbolicLink())return blocked('manifest-symlink');
+  if(!before.isFile())return blocked('manifest-type');
+  if(before.uid!==0)return blocked('manifest-owner');
+  if((before.mode&0o022)!==0)return blocked('manifest-write');
+  if(before.size<2||before.size>16384)return blocked('manifest-size');
   if(typeof fs.constants.O_NOFOLLOW!=='number'||typeof fs.constants.O_NONBLOCK!=='number')
-   return {sourceProtected:false,candidate:'unknown'};
+   return blocked('open-flags');
+  stage='manifest-open';
   fd=io.openSync(filename,fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW|fs.constants.O_NONBLOCK);
+  stage='manifest-changed';
   const st=io.fstatSync(fd);
   if(!st.isFile()||st.uid!==0||(st.mode&0o022)!==0||st.dev!==before.dev||st.ino!==before.ino||
-     st.size!==before.size)return {sourceProtected:false,candidate:'unknown'};
+     st.size!==before.size)return blocked(stage);
+  stage='manifest-read';
   const buf=Buffer.alloc(st.size+1);let used=0;
   while(used<buf.length){const n=io.readSync(fd,buf,used,buf.length-used,null);if(n===0)break;used+=n;}
-  if(used!==st.size)return {sourceProtected:false,candidate:'unknown'};
-  let value;try{value=JSON.parse(buf.toString('utf8',0,used));}catch(_){return {sourceProtected:true,candidate:'unknown'};}
-  return {sourceProtected:true,candidate:value&&packages.includes(value.name)?value.name:'unknown'};
- }catch(_){return {sourceProtected:false,candidate:'unknown'};}
+  if(used!==st.size)return blocked(stage);
+  let value;try{value=JSON.parse(buf.toString('utf8',0,used));}catch(_){return {sourceProtected:true,candidate:'unknown',protectionReason:'manifest-invalid'};}
+  return {sourceProtected:true,candidate:value&&packages.includes(value.name)?value.name:'unknown',protectionReason:'protected'};
+ }catch(_){return blocked(stage);}
  finally{if(fd!==null)try{io.closeSync(fd);}catch(_){}}
 }
 function inspectPeer(peer,io){
@@ -73,12 +85,12 @@ function inspectPeer(peer,io){
   const root=path.dirname(first.cwd),name=path.basename(root);
   const layout=path.basename(first.cwd)==='data'&&/^oap_[A-Za-z0-9_-]{1,64}$/.test(name);
   const uidMatches=layout&&name==='oap_'+peer.uid;
-  const candidate=layout?packageCandidate(f,root):{sourceProtected:false,candidate:'unknown'};
+  const candidate=layout?packageCandidate(f,root):{sourceProtected:false,candidate:'unknown',protectionReason:'layout-unavailable'};
   const last=processSample(f,peer.pid);
   if(!last||first.start!==last.start||first.uid!==last.uid||first.cwd!==last.cwd)
    return out('peer-changed');
   return out('observed',{ok:true,layout,uidMatches,sourceProtected:candidate.sourceProtected,
-   candidate:candidate.candidate,processStable:true});
+   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason});
  }catch(_){return out('peer-unavailable');}
 }
 let active=false;
