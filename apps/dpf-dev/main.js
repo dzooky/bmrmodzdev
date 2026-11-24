@@ -172,7 +172,12 @@ mgu.run({
                             u=>u&&((u[0]===0x62&&u[1]===(did>>8)&&u[2]===(did&255))||
                                 (u[0]===0x7f&&u[1]===0x22)),requestOptions);
                     });
-                const result = await allFieldsCompare.compareAll(profile,reference.snapshots,dataToolRead.request);
+                const snapshot=await dataToolRead.schedulerCompare();
+                if(snapshot.engine!==profile.engine)throw Error('DDE profile mismatch');
+                const result = await allFieldsCompare.compareAll(profile,reference.snapshots,async(ecu,did)=>{
+                    if(ecu!==DDE||!Object.prototype.hasOwnProperty.call(snapshot.fields,did))return null;
+                    return snapshot.fields[did];
+                });
                 allComparison=result;
                 const state = allFieldsCompare.summaryState(result);
                 sootComparison = {state,result:null};
@@ -498,6 +503,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.79', 'Manual comparison using scheduler cache'],
                 ['0.1.78', 'Complete missing reference data during manual comparison'],
                 ['0.1.77', 'Correct data comparison result status'],
                 ['0.1.76', 'All DPF data comparison via Data Tool'],

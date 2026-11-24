@@ -3,7 +3,7 @@ const assert=require('assert'),fs=require('fs'),path=require('path');
 const app=JSON.parse(fs.readFileSync(path.join(__dirname,'app.json'),'utf8'));
 const source=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 const adapter=fs.readFileSync(path.join(__dirname,'data-tool-read.js'),'utf8');
-assert.strictEqual(app.version,'0.1.78');
+assert.strictEqual(app.version,'0.1.79');
 assert.ok(source.includes("const TABS = ['Overview', 'Detail', 'Settings', 'About', 'Diagnostics']"));
 assert.ok(source.includes("renderDiagnostics(cv, t)"));
 assert.ok(source.includes("page !== 'diagnostics' && ui.isVisible('MAIN')"));
@@ -40,3 +40,6 @@ assert.ok(source.includes("await link.physical(address, 0x22, [(did >> 8) & 255,
 
 assert.ok(adapter.includes("if(!legacy.ready && typeof legacy.init==='function')await legacy.init()"));
 console.log('DPF diagnostics tab: source wiring, passive status and no extra polling verified');
+
+assert.ok(source.includes('await dataToolRead.schedulerCompare()'));
+assert.ok(source.includes('snapshot.fields[did]'));
