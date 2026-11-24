@@ -20,14 +20,13 @@ function drawFocusedResults(cv,theme,report,label,word,panel){
  const candidate=available&&survey.candidate==='data-diagnostics'?'Diagnostics':
   available&&survey.candidate==='dpf-dev'?'DPF DEV':'Unknown';
  const yn=value=>available?(value?'Yes':'No'):'Unknown';
- const fields=[['Package survey',available?'Observed':'Unavailable'],
-  ['OAP layout',yn(survey&&survey.layout)],['UID matches layout',yn(survey&&survey.uidMatches)],
-  ['Source mode protected',yn(survey&&survey.sourceProtected)],['Package candidate',candidate],
-  ['Process stable',yn(survey&&survey.processStable)],
-  ['Protection reason',available&&["protected","layout-unavailable","ancestor-stat","ancestor-symlink","ancestor-type","ancestor-owner","ancestor-write","app-root-stat","app-root-symlink","app-root-type","app-root-owner","app-root-write","source-stat","source-symlink","source-type","source-owner","source-write","manifest-stat","manifest-symlink","manifest-type","manifest-owner","manifest-write","manifest-size","open-flags","manifest-open","manifest-changed","manifest-read","manifest-invalid","unknown"].includes(survey.protectionReason)?survey.protectionReason:'unknown']];
- fields.forEach(([name,value],i)=>{
+ const meta=survey&&survey.metadata||{};
+ const fields=[['Ancestor modes','ancestor'],['App root mode','appRoot'],['Source mode','source'],
+  ['Manifest mode','manifest'],['Executable link','executable'],['Peer cgroup','peerCgroup'],['UID set','uidSet']];
+ fields.forEach(([name,key],i)=>{
+  const value=["unknown","root no-shared-write","root shared-write","peer no-shared-write","peer shared-write","other no-shared-write","other shared-write","mixed","symlink","wrong-type","unavailable","deleted","readable","match","different"].includes(meta[key])?meta[key]:'unknown';
   label(cv,word(name),55,200+i*31,22,theme.text);
-  label(cv,word(value),760,205+i*34,22,theme.dim,{align:'right'});
+  label(cv,word(value),760,200+i*31,22,theme.dim,{align:'right'});
  });
  label(cv,word('Package identity NOT verified'),55,422,22,theme.warn);
  label(cv,word('Production access OFF'),55,465,20,theme.dim);

@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.47 — combined metadata observations (2026-11-24)
+- In-car 0.1.46 / Diagnostics 0.1.57: ancestor-owner, OAP layout and UID match yes, process stable yes, candidate unknown, five ECU reference PASS. PR #76 CI PASS 45473429386, merged e30b12db.
+- Collect independent directory/manifest ownership classes and shared write mode, executable link, cgroup readability and UID set; no raw paths or credentials, no untrusted manifest reads, no authorization change. Original strict protection gate unchanged. Metadata traversal stops on symlink or unavailable entry. CI and car validation pending.
+
+
 ## v0.1.46 — source protection failure category (2026-11-24)
 - **In-car 0.1.45 / Diagnostics 0.1.56:** Process boundary PASS, OAP layout yes, UID matches yes, process stable yes, source mode protected no, package candidate unknown. Five reference ECUs PASS. User confirms DPF DEV data still available. PR #75 CI 45471414040 PASS, merged d90a8e1f.
 - **Implemented:** report first failing strict protection category using fixed enums (ancestor/app root/source/manifest, ownership/mode/symlink/type/stat/open/read/change). Existing fail-closed conditions unchanged; no raw paths, UID, permissions or arbitrary errors returned. No ECU transport, scheduler or production authorization change. CI and new in-car observation pending at authoring.
