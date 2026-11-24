@@ -1,6 +1,7 @@
 'use strict';
 module.exports = {
   "sk": {
+    "Complete missing reference data during manual comparison": "Doplnenie chýbajúcich referenčných údajov pri ručnom porovnaní",
     "Incomplete": "Neúplné",
     "Correct data comparison result status": "Opravenie stavu výsledku porovnania údajov",
     "Compare all DPF data with Data Tool": "Porovnať všetky údaje DPF cez Data Tool",
@@ -152,6 +153,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správny text v Settings aj po opakovanom vykreslení"
   },
   "cs": {
+    "Complete missing reference data during manual comparison": "Doplnění chybějících referenčních údajů při ručním porovnání",
     "Incomplete": "Neúplné",
     "Correct data comparison result status": "Oprava stavu výsledku porovnání údajů",
     "Compare all DPF data with Data Tool": "Porovnat všechny údaje DPF přes Data Tool",
@@ -303,6 +305,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správný text v Nastavení i po opakovaném vykreslení"
   },
   "de": {
+    "Complete missing reference data during manual comparison": "Fehlende Referenzdaten beim manuellen Vergleich ergänzen",
     "Incomplete": "Unvollständig",
     "Correct data comparison result status": "Ergebnisstatus des Datenvergleichs korrigiert",
     "Compare all DPF data with Data Tool": "Alle DPF-Daten mit Data Tool vergleichen",
@@ -454,6 +457,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekte Schrift in Einstellungen nach wiederholtem Rendern"
   },
   "es": {
+    "Complete missing reference data during manual comparison": "Completar referencias ausentes durante la comparación manual",
     "Incomplete": "Incompleto",
     "Correct data comparison result status": "Corrección del estado de comparación de datos",
     "Compare all DPF data with Data Tool": "Comparar todos los datos DPF con Data Tool",
@@ -605,6 +609,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correcto en Ajustes tras renderizados repetidos"
   },
   "fr": {
+    "Complete missing reference data during manual comparison": "Compléter les références manquantes pendant la comparaison manuelle",
     "Incomplete": "Incomplet",
     "Correct data comparison result status": "Correction de l'état de comparaison des données",
     "Compare all DPF data with Data Tool": "Comparer toutes les données DPF avec Data Tool",
@@ -756,6 +761,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texte correct dans les paramètres après plusieurs affichages"
   },
   "it": {
+    "Complete missing reference data during manual comparison": "Completare i riferimenti mancanti durante il confronto manuale",
     "Incomplete": "Incompleto",
     "Correct data comparison result status": "Correzione dello stato di confronto dati",
     "Compare all DPF data with Data Tool": "Confronta tutti i dati DPF con Data Tool",
@@ -907,6 +913,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Testo corretto nelle Impostazioni dopo più ridisegni"
   },
   "hu": {
+    "Complete missing reference data during manual comparison": "Hiányzó referenciaadatok pótlása kézi összehasonlításkor",
     "Incomplete": "Hiányos",
     "Correct data comparison result status": "Adatösszehasonlítás eredményállapotának javítása",
     "Compare all DPF data with Data Tool": "Minden DPF-adat összehasonlítása a Data Tool-lal",
@@ -1058,6 +1065,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Helyes szöveg a Beállításokban ismételt megjelenítés után"
   },
   "pl": {
+    "Complete missing reference data during manual comparison": "Uzupełnianie brakujących danych odniesienia podczas porównania ręcznego",
     "Incomplete": "Niekompletne",
     "Correct data comparison result status": "Poprawa stanu wyniku porównania danych",
     "Compare all DPF data with Data Tool": "Porównaj wszystkie dane DPF przez Data Tool",
@@ -1209,6 +1217,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Poprawny tekst w Ustawieniach po wielokrotnym renderowaniu"
   },
   "ru": {
+    "Complete missing reference data during manual comparison": "Дополнение отсутствующих эталонных данных при ручном сравнении",
     "Incomplete": "Неполные данные",
     "Correct data comparison result status": "Исправлен статус результата сравнения данных",
     "Compare all DPF data with Data Tool": "Сравнить все данные DPF через Data Tool",
@@ -1360,6 +1369,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Правильный текст настроек после повторной отрисовки"
   },
   "da": {
+    "Complete missing reference data during manual comparison": "Udfyld manglende referencedata ved manuel sammenligning",
     "Incomplete": "Ufuldstændig",
     "Correct data comparison result status": "Rettet resultatstatus for datasammenligning",
     "Compare all DPF data with Data Tool": "Sammenlign alle DPF-data med Data Tool",
@@ -1511,6 +1521,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt tekst i Indstillinger efter gentagen visning"
   },
   "el": {
+    "Complete missing reference data during manual comparison": "Συμπλήρωση ελλιπών δεδομένων αναφοράς κατά τη χειροκίνητη σύγκριση",
     "Incomplete": "Ελλιπές",
     "Correct data comparison result status": "Διόρθωση κατάστασης αποτελέσματος σύγκρισης δεδομένων",
     "Compare all DPF data with Data Tool": "Σύγκριση όλων των δεδομένων DPF με Data Tool",
@@ -1662,6 +1673,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Σωστό κείμενο Ρυθμίσεων μετά από επαναλαμβανόμενη απόδοση"
   },
   "zh-CN": {
+    "Complete missing reference data during manual comparison": "手动比较时补齐缺失的参考数据",
     "Incomplete": "不完整",
     "Correct data comparison result status": "修正数据比较结果状态",
     "Compare all DPF data with Data Tool": "使用 Data Tool 比较所有 DPF 数据",
@@ -1813,6 +1825,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "重复绘制后设置文字仍正确显示"
   },
   "nl": {
+    "Complete missing reference data during manual comparison": "Ontbrekende referentiegegevens aanvullen bij handmatige vergelijking",
     "Incomplete": "Onvolledig",
     "Correct data comparison result status": "Resultaatstatus van gegevensvergelijking gecorrigeerd",
     "Compare all DPF data with Data Tool": "Alle DPF-gegevens vergelijken met Data Tool",
@@ -1964,6 +1977,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Correcte tekst in Instellingen na herhaald weergeven"
   },
   "nb": {
+    "Complete missing reference data during manual comparison": "Fyll ut manglende referansedata ved manuell sammenligning",
     "Incomplete": "Ufullstendig",
     "Correct data comparison result status": "Korrigert resultatstatus for datasammenligning",
     "Compare all DPF data with Data Tool": "Sammenlign alle DPF-data med Data Tool",
@@ -2115,6 +2129,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Riktig tekst i Innstillinger etter gjentatt visning"
   },
   "pt": {
+    "Complete missing reference data during manual comparison": "Completar referências em falta durante a comparação manual",
     "Incomplete": "Incompleto",
     "Correct data comparison result status": "Correção do estado do resultado da comparação de dados",
     "Compare all DPF data with Data Tool": "Comparar todos os dados DPF com Data Tool",
@@ -2266,6 +2281,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correto nas Definições após várias renderizações"
   },
   "ro": {
+    "Complete missing reference data during manual comparison": "Completarea datelor de referință lipsă în comparația manuală",
     "Incomplete": "Incomplet",
     "Correct data comparison result status": "Corectarea stării rezultatului comparării datelor",
     "Compare all DPF data with Data Tool": "Compară toate datele DPF cu Data Tool",
@@ -2417,6 +2433,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Text corect în Setări după afișări repetate"
   },
   "sl": {
+    "Complete missing reference data during manual comparison": "Dopolnitev manjkajočih referenčnih podatkov pri ročni primerjavi",
     "Incomplete": "Nepopolno",
     "Correct data comparison result status": "Popravljeno stanje rezultata primerjave podatkov",
     "Compare all DPF data with Data Tool": "Primerjaj vse podatke DPF prek Data Tool",
@@ -2568,6 +2585,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Pravilno besedilo v Nastavitvah po več prikazih"
   },
   "fi": {
+    "Complete missing reference data during manual comparison": "Puuttuvien vertailutietojen täydentäminen manuaalisessa vertailussa",
     "Incomplete": "Puutteellinen",
     "Correct data comparison result status": "Tietojen vertailun tulostilan korjaus",
     "Compare all DPF data with Data Tool": "Vertaa kaikkia DPF-tietoja Data Toolilla",
@@ -2719,6 +2737,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Asetusten teksti pysyy oikeana toistuvassa piirrossa"
   },
   "sv": {
+    "Complete missing reference data during manual comparison": "Komplettera saknade referensdata vid manuell jämförelse",
     "Incomplete": "Ofullständig",
     "Correct data comparison result status": "Korrigerad resultatstatus för datajämförelse",
     "Compare all DPF data with Data Tool": "Jämför alla DPF-data med Data Tool",
@@ -2870,6 +2889,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt text i Inställningar efter upprepad rendering"
   },
   "tr": {
+    "Complete missing reference data during manual comparison": "Manuel karşılaştırmada eksik referans verilerini tamamlama",
     "Incomplete": "Eksik",
     "Correct data comparison result status": "Veri karşılaştırma sonuç durumu düzeltildi",
     "Compare all DPF data with Data Tool": "Tüm DPF verilerini Data Tool ile karşılaştır",
@@ -3021,6 +3041,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Tekrarlanan çizimlerden sonra Ayarlar metni doğru"
   },
   "uk": {
+    "Complete missing reference data during manual comparison": "Доповнення відсутніх еталонних даних під час ручного порівняння",
     "Incomplete": "Неповні дані",
     "Correct data comparison result status": "Виправлено стан результату порівняння даних",
     "Compare all DPF data with Data Tool": "Порівняти всі дані DPF через Data Tool",
