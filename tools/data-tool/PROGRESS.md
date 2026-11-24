@@ -1,5 +1,9 @@
 # Data Tool progress
 
+## In-car observation — 2026-11-24
+- Diagnostics 0.1.54 screenshot shows Native process isolation survey PASS; user confirms DPF DEV data available afterward. Detailed flags were not reliably readable due to overlapping rows. No package identity verification or production access. Diagnostics-only v0.1.55 improves visibility; Tool 0.1.44 and scheduler remain unchanged.
+
+
 ## v0.1.44 — restore manual process-boundary survey (2026-11-24)
 **Integration:** PR #72 merged into dev `main` at `1b4b6e12169b438bb3b61d13a12692a9ce868dcb`; Data Tool CI #258 (PR) and #259 (`main`) **PASS**, including offline native boundary roundtrip and existing Data Tool Diagnostics regression tests. **MGU in-car v0.1.44/0.1.54 not yet tested.**
 - **Implemented, CI-tested, awaiting in-car proof:** restored the original explicit `processBoundaryProbe` handler from the earlier working source layout, and bundled the existing hash-validated `native-process-boundary.js` plus `process-boundary-payload.js`. The handler is only invoked by a user-initiated Diagnostics Run; it observes SO_PEERCRED and bounded /proc access booleans without revealing raw PID/UID/GID, executable names, process metadata or package identity. It cannot grant any app data permissions.

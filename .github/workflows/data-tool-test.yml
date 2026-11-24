@@ -81,6 +81,7 @@ jobs:
           node apps/data-diagnostics/dpf-values.test.js
           node apps/data-diagnostics/vehicle-values.test.js
           node apps/data-diagnostics/translations.test.js
+          node apps/data-diagnostics/results-view.test.js
           node tools/data-tool/test.js
           node tools/data-tool/dpf-compat.test.js
           node tools/data-tool/data-broker.test.js
