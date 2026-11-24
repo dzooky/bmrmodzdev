@@ -27,7 +27,7 @@ async function scenario(name,read,verify){
  await new Promise((resolve,reject)=>{service.server.once('listening',resolve);service.server.once('error',reject);});
  try{
   const passive=await call(socket,{op:'status'});
-  assert.strictEqual(passive.ok,true);assert.strictEqual(passive.version,'0.1.38');
+  assert.strictEqual(passive.ok,true);assert.strictEqual(passive.version,'0.1.39');
   assert.strictEqual(reads,0,'status is passive, never an ECU proof');
   await verify(req=>call(socket,req),()=>reads);
  }finally{service.close();}
