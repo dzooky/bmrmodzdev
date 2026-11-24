@@ -1,9 +1,9 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.39",
+  "version": "0.1.40",
   "title": "Data Tool",
-  "description": "Experimental read-only BMRMODZ shared vehicle data service",
+  "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
   "uninstallable": true,
   "mguHmi": [
@@ -47,16 +47,6 @@
     {
       "path": "auth-feasibility.js",
       "from": "auth-feasibility.js",
-      "mode": "0644"
-    },
-    {
-      "path": "native-process-boundary.js",
-      "from": "native-process-boundary.js",
-      "mode": "0644"
-    },
-    {
-      "path": "process-boundary-payload.js",
-      "from": "process-boundary-payload.js",
       "mode": "0644"
     },
     {
