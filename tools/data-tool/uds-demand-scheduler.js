@@ -20,6 +20,7 @@ function createScheduler(options){
  for(const allowed of grants.values())for(const key of allowed)
   if(!fields.has(key))throw Error('Invalid grant');
  const subscriptions=new Map(),cache=new Map(),due=new Map();
+ const didKey=field=>{const spec=fields.get(field);return spec.ecu+':'+spec.did;};
  let busy=false,closed=false,timer=null;
  const stats={reads:0,failures:0,cacheHits:0,ticks:0};
  const time=()=>now();
@@ -65,7 +66,7 @@ function createScheduler(options){
   if(!sub)return {ok:true,active:false,fields:{}};
   const result={};
   for(const key of sub.fields){
-   const entry=cache.get(key),age=entry?Math.max(0,time()-entry.at):null;
+   const entry=cache.get(didKey(key)),age=entry?Math.max(0,time()-entry.at):null;
    const freshness=typeof sub.freshnessMs==='number'?sub.freshnessMs:sub.freshnessMs[key];
    const valid=!!entry&&age<=freshness&&entry.valid===true;
    if(valid)stats.cacheHits++;
@@ -82,18 +83,24 @@ function createScheduler(options){
   const clock=time();
   // Iterate defined catalog order; no fixed ECU order is imposed on transport.
   // Only one missing/expired field is scheduled per tick. No parallel ECU reads.
-  let key=null;
-  for(const k of required.keys()){
-   const entry=cache.get(k),maxAge=required.get(k);
-   const earliest=due.get(k)||0;
-   if(clock<earliest)continue;
-   if(!entry||!entry.valid||clock-entry.at>=maxAge){key=k;break;}
+  const byDid=new Map();
+  for(const [field,freshness] of required){
+   const canonical=didKey(field),existing=byDid.get(canonical);
+   if(!existing||freshness<existing.freshness)byDid.set(canonical,{field,freshness});
+  }
+  let key=null,canonical=null,maxAge=null;
+  for(const [id,need] of byDid){
+   const entry=cache.get(id);
+   if(clock<(due.get(id)||0))continue;
+   if(!entry||!entry.valid||clock-entry.at>=need.freshness){
+    key=need.field;canonical=id;maxAge=need.freshness;break;
+   }
   }
   if(key===null)return false;
   const spec=fields.get(key);
   busy=true;
   // Apply backoff on errors to prevent a failed ECU response from spinning.
-  due.set(key,clock+required.get(key));
+  due.set(canonical,clock+maxAge);
   try{
    stats.reads++;
    const reply=await read(spec.ecu,spec.did);
@@ -106,8 +113,8 @@ function createScheduler(options){
       !Number.isFinite(sampled)||sampled>time()+2000||time()-sampled>300000){
     stats.failures++;return false;
    }
-   cache.set(key,{uds:u.slice(),at:sampled,valid:true});
-   due.set(key,sampled+required.get(key));
+   cache.set(canonical,{uds:u.slice(),at:sampled,valid:true});
+   due.set(canonical,sampled+maxAge);
    return true;
   }catch(_){stats.failures++;return false;}
   finally{busy=false;}
