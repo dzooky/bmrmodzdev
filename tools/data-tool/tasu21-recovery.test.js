@@ -18,7 +18,7 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
   const status=await call(socket,{op:'status'});
-  assert.strictEqual(status.version,'0.1.50');
+  assert.strictEqual(status.version,'0.1.51');
   assert.strictEqual(reads,0);
   for(let i=0;i<2;i++){
    const reply=await call(socket,{op:'read',ecu:0x12,did:0xF150});

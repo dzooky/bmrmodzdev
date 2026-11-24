@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.62 — DPF profile scheduler measurement (2026-11-24)
+- Previous in-car cache and scheduler PASS, DPF DEV unaffected. Cache Test now also runs bounded full DPF profile, shows each field's repeated sample status and measured maximum sample interval in seconds. Requires Tool 0.1.51. No claims of decoded-value equivalence or production authentication. Car validation pending.
+
+
 ## v0.1.61 — functional scheduler test (2026-11-24)
 - Cache Test manual action now runs the existing cache probe followed by a fixed internal scheduler experiment and displays its separate PASS/FAIL. Normal Run and reference ECU tests unchanged. Requires Tool 0.1.50. No production grants or authentication claim. Car verification pending.
 

@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.51 — full internal DPF scheduler profile (2026-11-24)
+- In-car Tool 0.1.50 / Diagnostics 0.1.61: cache PASS (one physical read, one coalesced, one cache hit, 3/3 valid); fixed scheduler PASS; user confirms DPF DEV still has data. PR #80 CI 45480696555 PASS, merged 959b713a.
+- Explicit bounded internal profile test identifies DDE using existing allowlisted read, selects B57 12 or B47 4 fields, runs two private consumers and measures actual distinct sample intervals. Temporary uniform 5 s freshness is a test workload, not production policy. Stops after two samples per field, 20 s admission window or 48 read calls (in-flight read may finish later); releases demand, no raw data returned, no timer or production gateway. Existing transport and DPF DEV unchanged. CI/car validation pending.
+
+
 ## v0.1.50 — functional internal scheduler experiment (2026-11-24)
 - In-car 0.1.49 / Diagnostics 0.1.60: OAP parent group-write without sticky bit, app mode clear, protected ACL reader and AppManagement present, supplementary groups present; five ECU references PASS, DDE/EGS first attempt. PR #79 merged 0a9d3a45, CI 45478420641 PASS. Package identity remains unverified.
 - Stop iterative metadata-only releases. Explicit fixed diagnostic operation invokes existing private scheduler using the existing serialized allowlisted DDE regeneration request read; two internal consumers share one read call, snapshots are passive, release stops demand. No external demand parameters, raw UDS or app grant; no timer, no scheduler at boot, production gateway OFF. One read call may use existing service cache. CI and vehicle validation pending.
