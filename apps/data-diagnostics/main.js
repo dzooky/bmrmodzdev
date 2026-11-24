@@ -42,11 +42,11 @@ mgu.run({
   nextPhase=before&&!after?'after':'before';
   function refreshButtons(){
    for(const [button,key] of [['BTN_RUN',nextPhase==='after'?'Run after wake':'Run before sleep'],
-     ['BTN_GEN',page===1?(tasuOpen?'Close TASU':'Open TASU (no read)'):'Generate CDS test'],
      ['BTN_SEND','Send report']]){
     try{ui.text(button,word(key));}catch(_){}
    }
   }
+  // The physical MGU button title is static in app.json, not a runtime ui.text update.
   refreshButtons();
   ctx.settings.onChange(key=>{if(key==='language')refreshButtons();});
   async function runTest(phase){
@@ -124,10 +124,7 @@ mgu.run({
     log.warn('Data Tool report upload: '+error.message);
    }finally{sending=false;}
   }
-  ui.onClick('BTN_GEN',()=>{
-   if(page===1)toggleTasuIdle().catch(e=>log.warn('TASU probe: '+e));
-   else generateCds().catch(e=>log.warn('Generate: '+e));
-  });
+  ui.onClick('BTN_GEN',()=>{toggleTasuIdle().catch(e=>log.warn('TASU probe: '+e));});
   ui.onClick('BTN_RUN',()=>{runTest(nextPhase).catch(error=>log.warn('Snapshot: '+error));});
   ui.onClick('BTN_SEND',()=>{sendReport().catch(error=>log.warn('Send: '+error));});
   ctx.onTab(i=>{if(i>=0&&i<pages.length){page=i;refreshButtons();}});
@@ -147,9 +144,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.49 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.50 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.49 — '+word('Visible TASU probe control'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.50 — '+word('Static TASU control label'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
