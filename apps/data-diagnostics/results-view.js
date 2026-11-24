@@ -20,11 +20,11 @@ function drawFocusedResults(cv,theme,report,label,word,panel){
  const candidate=available&&survey.candidate==='data-diagnostics'?'Diagnostics':
   available&&survey.candidate==='dpf-dev'?'DPF DEV':'Unknown';
  const yn=value=>available?(value?'Yes':'No'):'Unknown';
- const meta=survey&&survey.evidence||{};
- const fields=[['Owner consistency','ownerMatch'],['Owner account','ownerAccount'],['Ancestor mode guard','ancestorGuard'],
-  ['Peer write mode','peerWrite'],['Entry point mode','entryPoint'],['Mount namespace','mountNamespace'],['Effective capabilities','capabilities']];
+ const meta=survey&&survey.details||{};
+ const fields=[['Risk location','ancestorRisk'],['Risk cause','ancestorCause'],['App mode guard','appMode'],
+  ['Sticky bit guard','stickyGuard'],['ACL reader','aclTool'],['AppManagement file','management'],['Supplementary groups','processGroups']];
  fields.forEach(([name,key],i)=>{
-  const value=["unknown","match","different","root-account","peer-account","other-account","ambiguous","not-listed","mode-clear","mode-risk","mode-match","same","none","present","unavailable"].includes(meta[key])?meta[key]:'unknown';
+  const value=["unknown","none","filesystem-root","oap-parent","upper-ancestor","multiple","combined","peer-owner","group-write","other-write","not-needed","all-sticky","some-sticky","not-sticky","mode-clear","mode-risk","protected-present","unverified","unavailable","present"].includes(meta[key])?meta[key]:'unknown';
   label(cv,word(name),55,200+i*31,22,theme.text);
   label(cv,word(value),760,200+i*31,22,theme.dim,{align:'right'});
  });
