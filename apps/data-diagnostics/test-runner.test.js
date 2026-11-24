@@ -5,14 +5,6 @@ async function run(){
   let commands=[];
   const sender=async req=>{
     commands.push(req);
-    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
-      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
-      sameUidAsService:true,peerCgroupReadable:true,
-      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
-      peerProcStatReadable:true,peerExeLinkReadable:true,
-      installedPackageIdentityVerified:false,processInstanceVerified:false,
-      observationOnly:true,applicationIdentityVerified:false,
-      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -40,7 +32,7 @@ async function run(){
     if(req.op==='someipGenerated')return {ok:false,mode:'staging-only',error:'Staging unavailable'};
     if(req.op==='someipAudit')return {ok:true,mode:'passive-only',aclRegistered:false,aclCounts:{offers:0,requests:2},identity:{uid:0}};
     if(req.op==='signalNative')return {ok:false,stage:'module-load',error:'Native binding missing'};
-    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255,...(req.did===0xF150?[0x0F,0x1F,0xE8]:[1])]};
+    if(req.op==='read'||req.op==='readTrace')return {ok:true,uds:[0x62,req.did>>8,req.did&255,1]};
     throw Error('Unexpected operation');
   };
   let updates=0;
@@ -51,7 +43,6 @@ async function run(){
   assert.strictEqual(result.results.find(r=>r.id==='authBoundary').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='nativePeer').status,'PASS');
   assert.strictEqual(result.results.find(r=>r.id==='nativeKernel').status,'PASS');
-  assert.strictEqual(result.results.find(r=>r.id==='processBoundary').status,'PASS');
   const brokerStep=STEPS.find(x=>x.id==='brokerGateway');
   const brokenIpc=resultFor(brokerStep,{ok:true,mode:'explicit-test-only',
     productionAccessEnabled:false,applicationIdentityVerified:false,
@@ -63,7 +54,7 @@ async function run(){
   assert.strictEqual(brokenIpc.status,'FAIL');
   assert.ok(brokenIpc.detail.includes('existing IPC check failed'));
   assert.ok(!brokenIpc.detail.includes('/run/'));
-  assert.strictEqual(STEPS.length,31);
+  assert.strictEqual(STEPS.length,28);
   assert.strictEqual(STEPS.findIndex(s=>s.id==='dpfValues'),STEPS.findIndex(s=>s.id==='egs')+1);
   assert.deepStrictEqual(STEPS.filter(x=>x.kind==='uds').map(x=>x.id),
     ['ihka','bdc','acsm','dde','egs'],
@@ -77,21 +68,9 @@ async function run(){
 
   assert.strictEqual(updates,STEPS.length);
   assert.strictEqual(result.results.find(r=>r.id==='dde').status,'PASS');
-  assert.strictEqual(result.results.find(r=>r.id==='ddeIdentity').status,'PASS');
-  assert.strictEqual(result.results.find(r=>r.id==='ddeColdIdentity').status,'PASS');
-  assert.deepStrictEqual(result.ecuReads,{pass:7,fail:0,skip:0,total:7});
-  const rejectedIdentity=resultFor(STEPS.find(s=>s.id==='ddeColdIdentity'),
-    {ok:false,error:'TASU rejected request',tasuStatus:0x21,trace:{attempts:3}},0);
-  assert.strictEqual(rejectedIdentity.status,'FAIL');
-  assert.ok(rejectedIdentity.detail.includes('TASU status 0x21'));
-  assert.ok(rejectedIdentity.detail.includes('attempts 3'));
-  assert.strictEqual(STEPS.find(s=>s.id==='ddeColdIdentity').request.op,'readTrace');
-  assert.strictEqual(STEPS.find(x=>x.id==='ddeColdIdentity').request.did,0xF150);
-  assert.deepStrictEqual(STEPS.find(s=>s.id==='ddeIdentity').request,{op:'readTrace',ecu:0x12,did:0xF150});
-  assert.strictEqual(STEPS.findIndex(s=>s.id==='ddeIdentity'),STEPS.findIndex(s=>s.id==='dde')+1);
   assert.strictEqual(result.results.find(r=>r.id==='dpfValues').status,'FAIL');
   assert.strictEqual(result.results.find(r=>r.id==='egsIdentity').status,'SKIP');
-  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.length > 0);
+  assert.ok(result.results.find(r=>r.id==='dpfValues').detail.includes('Unsupported'));
   assert.strictEqual(result.results.find(r=>r.id==='ipcDac').status,'SKIP');
   assert.strictEqual(result.results.find(r=>r.id==='cdsTemp').status,'SKIP');
   assert.strictEqual(result.signalPermissionsVerified,false);
@@ -102,9 +81,9 @@ async function run(){
   assert.strictEqual(result.controlsTested,false);
   assert.strictEqual(result.deviceVerified,false);
   assert.strictEqual(JSON.stringify(result).includes('"uds"'),false);
-  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility','nativePeerProbe','processBoundaryProbe'].includes(x.op)));
+  assert.ok(commands.every(x=>x.op==='read'||x.op==='readTrace'||['status','securityCheck','identitySurvey','signalEnvironment','configCheck','someipSetup','someipGenerated','someipAudit','signalNative','signalStaging','cdsDemand','cdsSnapshot','cdsRelease','brokerSelfTest','authFeasibility','nativePeerFeasibility','nativePeerProbe'].includes(x.op)));
   assert.ok(commands.filter(x=>x.op==='read'||x.op==='readTrace').every(x=>x.ecu>=0&&Number.isInteger(x.did)));
-  assert.strictEqual(result.results.length,31);
+  assert.strictEqual(result.results.length,28);
   // At least four 1-second gaps across five sequential ECU checks are deliberate.
   assert.ok(result.results.some(x=>x.id==='egs'));
   const traceClassified=require('./test-runner').traceSummary([
@@ -118,7 +97,7 @@ async function run(){
     shortLengthConsistent:2,shortLengthTruncated:1,shortLength0to4:0,shortLength5to8:3}]).includes('shortTASU reject 2, unknown 1'));
 
 
-  assert.ok(commands.filter(x=>x.op==='readTrace').length===4);
+  assert.ok(commands.filter(x=>x.op==='readTrace').length===2);
   assert.ok(!result.results.some(r=>r.id.startsWith('network')));
   const liveCommands=[];
   let snapshots=0,mockStarts=0;
@@ -135,14 +114,6 @@ async function run(){
   }
   const staged=await createRunner(async req=>{
     liveCommands.push(req);
-    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
-      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
-      sameUidAsService:true,peerCgroupReadable:true,
-      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
-      peerProcStatReadable:true,peerExeLinkReadable:true,
-      installedPackageIdentityVerified:false,processInstanceVerified:false,
-      observationOnly:true,applicationIdentityVerified:false,
-      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -186,7 +157,6 @@ async function run(){
   assert.strictEqual(staged.results.find(x=>x.id==='authBoundary').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='nativePeer').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='nativeKernel').status,'PASS');
-  assert.strictEqual(staged.results.find(x=>x.id==='processBoundary').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsTemp').status,'PASS');
   assert.strictEqual(staged.results.find(x=>x.id==='cdsRpm').status,'PASS');
   assert.strictEqual(staged.signalPermissionsVerified,false);
@@ -203,14 +173,6 @@ async function run(){
   assert.strictEqual(liveCommands.filter(x=>x.op==='cdsRelease').length,4);
   assert.ok(staged.results.find(x=>x.id==='cdsTemp').detail.includes('numeric fields validated'));
   const invalid=await createRunner(async req=>{
-    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
-      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
-      sameUidAsService:true,peerCgroupReadable:true,
-      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
-      peerProcStatReadable:true,peerExeLinkReadable:true,
-      installedPackageIdentityVerified:false,processInstanceVerified:false,
-      observationOnly:true,applicationIdentityVerified:false,
-      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -269,11 +231,6 @@ async function run(){
   assert.strictEqual(traceSummary([{ackAccepted:true,matchedEcuEvents:0,otherEcuEvents:1,wrongDidEvents:0,negativeEvents:0,pendingEvents:0,malformedEvents:0,timedOut:true}]).includes('other 1'),true);
   assert.strictEqual(retryCount,3);
   assert.strictEqual(resultFor(ddeStep,recovered.reply,0).status,'PASS');
-  const identityStep=STEPS.find(x=>x.id==='ddeIdentity');
-  assert.strictEqual(resultFor(identityStep,{ok:true,uds:[0x62,0xF1,0x50,0x0F,0x1F,0xE8]},0).status,'PASS');
-  assert.strictEqual(resultFor(identityStep,{ok:true,uds:[0x62,0xF1,0x50]},0).status,'FAIL');
-  assert.strictEqual(resultFor(identityStep,{ok:true,uds:[0x62,0x44,0xBB,1,2,3]},0).status,'FAIL');
-  assert.strictEqual(resultFor(identityStep,{ok:false,error:'No matching response'},0).status,'FAIL');
   let exhaustedCount=0;
   const exhausted=await drivetrainRead(async()=>{exhaustedCount++;return {ok:false,error:'No matching response'};},ddeStep);
   assert.strictEqual(exhausted.attempts,3);
@@ -295,14 +252,6 @@ async function run(){
   const dpfCalls=[];
   const dpfPhase=await createRunner(async req=>{
     dpfCalls.push(req);
-    if(req.op==='processBoundaryProbe')return {ok:true,mode:'passive-process-boundary',
-      stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
-      sameUidAsService:true,peerCgroupReadable:true,
-      serviceCgroupReadable:true,peerCgroupDifferentFromService:false,
-      peerProcStatReadable:true,peerExeLinkReadable:true,
-      installedPackageIdentityVerified:false,processInstanceVerified:false,
-      observationOnly:true,applicationIdentityVerified:false,
-      productionAccessEnabled:false};
     if(req.op==='nativePeerProbe')return {ok:true,mode:'mgu-native-peer-probe',
       stage:'kernel-peer-observed',unixSocket:true,kernelPeerObserved:true,
       applicationIdentityVerified:false,packageIdentityVerified:false,
@@ -330,13 +279,7 @@ async function run(){
   assert.strictEqual(dpfPhase.dpfSnapshot.engine,'B57');
   assert.strictEqual(dpfPhase.dpfSnapshot.values.since,123.46);
   assert.strictEqual(dpfPhase.results.find(x=>x.id==='dpfValues').status,'PASS');
-  assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeIdentity').status,'PASS');
-  assert.strictEqual(dpfPhase.results.find(x=>x.id==='ddeColdIdentity').status,'PASS');
   assert.strictEqual(dpfCalls.filter(x=>x.op==='read'&&x.ecu===0x12).length,5);
-  assert.strictEqual(dpfCalls.filter(x=>x.op==='readTrace'&&x.ecu===0x12&&x.did===0xF150).length,2,
-    'both F150 reads must preserve TASU evidence');
-  assert.strictEqual(dpfCalls.find(x=>x.op==='read'||x.op==='readTrace').did,0xF150,
-    'cold F150 must be first vehicle read');
   assert.ok(!JSON.stringify(dpfPhase.dpfSnapshot).includes('"uds"'));
   assert.ok(staged.results.find(x=>x.id==='dde').detail.includes('attempt 1/3'));
   const unavailable=await createRunner(async()=>{throw Error('Socket unavailable');}).run();
