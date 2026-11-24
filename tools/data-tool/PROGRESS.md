@@ -1,5 +1,12 @@
 # Data Tool progress
 
+## In-car isolation result and code inspection — 2026-11-24
+- **Vehicle observation:** restored Data Tool 0.1.40 + Diagnostics 0.1.47 reported **23 PASS / 0 FAIL / 5 SKIP** on one manual diagnostic run, but DPF and OSA then showed no data. After uninstalling both dev components, DPF and OSA recovered only after a substantial delay. The reported positive diagnostics therefore **does not prove safe multi-application coexistence**, and delayed recovery does not prove which process caused the interruption.
+- **Code-confirmed mechanism:** `service.js` creates the transport lazily on an explicit read; `transport.js` starts an independent `hmictl serve` process, subscribes `0xf8a6`/`0x8001`, and retains the helper after reads. It is killed only by `close()` on service shutdown. The 200 ms serialized queue, 500 ms cache, and deduplication apply **only to Tool requests**. Existing production DPF and OSA have separate `ReadOnlyDiag` TASU paths, not shared with the Tool queue. OSA also reads native CDS signals separately.
+- **Assessment:** simultaneous TASU clients are a concrete architectural overlap, **not a proven vehicle-side lock/resource leak**. Code inspection alone cannot establish whether `hmictl` retains TASU resources after an idle period or when/how MGU frees them. The earlier 0.1.39 per-read helper-close experiment failed to restore vehicle behavior, so do not reintroduce it as an assumed fix.
+- **NO-GO:** leave Data Tool and Diagnostics uninstalled on the car for now. No transport, retry, timeout, ECU order, or consumer-app code changes without a discriminating test/evidence of cause. The next experiment must distinguish active-helper interference from residual MGU/TASU state and CDS readiness while preserving working apps.
+
+
 ## v0.1.40 — restore last in-car-positive v0.1.35 transport and UDS path (2026-11-24)
 - **Approved recovery:** restore `service.js` and `transport.js` from exact commit `7e0a47203c69ea2b94d9b146b71d494002560230` (Data Tool 0.1.35 / Diagnostics 0.1.40). Preserve single 200 ms serialized queue, 500 ms success cache, identical request deduplication and historical long-lived `hmictl` helper. Remove post-baseline TASU 0x21 retries and per-read helper teardown; no speculative warm-ups, request reordering or changed delays.
 - **Version/deployment:** publish as Data Tool 0.1.40 (upgrade from failed 0.1.39), retain existing component identity and dependency; historical runtime files unchanged except reported version. Diagnostics receives matching reference workflow as 0.1.47.
