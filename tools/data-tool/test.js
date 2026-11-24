@@ -25,8 +25,13 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.41');
+   assert.strictEqual(status.version,'0.1.42');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
+   assert.strictEqual(status.readHealth.scope,'data-tool-uds-only');
+   assert.strictEqual(status.readHealth.freshness,'missing');
+   assert.strictEqual(status.readHealth.lastSuccessAt,null);
+   assert.strictEqual(status.readHealth.lastError,null);
+   assert.strictEqual(sent,0,'passive status must not read ECU');
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const plan=await call(socket,{op:'brokerPlan'});
    assert.strictEqual(plan.ok,true);
@@ -93,7 +98,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
-   assert.strictEqual(report.service.version,'0.1.41');
+   assert.strictEqual(report.service.version,'0.1.42');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});
@@ -131,6 +136,18 @@ async function run(){
    assert.strictEqual(a.ok,true);assert.strictEqual(b.ok,true);assert.strictEqual(sent,1);
    assert.strictEqual((await call(socket,{op:'read',ecu:0x12,did:0x44BB})).cached,true);
    assert.strictEqual(sent,1);
+   const healthy=await call(socket,{op:'status'});
+   assert.strictEqual(healthy.readHealth.stats.ok,2);
+   assert.strictEqual(healthy.readHealth.lastSource,'cache');
+   assert.strictEqual(healthy.readHealth.freshness,'fresh');
+   assert.strictEqual(healthy.readHealth.lastEcu,0x12);
+   assert.strictEqual(healthy.readHealth.lastDid,0x44BB);
+   assert.ok(healthy.readHealth.lastSuccessAt);
+   assert.strictEqual(healthy.readHealth.lastError,null);
+   await new Promise(r=>setTimeout(r,530));
+   const stale=await call(socket,{op:'status'});
+   assert.strictEqual(stale.readHealth.freshness,'stale');
+   assert.strictEqual(stale.readHealth.stats.sent,2,'passive status must not poll ECU');
  }finally{svc.close();}
  console.log('Data Tool: allowlist, framing, socket, on-demand, coalescing and cache tests passed');
 }
