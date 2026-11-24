@@ -9,9 +9,10 @@ const {createRunner,STEPS}=require('./test-runner');
 const {t}=require('./translations');
 const qrReport=require('./qr-report');
 const uploader=require('./upload');
+const cacheProbe=require('./cache-probe');
 const W=1600,H=520;
 const REPORT_NAME='data-tool-diagnostic-report.json';
-const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share'];
+const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -23,6 +24,7 @@ mgu.run({
   const {ui,log}=ctx;
   const runner=createRunner(client.request);
   let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
+  let cacheBusy=false,cacheResult=null,cacheError='';
   let before=null,after=null;
   let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
   let nextPhase='before';
@@ -101,6 +103,14 @@ mgu.run({
    }catch(e){tasuStatus=word('TASU probe failed');}
    finally{probing=false;refreshButtons();}
   }
+  async function runCacheProbe(){
+   if(cacheBusy||running||sending||generating||probing)return;
+   if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
+   cacheBusy=true;cacheResult=null;cacheError='';
+   try{cacheResult=await cacheProbe.run(client.request);}
+   catch(_){cacheError=word('Cache test could not complete');}
+   finally{cacheBusy=false;lastHealthPoll=0;}
+  }
   async function generateCds(){
    if(generating||running||sending)return;
    generating=true;page=1;genStatus=word('Generating CDS');
@@ -140,6 +150,11 @@ mgu.run({
   ui.onClick('BTN_RUN',()=>{runTest(nextPhase).catch(error=>log.warn('Snapshot: '+error));});
   ui.onClick('BTN_SEND',()=>{sendReport().catch(error=>log.warn('Send: '+error));});
   ctx.onTab(i=>{if(i>=0&&i<pages.length){page=i;refreshButtons();}});
+  // Tap-only action inside the Cache test page; existing physical bar remains untouched.
+  ctx.onTap((x,y)=>{
+   if(page===6&&x>=520&&x<=1080&&y>=240&&y<=310)
+    runCacheProbe().catch(e=>log.warn('Cache probe: '+e.message));
+  });
   function label(cv,text,x,y,size,color,opts){
    const val=safeValue(text);
    cv.text(val,x,y,size,color,Object.assign({literal:true},opts||{}));
@@ -156,9 +171,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.52 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.53 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.52 — '+word('Dev Store refresh'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.53 — '+word('Manual cache coalescing test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -193,6 +208,27 @@ mgu.run({
    cv.roundRect(60,366,Math.max(0,Math.floor(1480*progress/100)),25,6,theme.accent2);
    label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
    label(cv,tasuStatus||genStatus||word('Stay parked during the test'),60,474,17,theme.warn);
+  }
+  function drawCacheTest(cv,theme){
+   header(cv,theme,word('Cache test'),word('Read-only'));
+   G.panel(cv,theme,24,115,1552,380,null);
+   label(cv,word('IHKA climate reference'),800,162,24,theme.text,{align:'center',font:'bold'});
+   label(cv,word('Two parallel reads and one cached read'),800,203,19,theme.dim,{align:'center'});
+   cv.roundRect(520,240,560,70,12,cacheBusy?theme.track:theme.accent2);
+   label(cv,word(cacheBusy?'Cache test running':'Tap to run cache test'),800,285,24,cacheBusy?theme.dim:theme.text,{align:'center',font:'bold'});
+   if(cacheResult){
+    label(cv,word(cacheResult.ok?'Cache test PASS':'Cache test FAIL'),800,349,26,cacheResult.ok?theme.ok:theme.crit,{align:'center',font:'bold'});
+    label(cv,word('Physical ECU reads')+': '+cacheResult.physicalReads+
+     '   '+word('Coalesced')+': '+cacheResult.coalesced+
+     '   '+word('Cache hits')+': '+cacheResult.cacheHits,800,393,22,theme.text,{align:'center'});
+    label(cv,word('Valid responses')+': '+cacheResult.validResponses+'/3   '+
+     word('Third reply from cache')+': '+word(cacheResult.thirdCached?'Yes':'No'),800,427,19,theme.text,{align:'center'});
+    if(!cacheResult.ok)label(cv,word('Outcome')+': '+cacheResult.outcome,800,470,18,theme.warn,{align:'center'});
+   }else if(cacheError){
+    label(cv,cacheError,800,375,22,theme.warn,{align:'center'});
+   }else{
+    label(cv,word('No automatic ECU polling'),800,374,19,theme.dim,{align:'center'});
+   }
   }
   function drawResults(cv,theme){
    const totals=report&&report.totals;
@@ -296,6 +332,7 @@ mgu.run({
    if(page===3)drawComparison(cv,theme);
    if(page===4)drawVehicleComparison(cv,theme);
    if(page===5)drawShare(cv,theme);
+   if(page===6)drawCacheTest(cv,theme);
    G.frame(cv,theme,pages.map(word),page,[]);
    return ui.image('MAIN_GFX',cv);
   }
