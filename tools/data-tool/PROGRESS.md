@@ -1,5 +1,8 @@
 # Data Tool progress
 
+**Integration:** PR #62 merged to dev `main` as `13c5faf09e0a9bdc262329b8b614a49c0387e000`. GitHub Actions Data Tool test build #213 (PR) and #214 (main) **PASS**, including offline MGU preview. Button visibility on real MGU **not yet confirmed** for Diagnostics 0.1.49.
+
+
 ## Vehicle coexistence baseline observation — 2026-11-24
 - With Data Tool 0.1.41 and Diagnostics 0.1.48 installed, user confirmed functioning **DPF DDE** and **OSA EGS transmission** readings before invoking the TASU idle probe. This is a limited installation/idle baseline, **not** proof that opening a new `hmictl` subscription or issuing Tool ECU reads is safe. MGU did not show the fourth diagnostic bar button, prompting Diagnostics-only v0.1.49 UI control correction.
 
