@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.49 — MGU TASU control visibility fix (2026-11-24)
+- **In-car observation on previous versions:** user confirmed that DPF and OSA EGS values work after installing Data Tool 0.1.41 and Diagnostics 0.1.48, before the idle TASU probe was opened. Therefore installation alone did not reproduce the previous failure at that observation point. The new fourth `BTN_TASU` was not visible on MGU; this is a real-car UI regression despite prior passing offline preview.
+- **Fix implemented:** restore the proven **three** main MGU bar buttons. On the Diagnostics tab, reuse the existing middle `BTN_GEN` slot as `Open TASU (no read)` / `Close TASU`; on all other tabs it remains `Generate CDS test`. No changes to the established Run order, read protocol, DPF/OSA or existing upload UI.
+- **Verification:** automated button-layout assertion updated; CI and in-car visibility verification pending.
+
+
 ## v0.1.48 — manual TASU idle coexistence experiment (2026-11-24)
 **Integration:** PR #61 merged to dev `main` at `b3f62eda0ffd913b3120d2fd2d5378e06f86f5d6`. GitHub Actions Data Tool test build #209 (PR) and #210 (main) **PASS**: legacy Node 12 service health, offline regressions and MGU preview. **Not verified in car**; idle TASU coexistence remains the subject of the next parked test.
 
