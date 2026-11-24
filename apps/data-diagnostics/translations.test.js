@@ -56,13 +56,20 @@ for(const text of [
  'We still working on it and will be available soon.',
  'Thank you'
 ])assert.ok(main.includes(text));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
+assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
 assert.ok(main.includes('toggleTasuIdle().catch'));
 assert.strictEqual(spec.screens[0].buttons[1][1],'Open TASU (no read)');
 assert.ok(!main.includes("['BTN_GEN',page===1"),'Runtime label update must not override static MGU text');
 assert.ok(main.includes("ui.onClick('BTN_GEN',()=>{toggleTasuIdle()"));
 assert.ok(main.includes('runTest(nextPhase)'));
+assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test']"));
+assert.ok(main.includes("ctx.onTap((x,y)=>"));
+assert.ok(main.includes("cacheProbe.run(client.request)"));
+assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
+assert.strictEqual(spec.version,'0.1.53');
+for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
+
 assert.ok(main.includes("{op:'status'}"));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
 assert.ok(!main.includes("ui.onClick('BTN_AFTER'"));
