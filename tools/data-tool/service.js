@@ -60,7 +60,7 @@ function serve(factory,socketPath,options){
     return {scope:'data-tool-uds-only',lastSuccessAt:readHealth.lastSuccessAt,
       lastFailureAt:readHealth.lastFailureAt,lastError:readHealth.lastError,
       lastEcu:readHealth.lastEcu,lastDid:readHealth.lastDid,
-      lastSampleAt:readHealth.lastSampleAt,sampleAgeMs:age,
+      lastSampleAt:readHealth.lastSampleAt,lastSource:readHealth.lastSource,sampleAgeMs:age,
       freshness:age===null?'missing':age<CACHE_MS?'fresh':'stale',
       cacheWindowMs:CACHE_MS,stats:Object.assign({},stats)};
   }
