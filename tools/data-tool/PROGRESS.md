@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.53 — mixed DPF freshness experiment (2026-11-24)
+- In-car v0.1.52 / DPF DEV 0.1.79: all 12 B57 native-versus-scheduler readings exactly match (12/12 OK). PR #82 CI 45485794738/45485794749 PASS, merged f130a787.
+- Explicit fixed mixed-profile diagnostic uses the existing DPF demand declaration: REQUEST/MODE 5 s, remaining 10 B57 fields (or all 4 B47 fields) 60 s. Two private consumers, renewed leases, bounded 85 s admission / 64 reads; actual sample interval measured, PASS requires at least two samples, no premature refresh and max interval within target plus 1 s (fast) or 6 s (slow) test tolerance. These are draft targets, not production tuning. No production authentication enabled. CI/car pending.
+
+
 ## v0.1.52 — manual scheduler snapshot comparison (2026-11-24)
 - In-car v0.1.51 / Diagnostics 0.1.62: B57 12/12 repeated samples PASS; interval 5.15–5.45 s, total 10.4 s; cache and scheduler PASS; DPF DEV remains functional. PR #81 CI 45483293385 PASS, merged bd374098.
 - Fixed one-shot diagnostic profile snapshot supplies existing allowlisted DPF readings from private scheduler cache for DPF DEV manual comparison. No arbitrary fields, persistent subscription or production grant. CI and in-car validation pending.

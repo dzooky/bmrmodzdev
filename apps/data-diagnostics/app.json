@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.62",
+  "version": "0.1.63",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -72,7 +72,7 @@
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1",
-    "bmrmodz-data-tool": "0.1.51"
+    "bmrmodz-data-tool": "0.1.53"
   },
   "mguInternet": true
 }

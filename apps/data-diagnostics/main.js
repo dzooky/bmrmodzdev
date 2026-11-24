@@ -112,8 +112,8 @@ mgu.run({
      cacheResult=await cacheProbe.run(client.request);
      const live=await client.request({op:'schedulerLiveTest'},{timeoutMs:12000});
      cacheResult.scheduler=live&&live.mode==='internal-fixed-read-test'&&live.productionAccessEnabled===false&&live.ok===true;
-     const profile=await client.request({op:'schedulerProfileTest'},{timeoutMs:45000});
-     if(profile&&profile.mode==='internal-profile-test'&&profile.productionAccessEnabled===false)cacheResult.profile=profile;
+     const profile=await client.request({op:'schedulerMixedProfileTest'},{timeoutMs:110000});
+     if(profile&&profile.mode==='internal-mixed-profile-test'&&profile.productionAccessEnabled===false)cacheResult.profile=profile;
    }
    catch(_){cacheError=word('Cache test could not complete');}
    finally{cacheBusy=false;lastHealthPoll=0;}
@@ -171,9 +171,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.62 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.63 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.62 — '+word('DPF scheduler profile test'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.63 — '+word('DPF mixed freshness test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -221,13 +221,15 @@ mgu.run({
    if(cacheResult&&cacheResult.profile){
     const p=cacheResult.profile,rows=Array.isArray(p.fields)?p.fields.slice(0,12):[];
     label(cv,word(cacheResult.ok?'Cache test PASS':'Cache test FAIL')+' / '+word(cacheResult.scheduler?'Scheduler test PASS':'Scheduler test FAIL'),800,162,22,cacheResult.ok&&cacheResult.scheduler?theme.ok:theme.crit,{align:'center'});
-    label(cv,(p.engine||word('Unknown'))+' — '+word(p.ok?'DPF profile PASS':'DPF profile FAIL')+'  '+rows.filter(r=>r.samples>=2).length+'/'+rows.length+'  '+(p.elapsedMs/1000).toFixed(1)+' s',800,203,22,p.ok?theme.ok:theme.crit,{align:'center'});
+    label(cv,(p.engine||word('Unknown'))+' — '+word(p.ok?'DPF profile PASS':'DPF profile FAIL')+'  '+rows.filter(r=>r.met===true).length+'/'+rows.length+'  '+(p.elapsedMs/1000).toFixed(1)+' s',800,203,22,p.ok?theme.ok:theme.crit,{align:'center'});
     rows.forEach((r,i)=>{
      const x=i<6?80:850,y=335+(i%6)*29;
      const name=word(String(r.name).toUpperCase().replace(/_/g,' '));
      label(cv,name,x,y,20,theme.text);
-     label(cv,r.samples>=2?'PASS  '+(r.maxIntervalMs/1000).toFixed(2)+' s':r.samples===1?'1 '+word('Sample'):'FAIL',x+430,y,20,r.samples>=2?theme.ok:theme.warn);
+     label(cv,(r.met?'PASS':'FAIL')+'  '+(r.samples>=2?(r.maxIntervalMs/1000).toFixed(2):'—')+'/'+(r.targetMs/1000)+' s',x+430,y,20,r.met?theme.ok:theme.warn);
     });
+   }else if(cacheError){
+    label(cv,cacheError,800,375,22,theme.warn,{align:'center'});
    }else if(cacheResult){
     label(cv,word(cacheResult.ok?'Cache test PASS':'Cache test FAIL'),800,349,26,cacheResult.ok?theme.ok:theme.crit,{align:'center',font:'bold'});
     label(cv,word('Physical ECU reads')+': '+cacheResult.physicalReads+
@@ -236,8 +238,6 @@ mgu.run({
     label(cv,word('Valid responses')+': '+cacheResult.validResponses+'/3   '+
      word('Third reply from cache')+': '+word(cacheResult.thirdCached?'Yes':'No'),800,427,19,theme.text,{align:'center'});
     label(cv,word(cacheResult.scheduler===true?'Scheduler test PASS':'Scheduler test FAIL'),800,470,22,cacheResult.scheduler===true?theme.ok:theme.crit,{align:'center'});
-   }else if(cacheError){
-    label(cv,cacheError,800,375,22,theme.warn,{align:'center'});
    }else{
     label(cv,word('No automatic ECU polling'),800,374,19,theme.dim,{align:'center'});
    }

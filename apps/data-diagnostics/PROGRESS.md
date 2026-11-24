@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.63 — mixed DPF freshness measurement (2026-11-24)
+- Cache Test now requests fixed mixed profile, displays measured maximum interval / requested interval per field and PASS/FAIL. Existing cache/reference tests retained. Requires Tool 0.1.53. Test may take around 65–85 s; CI/car pending.
+
+
 ## In-car v0.1.62 — 2026-11-24
 - B57 12/12 repeated sample PASS, measured 5.15–5.45 s, total 10.4 s; cache and fixed scheduler PASS. DPF DEV confirmed functional. PR #81 CI PASS and merged bd374098. Next manual DPF DEV scheduler-cache comparison; no Diagnostics version bump.
 
