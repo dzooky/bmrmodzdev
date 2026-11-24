@@ -34,7 +34,7 @@
 ## Current implementation reality (2026-11-24, source of truth: GitHub)
 - Implemented: allowlisted read-only UDS service, serialized queue, short cache, request-driven CDS engine, private demand scheduler and bounded diagnostic operations.
 - Vehicle verified: Tool 0.1.51 / Diagnostics 0.1.62 B57 profile 12/12 repeated samples, measured 5.15–5.45 s; Tool 0.1.52 / DPF DEV 0.1.79 manual comparison 12/12 exact matches. No production app subscription yet.
-- Next: validate mixed freshness (draft 5 s regeneration request/mode and 60 s remaining values), then consumer onboarding subject to verified app identity. See PROGRESS for individual versions.
+- Mixed freshness vehicle test: 12/12 PASS reported, exact installed revision ambiguous. Next: open API foundation and background validation. See PROGRESS for individual versions.
 
 ## Roadmap — application identity (2026-11-24)
 - Approved for roadmap, not implementation: evaluate installer-generated unique random per-installation tokens. Trusted installer registers package and token, protected per-app storage, service verifies token and assigns scoped capabilities; revoke on uninstall, rotate on reinstall/update as appropriate. No static shared secrets, tokens in logs, or self-registration by untrusted apps. Verify installer privileges and storage isolation before production activation.
