@@ -19,6 +19,7 @@ const ddeProfiles = require('./dde-profiles');
 const dataToolRead = require('./data-tool-read');
 const sootCompare = require('./soot-compare');
 const allFieldsCompare = require('./all-fields-compare');
+const referenceRefresh = require('./reference-refresh');
 const distanceRecord = require('./distance-record');
 const { t: translate } = require('./kit/i18n');
 const Language = require('./language');
@@ -142,16 +143,36 @@ mgu.run({
                 ctx.settings.actionStatus.compareSoot = 'Unavailable';
                 return;
             }
-            // Capture existing native snapshots once; never request fresh legacy reads.
-            const snapshots={};
-            for(const [key,value] of Object.entries(readings))snapshots[key]={...value};
-            const snapshot = snapshots.SOOT || null;
             sootComparisonBusy = true;
             sootComparison = {state:'Checking',result:null};
             allComparison=null;
             ctx.settings.actionStatus.compareSoot = 'Checking';
             try {
-                const result = await allFieldsCompare.compareAll(profile,snapshots,dataToolRead.request);
+                if(!identified||!profile) {
+                    sootComparison={state:'Unavailable',result:null};
+                    ctx.settings.actionStatus.compareSoot='Unavailable';
+                    return;
+                }
+                // Do not overlap the existing normal TASU read. A manual test
+                // completes missing/stale native samples only after it finishes.
+                let pending=0;
+                while(testing&&pending<60000){await sleep(250);pending+=250;}
+                if(testing){
+                    sootComparison={state:'Unavailable',result:null};
+                    ctx.settings.actionStatus.compareSoot='Unavailable';
+                    return;
+                }
+                let woke=false;
+                const reference=await referenceRefresh.collect(profile,readings,
+                    async(ecu,did)=>{
+                        if(!link.ready)await link.init();
+                        if(!link.available)throw new Error('TASU unavailable');
+                        if(!woke){link.wake(DDE);woke=true;}
+                        return link.physical(ecu,0x22,[(did>>8)&255,did&255],1800,
+                            u=>u&&((u[0]===0x62&&u[1]===(did>>8)&&u[2]===(did&255))||
+                                (u[0]===0x7f&&u[1]===0x22)),requestOptions);
+                    });
+                const result = await allFieldsCompare.compareAll(profile,reference.snapshots,dataToolRead.request);
                 allComparison=result;
                 const state = allFieldsCompare.summaryState(result);
                 sootComparison = {state,result:null};
@@ -219,6 +240,7 @@ mgu.run({
             ? profile.overview.filter(([key]) => key === 'REQUEST' || key === 'MODE') : [];
         const hexBytes = a => a.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
         async function testSelected(regenOnly = false) {
+            if (sootComparisonBusy) return; // Never overlap manual reference acquisition.
             if (!identified || (!regenOnly && (page === 'about' || page === 'settings' || page === 'diagnostics'))) return;
             if (testing) {
                 readPending = true;
@@ -476,6 +498,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.78', 'Complete missing reference data during manual comparison'],
                 ['0.1.77', 'Correct data comparison result status'],
                 ['0.1.76', 'All DPF data comparison via Data Tool'],
                 ['0.1.75', 'Manual soot comparison via Data Tool'],
