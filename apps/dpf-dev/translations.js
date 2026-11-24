@@ -1,6 +1,11 @@
 'use strict';
 module.exports = {
   "sk": {
+    "Compare soot with Data Tool": "Porovnať sadze cez Data Tool",
+    "Manual soot comparison via Data Tool": "Ručné porovnanie sadzí cez Data Tool",
+    "Soot comparison": "Porovnanie sadzí",
+    "Difference": "Rozdiel",
+    "Sample age": "Vek vzorky",
     "Restore direct TASU communication without Data Tool": "Obnovená priama komunikácia TASU bez Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Zamedzenie súbežných spojení TASU pri čítaní Data Tool",
     "DDE recovery": "Obnova DDE",
@@ -141,6 +146,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správny text v Settings aj po opakovanom vykreslení"
   },
   "cs": {
+    "Compare soot with Data Tool": "Porovnat saze přes Data Tool",
+    "Manual soot comparison via Data Tool": "Ruční porovnání sazí přes Data Tool",
+    "Soot comparison": "Porovnání sazí",
+    "Difference": "Rozdíl",
+    "Sample age": "Stáří vzorku",
     "Restore direct TASU communication without Data Tool": "Obnovena přímá komunikace TASU bez Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Zamezení souběžných spojení TASU při čtení Data Tool",
     "DDE recovery": "Obnova DDE",
@@ -281,6 +291,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správný text v Nastavení i po opakovaném vykreslení"
   },
   "de": {
+    "Compare soot with Data Tool": "Ruß mit Data Tool vergleichen",
+    "Manual soot comparison via Data Tool": "Manueller Rußvergleich über Data Tool",
+    "Soot comparison": "Rußvergleich",
+    "Difference": "Differenz",
+    "Sample age": "Alter der Messung",
     "Restore direct TASU communication without Data Tool": "Direkte TASU-Kommunikation ohne Data Tool wiederhergestellt",
     "Avoid competing TASU sessions during Data Tool reads": "Parallele TASU-Sitzungen bei Data-Tool-Lesezugriffen vermeiden",
     "DDE recovery": "DDE-Wiederherstellung",
@@ -421,6 +436,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekte Schrift in Einstellungen nach wiederholtem Rendern"
   },
   "es": {
+    "Compare soot with Data Tool": "Comparar hollín con Data Tool",
+    "Manual soot comparison via Data Tool": "Comparación manual del hollín mediante Data Tool",
+    "Soot comparison": "Comparación de hollín",
+    "Difference": "Diferencia",
+    "Sample age": "Edad de la muestra",
     "Restore direct TASU communication without Data Tool": "Restaurada la comunicación TASU directa sin Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Evitar sesiones TASU simultáneas durante lecturas Data Tool",
     "DDE recovery": "Recuperación DDE",
@@ -561,6 +581,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correcto en Ajustes tras renderizados repetidos"
   },
   "fr": {
+    "Compare soot with Data Tool": "Comparer la suie avec Data Tool",
+    "Manual soot comparison via Data Tool": "Comparaison manuelle de la suie via Data Tool",
+    "Soot comparison": "Comparaison de suie",
+    "Difference": "Écart",
+    "Sample age": "Âge de la mesure",
     "Restore direct TASU communication without Data Tool": "Communication TASU directe rétablie sans Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Éviter les sessions TASU concurrentes pendant les lectures Data Tool",
     "DDE recovery": "Récupération DDE",
@@ -701,6 +726,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texte correct dans les paramètres après plusieurs affichages"
   },
   "it": {
+    "Compare soot with Data Tool": "Confronta fuliggine con Data Tool",
+    "Manual soot comparison via Data Tool": "Confronto manuale della fuliggine tramite Data Tool",
+    "Soot comparison": "Confronto fuliggine",
+    "Difference": "Differenza",
+    "Sample age": "Età del campione",
     "Restore direct TASU communication without Data Tool": "Ripristinata la comunicazione TASU diretta senza Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Evita sessioni TASU simultanee durante le letture Data Tool",
     "DDE recovery": "Ripristino DDE",
@@ -841,6 +871,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Testo corretto nelle Impostazioni dopo più ridisegni"
   },
   "hu": {
+    "Compare soot with Data Tool": "Korom összehasonlítása a Data Tool-lal",
+    "Manual soot comparison via Data Tool": "Kézi korom-összehasonlítás a Data Tool-lal",
+    "Soot comparison": "Korom összehasonlítása",
+    "Difference": "Eltérés",
+    "Sample age": "Minta kora",
     "Restore direct TASU communication without Data Tool": "Közvetlen TASU-kommunikáció visszaállítva Data Tool nélkül",
     "Avoid competing TASU sessions during Data Tool reads": "Párhuzamos TASU-kapcsolatok elkerülése Data Tool olvasáskor",
     "DDE recovery": "DDE helyreállítás",
@@ -981,6 +1016,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Helyes szöveg a Beállításokban ismételt megjelenítés után"
   },
   "pl": {
+    "Compare soot with Data Tool": "Porównaj sadzę przez Data Tool",
+    "Manual soot comparison via Data Tool": "Ręczne porównanie sadzy przez Data Tool",
+    "Soot comparison": "Porównanie sadzy",
+    "Difference": "Różnica",
+    "Sample age": "Wiek próbki",
     "Restore direct TASU communication without Data Tool": "Przywrócono bezpośrednią komunikację TASU bez Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Unikanie równoległych sesji TASU podczas odczytu Data Tool",
     "DDE recovery": "Odzyskiwanie DDE",
@@ -1121,6 +1161,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Poprawny tekst w Ustawieniach po wielokrotnym renderowaniu"
   },
   "ru": {
+    "Compare soot with Data Tool": "Сравнить сажу через Data Tool",
+    "Manual soot comparison via Data Tool": "Ручное сравнение сажи через Data Tool",
+    "Soot comparison": "Сравнение сажи",
+    "Difference": "Разница",
+    "Sample age": "Возраст образца",
     "Restore direct TASU communication without Data Tool": "Восстановлена прямая связь TASU без Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Исключены параллельные сеансы TASU при чтении Data Tool",
     "DDE recovery": "Восстановление DDE",
@@ -1261,6 +1306,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Правильный текст настроек после повторной отрисовки"
   },
   "da": {
+    "Compare soot with Data Tool": "Sammenlign sod med Data Tool",
+    "Manual soot comparison via Data Tool": "Manuel sammenligning af sod via Data Tool",
+    "Soot comparison": "Sodsammenligning",
+    "Difference": "Forskel",
+    "Sample age": "Målingens alder",
     "Restore direct TASU communication without Data Tool": "Direkte TASU-kommunikation uden Data Tool gendannet",
     "Avoid competing TASU sessions during Data Tool reads": "Undgå samtidige TASU-sessioner under Data Tool-læsning",
     "DDE recovery": "DDE-genoprettelse",
@@ -1401,6 +1451,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt tekst i Indstillinger efter gentagen visning"
   },
   "el": {
+    "Compare soot with Data Tool": "Σύγκριση αιθάλης με Data Tool",
+    "Manual soot comparison via Data Tool": "Χειροκίνητη σύγκριση αιθάλης μέσω Data Tool",
+    "Soot comparison": "Σύγκριση αιθάλης",
+    "Difference": "Διαφορά",
+    "Sample age": "Ηλικία δείγματος",
     "Restore direct TASU communication without Data Tool": "Αποκαταστάθηκε η άμεση επικοινωνία TASU χωρίς Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Αποφυγή παράλληλων συνεδριών TASU κατά την ανάγνωση Data Tool",
     "DDE recovery": "Αποκατάσταση DDE",
@@ -1541,6 +1596,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Σωστό κείμενο Ρυθμίσεων μετά από επαναλαμβανόμενη απόδοση"
   },
   "zh-CN": {
+    "Compare soot with Data Tool": "使用 Data Tool 比较碳烟",
+    "Manual soot comparison via Data Tool": "通过 Data Tool 手动比较碳烟",
+    "Soot comparison": "碳烟比较",
+    "Difference": "差值",
+    "Sample age": "样本时间",
     "Restore direct TASU communication without Data Tool": "恢复不经过 Data Tool 的直接 TASU 通信",
     "Avoid competing TASU sessions during Data Tool reads": "避免 Data Tool 读取时的并行 TASU 会话",
     "DDE recovery": "DDE 恢复",
@@ -1681,6 +1741,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "重复绘制后设置文字仍正确显示"
   },
   "nl": {
+    "Compare soot with Data Tool": "Roet vergelijken met Data Tool",
+    "Manual soot comparison via Data Tool": "Handmatige roetvergelijking via Data Tool",
+    "Soot comparison": "Roetvergelijking",
+    "Difference": "Verschil",
+    "Sample age": "Leeftijd meting",
     "Restore direct TASU communication without Data Tool": "Directe TASU-communicatie zonder Data Tool hersteld",
     "Avoid competing TASU sessions during Data Tool reads": "Gelijktijdige TASU-sessies vermijden bij Data Tool-uitlezingen",
     "DDE recovery": "DDE-herstel",
@@ -1821,6 +1886,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Correcte tekst in Instellingen na herhaald weergeven"
   },
   "nb": {
+    "Compare soot with Data Tool": "Sammenlign sot med Data Tool",
+    "Manual soot comparison via Data Tool": "Manuell sammenligning av sot via Data Tool",
+    "Soot comparison": "Sotsammenligning",
+    "Difference": "Forskjell",
+    "Sample age": "Målingens alder",
     "Restore direct TASU communication without Data Tool": "Direkte TASU-kommunikasjon uten Data Tool gjenopprettet",
     "Avoid competing TASU sessions during Data Tool reads": "Unngå samtidige TASU-økter under Data Tool-lesing",
     "DDE recovery": "DDE-gjenoppretting",
@@ -1961,6 +2031,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Riktig tekst i Innstillinger etter gjentatt visning"
   },
   "pt": {
+    "Compare soot with Data Tool": "Comparar fuligem com Data Tool",
+    "Manual soot comparison via Data Tool": "Comparação manual da fuligem através do Data Tool",
+    "Soot comparison": "Comparação de fuligem",
+    "Difference": "Diferença",
+    "Sample age": "Idade da amostra",
     "Restore direct TASU communication without Data Tool": "Restaurada a comunicação TASU direta sem Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Evitar sessões TASU simultâneas durante leituras Data Tool",
     "DDE recovery": "Recuperação DDE",
@@ -2101,6 +2176,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correto nas Definições após várias renderizações"
   },
   "ro": {
+    "Compare soot with Data Tool": "Compară funinginea cu Data Tool",
+    "Manual soot comparison via Data Tool": "Comparare manuală a funinginii prin Data Tool",
+    "Soot comparison": "Comparare funingine",
+    "Difference": "Diferență",
+    "Sample age": "Vechimea probei",
     "Restore direct TASU communication without Data Tool": "Comunicarea directă TASU fără Data Tool a fost restaurată",
     "Avoid competing TASU sessions during Data Tool reads": "Evitarea sesiunilor TASU simultane la citirile Data Tool",
     "DDE recovery": "Recuperare DDE",
@@ -2241,6 +2321,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Text corect în Setări după afișări repetate"
   },
   "sl": {
+    "Compare soot with Data Tool": "Primerjaj saje prek Data Tool",
+    "Manual soot comparison via Data Tool": "Ročna primerjava saj prek Data Tool",
+    "Soot comparison": "Primerjava saj",
+    "Difference": "Razlika",
+    "Sample age": "Starost vzorca",
     "Restore direct TASU communication without Data Tool": "Obnovljena neposredna komunikacija TASU brez Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Preprečevanje sočasnih sej TASU pri branju Data Tool",
     "DDE recovery": "Obnovitev DDE",
@@ -2381,6 +2466,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Pravilno besedilo v Nastavitvah po več prikazih"
   },
   "fi": {
+    "Compare soot with Data Tool": "Vertaa nokea Data Toolilla",
+    "Manual soot comparison via Data Tool": "Noen manuaalinen vertailu Data Toolilla",
+    "Soot comparison": "Noen vertailu",
+    "Difference": "Erotus",
+    "Sample age": "Näytteen ikä",
     "Restore direct TASU communication without Data Tool": "Suora TASU-yhteys ilman Data Toolia palautettu",
     "Avoid competing TASU sessions during Data Tool reads": "Vältetään samanaikaisia TASU-istuntoja Data Tool -lukujen aikana",
     "DDE recovery": "DDE-palautus",
@@ -2521,6 +2611,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Asetusten teksti pysyy oikeana toistuvassa piirrossa"
   },
   "sv": {
+    "Compare soot with Data Tool": "Jämför sot med Data Tool",
+    "Manual soot comparison via Data Tool": "Manuell jämförelse av sot via Data Tool",
+    "Soot comparison": "Sotjämförelse",
+    "Difference": "Skillnad",
+    "Sample age": "Provets ålder",
     "Restore direct TASU communication without Data Tool": "Direkt TASU-kommunikation utan Data Tool återställd",
     "Avoid competing TASU sessions during Data Tool reads": "Undvik parallella TASU-sessioner vid Data Tool-läsning",
     "DDE recovery": "DDE-återställning",
@@ -2661,6 +2756,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt text i Inställningar efter upprepad rendering"
   },
   "tr": {
+    "Compare soot with Data Tool": "Data Tool ile kurum karşılaştır",
+    "Manual soot comparison via Data Tool": "Data Tool ile manuel kurum karşılaştırması",
+    "Soot comparison": "Kurum karşılaştırması",
+    "Difference": "Fark",
+    "Sample age": "Örnek yaşı",
     "Restore direct TASU communication without Data Tool": "Data Tool olmadan doğrudan TASU iletişimi geri yüklendi",
     "Avoid competing TASU sessions during Data Tool reads": "Data Tool okumalarında eşzamanlı TASU oturumlarını önleme",
     "DDE recovery": "DDE kurtarma",
@@ -2801,6 +2901,11 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Tekrarlanan çizimlerden sonra Ayarlar metni doğru"
   },
   "uk": {
+    "Compare soot with Data Tool": "Порівняти сажу через Data Tool",
+    "Manual soot comparison via Data Tool": "Ручне порівняння сажі через Data Tool",
+    "Soot comparison": "Порівняння сажі",
+    "Difference": "Різниця",
+    "Sample age": "Вік зразка",
     "Restore direct TASU communication without Data Tool": "Відновлено прямий зв’язок TASU без Data Tool",
     "Avoid competing TASU sessions during Data Tool reads": "Усунення паралельних сеансів TASU під час читання Data Tool",
     "DDE recovery": "Відновлення DDE",
