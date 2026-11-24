@@ -45,3 +45,5 @@ jobs:
           node apps/dpf-dev/regen-message.test.js
           node apps/dpf-dev/notification-preview.test.js
           node --test apps/dpf-dev/translations.test.js
+      - name: Build offline DPF DEV MGU preview
+        run: python3 kit/tools/build.py --preview-only dpf-dev
