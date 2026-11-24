@@ -32,7 +32,8 @@ function createScheduler(options){
   const needed=new Map();
   for(const sub of active().values())for(const key of sub.fields){
    const previous=needed.get(key);
-   needed.set(key,previous===undefined?sub.freshnessMs:Math.min(previous,sub.freshnessMs));
+   const freshness=typeof sub.freshnessMs==='number'?sub.freshnessMs:sub.freshnessMs[key];
+   needed.set(key,previous===undefined?freshness:Math.min(previous,freshness));
   }
   return needed;
  }
@@ -43,8 +44,12 @@ function createScheduler(options){
      new Set(fieldsRequested).size!==fieldsRequested.length||
      fieldsRequested.some(key=>typeof key!=='string'||!allowed.has(key)))
    return {ok:false,error:'Not authorized'};
-  if(!Number.isInteger(freshnessMs)||freshnessMs<1000||freshnessMs>300000||
-     !Number.isInteger(leaseMs)||leaseMs<1000||leaseMs>60000)
+  const freshnessValid=typeof freshnessMs==='number'
+   ?Number.isInteger(freshnessMs)&&freshnessMs>=1000&&freshnessMs<=300000
+   :freshnessMs&&typeof freshnessMs==='object'&&!Array.isArray(freshnessMs)&&
+     fieldsRequested.every(key=>Number.isInteger(freshnessMs[key])&&freshnessMs[key]>=1000&&freshnessMs[key]<=300000)&&
+     Object.keys(freshnessMs).every(key=>fieldsRequested.includes(key));
+  if(!freshnessValid||!Number.isInteger(leaseMs)||leaseMs<1000||leaseMs>60000)
    return {ok:false,error:'Unsupported freshness or lease'};
   subscriptions.set(token,{fields:fieldsRequested.slice(),freshnessMs,expires:time()+leaseMs});
   return {ok:true,accepted:fieldsRequested.length,leaseMs};
@@ -61,7 +66,8 @@ function createScheduler(options){
   const result={};
   for(const key of sub.fields){
    const entry=cache.get(key),age=entry?Math.max(0,time()-entry.at):null;
-   const valid=!!entry&&age<=sub.freshnessMs&&entry.valid===true;
+   const freshness=typeof sub.freshnessMs==='number'?sub.freshnessMs:sub.freshnessMs[key];
+   const valid=!!entry&&age<=freshness&&entry.valid===true;
    if(valid)stats.cacheHits++;
    result[key]={valid,ageMs:age,sampledAt:entry?new Date(entry.at).toISOString():null,
       uds:valid?entry.uds.slice():null};
@@ -98,12 +104,12 @@ function createScheduler(options){
       u[1]!==((spec.did>>8)&255)||u[2]!==(spec.did&255)||
       !u.every(b=>Number.isInteger(b)&&b>=0&&b<=255)||
       !Number.isFinite(sampled)||sampled>time()+2000||time()-sampled>300000){
-    stats.failures++;cache.delete(key);return false;
+    stats.failures++;return false;
    }
    cache.set(key,{uds:u.slice(),at:sampled,valid:true});
    due.set(key,sampled+required.get(key));
    return true;
-  }catch(_){stats.failures++;cache.delete(key);return false;}
+  }catch(_){stats.failures++;return false;}
   finally{busy=false;}
  }
  function start(intervalMs=1000){
