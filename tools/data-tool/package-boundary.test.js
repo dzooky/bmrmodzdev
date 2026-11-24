@@ -40,6 +40,15 @@ async function main(){
  assert.strictEqual(writable.sourceProtected,false);assert.strictEqual(writable.candidate,'unknown');
  assert.strictEqual(writable.protectionReason,'source-write');
  assert.strictEqual(good.protectionReason,'protected');
+ assert.strictEqual(good.metadata.source,'root no-shared-write');
+ assert.strictEqual(good.metadata.manifest,'root no-shared-write');
+ const mixed=inspectPeer(peer,fixture({owner:'/var',writable:true,manifest:{uid:123}}));
+ assert.strictEqual(mixed.protectionReason,'ancestor-owner');
+ assert.strictEqual(mixed.metadata.ancestor,'mixed');
+ assert.strictEqual(mixed.metadata.source,'root shared-write');
+ assert.strictEqual(mixed.metadata.manifest,'peer no-shared-write');
+ assert.strictEqual(mixed.candidate,'unknown');
+ assert.strictEqual(inspectPeer(peer,fixture({symlink:'/var/opt'})).metadata.source,'unknown');
  for(const [opts,reason] of [[{owner:'/var'},'ancestor-owner'],[{owner:'/var/opt/oap_123'},'app-root-owner'],[{owner:'/var/opt/oap_123/source'},'source-owner'],[{symlink:'/var/opt'},'ancestor-symlink'],[{missing:'/var/opt/oap_123/source'},'source-stat'],[{manifest:{uid:123}},'manifest-owner'],[{manifest:{mode:0o666}},'manifest-write']]){
   const value=inspectPeer(peer,fixture(opts));assert.strictEqual(value.protectionReason,reason);assert.strictEqual(value.sourceProtected,false);assert.strictEqual(value.candidate,'unknown');assert.strictEqual(value.productionAccessEnabled,false);
  }
@@ -54,7 +63,7 @@ async function main(){
   const actual=await result;
   assert.strictEqual(actual.ok,true,JSON.stringify(actual));assert.strictEqual(actual.processStable,true);
   assert.strictEqual(actual.packageIdentityVerified,false);assert.strictEqual(actual.productionAccessEnabled,false);
-  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason'].sort());
+  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason','metadata'].sort());
   assert.deepStrictEqual(fs.readdirSync(dir),['ctl.sock']);
  }finally{if(client)client.destroy();if(server)await new Promise(r=>server.close(r));try{fs.unlinkSync(address);}catch(_){}fs.rmdirSync(dir);}
  console.log('Package observation: private kernel credentials, stable process, protected candidate and no auth passed');

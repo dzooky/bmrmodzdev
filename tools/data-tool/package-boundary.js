@@ -75,6 +75,55 @@ function packageCandidate(io,dir){
  }catch(_){return blocked(stage);}
  finally{if(fd!==null)try{io.closeSync(fd);}catch(_){}}
 }
+// Independent metadata-only survey. Never open or parse untrusted source files.
+// Stop walking at a symlink, missing entry or non-directory; ownership alone
+// does not stop metadata observation. No paths or numeric credentials leave here.
+function inspectHierarchy(io,root,uid){
+ const result={ancestor:'unknown',appRoot:'unknown',source:'unknown',manifest:'unknown',
+  executable:'unknown',peerCgroup:'unknown',uidSet:'unknown'};
+ const describe=st=>{
+  const owner=st.uid===0?'root':st.uid===uid?'peer':'other';
+  return owner+' '+((st.mode&0o022)!==0?'shared-write':'no-shared-write');
+ };
+ const target=path.join(root,'source'),parts=target.split('/').filter(Boolean);
+ let current='/',ancestors=[];
+ for(const part of [''].concat(parts)){
+  if(part)current=path.join(current,part);
+  const key=current===target?'source':current===root?'appRoot':'ancestor';
+  let value;
+  try{
+   const st=io.lstatSync(current);
+   value=st.isSymbolicLink()?'symlink':!st.isDirectory()?'wrong-type':describe(st);
+  }catch(_){value='unavailable';}
+  if(key==='ancestor'){
+   ancestors.push(value);
+   result.ancestor=ancestors.some(x=>x!==ancestors[0])?'mixed':value;
+  }else result[key]=value;
+  if(['symlink','wrong-type','unavailable'].includes(value))return result;
+ }
+ try{
+  const st=io.lstatSync(path.join(target,'package.json'));
+  result.manifest=st.isSymbolicLink()?'symlink':!st.isFile()?'wrong-type':describe(st);
+ }catch(_){result.manifest='unavailable';}
+ return result;
+}
+function inspectProcessMetadata(io,pid,uid,result){
+ const base='/proc/'+pid;
+ try{
+  const value=String(io.readlinkSync(base+'/exe'));
+  result.executable=value.endsWith(' (deleted)')?'deleted':value?'readable':'unavailable';
+ }catch(_){result.executable='unavailable';}
+ try{
+  const value=String(io.readFileSync(base+'/cgroup','utf8'));
+  result.peerCgroup=value.length>0?'readable':'unavailable';
+ }catch(_){result.peerCgroup='unavailable';}
+ try{
+  const value=String(io.readFileSync(base+'/status','utf8'));
+  const match=value.match(/^Uid:\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/m);
+  result.uidSet=match?match.slice(1).every(x=>Number(x)===uid)?'match':'different':'unavailable';
+ }catch(_){result.uidSet='unavailable';}
+ return result;
+}
 function inspectPeer(peer,io){
  const f=io||fs;
  if(!peer||!Number.isSafeInteger(peer.pid)||peer.pid<=0||!Number.isSafeInteger(peer.uid)||peer.uid<0)
@@ -86,11 +135,13 @@ function inspectPeer(peer,io){
   const layout=path.basename(first.cwd)==='data'&&/^oap_[A-Za-z0-9_-]{1,64}$/.test(name);
   const uidMatches=layout&&name==='oap_'+peer.uid;
   const candidate=layout?packageCandidate(f,root):{sourceProtected:false,candidate:'unknown',protectionReason:'layout-unavailable'};
+  const metadata=layout?inspectHierarchy(f,root,peer.uid):{};
+  inspectProcessMetadata(f,peer.pid,peer.uid,metadata);
   const last=processSample(f,peer.pid);
   if(!last||first.start!==last.start||first.uid!==last.uid||first.cwd!==last.cwd)
    return out('peer-changed');
   return out('observed',{ok:true,layout,uidMatches,sourceProtected:candidate.sourceProtected,
-   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason});
+   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason,metadata});
  }catch(_){return out('peer-unavailable');}
 }
 let active=false;

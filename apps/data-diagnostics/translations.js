@@ -193,7 +193,26 @@ const catalogs={
     "manifest-changed": "manifest-changed",
     "manifest-read": "manifest-read",
     "manifest-invalid": "manifest-invalid",
-    "unknown": "unknown"
+    "unknown": "unknown",
+    "Combined package metadata survey": "Combined package metadata survey",
+    "Ancestor modes": "Ancestor modes",
+    "App root mode": "App root mode",
+    "Source mode": "Source mode",
+    "Manifest mode": "Manifest mode",
+    "Executable link": "Executable link",
+    "UID set": "UID set",
+    "root no-shared-write": "root no-shared-write",
+    "root shared-write": "root shared-write",
+    "peer no-shared-write": "peer no-shared-write",
+    "peer shared-write": "peer shared-write",
+    "other no-shared-write": "other no-shared-write",
+    "other shared-write": "other shared-write",
+    "mixed": "mixed",
+    "symlink": "symlink",
+    "wrong-type": "wrong-type",
+    "deleted": "deleted",
+    "match": "match",
+    "different": "different"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

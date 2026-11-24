@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.58 — combined package metadata (2026-11-24)
+- In-car 0.1.57 showed ancestor-owner and all five reference ECU PASS. New focused Results shows seven independent metadata observations in one run; sanitized report retains prior failure reason. Requires Tool 0.1.47. No ECU changes or verified identity claim.
+
+
 ## v0.1.57 — precise protection failure (2026-11-24)
 - In-car 0.1.56: readable view, five ECU references PASS, observed OAP layout and matching UID, stable process, source protection NO and candidate unknown; DPF DEV still has data.
 - Shows first protection failure category on Results and sanitized report note. Requires Tool 0.1.46; same manual Run, no change to vehicle reads. CI and MGU validation pending at authoring.
