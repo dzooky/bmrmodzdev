@@ -32,11 +32,9 @@
 5. Update PROGRESS with implemented / CI-tested / in-car-verified status and concrete remaining unknowns. Do not claim deployment readiness from unit tests.
 
 ## Current implementation reality (2026-11-24, source of truth: GitHub)
-
-- **Implemented, offline-tested:** read-only allowlisted UDS `read` API, one serial service queue with 200 ms spacing, concurrent request coalescing, and short 500 ms successful-read cache in `service.js`; request-driven CDS engine with leases and freshness information in `cds-engine.js`.
-- **Experimental / not production consumer integration:** `data-broker.js` is an internal foundation and has **no public authenticated per-app socket handler**. Current CDS `data-manifest.json` lists `diagnostics` consumers, not a validated DPF/OSA/CC subscription workflow. A cross-app demand/freshness scheduler and long-lived cross-consumer cache per agreed target still require design/verification.
-- **Latest vehicle outcome:** Diagnostics 0.1.44 had **0/7 real ECU UDS reads PASS** (17 other PASS were mostly passive checks); TASU envelope 0x21 observed. Tool 0.1.38 / Diagnostics 0.1.46 recovery and trace changes are implemented and CI-tested but *not verified in car*. Last recorded positive reference was Tool 0.1.35 + Diagnostics 0.1.40 with 23 PASS / 0 FAIL / 5 SKIP, including successful DDE/EGS/CDS checks. The exact cause of later ECU failures is **unproven**.
-- **Next priority:** restore and isolate the known successful before-sleep/after-wake diagnostic acquisition as the reference, without adding new transport, ordering, polling or recovery experiments. Observe and compare a minimally scoped real-car result before reconnecting consumer apps. No code fix or vehicle verification is implied by this document.
+- Implemented: allowlisted read-only UDS service, serialized queue, short cache, request-driven CDS engine, private demand scheduler and bounded diagnostic operations.
+- Vehicle verified: Tool 0.1.51 / Diagnostics 0.1.62 B57 profile 12/12 repeated samples, measured 5.15–5.45 s; Tool 0.1.52 / DPF DEV 0.1.79 manual comparison 12/12 exact matches. No production app subscription yet.
+- Next: validate mixed freshness (draft 5 s regeneration request/mode and 60 s remaining values), then consumer onboarding subject to verified app identity. See PROGRESS for individual versions.
 
 ## Roadmap — application identity (2026-11-24)
 - Approved for roadmap, not implementation: evaluate installer-generated unique random per-installation tokens. Trusted installer registers package and token, protected per-app storage, service verifies token and assigns scoped capabilities; revoke on uninstall, rotate on reinstall/update as appropriate. No static shared secrets, tokens in logs, or self-registration by untrusted apps. Verify installer privileges and storage isolation before production activation.

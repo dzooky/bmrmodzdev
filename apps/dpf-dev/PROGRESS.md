@@ -1,5 +1,9 @@
 # DPF Status DEV progress
 
+## In-car v0.1.79 — 2026-11-24
+- All 12 B57 manual native vs scheduler cache comparisons OK, no difference or missing values. PR #82 CI 45485794738/45485794749 PASS, merged f130a787. Periodic mixed freshness test next; production subscription still blocked by app identity.
+
+
 ## v0.1.79 — compare scheduler cache (2026-11-24)
 - User confirms DPF DEV remains functional after full B57 scheduler test (12/12 PASS). Existing manual Compare now requests one fixed scheduler snapshot, checks engine profile and compares all available readings against original native reference, preserving differences/OK/N/A/FAIL. No automatic subscription or production migration. Requires Tool 0.1.52. CI and vehicle comparison pending.
 

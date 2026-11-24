@@ -257,6 +257,7 @@ const catalogs={
     "Live scheduler test": "Live scheduler test",
     "Scheduler test PASS": "Scheduler test PASS",
     "Scheduler test FAIL": "Scheduler test FAIL",
+    "DPF mixed freshness test": "DPF mixed freshness test",
     "DPF scheduler profile test": "DPF scheduler profile test",
     "DPF profile PASS": "DPF profile PASS",
     "DPF profile FAIL": "DPF profile FAIL",
