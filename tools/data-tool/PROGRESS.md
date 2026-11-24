@@ -1,6 +1,8 @@
 # Data Tool progress
 
 ## v0.1.41 — isolated idle TASU connection probe (2026-11-24)
+**Integration:** PR #61 merged to dev `main` at `b3f62eda0ffd913b3120d2fd2d5378e06f86f5d6`. GitHub Actions Data Tool test build #209 (PR) and #210 (main) **PASS**: legacy Node 12 service health, offline regressions and MGU preview. **Not verified in car**; idle TASU coexistence remains the subject of the next parked test.
+
 - **Purpose:** distinguish an independently open TASU client from actual concurrent ECU requests without repeating the already failed per-read-helper teardown experiment.
 - **Implemented:** explicit diagnostic-socket `{op:"tasuIdleProbe",mode:"open"|"close"}` operation. Open initializes the existing hmictl TASU subscription **without any UDS/ECU call**; close releases it. Actions serialize with the established request queue; ordinary read transport, timeouts, DID allowlist, 200 ms queue and 500 ms cache are unchanged. No background polling or application migration.
 - **Offline regression:** `tools/data-tool/test.js` asserts open/close state, zero physical ECU requests and subsequent normal read; health-startup version expectation bumped. **CI and real-car coexistence verification pending** until observed separately.
