@@ -108,7 +108,11 @@ mgu.run({
    if(cacheBusy||running||sending||generating||probing)return;
    if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
    cacheBusy=true;cacheResult=null;cacheError='';
-   try{cacheResult=await cacheProbe.run(client.request);}
+   try{
+     cacheResult=await cacheProbe.run(client.request);
+     const live=await client.request({op:'schedulerLiveTest'},{timeoutMs:12000});
+     cacheResult.scheduler=live&&live.mode==='internal-fixed-read-test'&&live.productionAccessEnabled===false&&live.ok===true;
+   }
    catch(_){cacheError=word('Cache test could not complete');}
    finally{cacheBusy=false;lastHealthPoll=0;}
   }
@@ -165,9 +169,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.60 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.61 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.60 — '+word('OAP boundary detail survey'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.61 — '+word('Live scheduler test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -217,7 +221,7 @@ mgu.run({
      '   '+word('Cache hits')+': '+cacheResult.cacheHits,800,393,22,theme.text,{align:'center'});
     label(cv,word('Valid responses')+': '+cacheResult.validResponses+'/3   '+
      word('Third reply from cache')+': '+word(cacheResult.thirdCached?'Yes':'No'),800,427,19,theme.text,{align:'center'});
-    if(!cacheResult.ok)label(cv,word('Outcome')+': '+cacheResult.outcome,800,470,18,theme.warn,{align:'center'});
+    label(cv,word(cacheResult.scheduler===true?'Scheduler test PASS':'Scheduler test FAIL'),800,470,22,cacheResult.scheduler===true?theme.ok:theme.crit,{align:'center'});
    }else if(cacheError){
     label(cv,cacheError,800,375,22,theme.warn,{align:'center'});
    }else{

@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.61 — functional scheduler test (2026-11-24)
+- Cache Test manual action now runs the existing cache probe followed by a fixed internal scheduler experiment and displays its separate PASS/FAIL. Normal Run and reference ECU tests unchanged. Requires Tool 0.1.50. No production grants or authentication claim. Car verification pending.
+
+
 ## v0.1.60 — boundary details (2026-11-24)
 - Previous in-car 0.1.59 confirmed owner equality, mode-risk and all five ECU references PASS. New seven bounded observations in one screen, previous evidence retained in report. Requires Tool 0.1.49. No identity verification claim.
 

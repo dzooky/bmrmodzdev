@@ -253,7 +253,10 @@ const catalogs={
     "some-sticky": "some-sticky",
     "not-sticky": "not-sticky",
     "protected-present": "protected-present",
-    "unverified": "unverified"
+    "unverified": "unverified",
+    "Live scheduler test": "Live scheduler test",
+    "Scheduler test PASS": "Scheduler test PASS",
+    "Scheduler test FAIL": "Scheduler test FAIL"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
