@@ -34,7 +34,7 @@ const {compare,decode}=require('./soot-compare');
    const req=JSON.parse(String(buf).trim());
    assert.deepStrictEqual(req,{op:'read',ecu:0x12,did:0x44BE});
    conn.end(JSON.stringify({ok:true,ecu:0x12,did:0x44BE,
-    uds:[0x62,0x44,0xBE,0x07,0xD0],at:'2026-11-24T14:30:00.000Z',cached:true})+'\\n');
+    uds:[0x62,0x44,0xBE,0x07,0xD0],at:'2026-11-24T14:30:00.000Z',cached:true})+'\n');
   });
  });
  await new Promise(resolve=>server.listen(sock,resolve));
