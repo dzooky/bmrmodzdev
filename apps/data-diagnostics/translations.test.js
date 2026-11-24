@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.38');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.40');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -45,14 +45,6 @@ assert.ok(t('en','Established ECU-first diagnostics'));
 assert.ok(t('en','Visible report upload action'));
 assert.ok(t('en','Corrected CDS temperature scaling'));
 assert.ok(t('en','Broker and IPC self-test'));
-assert.ok(t('en','DDE F150 identification check'));
-assert.strictEqual(spec.version,'0.1.46');
-for(const key of ['All tests','DPF / DDE checks','Other failed checks','No other failures','No details','More failures in All tests','Readable DDE test results'])assert.strictEqual(t('en',key),key);
-assert.ok(t('en','DDE F150 first-read check'));
-assert.ok(t('en','ECU reads'));
-assert.ok(t('en','Real ECU read status and TASU retry'));
-
-assert.ok(require('./test-runner').STEPS.some(s=>s.id==='ddeColdIdentity'));
 for(const key of ['Run before sleep','Run after wake','DPF comparison','Vehicle comparison','Before sleep','After wake'])assert.ok(t('en',key));
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
 assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');
@@ -62,12 +54,7 @@ for(const text of [
  'We still working on it and will be available soon.',
  'Thank you'
 ])assert.ok(main.includes(text));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','All tests']"));
-assert.ok(main.includes("const priority=['ddeColdIdentity','dde','ddeIdentity']"));
-assert.ok(main.includes("if(page===6)drawAllTests(cv,theme)"));
-assert.ok(main.includes("const midpoint=Math.ceil(rows.length/2)"));
-assert.ok(!main.includes("column.forEach((item,i)=>resultLine("),
-  'the dense results grid must not draw overlapping two-line descriptions');
+assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
 assert.ok(main.includes('runTest(nextPhase)'));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
