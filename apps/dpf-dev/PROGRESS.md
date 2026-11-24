@@ -1,5 +1,11 @@
 # DPF Status DEV progress
 
+## Next-stage declarative Data Tool demands (source-only, 2026-11-24)
+- **Implemented but NOT wired:** `data-demand-plan.js` declares profile-dependent B57/B47 foreground fields and minimal B57 regeneration background fields, freshness targets, and short demand lease. Cross-module tests compare it with the Tool's private `dpf-demand-profile.js`. No new app setting, transport change, timer, periodic Tool request, installed version or user-visible behavior; DPF DEV remains v0.1.78.
+- **Vehicle-tested reference (user confirmed):** manual v0.1.78 B57 comparison of all 12 fields first returned all OK; repeated comparisons were successful, with observed small temperature differences of 0.375 C and 0.5 C and a later all-OK result. The original production DPF and OSA/EGS continued to function afterward. This confirms repeated MANUAL reads and no observed coexistence regression, **not** periodic scheduling or long-term multi-app safety.
+- **Blocked next runtime step:** wait for per-app authentication/gateway and Tool-owned demand activation/lease renewal. The old diagnostic socket cannot be treated as a production-safe consumer endpoint. Test the new Tool scheduler using a trusted simulated grant only; no in-car auto polling before a safe gateway and measured sustainable rate are established.
+
+
 ## v0.1.78 — complete missing native references in a manual test (2026-11-24)
 **Integration:** PR #70 merged to dev `main` at `dde168ca901914239b2f5eb665bd4ccb79b4bc80`. DPF DEV regressions/MGU offline preview #23 (PR) and #24 (`main`) **PASS**; Data Tool regression #250 (`main`) **PASS**. **In-car verification of v0.1.78 pending.**
 - **Observed in car (0.1.76):** a valid -0.5 C temperature difference, all other initially available fields OK; repeated comparisons showed about 3 then 2 OK and other rows N/A, later roughly half OK/half N/A. This is consistent with, but does not independently prove, missing/aging per-page legacy DPF samples. A user-triggered all-data comparison cannot depend on whichever tab was previously open.
