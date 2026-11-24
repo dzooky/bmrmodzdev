@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.52 — dev MGU Store refresh experiment (2026-11-24)
+- **Problem:** user reports no available updates for Diagnostics 0.1.51 and Data Tool 0.1.42 in MGU Store, even after checking the dev source and restarting HU. Cause **not established**.
+- **Publication experiment:** bump Diagnostics to 0.1.52 and its Data Tool dependency to 0.1.43; keep static three-button MGU layout, passive read-health display, TASU action, normal diagnostic Run and Send action unchanged. Visible Info/version and What's New marker updated so the installed revision can be identified.
+- **Verification:** pending CI and availability in the actual MGU Store. A merge into GitHub alone does not confirm the update reached the car.
+
+
 **Integration and verification:** PR #64 merged into dev `main` at `66c9cf453d78df1eeab0d963978e285a1a718aaf`. GitHub Actions #219 (PR) and #220 (`main`) **PASS**, including Tool regression and offline MGU preview. **No in-car verification of v0.1.42/v0.1.51 yet.**
 
 
