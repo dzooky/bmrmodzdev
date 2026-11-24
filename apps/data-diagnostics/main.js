@@ -24,6 +24,7 @@ mgu.run({
   const runner=createRunner(client.request);
   let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
   let before=null,after=null;
+  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
   let nextPhase='before';
   const currentLanguage=()=>ctx.settings.get('language')||'en';
   const word=key=>t(currentLanguage(),key);
@@ -49,6 +50,17 @@ mgu.run({
   // The physical MGU button title is static in app.json, not a runtime ui.text update.
   refreshButtons();
   ctx.settings.onChange(key=>{if(key==='language')refreshButtons();});
+  async function pollReadHealth(){
+   if(healthBusy)return;
+   healthBusy=true;
+   try{
+    const data=await client.request({op:'status'},{timeoutMs:2500});
+    if(data&&data.ok&&data.readHealth&&data.readHealth.scope==='data-tool-uds-only'){
+     udsHealth=data.readHealth;healthError=false;
+    }else{udsHealth=null;healthError=true;}
+   }catch(_){udsHealth=null;healthError=true;}
+   finally{healthBusy=false;}
+  }
   async function runTest(phase){
    if(tasuOpen){tasuStatus=word('Close TASU before running diagnostics');page=1;return;}
    if(running||sending||generating||probing)return;
@@ -144,9 +156,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.50 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.51 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.50 — '+word('Static TASU control label'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.51 — '+word('Passive UDS read health'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -157,11 +169,26 @@ mgu.run({
    const status=running?word('Running'):report?word('Completed'):word('Not tested');
    header(cv,theme,word('Diagnostics'),status+'   '+progress+'%');
    G.panel(cv,theme,24,115,1552,380,null);
-   const latest=lastResult&&lastResult.label||word('Open Diagnostics and press Run');
-   label(cv,word('Read-only diagnostic test'),60,165,25,theme.text,{font:'bold'});
-   label(cv,word('No vehicle controls will be activated'),60,207,19,theme.dim);
-   label(cv,word('Status')+': '+status,60,277,26,running?theme.warn:theme.text);
-   label(cv,latest,60,323,22,theme.dim);
+   label(cv,word('Data Tool UDS only'),60,155,23,theme.accent2,{font:'bold'});
+   label(cv,word('DPF and OSA reads not monitored'),60,181,17,theme.dim);
+   const h=udsHealth;
+   if(healthError){
+    label(cv,word('Tool status unavailable'),60,230,23,theme.warn);
+   }else if(!h){
+    label(cv,word('Loading Tool status'),60,230,23,theme.dim);
+   }else{
+    const n=h.stats||{},fail=(n.error||0)+(n.timeout||0);
+    label(cv,word('Successful reads')+': '+(n.ok||0)+'    '+word('Failed reads')+': '+fail+
+      '    '+word('Cache hits')+': '+(n.cacheHits||0),60,221,23,theme.text);
+    const last=h.lastSuccessAt?String(h.lastSuccessAt).replace('T',' ').slice(0,19):word('Never');
+    label(cv,word('Last successful ECU read')+': '+last,60,259,21,theme.text);
+    const age=Number.isFinite(h.sampleAgeMs)?Math.floor(h.sampleAgeMs/1000)+' s':word('Unknown');
+    const fresh=h.freshness==='fresh'?word('Fresh'):h.freshness==='stale'?word('Stale'):word('Missing');
+    const source=h.lastSource==='cache'?word('Cache'):h.lastSource==='ecu'?word('ECU'):word('Unknown');
+    label(cv,word('Sample age')+': '+age+'    '+word('Sample status')+': '+fresh+
+      '    '+word('Last source')+': '+source,60,297,20,h.freshness==='fresh'?theme.ok:theme.warn);
+    label(cv,word('Last read error')+': '+(h.lastError||word('None')),60,335,20,theme.dim);
+   }
    cv.roundRect(60,366,1480,25,6,theme.track);
    cv.roundRect(60,366,Math.max(0,Math.floor(1480*progress/100)),25,6,theme.accent2);
    label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
@@ -261,7 +288,10 @@ mgu.run({
    // Avoid retained Recorder instance overrides across frames.
    delete cv.text;
    if(page===0)drawInfo(cv,theme);
-   if(page===1)drawDiagnostics(cv,theme);
+   if(page===1){
+    if(Date.now()-lastHealthPoll>=2000){lastHealthPoll=Date.now();pollReadHealth().catch(e=>log.warn('Read health: '+e.message));}
+    drawDiagnostics(cv,theme);
+   }
    if(page===2)drawResults(cv,theme);
    if(page===3)drawComparison(cv,theme);
    if(page===4)drawVehicleComparison(cv,theme);

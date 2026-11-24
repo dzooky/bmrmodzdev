@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.51 — passive Tool UDS telemetry on Diagnostics page (2026-11-24)
+- **Implemented:** Diagnostics page requests Tool `status` while visible (at most once per 2 seconds; **no ECU reads**), displaying success/failure counts, cache hits, last successful ECU read timestamp, sample age, fresh/stale/missing, last source and last categorized error. Unavailable service shown explicitly. Scope label states independent DPF/OSA reads are **not monitored**.
+- **Preservation:** original three physical button titles remain exactly `Run before sleep`, `Open TASU (no read)`, `Send report`; no new button, read order or background ECU polling. Existing snapshot/Results/Share paths unchanged.
+- **Automated validation:** translation/manifest checks and Tool telemetry regression; CI and real-car screen verification pending. This is not an independent DPF/OSA diagnostics monitor.
+
+
 ## v0.1.50 — static MGU TASU bar button (2026-11-24)
 - **User-confirmed regression:** v0.1.48 and 0.1.49 showed the previous button labels in-car. Both attempts relied on runtime `ui.text()` changes, which did not produce the requested visible control on this MGU. CI preview was insufficient to verify the native RHMI text.
 - **Correction:** set the existing middle `BTN_GEN` manifest label to **Open TASU (no read)** directly in `app.json`, and remove startup/dynamic text override for this button. Pressing the same button toggles the Data Tool 0.1.41 TASU connection and the Diagnostics page shows the connection result. There are still exactly three RHMI buttons. This is a **temporary diagnostic-test replacement** of the former Generate CDS UI action; backend CDS generation code and endpoint are preserved, but the former manual button is not available in this isolation build. Existing normal Run / Send report actions and test order unchanged.

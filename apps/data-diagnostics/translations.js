@@ -92,7 +92,28 @@ const catalogs={
     "Manual TASU connection isolation": "Manual TASU connection isolation",
     "Close TASU before running diagnostics": "Close TASU before running diagnostics",
     "Visible TASU probe control": "Visible TASU probe control",
-    "Static TASU control label": "Static TASU control label"
+    "Static TASU control label": "Static TASU control label",
+    "Passive UDS read health": "Passive UDS read health",
+    "Data Tool UDS only": "Data Tool UDS only",
+    "DPF and OSA reads not monitored": "DPF and OSA reads not monitored",
+    "Tool status unavailable": "Tool status unavailable",
+    "Loading Tool status": "Loading Tool status",
+    "Successful reads": "Successful reads",
+    "Failed reads": "Failed reads",
+    "Cache hits": "Cache hits",
+    "Last successful ECU read": "Last successful ECU read",
+    "Never": "Never",
+    "Unknown": "Unknown",
+    "Sample age": "Sample age",
+    "Sample status": "Sample status",
+    "Fresh": "Fresh",
+    "Stale": "Stale",
+    "Missing": "Missing",
+    "Last source": "Last source",
+    "Cache": "Cache",
+    "ECU": "ECU",
+    "Last read error": "Last read error",
+    "None": "None"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

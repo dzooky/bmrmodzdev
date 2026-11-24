@@ -14,7 +14,7 @@ for(const [lang,catalog] of Object.entries(catalogs)){
 }
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.41');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.42');
 assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
 assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
@@ -26,6 +26,7 @@ assert.ok(t('en','HTTP response diagnostics'));
 assert.ok(t('en','Corrected upload endpoint'));
 assert.ok(t('en','SOME/IP setup diagnostics'));
 assert.ok(t('en','Generate CDS test'));
+for(const key of ['Data Tool UDS only','DPF and OSA reads not monitored','Sample age','Sample status','Fresh','Stale','Missing','Last read error'])assert.ok(t('en',key));
 for(const key of ['Open TASU (no read)','Close TASU','TASU connected without ECU reads','TASU connection closed','TASU probe failed'])assert.ok(t('en',key));
 assert.ok(t('en','Send report button restored'));
 assert.ok(t('en','Focused diagnostics'));
@@ -62,6 +63,7 @@ assert.strictEqual(spec.screens[0].buttons[1][1],'Open TASU (no read)');
 assert.ok(!main.includes("['BTN_GEN',page===1"),'Runtime label update must not override static MGU text');
 assert.ok(main.includes("ui.onClick('BTN_GEN',()=>{toggleTasuIdle()"));
 assert.ok(main.includes('runTest(nextPhase)'));
+assert.ok(main.includes("{op:'status'}"));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
 assert.ok(!main.includes("ui.onClick('BTN_AFTER'"));
 assert.ok(!main.includes("ui.onClick('BTN_EXPORT'"));
