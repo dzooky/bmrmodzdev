@@ -153,8 +153,9 @@ mgu.run({
             try {
                 const result = await allFieldsCompare.compareAll(profile,snapshots,dataToolRead.request);
                 allComparison=result;
-                sootComparison = {state:result.ok?'Responding':'Failed',result:null};
-                ctx.settings.actionStatus.compareSoot = result.ok?'Responding':'Failed';
+                const state = allFieldsCompare.summaryState(result);
+                sootComparison = {state,result:null};
+                ctx.settings.actionStatus.compareSoot = state;
             } catch (_) {
                 sootComparison = {state:'Failed',result:null};
                 ctx.settings.actionStatus.compareSoot = 'Failed';
@@ -475,6 +476,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.77', 'Correct data comparison result status'],
                 ['0.1.76', 'All DPF data comparison via Data Tool'],
                 ['0.1.75', 'Manual soot comparison via Data Tool'],
                 ['0.1.74', 'Restore direct TASU communication without Data Tool'],

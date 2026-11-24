@@ -1,7 +1,7 @@
 'use strict';
 // Manual DEV comparison: compare each supported DDE profile field against its
 // existing native TASU snapshot. Never initiate legacy ECU reads or polling.
-const ECU=0x12,MAX_AGE_MS=30000;
+const ECU=0x12,MAX_AGE_MS=90000;
 function specFor(profile){
  if(!profile)return [];
  return profile.overview.concat(profile.detail).map(([key,did,len,factor,offset=0])=>({
@@ -63,4 +63,12 @@ async function compareAll(profile,samples,read,now){
   missing:rows.filter(r=>r.status==='no-sample').length,
   failed:rows.filter(r=>r.status==='invalid'||r.status==='read-failed').length};
 }
-module.exports={compareAll,specFor,decode,formatDifference,MAX_AGE_MS};
+// Distinguish a real ECU failure from a changed value or missing reference.
+function summaryState(result){
+ if(!result||!Array.isArray(result.rows)||result.rows.length===0)return 'Failed';
+ if(result.failed>0)return 'Failed';
+ if(result.different>0)return 'Difference';
+ if(result.missing>0)return 'Incomplete';
+ return 'Responding';
+}
+module.exports={compareAll,specFor,decode,formatDifference,summaryState,MAX_AGE_MS};

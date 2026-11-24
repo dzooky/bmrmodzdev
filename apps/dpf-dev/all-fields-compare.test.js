@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert');
-const {compareAll,specFor,formatDifference,decode}=require('./all-fields-compare');
+const {compareAll,specFor,formatDifference,decode,summaryState}=require('./all-fields-compare');
 const profiles=require('./dde-profiles');
 (async()=>{
  const b57=profiles.forDde(profiles.B57),b47=profiles.forDde(profiles.B47);
@@ -34,6 +34,8 @@ const profiles=require('./dde-profiles');
   return {uds:arr,at:new Date().toISOString()};
  },now);
  assert.strictEqual(shift.rows[0].status,'difference');
+ assert.strictEqual(summaryState(shift),'Difference');
+ assert.strictEqual(summaryState(result),'Responding');
  assert.strictEqual(shift.rows[0].display,'+0.015 g');
  assert.strictEqual(shift.rows[1].display,'OK');
  assert.strictEqual(formatDifference(-0.001,'km'),'-0.001 km');
@@ -42,6 +44,16 @@ const profiles=require('./dde-profiles');
  assert.strictEqual(decode({uds:[0x7f,0x44,0xBE,0,9]},specs[0]),null);
  const missing=await compareAll(b57,{},async()=>{throw Error('unexpected ECU read');},now);
  assert.strictEqual(missing.missing,12);
+ assert.strictEqual(summaryState(missing),'Incomplete');
+ assert.strictEqual(summaryState({...shift,failed:1}),'Failed');
+ const fresh90=await compareAll(profiles.forDde(profiles.B47),{
+  SOOT:{raw:100,source:'legacy',at:now-60000}
+ },async(ecu,did)=>({uds:[0x62,0x44,0xBE,0,100],at:new Date().toISOString()}),now);
+ assert.strictEqual(fresh90.rows[0].status,'ok','60s sample is valid under DPF 90s policy');
+ const expired=await compareAll(profiles.forDde(profiles.B47),{
+  SOOT:{raw:100,source:'legacy',at:now-91000}
+ },async()=>{throw Error('must not read expired sample');},now);
+ assert.strictEqual(expired.rows[0].status,'no-sample','91s sample is stale');
  assert.strictEqual(missing.rows[0].display,'N/A');
  console.log('DPF DEV all-fields comparison: 12 B57/4 B47, exact OK, delta and missing handling PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
