@@ -91,7 +91,8 @@ const catalogs={
     "TASU probe failed": "TASU probe failed",
     "Manual TASU connection isolation": "Manual TASU connection isolation",
     "Close TASU before running diagnostics": "Close TASU before running diagnostics",
-    "Visible TASU probe control": "Visible TASU probe control"
+    "Visible TASU probe control": "Visible TASU probe control",
+    "Static TASU control label": "Static TASU control label"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

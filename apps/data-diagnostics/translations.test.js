@@ -58,7 +58,9 @@ for(const text of [
 assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share']"));
 assert.ok(main.includes("ui.onClick('BTN_SEND'"));
 assert.ok(main.includes('toggleTasuIdle().catch'));
-assert.ok(main.includes("if(page===1)toggleTasuIdle()"));
+assert.strictEqual(spec.screens[0].buttons[1][1],'Open TASU (no read)');
+assert.ok(!main.includes("['BTN_GEN',page===1"),'Runtime label update must not override static MGU text');
+assert.ok(main.includes("ui.onClick('BTN_GEN',()=>{toggleTasuIdle()"));
 assert.ok(main.includes('runTest(nextPhase)'));
 assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
 assert.ok(!main.includes("ui.onClick('BTN_AFTER'"));
