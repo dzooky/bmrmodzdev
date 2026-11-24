@@ -273,7 +273,15 @@ const catalogs={
     "RUNTIME": "RUNTIME",
     "LOCK": "LOCK",
     "AVG TEMP": "AVG TEMP",
-    "REMAINING": "REMAINING"
+    "REMAINING": "REMAINING",
+    "API background test": "API background test",
+    "API test PASS": "API test PASS",
+    "API test FAIL": "API test FAIL",
+    "API connection": "API connection",
+    "API limits": "API limits",
+    "Shared cache": "Shared cache",
+    "Automatic acquisition": "Automatic acquisition",
+    "Demand released": "Demand released"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
