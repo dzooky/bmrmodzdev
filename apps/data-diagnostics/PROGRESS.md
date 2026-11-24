@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.50 — static MGU TASU bar button (2026-11-24)
+- **User-confirmed regression:** v0.1.48 and 0.1.49 showed the previous button labels in-car. Both attempts relied on runtime `ui.text()` changes, which did not produce the requested visible control on this MGU. CI preview was insufficient to verify the native RHMI text.
+- **Correction:** set the existing middle `BTN_GEN` manifest label to **Open TASU (no read)** directly in `app.json`, and remove startup/dynamic text override for this button. Pressing the same button toggles the Data Tool 0.1.41 TASU connection and the Diagnostics page shows the connection result. There are still exactly three RHMI buttons. This is a **temporary diagnostic-test replacement** of the former Generate CDS UI action; backend CDS generation code and endpoint are preserved, but the former manual button is not available in this isolation build. Existing normal Run / Send report actions and test order unchanged.
+- **Validation:** structural regression asserts the actual static manifest label and absence of the previous runtime override. CI and in-car optical verification pending. Do not claim success until the new label is observed on MGU.
+
+
 **Integration:** PR #62 merged to dev `main` as `13c5faf09e0a9bdc262329b8b614a49c0387e000`. GitHub Actions Data Tool test build #213 (PR) and #214 (main) **PASS**, including offline MGU preview. Button visibility on real MGU **not yet confirmed** for Diagnostics 0.1.49.
 
 
