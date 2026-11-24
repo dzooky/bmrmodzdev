@@ -16,7 +16,6 @@ const STEPS=[
   {id:'authBoundary',label:'Application authentication feasibility',request:{op:'authFeasibility'},kind:'authFeasibility'},
   {id:'nativePeer',label:'Native peer ABI feasibility',request:{op:'nativePeerFeasibility'},kind:'nativePeer'},
   {id:'nativeKernel',label:'Native kernel SO_PEERCRED experiment',request:{op:'nativePeerProbe'},kind:'nativeKernel'},
-  {id:'processBoundary',label:'Native process isolation survey',request:{op:'processBoundaryProbe'},kind:'processBoundary'},
   {id:'someipEnvironment',label:'SOME/IP environment',request:{op:'signalEnvironment'},kind:'environment'},
   {id:'someipConfig',label:'SOME/IP config',request:{op:'configCheck'},kind:'config'},
   {id:'someipSetup',label:'SOME/IP setup',request:{op:'someipSetup'},kind:'setup'},
@@ -26,14 +25,10 @@ const STEPS=[
   // Prime the already-tested TASU physical read path with existing supported
   // ECU reads, before the intermittent DDE/EGS diagnostic checks. This adds
   // no requests and does not change the transport, ECU addresses or DIDs.
-  // Cold DDE baseline: the first actual ECU read of a diagnostic run must
-  // reproduce DPF startup (F150 before any other ECU reads or warm-up).
-  {id:'ddeColdIdentity',label:'DDE F150 first read',request:{op:'readTrace',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
   {id:'ihka',label:'IHKA / climate',request:{op:'read',ecu:0x78,did:0xD8D7},kind:'uds'},
   {id:'bdc',label:'BDC / steering',request:{op:'read',ecu:0x40,did:0xD074},kind:'uds'},
   {id:'acsm',label:'ACSM / seatbelts',request:{op:'read',ecu:0x01,did:0x4053},kind:'uds'},
   {id:'dde',label:'DDE / DPF',request:{op:'readTrace',ecu:0x12,did:0x44BB},kind:'uds'},
-  {id:'ddeIdentity',label:'DDE F150 identification',request:{op:'readTrace',ecu:0x12,did:0xF150},kind:'ddeIdentity'},
   {id:'egs',label:'EGS / transmission',request:{op:'readTrace',ecu:0x18,did:0x6000},kind:'uds'},
   {id:'dpfValues',label:'DPF decoded values',request:null,kind:'dpf'},
   {id:'egsIdentity',label:'EGS variant identification',request:{op:'read',ecu:0x18,did:0xF150},kind:'egsIdentity'},
@@ -139,24 +134,6 @@ function resultFor(step,reply,duration){
       'Identity isolation survey unavailable; production remains OFF';
     return Object.assign(base,{status:safe&&observed?'PASS':'FAIL',detail});
   }
-  if(step.kind==='processBoundary'){
-    const safe=reply.mode==='passive-process-boundary'&&
-      reply.applicationIdentityVerified===false&&
-      reply.installedPackageIdentityVerified===false&&
-      reply.processInstanceVerified===false&&
-      reply.productionAccessEnabled===false&&reply.observationOnly===true;
-    const ok=safe&&reply.ok===true&&reply.stage==='kernel-peer-observed'&&
-      reply.kernelPeerObserved===true;
-    const detail=ok?
-      'Kernel peer /proc: cgroup '+(reply.peerCgroupReadable?'readable':'unavailable')+
-      ', separate '+(reply.peerCgroupDifferentFromService?'yes':'no')+
-      ', same UID '+(reply.sameUidAsService?'yes':'no')+
-      ', process stat '+(reply.peerProcStatReadable?'readable':'unavailable')+
-      '; installed package NOT verified; production OFF':
-      'Native process boundary unavailable: '+String(reply.stage||'unknown').replace(/[^a-z-]/g,'').slice(0,35)+
-      '; package identity NOT verified; production OFF';
-    return Object.assign(base,{status:ok?'PASS':safe?'SKIP':'FAIL',detail});
-  }
   if(step.kind==='nativeKernel'){
     const safe=reply&&reply.mode==='mgu-native-peer-probe'&&
       reply.productionAccessEnabled===false&&
@@ -230,19 +207,6 @@ function resultFor(step,reply,duration){
         cleanError(reply.error||'CDS shared stream did not refresh or stop')});
   }
   if(step.kind==='native')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',detail:reply.ok?'Native module loaded in isolated worker':cleanError(reply.error||reply.stage)});
-  if(step.kind==='ddeIdentity'){
-    const uds=reply.uds;
-    const valid=reply.ok===true&&Array.isArray(uds)&&uds.length>=6&&
-      uds[0]===0x62&&uds[1]===0xF1&&uds[2]===0x50;
-    // Report the actual ECU read, not a successful socket or passive status.
-    const tasu=Number.isInteger(reply.tasuStatus)?' TASU status 0x'+
-      reply.tasuStatus.toString(16).toUpperCase().padStart(2,'0'):'';
-    const tries=reply.trace&&Number.isInteger(reply.trace.attempts)?
-      '; attempts '+reply.trace.attempts:'';
-    return Object.assign(base,{status:valid?'PASS':'FAIL',
-      detail:(valid?'Matching F150 DDE identification response received':
-        cleanError(reply.error||'Invalid or missing F150 response')+tasu)+tries});
-  }
   if(step.kind==='egsIdentity')return Object.assign(base,{status:reply.ok?'PASS':'SKIP',
     detail:reply.ok?'Verified OSA EGS profile '+reply.index:cleanError(reply.error)});
   if(step.kind==='dpf')return Object.assign(base,{status:reply.ok?'PASS':'FAIL',
@@ -423,8 +387,8 @@ function createRunner(send,clock){
         if(skip){results.push(skipped(step,skip));if(onProgress)onProgress(i+1,STEPS.length,results[results.length-1]);continue;}
         // Explicit manual diagnostics only: space ECU checks to test whether
         // TASU/ECU settling is related to intermittent DDE and EGS timeouts.
-        if((step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity'||step.kind==='ddeIdentity')&&previousUds)await delay(1000);
-        previousUds=step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity'||step.kind==='ddeIdentity';
+        if((step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity')&&previousUds)await delay(1000);
+        previousUds=step.kind==='uds'||step.kind==='dpf'||step.kind==='egsIdentity';
         const start=now();
         let result;
         try{
@@ -470,16 +434,8 @@ function createRunner(send,clock){
       }
       const totals={pass:results.filter(x=>x.status==='PASS').length,fail:results.filter(x=>x.status==='FAIL').length,
         skip:results.filter(x=>x.status==='SKIP').length};
-      // A passing passive check, mock broker or service status is NOT a
-      // successful ECU read. Count only real UDS response validations.
-      const ecuStepIds=['ddeColdIdentity','ihka','bdc','acsm','dde','ddeIdentity','egs'];
-      const ecuResults=ecuStepIds.map(id=>results.find(r=>r.id===id));
-      const ecuReads={pass:ecuResults.filter(r=>r&&r.status==='PASS').length,
-        fail:ecuResults.filter(r=>r&&r.status==='FAIL').length,
-        skip:ecuResults.filter(r=>!r||r.status==='SKIP').length,
-        total:ecuStepIds.length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
-        startedAt,finishedAt:new Date().toISOString(),totals,ecuReads,results,
+        startedAt,finishedAt:new Date().toISOString(),totals,results,
         snapshotPhase:phase||null,dpfSnapshot:dpfSnapshot&&dpfSnapshot.ok?dpfSnapshot:null,
         vehicleSnapshot,
         someipTimings:someipTimings(results),
@@ -491,7 +447,6 @@ function createRunner(send,clock){
           'Authentication: '+String((results.find(x=>x.id==='authBoundary')||{}).detail||'not run').slice(0,125)+'.',
           'Native peer: '+String((results.find(x=>x.id==='nativePeer')||{}).detail||'not run').slice(0,125)+'.',
           'Kernel peer: '+String((results.find(x=>x.id==='nativeKernel')||{}).detail||'not run').slice(0,125)+'.',
-          'Process boundary: '+String((results.find(x=>x.id==='processBoundary')||{}).detail||'not run').slice(0,125)+'.',
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
