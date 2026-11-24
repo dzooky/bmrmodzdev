@@ -10,7 +10,7 @@ function decode(uds){
 async function compare(legacy,read,now){
  const captured=Number.isFinite(now)?now:Date.now();
  const legacyAgeMs=legacy&&Number.isFinite(legacy.at)?Math.max(0,captured-legacy.at):null;
- if(!legacy||!Number.isFinite(legacy.value)||legacyAgeMs===null||
+ if(!legacy||legacy.source!=='legacy'||!Number.isFinite(legacy.value)||legacyAgeMs===null||
     legacyAgeMs>MAX_LEGACY_AGE_MS)return {ok:false,reason:'NO_RECENT_SAMPLE',legacyAgeMs};
  try{
   const tool=await read(ECU,DID,{timeoutMs:15000,withMeta:true});
