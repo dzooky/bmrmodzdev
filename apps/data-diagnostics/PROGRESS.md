@@ -2,7 +2,7 @@
 
 ## v0.1.47 — restore last in-car-positive v0.1.40 diagnostics workflow (2026-11-24)
 - **Approved recovery:** restore `test-runner.js`, `main.js` and English catalog from historical commit `7e0a47203c69ea2b94d9b146b71d494002560230`, instead of the later cold-F150-first and repeated F150 sequence. Exact historical manual read order and results UI are restored; only version becomes 0.1.47 and dependency minimum Data Tool 0.1.40. No app controls or background polling.
-- **Verification:** existing Data Tool 0.1.35 / Diagnostics 0.1.40 passed in-car; restored 0.1.47 with Tool 0.1.40 is **not yet car-verified**. CI tracked separately.
+- **Verification:** existing Data Tool 0.1.35 / Diagnostics 0.1.40 passed in-car; restored 0.1.47 with Tool 0.1.40 is **not yet car-verified**. GitHub Actions Data Tool test build #200 (run 45372447506) PASS; current vehicle behavior remains unverified.
 
 
 ## Baseline protection documented (2026-11-24; documentation-only)
