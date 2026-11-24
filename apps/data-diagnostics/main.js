@@ -22,7 +22,7 @@ mgu.run({
  start(ctx){
   const {ui,log}=ctx;
   const runner=createRunner(client.request);
-  let page=0,running=false,sending=false,generating=false,genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
+  let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
   let before=null,after=null;
   let nextPhase='before';
   const currentLanguage=()=>ctx.settings.get('language')||'en';
@@ -42,7 +42,8 @@ mgu.run({
   nextPhase=before&&!after?'after':'before';
   function refreshButtons(){
    for(const [button,key] of [['BTN_RUN',nextPhase==='after'?'Run after wake':'Run before sleep'],
-     ['BTN_GEN','Generate CDS test'],['BTN_SEND','Send report']]){
+     ['BTN_GEN','Generate CDS test'],['BTN_SEND','Send report'],
+     ['BTN_TASU',tasuOpen?'Close TASU':'Open TASU (no read)']]){
     try{ui.text(button,word(key));}catch(_){}
    }
   }
@@ -70,6 +71,22 @@ mgu.run({
     log.warn('Data Tool diagnostic run: '+error.message);
     exportState=word('Export failed')+': '+safeValue(error.message);
    }finally{running=false;}
+  }
+  async function toggleTasuIdle(){
+   if(probing||running||sending||generating)return;
+   probing=true;page=1;
+   const mode=tasuOpen?'close':'open';
+   tasuStatus=word('TASU probe running');
+   try{
+    const reply=await client.request({op:'tasuIdleProbe',mode},{timeoutMs:11000});
+    if(reply&&reply.ok===true&&reply.vehicleReads===0&&reply.mode===mode){
+     tasuOpen=mode==='open';
+     tasuStatus=word(tasuOpen?'TASU connected without ECU reads':'TASU connection closed');
+    }else{
+     tasuStatus=word('TASU probe failed');
+    }
+   }catch(e){tasuStatus=word('TASU probe failed');}
+   finally{probing=false;refreshButtons();}
   }
   async function generateCds(){
    if(generating||running||sending)return;
@@ -107,6 +124,7 @@ mgu.run({
    }finally{sending=false;}
   }
   ui.onClick('BTN_GEN',()=>{generateCds().catch(e=>log.warn('Generate: '+e));});
+  ui.onClick('BTN_TASU',()=>{toggleTasuIdle().catch(e=>log.warn('TASU probe: '+e));});
   ui.onClick('BTN_RUN',()=>{runTest(nextPhase).catch(error=>log.warn('Snapshot: '+error));});
   ui.onClick('BTN_SEND',()=>{sendReport().catch(error=>log.warn('Send: '+error));});
   ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
@@ -126,9 +144,9 @@ mgu.run({
    if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.47 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.48 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.47 — '+word('Native kernel peer compatibility'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.48 — '+word('Manual TASU connection isolation'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -147,7 +165,7 @@ mgu.run({
    cv.roundRect(60,366,1480,25,6,theme.track);
    cv.roundRect(60,366,Math.max(0,Math.floor(1480*progress/100)),25,6,theme.accent2);
    label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
-   label(cv,genStatus||word('Stay parked during the test'),60,474,17,theme.warn);
+   label(cv,tasuStatus||genStatus||word('Stay parked during the test'),60,474,17,theme.warn);
   }
   function drawResults(cv,theme){
    const totals=report&&report.totals;
