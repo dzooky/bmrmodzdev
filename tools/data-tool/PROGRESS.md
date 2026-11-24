@@ -1,5 +1,11 @@
 # Data Tool progress
 
+## Private UDS demand gateway foundation (2026-11-24)
+- **In-car Diagnostics 0.1.55 / Tool 0.1.44:** Process boundary PASS; peer cgroup and stat readable, distinct cgroup, different UID from service. Five ECU references PASS; DDE and EGS first attempt. Report 18 PASS / 2 FAIL / 9 SKIP; both FAIL are missing staged CDS generator JSON, not UDS or package authentication failures. Package identity still unverified.
+- **Implemented, offline only:** private demand/snapshot/release dispatcher using existing fail-closed auth policy and scheduler grants. Resolves peer on every operation, rejects caller-supplied identity and unauthorized fields; snapshots passive. Revoked peer cannot renew or access; existing lease expires normally. No service/IPC registration, ECU runtime changes, version bump or installation required.
+- **Remaining blocker:** actual trusted MGU package-to-process attestor is not provided by the available source. Need authoritative package ownership/boundary mapping and live process validation; UID/cgroup difference alone is insufficient. No activation until proven. CI pending at authoring.
+
+
 ## In-car observation — 2026-11-24
 - Diagnostics 0.1.54 screenshot shows Native process isolation survey PASS; user confirms DPF DEV data available afterward. Detailed flags were not reliably readable due to overlapping rows. No package identity verification or production access. Diagnostics-only v0.1.55 improves visibility; Tool 0.1.44 and scheduler remain unchanged.
 

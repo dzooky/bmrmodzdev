@@ -106,6 +106,7 @@ jobs:
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
           node tools/data-tool/uds-demand-scheduler.test.js
+          node tools/data-tool/uds-demand-gateway.test.js
           node apps/dpf-dev/data-demand-plan.test.js
           node tools/data-tool/cds-engine.test.js
           node tools/data-tool/data-manifest.test.js
