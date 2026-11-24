@@ -51,6 +51,28 @@ function request(ecu,did,options){
   socket.on('end',()=>done(new Error('Data Tool closed connection')));
  });
 }
+function schedulerCompare(options){
+ const opts=options||{};
+ return new Promise((resolve,reject)=>{
+  let doneFlag=false,raw='';
+  const socket=net.createConnection(opts.socket||SOCKET);
+  const done=(err,value)=>{if(doneFlag)return;doneFlag=true;socket.destroy();err?reject(err):resolve(value);};
+  socket.setTimeout(45000,()=>done(new Error('Scheduler comparison timeout')));
+  socket.on('connect',()=>socket.write(JSON.stringify({op:'schedulerCompare'})+'\n'));
+  socket.on('data',chunk=>{
+   raw+=chunk.toString('utf8');
+   if(raw.length>8192)return done(new Error('Data Tool reply too large'));
+   const end=raw.indexOf('\n');if(end<0)return;
+   try{
+    const r=JSON.parse(raw.slice(0,end));
+    if(!r||r.ok!==true||r.mode!=='manual-scheduler-compare'||r.productionAccessEnabled!==false||
+      !['B57','B47'].includes(r.engine)||!r.fields||typeof r.fields!=='object')throw Error('Invalid scheduler snapshot');
+    done(null,r);
+   }catch(e){done(e);}
+  });
+  socket.on('error',done);socket.on('end',()=>done(new Error('Data Tool closed connection')));
+ });
+}
 function status(options){
  const opts=options||{};
  return new Promise(resolve=>{
@@ -123,4 +145,4 @@ function create(legacy,opts){
   }
  };
 }
-module.exports={create,request,status,errorCode,SOCKET};
+module.exports={create,request,status,errorCode,SOCKET,schedulerCompare};

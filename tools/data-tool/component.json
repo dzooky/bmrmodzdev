@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.51",
+  "version": "0.1.52",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
@@ -192,6 +192,11 @@
     {
       "path": "scheduler-profile-test.js",
       "from": "scheduler-profile-test.js",
+      "mode": "0644"
+    },
+    {
+      "path": "scheduler-compare.js",
+      "from": "scheduler-compare.js",
       "mode": "0644"
     }
   ],

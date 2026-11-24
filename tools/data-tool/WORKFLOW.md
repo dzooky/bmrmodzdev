@@ -38,6 +38,10 @@
 - **Latest vehicle outcome:** Diagnostics 0.1.44 had **0/7 real ECU UDS reads PASS** (17 other PASS were mostly passive checks); TASU envelope 0x21 observed. Tool 0.1.38 / Diagnostics 0.1.46 recovery and trace changes are implemented and CI-tested but *not verified in car*. Last recorded positive reference was Tool 0.1.35 + Diagnostics 0.1.40 with 23 PASS / 0 FAIL / 5 SKIP, including successful DDE/EGS/CDS checks. The exact cause of later ECU failures is **unproven**.
 - **Next priority:** restore and isolate the known successful before-sleep/after-wake diagnostic acquisition as the reference, without adding new transport, ordering, polling or recovery experiments. Observe and compare a minimally scoped real-car result before reconnecting consumer apps. No code fix or vehicle verification is implied by this document.
 
+## Roadmap — application identity (2026-11-24)
+- Approved for roadmap, not implementation: evaluate installer-generated unique random per-installation tokens. Trusted installer registers package and token, protected per-app storage, service verifies token and assigns scoped capabilities; revoke on uninstall, rotate on reinstall/update as appropriate. No static shared secrets, tokens in logs, or self-registration by untrusted apps. Verify installer privileges and storage isolation before production activation.
+- Continue functional scheduler validation first. Manual fixed read-only diagnostics remain distinct from production app subscriptions.
+
 ## Where to maintain decisions
 
 Keep this workflow as the approved contract. Log version-specific progress and observed regressions in `tools/data-tool/PROGRESS.md` and `apps/data-diagnostics/PROGRESS.md`. If the user changes the workflow, update this document first; do not quietly override it in code.

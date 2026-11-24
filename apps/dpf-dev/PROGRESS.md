@@ -1,5 +1,9 @@
 # DPF Status DEV progress
 
+## v0.1.79 — compare scheduler cache (2026-11-24)
+- User confirms DPF DEV remains functional after full B57 scheduler test (12/12 PASS). Existing manual Compare now requests one fixed scheduler snapshot, checks engine profile and compares all available readings against original native reference, preserving differences/OK/N/A/FAIL. No automatic subscription or production migration. Requires Tool 0.1.52. CI and vehicle comparison pending.
+
+
 ## Private gateway preparation — 2026-11-24
 - Tool-side private dispatcher added for future authenticated demand/snapshot/release; not wired to the running service or this application. DPF DEV 0.1.78 remains unchanged. Real MGU package attestation remains the blocker; manual Compare remains the verified reference.
 

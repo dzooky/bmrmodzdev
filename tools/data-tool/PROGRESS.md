@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.52 — manual scheduler snapshot comparison (2026-11-24)
+- In-car v0.1.51 / Diagnostics 0.1.62: B57 12/12 repeated samples PASS; interval 5.15–5.45 s, total 10.4 s; cache and scheduler PASS; DPF DEV remains functional. PR #81 CI 45483293385 PASS, merged bd374098.
+- Fixed one-shot diagnostic profile snapshot supplies existing allowlisted DPF readings from private scheduler cache for DPF DEV manual comparison. No arbitrary fields, persistent subscription or production grant. CI and in-car validation pending.
+
+
 ## v0.1.51 — full internal DPF scheduler profile (2026-11-24)
 - In-car Tool 0.1.50 / Diagnostics 0.1.61: cache PASS (one physical read, one coalesced, one cache hit, 3/3 valid); fixed scheduler PASS; user confirms DPF DEV still has data. PR #80 CI 45480696555 PASS, merged 959b713a.
 - Explicit bounded internal profile test identifies DDE using existing allowlisted read, selects B57 12 or B47 4 fields, runs two private consumers and measures actual distinct sample intervals. Temporary uniform 5 s freshness is a test workload, not production policy. Stops after two samples per field, 20 s admission window or 48 read calls (in-flight read may finish later); releases demand, no raw data returned, no timer or production gateway. Existing transport and DPF DEV unchanged. CI/car validation pending.

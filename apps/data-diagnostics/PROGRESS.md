@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## In-car v0.1.62 — 2026-11-24
+- B57 12/12 repeated sample PASS, measured 5.15–5.45 s, total 10.4 s; cache and fixed scheduler PASS. DPF DEV confirmed functional. PR #81 CI PASS and merged bd374098. Next manual DPF DEV scheduler-cache comparison; no Diagnostics version bump.
+
+
 ## v0.1.62 — DPF profile scheduler measurement (2026-11-24)
 - Previous in-car cache and scheduler PASS, DPF DEV unaffected. Cache Test now also runs bounded full DPF profile, shows each field's repeated sample status and measured maximum sample interval in seconds. Requires Tool 0.1.51. No claims of decoded-value equivalence or production authentication. Car validation pending.
 
