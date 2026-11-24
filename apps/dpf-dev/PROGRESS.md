@@ -1,5 +1,9 @@
 # DPF Status DEV progress
 
+## Open API foundation — 2026-11-24
+- Mixed B57 freshness in-car screenshot 12/12 PASS (5.36/5.55 s fast, 60.40–61.20 s slow); installed revision ambiguous. PR #83 merged 09225816, both CI runs PASS.
+- User approved open local read-only API with enforced resource limits, no mandatory tokens. Offline dispatcher and draft API.md added; no runtime listener or consumer migration yet. CI pending. Background test remains next runtime milestone.
+
 ## In-car v0.1.79 — 2026-11-24
 - All 12 B57 manual native vs scheduler cache comparisons OK, no difference or missing values. PR #82 CI 45485794738/45485794749 PASS, merged f130a787. Periodic mixed freshness test next; production subscription still blocked by app identity.
 

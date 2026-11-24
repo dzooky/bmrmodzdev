@@ -1,5 +1,9 @@
 # Data Tool progress
 
+## Open API foundation — 2026-11-24
+- Mixed B57 freshness in-car screenshot 12/12 PASS (5.36/5.55 s fast, 60.40–61.20 s slow); installed revision ambiguous. PR #83 merged 09225816, both CI runs PASS.
+- User approved open local read-only API with enforced resource limits, no mandatory tokens. Offline dispatcher and draft API.md added; no runtime listener or consumer migration yet. CI pending. Background test remains next runtime milestone.
+
 ## v0.1.53 — mixed DPF freshness experiment (2026-11-24)
 - In-car v0.1.52 / DPF DEV 0.1.79: all 12 B57 native-versus-scheduler readings exactly match (12/12 OK). PR #82 CI 45485794738/45485794749 PASS, merged f130a787.
 - Explicit fixed mixed-profile diagnostic uses the existing DPF demand declaration: REQUEST/MODE 5 s, remaining 10 B57 fields (or all 4 B47 fields) 60 s. Two private consumers, renewed leases, bounded 85 s admission / 64 reads; actual sample interval measured, PASS requires at least two samples, no premature refresh and max interval within target plus 1 s (fast) or 6 s (slow) test tolerance. These are draft targets, not production tuning. No production authentication enabled. CI/car pending.
