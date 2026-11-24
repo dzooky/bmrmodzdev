@@ -94,6 +94,7 @@ const catalogs={
     "Visible TASU probe control": "Visible TASU probe control",
     "Static TASU control label": "Static TASU control label",
     "Passive UDS read health": "Passive UDS read health",
+    "Dev Store refresh": "Dev Store refresh",
     "Data Tool UDS only": "Data Tool UDS only",
     "DPF and OSA reads not monitored": "DPF and OSA reads not monitored",
     "Tool status unavailable": "Tool status unavailable",
