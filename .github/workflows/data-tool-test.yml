@@ -55,6 +55,8 @@ jobs:
           node --check tools/data-tool/secure-ipc.js
           node --check tools/data-tool/identity-survey.js
           node --check apps/data-diagnostics/identity-survey.js
+          node --check tools/data-tool/uds-demand-scheduler.js
+          node --check tools/data-tool/dpf-demand-profile.js
           node --check tools/data-tool/cds-engine.js
           node --check tools/data-tool/cds-stream-worker.js
           node --check tools/data-tool/signal-worker.js
@@ -100,6 +102,8 @@ jobs:
           node tools/data-tool/cc-feasibility.test.js
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
+          node tools/data-tool/uds-demand-scheduler.test.js
+          node apps/dpf-dev/data-demand-plan.test.js
           node tools/data-tool/cds-engine.test.js
           node tools/data-tool/data-manifest.test.js
       - name: Linux-only native SO_PEERCRED proof (not packaged)
