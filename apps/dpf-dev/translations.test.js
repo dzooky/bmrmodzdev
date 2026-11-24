@@ -160,9 +160,9 @@ test('DPF DEV retains production 0.1.74 language controller baseline', () => {
   const sha = crypto.createHash('sha1').update('blob ' + dpf.length + String.fromCharCode(0)).update(dpf).digest('hex');
   assert.equal(sha, '926246171ee77fa6c56dac066cb763ddb4a17d71',
     'DPF DEV language controller must retain copied production baseline');
-  assert.match(main, /Language\\.start\\(ctx\\)/);
-  assert.doesNotMatch(main, /function updateAutomaticLanguage\\(/);
-  assert.doesNotMatch(main, /function applyLanguage\\(/);
+  assert.match(main, /Language\.start\(ctx\)/);
+  assert.doesNotMatch(main, /function updateAutomaticLanguage\(/);
+  assert.doesNotMatch(main, /function applyLanguage\(/);
 });
 
 test('reused DPF Recorder never stacks text auto-fit and Settings retains native font size', () => {
