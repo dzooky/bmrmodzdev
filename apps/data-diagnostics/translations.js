@@ -152,7 +152,17 @@ const catalogs={
     "IHKA / climate": "IHKA / climate",
     "BDC / steering": "BDC / steering",
     "ACSM / seatbelts": "ACSM / seatbelts",
-    "Full report: Send report": "Full report: Send report"
+    "Full report: Send report": "Full report: Send report",
+    "Package boundary observation": "Package boundary observation",
+    "Package survey": "Package survey",
+    "Observed": "Observed",
+    "Unavailable": "Unavailable",
+    "OAP layout": "OAP layout",
+    "UID matches layout": "UID matches layout",
+    "Source mode protected": "Source mode protected",
+    "Package candidate": "Package candidate",
+    "Process stable": "Process stable",
+    "DPF DEV": "DPF DEV"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

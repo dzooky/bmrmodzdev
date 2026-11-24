@@ -1,5 +1,11 @@
 # Data Tool progress
 
+## v0.1.45 — manual package boundary observation (2026-11-24)
+- PR #74 private scheduler gateway merged at 4830704b; PR checks Data Tool 45469962408 and DPF DEV 45469962603 PASS. No runtime gateway.
+- Implemented isolated native helper obtains kernel peer credentials privately, then bounded /proc peer observation checks documented OAP cwd layout, UID suffix, stable start time/UID/cwd and root-owned non-writable source ancestry and manifest mode. Only fixed candidate names/booleans leave service. Candidate is an observation, NOT authoritative package authentication; ACL, installer registry, PID reuse and process isolation still require proof.
+- Invoked only after the existing successful explicit processBoundaryProbe. Original boundary result, ECU transport, scheduler activation, queue, caching and consumer apps unchanged. No production authorization. CI and MGU verification pending.
+
+
 ## Private UDS demand gateway foundation (2026-11-24)
 - **In-car Diagnostics 0.1.55 / Tool 0.1.44:** Process boundary PASS; peer cgroup and stat readable, distinct cgroup, different UID from service. Five ECU references PASS; DDE and EGS first attempt. Report 18 PASS / 2 FAIL / 9 SKIP; both FAIL are missing staged CDS generator JSON, not UDS or package authentication failures. Package identity still unverified.
 - **Implemented, offline only:** private demand/snapshot/release dispatcher using existing fail-closed auth policy and scheduler grants. Resolves peer on every operation, rejects caller-supplied identity and unauthorized fields; snapshots passive. Revoked peer cannot renew or access; existing lease expires normally. No service/IPC registration, ECU runtime changes, version bump or installation required.

@@ -23,6 +23,7 @@ jobs:
           node --check tools/data-tool/auth-policy.js
           node --check tools/data-tool/native-peer-feasibility.js
           node --check tools/data-tool/native-peer-runner.js
+          node --check tools/data-tool/package-boundary.js
           node --check tools/data-tool/native-process-boundary.js
           node --check tools/data-tool/process-boundary-payload.js
           node --check tools/data-tool/native-process-boundary.js
@@ -90,6 +91,7 @@ jobs:
           node tools/data-tool/native-peer-feasibility.test.js
           node tools/data-tool/native-peer-runner.test.js
           node tools/data-tool/native-process-boundary.test.js
+          node tools/data-tool/package-boundary.test.js
           node tools/data-tool/transport-trace.test.js
           node tools/data-tool/tasu21-recovery.test.js
           node tools/data-tool/health-startup.test.js

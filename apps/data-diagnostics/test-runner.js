@@ -39,6 +39,14 @@ const STEPS=[
   {id:'cdsMulti',label:'CDS multi-consumer lifecycle',request:{op:'cdsDemand',consumer:'diagnostics-secondary'},kind:'multi'}
 ];
 function cleanError(value){return String(value||'Unknown error').replace(/[\r\n]/g,' ').slice(0,140);}
+function safePackageSurvey(value){
+  if(!value||value.observationOnly!==true||value.packageIdentityVerified!==false||
+    value.productionAccessEnabled!==false||value.ok!==true||value.stage!=='observed')
+    return {available:false};
+  return {available:true,layout:value.layout===true,uidMatches:value.uidMatches===true,
+    sourceProtected:value.sourceProtected===true,processStable:value.processStable===true,
+    candidate:['data-diagnostics','dpf-dev'].includes(value.candidate)&&value.sourceProtected===true?value.candidate:'unknown'};
+}
 function resultFor(step,reply,duration){
   const base={id:step.id,label:step.label,status:'FAIL',durationMs:duration};
   if(!reply||typeof reply!=='object')return Object.assign(base,{detail:'Missing response'});
@@ -151,7 +159,7 @@ function resultFor(step,reply,duration){
       '; installed package NOT verified; production OFF':
       'Native process boundary unavailable: '+String(reply.stage||'unknown').replace(/[^a-z-]/g,'').slice(0,35)+
       '; package identity NOT verified; production OFF';
-    return Object.assign(base,{status:ok?'PASS':safe?'SKIP':'FAIL',detail});
+    return Object.assign(base,{status:ok?'PASS':safe?'SKIP':'FAIL',detail,packageSurvey:ok?safePackageSurvey(reply.packageSurvey):{available:false}});
   }
   if(step.kind==='nativeKernel'){
     const safe=reply&&reply.mode==='mgu-native-peer-probe'&&
@@ -451,6 +459,10 @@ function createRunner(send,clock){
         if(step.id==='someipLoad')nativeReady=result.status==='PASS';
         if(onProgress)onProgress(i+1,STEPS.length,result);
       }
+      const packageSurvey=(results.find(x=>x.id==='processBoundary')||{}).packageSurvey||{available:false};
+      const packageNote=packageSurvey.available?'Package survey: layout '+packageSurvey.layout+', UID match '+packageSurvey.uidMatches+
+        ', protected source '+packageSurvey.sourceProtected+', stable '+packageSurvey.processStable+
+        ', candidate '+packageSurvey.candidate:'Package survey: unavailable';
       const totals={pass:results.filter(x=>x.status==='PASS').length,fail:results.filter(x=>x.status==='FAIL').length,
         skip:results.filter(x=>x.status==='SKIP').length};
       return {schema:1,application:'bmrmodz-data-diagnostics',runMode:'explicit-read-only',
@@ -467,6 +479,7 @@ function createRunner(send,clock){
           'Native peer: '+String((results.find(x=>x.id==='nativePeer')||{}).detail||'not run').slice(0,125)+'.',
           'Kernel peer: '+String((results.find(x=>x.id==='nativeKernel')||{}).detail||'not run').slice(0,125)+'.',
           'Process boundary: '+String((results.find(x=>x.id==='processBoundary')||{}).detail||'not run').slice(0,125)+'.',
+          packageNote,
           'Broker IPC: '+(results.find(x=>x.id==='brokerGateway')||{status:'SKIP'}).status+
             ' ('+String((results.find(x=>x.id==='brokerGateway')||{}).detail||'not run').slice(0,105)+').',
           'No UDS 0x31 or 0x2E was issued by this test application.',
