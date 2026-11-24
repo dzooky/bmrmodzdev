@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## In-car v0.1.55 result — 2026-11-24
+- PR #73 pre-merge CI PASS (run 45465912842), merged at 42748be5. User screenshot confirms focused Results readable. Process boundary PASS; peer cgroup readable, separate yes, same UID no, process stat readable. DDE/EGS/IHKA/BDC/ACSM all PASS on screen. Uploaded report 18 PASS / 2 FAIL / 9 SKIP; both FAIL are missing staged CDS generator configuration, shared CDS SKIP. DDE/EGS first attempt successful. No verified installed package identity. No controls exercised.
+
+
 ## v0.1.55 — focused readable results (2026-11-24)
 - **In-car v0.1.54:** screenshot shows Native process isolation survey PASS but overlapping/unreadable historical results; user confirms DPF DEV still has data after the test. Exact process metadata not confirmed. Package identity remains unverified.
 - **Implemented:** focused Results view with Process boundary, four separate observation lines and five ECU reference statuses. Larger font/spacing; full original report and manual run, comparison, cache and export workflows unchanged. Data Tool remains 0.1.44; no ECU or scheduler changes.
