@@ -140,7 +140,7 @@ mgu.run({
                 return;
             }
             // Only reuse an existing SOOT snapshot. Never start a second legacy TASU read.
-            const snapshot = readings.SOOT ? {value:readings.SOOT.value,at:readings.SOOT.at} : null;
+            const snapshot = readings.SOOT ? {value:readings.SOOT.value,at:readings.SOOT.at,source:readings.SOOT.source} : null;
             sootComparisonBusy = true;
             sootComparison = {state:'Checking',result:null};
             ctx.settings.actionStatus.compareSoot = 'Checking';
@@ -248,6 +248,7 @@ mgu.run({
                         let raw = 0;
                         for (const b of response.slice(3)) raw = raw * 256 + b;
                         readings[name] = { raw, value: raw * factor + offset, at: Date.now() };
+                        if (name === 'SOOT') readings[name].source = toolEnabled ? 'tool' : 'legacy';
                         if (name === 'SINCE' && profile)
                             distanceHistory.observe(ddeProfiles.km(readings[name], profile.distanceFactor));
                     } else if (name === 'REQUEST' || name === 'MODE' || name === 'LOCK') {
