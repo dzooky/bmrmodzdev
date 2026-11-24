@@ -1,5 +1,12 @@
 # DPF Status DEV progress
 
+## v0.1.75 — manual SOOT source comparison (2026-11-24)
+- **Vehicle reference before implementation:** Data Tool 0.1.43 with Diagnostics 0.1.53 achieved **Cache test PASS** on MGU: one physical IHKA ECU read, one coalesced request, one cache hit, 3/3 valid responses, third response from cache; user confirmed original DPF and OSA EGS continued updating. This verifies the isolated Tool cache experiment only, **not** migrated DPF DEV behavior.
+- **Implemented, DEV only:** a manual `Compare soot with Data Tool` Settings action. It snapshots the already collected **SOOT** sample from the original DPF TASU path (DDE 0x12 / DID 0x44BE), requires age <=30s, then makes **one** allowlisted read via Data Tool 0.1.43 through the pre-existing experimental local socket. It never performs a second native TASU read, changes the DPF display source, or invokes fallback/retries. Differences and sample ages are shown in Diagnostics; invalid/missing/stale samples are clearly reported. Comparison is disabled while `experimentalDataTool` transport mode is enabled, to guarantee the reference is native.
+- **Preserved:** production DPF and OSA entirely untouched; no Tool service/transport change, no automatic demand, new polling, existing regeneration logic or source selection. Experimental normal DPF transport mode stays OFF by default. Existing DPF DEV package ID and MGU buttons unchanged.
+- **Automated checks:** dedicated SOOT comparison scenarios, legacy socket return-shape compatibility, translations in all 21 non-English catalogs, DPF DEV offline checks and package preview. **CI pending; in-car verification pending.** Security note: this experiment uses the existing *unauthenticated diagnostic socket*, **not** a proven production-safe per-app data gateway. No production app migration is implied.
+
+
 ## v0.1.74 — isolated copy for Data Tool integration (2026-11-24)
 - **Copied from:** `dzooky/bmrmodz` main commit `24eda19efd308c1d18489febb2af1876faa7af2b`, DPF Status v0.1.74. Original application source, tests, translations and image assets copied; original progress archived in `SOURCE_PROGRESS.md`.
 - **Isolation:** dedicated app/package ID `dpf-dev`, title `DPF Status DEV`, logging ID `DPFD`; production `dzooky/bmrmodz/apps/dpf` unchanged. No functional code changes to DPF main.js or transport. Experimental Data Tool remains OFF by default.
