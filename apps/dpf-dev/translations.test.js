@@ -65,7 +65,9 @@ const required = [
   'Experimental Data Tool reads with automatic fallback',
   'English (auto) language value readability',
   'Run button translated into all languages',
-  'Additional translations and Detail text sizing'
+  'Additional translations and Detail text sizing',
+  'Compare soot with Data Tool', 'Manual soot comparison via Data Tool',
+  'Soot comparison', 'Difference', 'Sample age'
 ];
 
 test('all 21 non-English DPF locales have aligned nonempty translations', () => {
