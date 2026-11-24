@@ -231,7 +231,29 @@ const catalogs={
     "mode-match": "mode-match",
     "same": "same",
     "none": "none",
-    "present": "present"
+    "present": "present",
+    "OAP boundary detail survey": "OAP boundary detail survey",
+    "Risk location": "Risk location",
+    "Risk cause": "Risk cause",
+    "App mode guard": "App mode guard",
+    "Sticky bit guard": "Sticky bit guard",
+    "ACL reader": "ACL reader",
+    "AppManagement file": "AppManagement file",
+    "Supplementary groups": "Supplementary groups",
+    "filesystem-root": "filesystem-root",
+    "oap-parent": "oap-parent",
+    "upper-ancestor": "upper-ancestor",
+    "multiple": "multiple",
+    "combined": "combined",
+    "peer-owner": "peer-owner",
+    "group-write": "group-write",
+    "other-write": "other-write",
+    "not-needed": "not-needed",
+    "all-sticky": "all-sticky",
+    "some-sticky": "some-sticky",
+    "not-sticky": "not-sticky",
+    "protected-present": "protected-present",
+    "unverified": "unverified"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

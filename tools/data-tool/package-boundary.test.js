@@ -19,6 +19,7 @@ function fixture(options){
    if(p===o.missing)throw Error('private path must not leak');
    if(p.endsWith('package.json'))return {...manifest,...(o.manifest||{})};
    if(p===o.owner)return {...dir,uid:123};
+   if(p===o.shared)return {...dir,mode:0o1777};
    if(p===o.symlink)return {...dir,isSymbolicLink:()=>true};
    return p.endsWith('/source')&&o.writable?{...dir,mode:0o777}:dir;
   },
@@ -42,6 +43,14 @@ async function main(){
  assert.strictEqual(good.protectionReason,'protected');
  assert.strictEqual(good.metadata.source,'root no-shared-write');
  assert.strictEqual(good.evidence.ownerMatch,'match');
+ assert.strictEqual(good.details.ancestorRisk,'none');
+ assert.strictEqual(good.details.appMode,'mode-clear');
+ const risk=inspectPeer(peer,fixture({shared:'/var/opt'}));
+ assert.strictEqual(risk.details.ancestorRisk,'oap-parent');
+ assert.strictEqual(risk.details.ancestorCause,'combined');
+ assert.strictEqual(risk.details.stickyGuard,'all-sticky');
+ assert.strictEqual(risk.details.appMode,'mode-clear');
+ assert.strictEqual(risk.packageIdentityVerified,false);
  assert.strictEqual(good.evidence.peerWrite,'mode-clear');
  assert.strictEqual(inspectPeer(peer,fixture({owner:'/var/opt/oap_123'})).evidence.ownerMatch,'different');
  assert.strictEqual(inspectPeer(peer,fixture({writable:true})).evidence.peerWrite,'mode-risk');
@@ -67,7 +76,7 @@ async function main(){
   const actual=await result;
   assert.strictEqual(actual.ok,true,JSON.stringify(actual));assert.strictEqual(actual.processStable,true);
   assert.strictEqual(actual.packageIdentityVerified,false);assert.strictEqual(actual.productionAccessEnabled,false);
-  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason','metadata','evidence'].sort());
+  assert.deepStrictEqual(Object.keys(actual).sort(),['ok','stage','observationOnly','packageIdentityVerified','productionAccessEnabled','layout','uidMatches','sourceProtected','candidate','processStable','protectionReason','metadata','evidence','details'].sort());
   assert.deepStrictEqual(fs.readdirSync(dir),['ctl.sock']);
  }finally{if(client)client.destroy();if(server)await new Promise(r=>server.close(r));try{fs.unlinkSync(address);}catch(_){}fs.rmdirSync(dir);}
  console.log('Package observation: private kernel credentials, stable process, protected candidate and no auth passed');

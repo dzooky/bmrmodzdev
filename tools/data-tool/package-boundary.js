@@ -191,6 +191,61 @@ function ownerEvidence(io,root,pid,uid){
  }catch(_){result.capabilities='unavailable';}
  return result;
 }
+// Passive follow-up. Fixed categories only; no recursive discovery, ACL
+// modification, execution of firmware code or authorization decision.
+function boundaryDetails(io,root,pid,uid){
+ const result={ancestorRisk:'unknown',ancestorCause:'unknown',appMode:'unknown',
+  stickyGuard:'unknown',aclTool:'unknown',management:'unknown',processGroups:'unknown'};
+ const target=path.join(root,'source'),nodes=[];
+ let current='/';
+ for(const part of [''].concat(target.split('/').filter(Boolean))){
+  if(part)current=path.join(current,part);
+  try{
+   const st=io.lstatSync(current);
+   if(st.isSymbolicLink()||!st.isDirectory())break;
+   nodes.push({st,role:current===root?'app-root':current===target?'source':
+    current==='/'?'filesystem-root':current===path.dirname(root)?'oap-parent':'upper-ancestor'});
+  }catch(_){break;}
+ }
+ const ancestors=nodes.filter(n=>n.role!=='app-root'&&n.role!=='source');
+ const risky=ancestors.filter(n=>n.st.uid===uid||(n.st.mode&0o022)!==0);
+ if(ancestors.length){
+  result.ancestorRisk=risky.length===0?'none':risky.length===1?risky[0].role:'multiple';
+  const owner=risky.some(n=>n.st.uid===uid),group=risky.some(n=>(n.st.mode&0o020)!==0),other=risky.some(n=>(n.st.mode&0o002)!==0);
+  result.ancestorCause=risky.length===0?'none':[owner,group,other].filter(Boolean).length>1?'combined':owner?'peer-owner':group?'group-write':'other-write';
+  result.stickyGuard=risky.length===0?'not-needed':risky.every(n=>(n.st.mode&0o1000)!==0)?'all-sticky':risky.some(n=>(n.st.mode&0o1000)!==0)?'some-sticky':'not-sticky';
+ }
+ if(nodes.some(n=>n.role==='source')){
+  try{
+   const st=io.lstatSync(path.join(target,'package.json'));
+   if(st.isFile()&&!st.isSymbolicLink()){
+    result.appMode=nodes.filter(n=>n.role==='app-root'||n.role==='source').map(n=>n.st).concat(st).every(x=>x.uid!==uid&&(x.mode&0o022)===0)?'mode-clear':'mode-risk';
+   }
+  }catch(_){}
+ }
+ // Presence checks only: an ACL reader is not evidence that ACLs are absent.
+ function fixedFile(file){
+  try{
+   let p='/';
+   const parts=file.split('/').filter(Boolean);
+   for(let i=0;i<parts.length;i++){
+    p=path.join(p,parts[i]);const st=io.lstatSync(p);
+    if(st.isSymbolicLink()||st.uid!==0||(st.mode&0o022)!==0)return 'unverified';
+    if(i<parts.length-1?!st.isDirectory():!st.isFile())return 'unverified';
+   }
+   return 'protected-present';
+  }catch(_){return 'unavailable';}
+ }
+ const acl=[fixedFile('/usr/bin/getfacl'),fixedFile('/bin/getfacl')];
+ result.aclTool=acl.includes('protected-present')?'protected-present':acl.includes('unverified')?'unverified':'unavailable';
+ result.management=fixedFile('/usr/lib/oap-mainapp/src/AppManagement/AppManagement.js');
+ try{
+  const status=String(io.readFileSync('/proc/'+pid+'/status','utf8'));
+  const groups=status.match(/^Groups:[ \t]*([\d \t]*)$/m);
+  if(groups)result.processGroups=groups[1].trim()?'present':'none';
+ }catch(_){}
+ return result;
+}
 function inspectPeer(peer,io){
  const f=io||fs;
  if(!peer||!Number.isSafeInteger(peer.pid)||peer.pid<=0||!Number.isSafeInteger(peer.uid)||peer.uid<0)
@@ -205,11 +260,12 @@ function inspectPeer(peer,io){
   const metadata=layout?inspectHierarchy(f,root,peer.uid):{};
   inspectProcessMetadata(f,peer.pid,peer.uid,metadata);
   const evidence=layout&&uidMatches?ownerEvidence(f,root,peer.pid,peer.uid):{};
+  const details=layout&&uidMatches?boundaryDetails(f,root,peer.pid,peer.uid):{};
   const last=processSample(f,peer.pid);
   if(!last||first.start!==last.start||first.uid!==last.uid||first.cwd!==last.cwd)
    return out('peer-changed');
   return out('observed',{ok:true,layout,uidMatches,sourceProtected:candidate.sourceProtected,
-   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason,metadata,evidence});
+   candidate:candidate.candidate,processStable:true,protectionReason:candidate.protectionReason,metadata,evidence,details});
  }catch(_){return out('peer-unavailable');}
 }
 let active=false;

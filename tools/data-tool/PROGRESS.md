@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## v0.1.49 — boundary details (2026-11-24)
+- In-car Tool 0.1.48 / Diagnostics 0.1.59: owner consistency match, account not-listed, ancestor and peer mode risk, entrypoint mode-match, same mount namespace, no effective capabilities; five ECU references PASS; DDE/EGS first attempt; two existing staged CDS failures. PR #78 CI PASS 45476752118 merged 05bac193.
+- Passive risk classification, sticky-bit observation, app-only mode check, fixed ACL reader and documented AppManagement file metadata, supplementary group presence. Neither tool presence nor sticky bit proves authorization; registry and actual ACL remain unverified. No ECU, permission or scheduler changes; production OFF. CI and in-car pending.
+
+
 ## v0.1.48 — OAP owner evidence (2026-11-24)
 - In-car 0.1.47 / Diagnostics 0.1.58: app root, source and manifest other-owned without shared write; ancestors mixed; executable/cgroup readable, UID set matches. All five ECU references PASS; DDE/EGS first attempt. Report two existing missing CDS config failures. PR #77 CI PASS 45474566515, merged 50dc42e5.
 - New read-only evidence checks owner equality, fixed protected account database classification, ancestor and peer-write mode, fixed entrypoint metadata, mount namespace and effective capabilities. No actual ACL or installer trust proof, no peer-controlled manifest read on failed strict gate, no permission changes. ECU transport unchanged, production authorization OFF. CI and in-car verification pending.
