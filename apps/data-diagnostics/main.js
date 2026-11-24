@@ -50,7 +50,8 @@ mgu.run({
   refreshButtons();
   ctx.settings.onChange(key=>{if(key==='language')refreshButtons();});
   async function runTest(phase){
-   if(running||sending||generating)return;
+   if(tasuOpen){tasuStatus=word('Close TASU before running diagnostics');page=1;return;}
+   if(running||sending||generating||probing)return;
    page=1;running=true;progress=0;report=null;reportQr=null;exportState='';sendStatus='';lastResult=null;
    try{
     const output=await runner.run((completed,total,item)=>{
