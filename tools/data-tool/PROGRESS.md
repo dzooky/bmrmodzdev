@@ -1,5 +1,8 @@
 # Data Tool progress
 
+**Integration and verification:** PR #64 merged into dev `main` at `66c9cf453d78df1eeab0d963978e285a1a718aaf`. GitHub Actions #219 (PR) and #220 (`main`) **PASS**, including Tool regression and offline MGU preview. **No in-car verification of v0.1.42/v0.1.51 yet.**
+
+
 ## v0.1.42 — passive UDS read health (2026-11-24)
 - **Implemented:** `status.readHealth` reports Tool-only validated UDS successes, timeouts/errors, cache hits, timestamp of last successful ECU sample, sample age against the existing 500 ms cache window, last source (`ecu`/`cache`), and fixed-category last read error. `status` remains passive: **no ECU read, new polling, DID probing, or transport change**. Diagnostic error details are not copied from raw TASU payloads.
 - **Scope:** telemetry only covers Data Tool's own UDS requests, not independent production DPF/OSA/third-party TASU clients. `fresh` refers solely to freshness of the last Tool ECU sample, not proof that another application has live data.
