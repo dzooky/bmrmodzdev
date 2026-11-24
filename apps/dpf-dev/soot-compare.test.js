@@ -25,5 +25,25 @@ const {compare,decode}=require('./soot-compare');
  assert.strictEqual(fails.reason,'TOOL_READ_FAILED');
  assert.strictEqual(decode([0x62,0x44,0xBE,0,100]),100*0.01525902);
  assert.strictEqual(decode([0x7f,0x44,0xBE,0,100]),null);
+ // Verify the existing socket client preserves the legacy array contract
+ // and exposes validated response metadata only for the explicit comparison.
+ const net=require('net'),os=require('os'),path=require('path'),fs=require('fs');
+ const sock=path.join(os.tmpdir(),'dpf-soot-compare-'+process.pid+'.sock');
+ const server=net.createServer(conn=>{
+  conn.once('data',buf=>{
+   const req=JSON.parse(String(buf).trim());
+   assert.deepStrictEqual(req,{op:'read',ecu:0x12,did:0x44BE});
+   conn.end(JSON.stringify({ok:true,ecu:0x12,did:0x44BE,
+    uds:[0x62,0x44,0xBE,0x07,0xD0],at:'2026-11-24T14:30:00.000Z',cached:true})+'\\n');
+  });
+ });
+ await new Promise(resolve=>server.listen(sock,resolve));
+ try{
+  const client=require('./data-tool-read');
+  const normal=await client.request(0x12,0x44BE,{socket:sock});
+  assert.deepStrictEqual(normal,[0x62,0x44,0xBE,0x07,0xD0]);
+  const meta=await client.request(0x12,0x44BE,{socket:sock,withMeta:true});
+  assert.deepStrictEqual(meta,{uds:normal,at:'2026-11-24T14:30:00.000Z',cached:true});
+ }finally{await new Promise(resolve=>server.close(resolve));try{fs.unlinkSync(sock);}catch(e){if(e.code!=='ENOENT')throw e;}}
  console.log('DPF DEV one-shot SOOT compare: valid, stale, invalid and unavailable cases PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
