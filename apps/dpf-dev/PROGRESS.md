@@ -1,6 +1,8 @@
 # DPF Status DEV progress
 
 ## v0.1.75 — manual SOOT source comparison (2026-11-24)
+**Integration:** PR #67 merged to dev `main` at `e1a395fe1d2b68b6ee45c4303f62229a680aa4f0`; DPF DEV checks + offline MGU preview #12 (PR) and #13 (`main`) **PASS**; Data Tool regression #239 (`main`) **PASS**. **In-car DPF DEV SOOT comparison remains unverified**. Do not confuse earlier confirmed Tool cache experiment with this new consumer integration.
+
 - **Vehicle reference before implementation:** Data Tool 0.1.43 with Diagnostics 0.1.53 achieved **Cache test PASS** on MGU: one physical IHKA ECU read, one coalesced request, one cache hit, 3/3 valid responses, third response from cache; user confirmed original DPF and OSA EGS continued updating. This verifies the isolated Tool cache experiment only, **not** migrated DPF DEV behavior.
 - **Implemented, DEV only:** a manual `Compare soot with Data Tool` Settings action. It snapshots the already collected **SOOT** sample from the original DPF TASU path (DDE 0x12 / DID 0x44BE), requires age <=30s, then makes **one** allowlisted read via Data Tool 0.1.43 through the pre-existing experimental local socket. It never performs a second native TASU read, changes the DPF display source, or invokes fallback/retries. Differences and sample ages are shown in Diagnostics; invalid/missing/stale samples are clearly reported. Comparison is disabled while `experimentalDataTool` transport mode is enabled, to guarantee the reference is native.
 - **Preserved:** production DPF and OSA entirely untouched; no Tool service/transport change, no automatic demand, new polling, existing regeneration logic or source selection. Experimental normal DPF transport mode stays OFF by default. Existing DPF DEV package ID and MGU buttons unchanged.
