@@ -20,11 +20,11 @@ function drawFocusedResults(cv,theme,report,label,word,panel){
  const candidate=available&&survey.candidate==='data-diagnostics'?'Diagnostics':
   available&&survey.candidate==='dpf-dev'?'DPF DEV':'Unknown';
  const yn=value=>available?(value?'Yes':'No'):'Unknown';
- const meta=survey&&survey.metadata||{};
- const fields=[['Ancestor modes','ancestor'],['App root mode','appRoot'],['Source mode','source'],
-  ['Manifest mode','manifest'],['Executable link','executable'],['Peer cgroup','peerCgroup'],['UID set','uidSet']];
+ const meta=survey&&survey.evidence||{};
+ const fields=[['Owner consistency','ownerMatch'],['Owner account','ownerAccount'],['Ancestor mode guard','ancestorGuard'],
+  ['Peer write mode','peerWrite'],['Entry point mode','entryPoint'],['Mount namespace','mountNamespace'],['Effective capabilities','capabilities']];
  fields.forEach(([name,key],i)=>{
-  const value=["unknown","root no-shared-write","root shared-write","peer no-shared-write","peer shared-write","other no-shared-write","other shared-write","mixed","symlink","wrong-type","unavailable","deleted","readable","match","different"].includes(meta[key])?meta[key]:'unknown';
+  const value=["unknown","match","different","root-account","peer-account","other-account","ambiguous","not-listed","mode-clear","mode-risk","mode-match","same","none","present","unavailable"].includes(meta[key])?meta[key]:'unknown';
   label(cv,word(name),55,200+i*31,22,theme.text);
   label(cv,word(value),760,200+i*31,22,theme.dim,{align:'right'});
  });

@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.59 — OAP owner evidence (2026-11-24)
+- Prior in-car survey confirms non-root non-peer ownership without shared write and five ECU references PASS. New seven observations in one Results screen; report preserves earlier metadata. Requires Tool 0.1.48. Identity remains unverified; no additional ECU operations.
+
+
 ## v0.1.58 — combined package metadata (2026-11-24)
 - In-car 0.1.57 showed ancestor-owner and all five reference ECU PASS. New focused Results shows seven independent metadata observations in one run; sanitized report retains prior failure reason. Requires Tool 0.1.47. No ECU changes or verified identity claim.
 
