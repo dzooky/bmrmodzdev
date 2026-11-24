@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.48",
+  "version": "0.1.49",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -26,10 +26,6 @@
         [
           "BTN_SEND",
           "Send report"
-        ],
-        [
-          "BTN_TASU",
-          "Open TASU (no read)"
         ]
       ]
     }
