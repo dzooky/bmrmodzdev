@@ -1,7 +1,7 @@
 'use strict';
 // Manual DEV comparison: compare each supported DDE profile field against its
 // existing native TASU snapshot. Never initiate legacy ECU reads or polling.
-const ECU=0x12,MAX_AGE_MS=30000;
+const ECU=0x12,MAX_AGE_MS=90000;
 function specFor(profile){
  if(!profile)return [];
  return profile.overview.concat(profile.detail).map(([key,did,len,factor,offset=0])=>({
