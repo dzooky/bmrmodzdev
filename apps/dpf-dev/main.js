@@ -17,6 +17,7 @@ const { decode: decodePng } = require('./png');
 const regenMessage = require('./regen-message');
 const ddeProfiles = require('./dde-profiles');
 const dataToolRead = require('./data-tool-read');
+const sootCompare = require('./soot-compare');
 const distanceRecord = require('./distance-record');
 const { t: translate } = require('./kit/i18n');
 const Language = require('./language');
@@ -129,6 +130,34 @@ mgu.run({
             tasuRead: 'Not checked', tasuError: 'Not checked',
             ddeRecovery: 'Not checked'
         };
+        let sootComparison = {state:'Not checked',result:null};
+        let sootComparisonBusy = false;
+        async function compareSootOnce() {
+            if (sootComparisonBusy) return;
+            if (ctx.settings.get('experimentalDataTool') === true) {
+                sootComparison = {state:'Unavailable',result:null,reason:'LEGACY_REQUIRED'};
+                ctx.settings.actionStatus.compareSoot = 'Unavailable';
+                return;
+            }
+            // Only reuse an existing SOOT snapshot. Never start a second legacy TASU read.
+            const snapshot = readings.SOOT ? {value:readings.SOOT.value,at:readings.SOOT.at} : null;
+            sootComparisonBusy = true;
+            sootComparison = {state:'Checking',result:null};
+            ctx.settings.actionStatus.compareSoot = 'Checking';
+            try {
+                const result = await sootCompare.compare(snapshot,dataToolRead.request);
+                sootComparison = {state:result.ok?'Responding':'Failed',result};
+                ctx.settings.actionStatus.compareSoot = result.ok?'Responding':'Failed';
+            } catch (_) {
+                sootComparison = {state:'Failed',result:null};
+                ctx.settings.actionStatus.compareSoot = 'Failed';
+            } finally {
+                sootComparisonBusy = false;
+            }
+        }
+        ctx.settings.onAction('compareSoot', () => {
+            compareSootOnce().catch(error => log.warn('DPF DEV soot compare: '+String(error.message||error)));
+        });
         async function checkDataTool() {
             diagnostic.tool = 'Checking';
             diagnostic.tool = await dataToolRead.status() ? 'Responding' : 'Unavailable';
@@ -438,6 +467,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.75', 'Manual soot comparison via Data Tool'],
                 ['0.1.74', 'Restore direct TASU communication without Data Tool'],
                 ['0.1.73', 'Avoid competing TASU sessions during Data Tool reads'],
                 ['0.1.72', 'Retry DDE identification after TASU rejection'],
@@ -502,6 +532,30 @@ mgu.run({
                 cv.text(value, 640, y, 19, value === 'Unavailable' || value === 'Failed' || value === 'No response'
                     ? t.warn : t.text);
             });
+            // DEV-only snapshot comparison; no automatic reads are triggered here.
+            cv.text('Soot comparison', 1020, 166, 23, t.text, {font:'bold'});
+            cv.text(sootComparison.state, 1020, 198, 19,
+                sootComparison.state==='Failed'?t.warn:t.text);
+            const result=sootComparison.result;
+            if(result&&result.ok){
+                cv.text('Legacy TASU', 1020, 250, 19, t.dim);
+                cv.text(result.legacyValue.toFixed(2)+' g', 1490, 250, 19, t.text, {align:'right',literal:true});
+                cv.text('Data Tool read', 1020, 284, 19, t.dim);
+                cv.text(result.toolValue.toFixed(2)+' g', 1490, 284, 19, t.text, {align:'right',literal:true});
+                cv.text('Difference', 1020, 320, 19, t.dim);
+                cv.text(result.difference.toFixed(2)+' g', 1490, 320, 19, t.text, {align:'right',literal:true});
+                cv.text('Sample age', 1020, 364, 19, t.dim);
+                cv.text(Math.ceil(result.legacyAgeMs/1000)+' / '+Math.ceil(result.toolAgeMs/1000)+' s',
+                    1490, 364, 19, t.text, {align:'right',literal:true});
+            }else if(result&&!result.ok){
+                cv.text(result.reason, 1020, 250, 17, t.warn, {literal:true});
+                if(Number.isFinite(result.legacyAgeMs))
+                    cv.text('Sample age', 1020, 289, 18, t.dim);
+                if(Number.isFinite(result.legacyAgeMs))
+                    cv.text(Math.ceil(result.legacyAgeMs/1000)+' s',1490,289,18,t.text,{align:'right',literal:true});
+            }else{
+                cv.text('Not checked',1020,250,19,t.dim);
+            }
         }
         function renderDetail(cv, t) {
             cv.text('DPF DETAIL', 48, 75, 32, t.text, { font: 'bold' });
