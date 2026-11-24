@@ -25,7 +25,7 @@ async function run(){
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.44');
+   assert.strictEqual(status.version,'0.1.45');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.readHealth.scope,'data-tool-uds-only');
    assert.strictEqual(status.readHealth.freshness,'missing');
@@ -103,7 +103,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
-   assert.strictEqual(report.service.version,'0.1.44');
+   assert.strictEqual(report.service.version,'0.1.45');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});

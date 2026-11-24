@@ -14,17 +14,20 @@ function drawFocusedResults(cv,theme,report,label,word,panel){
  panel(cv,theme,809,115,767,380,null);
  const boundary=byId('processBoundary');
  row('Process boundary',status(boundary),55,165,705);
- // The report has a fixed-format sanitized detail; split it into short visible lines.
- const detail=String(boundary&&boundary.detail||'');
- const match=detail.match(/cgroup (readable|unavailable), separate (yes|no), same UID (yes|no), process stat (readable|unavailable)/);
- if(match){
-  [['Peer cgroup',match[1]],['Separate cgroup',match[2]],['Same UID',match[3]],['Process stat',match[4]]].forEach(([key,value],i)=>{
-   label(cv,word(key),55,218+i*43,22,theme.text);
-   label(cv,word(value),760,218+i*43,22,theme.dim,{align:'right'});
-  });
- }else{
-  label(cv,word('Boundary details unavailable'),55,225,22,theme.dim);
- }
+ // Only the current observation, no raw IDs or file paths.
+ const survey=boundary&&boundary.packageSurvey;
+ const available=survey&&survey.available===true;
+ const candidate=available&&survey.candidate==='data-diagnostics'?'Diagnostics':
+  available&&survey.candidate==='dpf-dev'?'DPF DEV':'Unknown';
+ const yn=value=>available?(value?'Yes':'No'):'Unknown';
+ const fields=[['Package survey',available?'Observed':'Unavailable'],
+  ['OAP layout',yn(survey&&survey.layout)],['UID matches layout',yn(survey&&survey.uidMatches)],
+  ['Source mode protected',yn(survey&&survey.sourceProtected)],['Package candidate',candidate],
+  ['Process stable',yn(survey&&survey.processStable)]];
+ fields.forEach(([name,value],i)=>{
+  label(cv,word(name),55,205+i*34,22,theme.text);
+  label(cv,word(value),760,205+i*34,22,theme.dim,{align:'right'});
+ });
  label(cv,word('Package identity NOT verified'),55,422,22,theme.warn);
  label(cv,word('Production access OFF'),55,465,20,theme.dim);
  label(cv,word('ECU reference'),840,165,25,theme.text,{font:'bold'});

@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.56 — focused package boundary observation (2026-11-24)
+- Shows Process boundary baseline plus package survey availability, OAP layout, UID match, protected source mode, candidate and stable process in the existing readable Results view. Package identity remains NOT verified. Sanitized report note includes these observations; no raw credentials, paths or identities.
+- Requires Tool 0.1.45. Same manual Run and ECU reference checks. English catalog and layout tests updated. CI and MGU verification pending.
+
+
 ## In-car v0.1.55 result — 2026-11-24
 - PR #73 pre-merge CI PASS (run 45465912842), merged at 42748be5. User screenshot confirms focused Results readable. Process boundary PASS; peer cgroup readable, separate yes, same UID no, process stat readable. DDE/EGS/IHKA/BDC/ACSM all PASS on screen. Uploaded report 18 PASS / 2 FAIL / 9 SKIP; both FAIL are missing staged CDS generator configuration, shared CDS SKIP. DDE/EGS first attempt successful. No verified installed package identity. No controls exercised.
 
