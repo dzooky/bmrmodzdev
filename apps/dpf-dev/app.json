@@ -2,7 +2,7 @@
   "id": "dpf-dev",
   "title": "DPF Status DEV",
   "description": "Isolated development copy of BMW DPF Status. Not verified for simultaneous operation with stable DPF.",
-  "version": "0.1.75",
+  "version": "0.1.76",
   "config": {
     "customSettings": true
   },
@@ -170,10 +170,10 @@
     },
     {
       "key": "compareSoot",
-      "label": "Compare soot with Data Tool",
+      "label": "Compare all DPF data with Data Tool",
       "type": "action",
       "actionLabel": "Run",
-      "hint": "Manual soot comparison via Data Tool"
+      "hint": "Manual comparison of all DPF data via Data Tool"
     },
     {
       "key": "reloadEquipment",

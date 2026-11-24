@@ -1,5 +1,12 @@
 # DPF Status DEV progress
 
+## v0.1.76 — all DPF profile data, differences only (2026-11-24)
+- **Vehicle baseline:** DPF DEV 0.1.75 manual DDE B57 SOOT comparison showed 12.99 g on original TASU and 12.99 g via Tool, 0.00 g difference; ages 17 s / 1 s; Tool responding, native source selected. One successful in-car sample, not complete migration.
+- **Implemented (DEV only):** existing manual Settings action now compares every allowlisted DDE field in the identified DPF profile: B57 6 overview + 6 detail DIDs, B47 4 overview DIDs. Reuses the *existing* native snapshots, only sends a Tool read for fields with a native sample no older than 30 s, and reports one right-side row per field: `OK` for exactly identical raw data, signed scaled difference with unit otherwise, `N/A` for absent/stale/non-native native sample, `FAIL` for failed/invalid Tool reply. Only differences/statuses displayed, not the two absolute values. As source ages differ, nonzero readings may be legitimate vehicle changes, not necessarily decoder bugs.
+- **Safeguards:** no new native/TASU requests, no automatic Tool polling, no transport/queue/cache/service change, existing on-demand comparison action, full-data Tool setting stays OFF, production DPF and OSA untouched. For all B57 values to be compared, open Detail then Overview before pressing the action, while snapshots are recent; missing Detail samples are reported `N/A`, never falsely `OK`.
+- **Testing:** source checks, translation coverage and offline MGU preview planned in CI; no car confirmation for v0.1.76 yet.
+
+
 ## v0.1.75 — manual SOOT source comparison (2026-11-24)
 **Integration:** PR #67 merged to dev `main` at `e1a395fe1d2b68b6ee45c4303f62229a680aa4f0`; DPF DEV checks + offline MGU preview #12 (PR) and #13 (`main`) **PASS**; Data Tool regression #239 (`main`) **PASS**. **In-car DPF DEV SOOT comparison remains unverified**. Do not confuse earlier confirmed Tool cache experiment with this new consumer integration.
 

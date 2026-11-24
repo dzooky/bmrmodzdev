@@ -67,7 +67,9 @@ const required = [
   'Run button translated into all languages',
   'Additional translations and Detail text sizing',
   'Compare soot with Data Tool', 'Manual soot comparison via Data Tool',
-  'Soot comparison', 'Difference', 'Sample age'
+  'Soot comparison', 'Difference', 'Sample age',
+  'Compare all DPF data with Data Tool', 'Manual comparison of all DPF data via Data Tool',
+  'Data comparison', 'All DPF data comparison via Data Tool'
 ];
 
 test('all 21 non-English DPF locales have aligned nonempty translations', () => {

@@ -1,6 +1,10 @@
 'use strict';
 module.exports = {
   "sk": {
+    "Compare all DPF data with Data Tool": "Porovnať všetky údaje DPF cez Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Ručné porovnanie všetkých údajov DPF cez Data Tool",
+    "Data comparison": "Porovnanie údajov",
+    "All DPF data comparison via Data Tool": "Porovnanie všetkých údajov DPF cez Data Tool",
     "Compare soot with Data Tool": "Porovnať sadze cez Data Tool",
     "Manual soot comparison via Data Tool": "Ručné porovnanie sadzí cez Data Tool",
     "Soot comparison": "Porovnanie sadzí",
@@ -146,6 +150,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správny text v Settings aj po opakovanom vykreslení"
   },
   "cs": {
+    "Compare all DPF data with Data Tool": "Porovnat všechny údaje DPF přes Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Ruční porovnání všech údajů DPF přes Data Tool",
+    "Data comparison": "Porovnání údajů",
+    "All DPF data comparison via Data Tool": "Porovnání všech údajů DPF přes Data Tool",
     "Compare soot with Data Tool": "Porovnat saze přes Data Tool",
     "Manual soot comparison via Data Tool": "Ruční porovnání sazí přes Data Tool",
     "Soot comparison": "Porovnání sazí",
@@ -291,6 +299,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správný text v Nastavení i po opakovaném vykreslení"
   },
   "de": {
+    "Compare all DPF data with Data Tool": "Alle DPF-Daten mit Data Tool vergleichen",
+    "Manual comparison of all DPF data via Data Tool": "Manueller Vergleich aller DPF-Daten über Data Tool",
+    "Data comparison": "Datenvergleich",
+    "All DPF data comparison via Data Tool": "Vergleich aller DPF-Daten über Data Tool",
     "Compare soot with Data Tool": "Ruß mit Data Tool vergleichen",
     "Manual soot comparison via Data Tool": "Manueller Rußvergleich über Data Tool",
     "Soot comparison": "Rußvergleich",
@@ -436,6 +448,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekte Schrift in Einstellungen nach wiederholtem Rendern"
   },
   "es": {
+    "Compare all DPF data with Data Tool": "Comparar todos los datos DPF con Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Comparación manual de todos los datos DPF mediante Data Tool",
+    "Data comparison": "Comparación de datos",
+    "All DPF data comparison via Data Tool": "Comparación de todos los datos DPF mediante Data Tool",
     "Compare soot with Data Tool": "Comparar hollín con Data Tool",
     "Manual soot comparison via Data Tool": "Comparación manual del hollín mediante Data Tool",
     "Soot comparison": "Comparación de hollín",
@@ -581,6 +597,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correcto en Ajustes tras renderizados repetidos"
   },
   "fr": {
+    "Compare all DPF data with Data Tool": "Comparer toutes les données DPF avec Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Comparaison manuelle de toutes les données DPF via Data Tool",
+    "Data comparison": "Comparaison des données",
+    "All DPF data comparison via Data Tool": "Comparaison de toutes les données DPF via Data Tool",
     "Compare soot with Data Tool": "Comparer la suie avec Data Tool",
     "Manual soot comparison via Data Tool": "Comparaison manuelle de la suie via Data Tool",
     "Soot comparison": "Comparaison de suie",
@@ -726,6 +746,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texte correct dans les paramètres après plusieurs affichages"
   },
   "it": {
+    "Compare all DPF data with Data Tool": "Confronta tutti i dati DPF con Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Confronto manuale di tutti i dati DPF tramite Data Tool",
+    "Data comparison": "Confronto dati",
+    "All DPF data comparison via Data Tool": "Confronto di tutti i dati DPF tramite Data Tool",
     "Compare soot with Data Tool": "Confronta fuliggine con Data Tool",
     "Manual soot comparison via Data Tool": "Confronto manuale della fuliggine tramite Data Tool",
     "Soot comparison": "Confronto fuliggine",
@@ -871,6 +895,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Testo corretto nelle Impostazioni dopo più ridisegni"
   },
   "hu": {
+    "Compare all DPF data with Data Tool": "Minden DPF-adat összehasonlítása a Data Tool-lal",
+    "Manual comparison of all DPF data via Data Tool": "Az összes DPF-adat kézi összehasonlítása a Data Tool-lal",
+    "Data comparison": "Adatösszehasonlítás",
+    "All DPF data comparison via Data Tool": "Az összes DPF-adat összehasonlítása a Data Tool-lal",
     "Compare soot with Data Tool": "Korom összehasonlítása a Data Tool-lal",
     "Manual soot comparison via Data Tool": "Kézi korom-összehasonlítás a Data Tool-lal",
     "Soot comparison": "Korom összehasonlítása",
@@ -1016,6 +1044,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Helyes szöveg a Beállításokban ismételt megjelenítés után"
   },
   "pl": {
+    "Compare all DPF data with Data Tool": "Porównaj wszystkie dane DPF przez Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Ręczne porównanie wszystkich danych DPF przez Data Tool",
+    "Data comparison": "Porównanie danych",
+    "All DPF data comparison via Data Tool": "Porównanie wszystkich danych DPF przez Data Tool",
     "Compare soot with Data Tool": "Porównaj sadzę przez Data Tool",
     "Manual soot comparison via Data Tool": "Ręczne porównanie sadzy przez Data Tool",
     "Soot comparison": "Porównanie sadzy",
@@ -1161,6 +1193,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Poprawny tekst w Ustawieniach po wielokrotnym renderowaniu"
   },
   "ru": {
+    "Compare all DPF data with Data Tool": "Сравнить все данные DPF через Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Ручное сравнение всех данных DPF через Data Tool",
+    "Data comparison": "Сравнение данных",
+    "All DPF data comparison via Data Tool": "Сравнение всех данных DPF через Data Tool",
     "Compare soot with Data Tool": "Сравнить сажу через Data Tool",
     "Manual soot comparison via Data Tool": "Ручное сравнение сажи через Data Tool",
     "Soot comparison": "Сравнение сажи",
@@ -1306,6 +1342,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Правильный текст настроек после повторной отрисовки"
   },
   "da": {
+    "Compare all DPF data with Data Tool": "Sammenlign alle DPF-data med Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Manuel sammenligning af alle DPF-data via Data Tool",
+    "Data comparison": "Datasammenligning",
+    "All DPF data comparison via Data Tool": "Sammenligning af alle DPF-data via Data Tool",
     "Compare soot with Data Tool": "Sammenlign sod med Data Tool",
     "Manual soot comparison via Data Tool": "Manuel sammenligning af sod via Data Tool",
     "Soot comparison": "Sodsammenligning",
@@ -1451,6 +1491,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt tekst i Indstillinger efter gentagen visning"
   },
   "el": {
+    "Compare all DPF data with Data Tool": "Σύγκριση όλων των δεδομένων DPF με Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Χειροκίνητη σύγκριση όλων των δεδομένων DPF μέσω Data Tool",
+    "Data comparison": "Σύγκριση δεδομένων",
+    "All DPF data comparison via Data Tool": "Σύγκριση όλων των δεδομένων DPF μέσω Data Tool",
     "Compare soot with Data Tool": "Σύγκριση αιθάλης με Data Tool",
     "Manual soot comparison via Data Tool": "Χειροκίνητη σύγκριση αιθάλης μέσω Data Tool",
     "Soot comparison": "Σύγκριση αιθάλης",
@@ -1596,6 +1640,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Σωστό κείμενο Ρυθμίσεων μετά από επαναλαμβανόμενη απόδοση"
   },
   "zh-CN": {
+    "Compare all DPF data with Data Tool": "使用 Data Tool 比较所有 DPF 数据",
+    "Manual comparison of all DPF data via Data Tool": "通过 Data Tool 手动比较所有 DPF 数据",
+    "Data comparison": "数据比较",
+    "All DPF data comparison via Data Tool": "通过 Data Tool 比较所有 DPF 数据",
     "Compare soot with Data Tool": "使用 Data Tool 比较碳烟",
     "Manual soot comparison via Data Tool": "通过 Data Tool 手动比较碳烟",
     "Soot comparison": "碳烟比较",
@@ -1741,6 +1789,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "重复绘制后设置文字仍正确显示"
   },
   "nl": {
+    "Compare all DPF data with Data Tool": "Alle DPF-gegevens vergelijken met Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Handmatige vergelijking van alle DPF-gegevens via Data Tool",
+    "Data comparison": "Gegevensvergelijking",
+    "All DPF data comparison via Data Tool": "Vergelijking van alle DPF-gegevens via Data Tool",
     "Compare soot with Data Tool": "Roet vergelijken met Data Tool",
     "Manual soot comparison via Data Tool": "Handmatige roetvergelijking via Data Tool",
     "Soot comparison": "Roetvergelijking",
@@ -1886,6 +1938,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Correcte tekst in Instellingen na herhaald weergeven"
   },
   "nb": {
+    "Compare all DPF data with Data Tool": "Sammenlign alle DPF-data med Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Manuell sammenligning av alle DPF-data via Data Tool",
+    "Data comparison": "Datasammenligning",
+    "All DPF data comparison via Data Tool": "Sammenligning av alle DPF-data via Data Tool",
     "Compare soot with Data Tool": "Sammenlign sot med Data Tool",
     "Manual soot comparison via Data Tool": "Manuell sammenligning av sot via Data Tool",
     "Soot comparison": "Sotsammenligning",
@@ -2031,6 +2087,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Riktig tekst i Innstillinger etter gjentatt visning"
   },
   "pt": {
+    "Compare all DPF data with Data Tool": "Comparar todos os dados DPF com Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Comparação manual de todos os dados DPF através do Data Tool",
+    "Data comparison": "Comparação de dados",
+    "All DPF data comparison via Data Tool": "Comparação de todos os dados DPF através do Data Tool",
     "Compare soot with Data Tool": "Comparar fuligem com Data Tool",
     "Manual soot comparison via Data Tool": "Comparação manual da fuligem através do Data Tool",
     "Soot comparison": "Comparação de fuligem",
@@ -2176,6 +2236,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correto nas Definições após várias renderizações"
   },
   "ro": {
+    "Compare all DPF data with Data Tool": "Compară toate datele DPF cu Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Compararea manuală a tuturor datelor DPF prin Data Tool",
+    "Data comparison": "Comparare date",
+    "All DPF data comparison via Data Tool": "Compararea tuturor datelor DPF prin Data Tool",
     "Compare soot with Data Tool": "Compară funinginea cu Data Tool",
     "Manual soot comparison via Data Tool": "Comparare manuală a funinginii prin Data Tool",
     "Soot comparison": "Comparare funingine",
@@ -2321,6 +2385,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Text corect în Setări după afișări repetate"
   },
   "sl": {
+    "Compare all DPF data with Data Tool": "Primerjaj vse podatke DPF prek Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Ročna primerjava vseh podatkov DPF prek Data Tool",
+    "Data comparison": "Primerjava podatkov",
+    "All DPF data comparison via Data Tool": "Primerjava vseh podatkov DPF prek Data Tool",
     "Compare soot with Data Tool": "Primerjaj saje prek Data Tool",
     "Manual soot comparison via Data Tool": "Ročna primerjava saj prek Data Tool",
     "Soot comparison": "Primerjava saj",
@@ -2466,6 +2534,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Pravilno besedilo v Nastavitvah po več prikazih"
   },
   "fi": {
+    "Compare all DPF data with Data Tool": "Vertaa kaikkia DPF-tietoja Data Toolilla",
+    "Manual comparison of all DPF data via Data Tool": "Kaikkien DPF-tietojen manuaalinen vertailu Data Toolilla",
+    "Data comparison": "Tietojen vertailu",
+    "All DPF data comparison via Data Tool": "Kaikkien DPF-tietojen vertailu Data Toolilla",
     "Compare soot with Data Tool": "Vertaa nokea Data Toolilla",
     "Manual soot comparison via Data Tool": "Noen manuaalinen vertailu Data Toolilla",
     "Soot comparison": "Noen vertailu",
@@ -2611,6 +2683,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Asetusten teksti pysyy oikeana toistuvassa piirrossa"
   },
   "sv": {
+    "Compare all DPF data with Data Tool": "Jämför alla DPF-data med Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Manuell jämförelse av alla DPF-data via Data Tool",
+    "Data comparison": "Datajämförelse",
+    "All DPF data comparison via Data Tool": "Jämförelse av alla DPF-data via Data Tool",
     "Compare soot with Data Tool": "Jämför sot med Data Tool",
     "Manual soot comparison via Data Tool": "Manuell jämförelse av sot via Data Tool",
     "Soot comparison": "Sotjämförelse",
@@ -2756,6 +2832,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt text i Inställningar efter upprepad rendering"
   },
   "tr": {
+    "Compare all DPF data with Data Tool": "Tüm DPF verilerini Data Tool ile karşılaştır",
+    "Manual comparison of all DPF data via Data Tool": "Data Tool ile tüm DPF verilerinin manuel karşılaştırması",
+    "Data comparison": "Veri karşılaştırması",
+    "All DPF data comparison via Data Tool": "Data Tool ile tüm DPF verilerinin karşılaştırması",
     "Compare soot with Data Tool": "Data Tool ile kurum karşılaştır",
     "Manual soot comparison via Data Tool": "Data Tool ile manuel kurum karşılaştırması",
     "Soot comparison": "Kurum karşılaştırması",
@@ -2901,6 +2981,10 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Tekrarlanan çizimlerden sonra Ayarlar metni doğru"
   },
   "uk": {
+    "Compare all DPF data with Data Tool": "Порівняти всі дані DPF через Data Tool",
+    "Manual comparison of all DPF data via Data Tool": "Ручне порівняння всіх даних DPF через Data Tool",
+    "Data comparison": "Порівняння даних",
+    "All DPF data comparison via Data Tool": "Порівняння всіх даних DPF через Data Tool",
     "Compare soot with Data Tool": "Порівняти сажу через Data Tool",
     "Manual soot comparison via Data Tool": "Ручне порівняння сажі через Data Tool",
     "Soot comparison": "Порівняння сажі",
