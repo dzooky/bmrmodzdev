@@ -1,7 +1,8 @@
 # Data Tool Diagnostics progress
 
 ## v0.1.54 — restored manual process boundary survey (2026-11-24)
-- **Implemented, awaiting CI and in-car proof:** restored the historical `processBoundary` diagnostic step in the existing manual Run immediately after native kernel observation, using Tool `processBoundaryProbe`. The sanitized result reports peer /proc readability, cgroup separation, same-UID flag and process-stat access, with PASS / SKIP / FAIL and explicit package identity **NOT verified**. Existing Results and uploaded sanitized notes include this one step. Tool dependency updated to 0.1.44; English release line identifies the revision.
+**Integration:** PR #72 merged into dev `main` at `1b4b6e12169b438bb3b61d13a12692a9ce868dcb`; Data Tool CI #258 (PR) and #259 (`main`) **PASS**, including offline native boundary roundtrip and existing Data Tool Diagnostics regression tests. **MGU in-car v0.1.44/0.1.54 not yet tested.**
+- **Implemented, CI-tested, awaiting in-car proof:** restored the historical `processBoundary` diagnostic step in the existing manual Run immediately after native kernel observation, using Tool `processBoundaryProbe`. The sanitized result reports peer /proc readability, cgroup separation, same-UID flag and process-stat access, with PASS / SKIP / FAIL and explicit package identity **NOT verified**. Existing Results and uploaded sanitized notes include this one step. Tool dependency updated to 0.1.44; English release line identifies the revision.
 - **Non-regression:** no new ECU read, no change to established ECU sequencing, CTS/UDS transport, before/after sleep flow, button labels, other application logic or background activity. DPF DEV and production DPF/OSA untouched.
 - **Goal:** validate actual MGU process-boundary observability only. Distinguishing installed DPF DEV from another app remains an unimplemented later security step, not a PASS result here.
 
