@@ -93,7 +93,9 @@ function createScheduler(options){
    const entry=cache.get(id);
    if(clock<(due.get(id)||0))continue;
    if(!entry||!entry.valid||clock-entry.at>=need.freshness){
-    key=need.field;canonical=id;maxAge=need.freshness;break;
+    // Prefer the shortest freshness among eligible fields. Slow fields
+    // remain eligible and run between fast refreshes.
+    if(key===null||need.freshness<maxAge){key=need.field;canonical=id;maxAge=need.freshness;}
    }
   }
   if(key===null)return false;
