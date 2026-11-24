@@ -1,5 +1,8 @@
 # Data Tool Diagnostics progress
 
+**Integration and verification:** PR #64 merged into dev `main` at `66c9cf453d78df1eeab0d963978e285a1a718aaf`. GitHub Actions #219 (PR) and #220 (`main`) **PASS**, including Tool regression and offline MGU preview. **No in-car verification of v0.1.42/v0.1.51 yet.**
+
+
 ## v0.1.51 — passive Tool UDS telemetry on Diagnostics page (2026-11-24)
 - **Implemented:** Diagnostics page requests Tool `status` while visible (at most once per 2 seconds; **no ECU reads**), displaying success/failure counts, cache hits, last successful ECU read timestamp, sample age, fresh/stale/missing, last source and last categorized error. Unavailable service shown explicitly. Scope label states independent DPF/OSA reads are **not monitored**.
 - **Preservation:** original three physical button titles remain exactly `Run before sleep`, `Open TASU (no read)`, `Send report`; no new button, read order or background ECU polling. Existing snapshot/Results/Share paths unchanged.
