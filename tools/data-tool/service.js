@@ -42,13 +42,35 @@ function serve(factory,socketPath,options){
   }
   const inflight=new Map(),cache=new Map();
   const stats={sent:0,ok:0,timeout:0,error:0,coalesced:0,cacheHits:0};
+  // Passive Tool-only UDS read telemetry. Never reads ECU from status.
+  // These fields do not observe independent DPF, OSA or other TASU clients.
+  const readHealth={lastSuccessAt:null,lastFailureAt:null,lastError:null,
+    lastEcu:null,lastDid:null,lastSource:null,lastSampleAt:null};
+  function success(ecu,did,at){
+    readHealth.lastSuccessAt=at;readHealth.lastSampleAt=at;
+    readHealth.lastEcu=ecu;readHealth.lastDid=did;readHealth.lastSource='ecu';
+  }
+  function failure(error){
+    readHealth.lastFailureAt=new Date().toISOString();
+    // Fixed error categories only: do not expose raw transport, payload or VIN.
+    readHealth.lastError=error;
+  }
+  function healthSnapshot(){
+    const age=readHealth.lastSampleAt?Math.max(0,Date.now()-Date.parse(readHealth.lastSampleAt)):null;
+    return {scope:'data-tool-uds-only',lastSuccessAt:readHealth.lastSuccessAt,
+      lastFailureAt:readHealth.lastFailureAt,lastError:readHealth.lastError,
+      lastEcu:readHealth.lastEcu,lastDid:readHealth.lastDid,
+      lastSampleAt:readHealth.lastSampleAt,sampleAgeMs:age,
+      freshness:age===null?'missing':age<CACHE_MS?'fresh':'stale',
+      cacheWindowMs:CACHE_MS,stats:Object.assign({},stats)};
+  }
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   function read(ecu,did,withTrace){
     const group=getRead(ecu,did);
     if(!group)return Promise.resolve({ok:false,error:'ECU/DID not allowlisted'});
     const key=ecu+':'+did+(withTrace?':trace':'');
     const cached=withTrace?null:cache.get(key);
-    if(cached&&Date.now()-cached.at<CACHE_MS){stats.cacheHits++;return Promise.resolve(Object.assign({cached:true},cached.reply));}
+    if(cached&&Date.now()-cached.at<CACHE_MS){stats.cacheHits++;readHealth.lastSource='cache';return Promise.resolve(Object.assign({cached:true},cached.reply));}
     if(inflight.has(key)){stats.coalesced++;return inflight.get(key);}
     const request=queue.then(async()=>{
       const remaining=lastRequest+GAP_MS-Date.now();
@@ -60,14 +82,19 @@ function serve(factory,socketPath,options){
       try {
         if(!transport)transport=factory();
         const reply=await transport.read(ecu,did,trace);
-        if(!reply){stats.timeout++;return attach({ok:false,error:'No matching response',ecu,did});}
-        if(reply[0]===0x7f){stats.error++;return attach({ok:false,error:'UDS negative response',ecu,did,nrc:reply[2]});}
-        if(reply[0]!==0x62||reply[1]!==did>>8||reply[2]!==(did&255)){stats.error++;return attach({ok:false,error:'Unexpected response',ecu,did});}
+        if(!reply){stats.timeout++;failure('No matching response');return attach({ok:false,error:'No matching response',ecu,did});}
+        if(reply[0]===0x7f){stats.error++;failure('UDS negative response');return attach({ok:false,error:'UDS negative response',ecu,did,nrc:reply[2]});}
+        if(reply[0]!==0x62||reply[1]!==did>>8||reply[2]!==(did&255)){stats.error++;failure('Unexpected response');return attach({ok:false,error:'Unexpected response',ecu,did});}
         stats.ok++;
         const result={ok:true,ecu,did,group,uds:reply,at:new Date().toISOString()};
+        success(ecu,did,result.at);
         if(!withTrace)cache.set(key,{at:Date.now(),reply:result});
         return attach(result);
-      }catch(e){stats.error++;return attach({ok:false,ecu,did,error:withTrace?(e&&e.message==='TASU rejected request'?'TASU rejected request':'Transport or TASU command error'):String(e&&e.message||e)});}
+      }catch(e){stats.error++;
+        const category=e&&e.message==='TASU rejected request'?'TASU rejected request':'Transport or TASU command error';
+        failure(category);
+        return attach({ok:false,ecu,did,error:withTrace?category:String(e&&e.message||e)});
+      }
     });
     queue=request.then(()=>{},()=>{});
     inflight.set(key,request);
@@ -118,7 +145,7 @@ function serve(factory,socketPath,options){
         try{
           req=JSON.parse(raw);
           if(!req||typeof req!=='object')throw new Error('Invalid request');
-          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.41',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()};
+          if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.42',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='tasuIdleProbe')reply=await tasuIdleProbe(req.mode);
           else if(req.op==='brokerPlan')reply={ok:true,broker:dataCatalog.describe()};
@@ -155,7 +182,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.41',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.42',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
