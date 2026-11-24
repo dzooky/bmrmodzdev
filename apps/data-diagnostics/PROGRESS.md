@@ -1,6 +1,8 @@
 # Data Tool Diagnostics progress
 
 ## v0.1.48 — manual TASU idle coexistence experiment (2026-11-24)
+**Integration:** PR #61 merged to dev `main` at `b3f62eda0ffd913b3120d2fd2d5378e06f86f5d6`. GitHub Actions Data Tool test build #209 (PR) and #210 (main) **PASS**: legacy Node 12 service health, offline regressions and MGU preview. **Not verified in car**; idle TASU coexistence remains the subject of the next parked test.
+
 - **Implemented:** a separate `Open TASU (no read)` / `Close TASU` button, showing whether the helper subscription opened or was closed. The action calls Data Tool 0.1.41 `tasuIdleProbe`; it does not initiate ECU requests. The existing before/after test, run order, results, CDS tests and upload are unchanged.
 - **Test objective:** with DPF and OSA initially working, manually open the Tool's idle connection and check whether their TASU readings continue. If they stop, close the idle connection and observe whether they recover. Do **not** run the full UDS diagnostic during this test. This isolates an idle additional client from concurrent Tool read activity but cannot attribute all TASU behavior without vehicle evidence.
 - **Verification:** source implemented; CI and in-car behavior pending. No claim that coexistence is safe; remain dev-only and stop if other apps lose data.
