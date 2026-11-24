@@ -1,6 +1,7 @@
 # Data Tool progress
 
 ## Vehicle baseline and next isolated test — 2026-11-24
+**Integration:** PR #66 merged into dev `main` at `41fac73c6f432136f36374d2412caf330592b78d`; CI #228 (PR) and #229 (`main`) **PASS**, including the new offline cache probe and MGU preview. **Cache test not yet verified in car.**
 - **In-car observation, Tool 0.1.43 + Diagnostics 0.1.52:** new passive Tool UDS health display appeared on MGU; user reported **11 successful ECU reads** after one full manual diagnostic Run, and confirmed independent DPF, OSA EGS and other applications still operated afterwards. This is one positive session, not a sustained or multi-load verification. Exact cache/coalescing rates were not reported.
 - **Next experiment (Diagnostics v0.1.53 only):** on-demand pair of simultaneous existing IHKA reads, then immediate cached read, with existing Tool status counter deltas; **Tool code and version remain 0.1.43**, no change to TASU transport, request queue, caching algorithm or production applications. Verify in car after CI and MGU Store availability.
 
