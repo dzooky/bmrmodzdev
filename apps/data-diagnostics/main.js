@@ -5,7 +5,8 @@ const fs=require('fs'),path=require('path');
 const mgu=require('./kit/mgu');
 const G=require('./kit/gauges');
 const client=require('./client');
-const {createRunner,STEPS}=require('./test-runner');
+const {createRunner}=require('./test-runner');
+const {drawFocusedResults}=require('./results-view');
 const {t}=require('./translations');
 const qrReport=require('./qr-report');
 const uploader=require('./upload');
@@ -163,17 +164,10 @@ mgu.run({
    label(cv,text,55,93,32,theme.text,{font:'bold'});
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
-  function resultLine(cv,theme,item,x,y,width){
-   const status=item&&item.status||'NOT_RUN';
-   const color=status==='PASS'?theme.ok:status==='FAIL'?theme.crit:theme.dim;
-   label(cv,item&&item.label||'',x,y,18,theme.text);
-   label(cv,status==='NOT_RUN'?word('Not tested'):word(status),x+width,y,18,color,{align:'right',font:'bold'});
-   if(item&&item.detail)label(cv,safeValue(item.detail),x,y+19,12,theme.dim);
-  }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.54 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.55 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.54 — '+word('Restored manual process boundary survey'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.55 — '+word('Readable focused results'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -239,13 +233,7 @@ mgu.run({
     label(cv,running?word('Running'):word('No report yet'),800,282,34,theme.dim,{align:'center'});
     return;
    }
-   const rows=STEPS.map(step=>report.results.find(r=>r.id===step.id)||{label:step.label});
-   const cols=[rows.slice(0,14),rows.slice(14)];
-   cols.forEach((column,c)=>{
-    const x=c===0?24:809, w=767;
-    G.panel(cv,theme,x,115,w,380,null);
-    column.forEach((item,i)=>resultLine(cv,theme,item,x+24,145+i*27,w-48));
-   });
+   drawFocusedResults(cv,theme,report,label,word,G.panel);
    // Dedicated footer line outside both results panels (panels end at y=495).
    // Show one message at a time; never paint over the final result row.
    const footer=sendStatus||exportState;

@@ -132,7 +132,27 @@ const catalogs={
     "Cache": "Cache",
     "ECU": "ECU",
     "Last read error": "Last read error",
-    "None": "None"
+    "None": "None",
+    "Readable focused results": "Readable focused results",
+    "Process boundary": "Process boundary",
+    "Peer cgroup": "Peer cgroup",
+    "Separate cgroup": "Separate cgroup",
+    "Same UID": "Same UID",
+    "Process stat": "Process stat",
+    "readable": "readable",
+    "unavailable": "unavailable",
+    "yes": "yes",
+    "no": "no",
+    "Boundary details unavailable": "Boundary details unavailable",
+    "Package identity NOT verified": "Package identity NOT verified",
+    "Production access OFF": "Production access OFF",
+    "ECU reference": "ECU reference",
+    "DDE / DPF": "DDE / DPF",
+    "EGS / transmission": "EGS / transmission",
+    "IHKA / climate": "IHKA / climate",
+    "BDC / steering": "BDC / steering",
+    "ACSM / seatbelts": "ACSM / seatbelts",
+    "Full report: Send report": "Full report: Send report"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

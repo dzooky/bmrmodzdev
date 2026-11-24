@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.55 — focused readable results (2026-11-24)
+- **In-car v0.1.54:** screenshot shows Native process isolation survey PASS but overlapping/unreadable historical results; user confirms DPF DEV still has data after the test. Exact process metadata not confirmed. Package identity remains unverified.
+- **Implemented:** focused Results view with Process boundary, four separate observation lines and five ECU reference statuses. Larger font/spacing; full original report and manual run, comparison, cache and export workflows unchanged. Data Tool remains 0.1.44; no ECU or scheduler changes.
+- **Validation:** layout/absence/status and English catalog regressions in CI; CI and real-MGU appearance pending at authoring.
+
+
 ## v0.1.54 — restored manual process boundary survey (2026-11-24)
 **Integration:** PR #72 merged into dev `main` at `1b4b6e12169b438bb3b61d13a12692a9ce868dcb`; Data Tool CI #258 (PR) and #259 (`main`) **PASS**, including offline native boundary roundtrip and existing Data Tool Diagnostics regression tests. **MGU in-car v0.1.44/0.1.54 not yet tested.**
 - **Implemented, CI-tested, awaiting in-car proof:** restored the historical `processBoundary` diagnostic step in the existing manual Run immediately after native kernel observation, using Tool `processBoundaryProbe`. The sanitized result reports peer /proc readability, cgroup separation, same-UID flag and process-stat access, with PASS / SKIP / FAIL and explicit package identity **NOT verified**. Existing Results and uploaded sanitized notes include this one step. Tool dependency updated to 0.1.44; English release line identifies the revision.

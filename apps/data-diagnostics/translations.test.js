@@ -67,7 +67,7 @@ assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF compar
 assert.ok(main.includes("ctx.onTap((x,y)=>"));
 assert.ok(main.includes("cacheProbe.run(client.request)"));
 assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
-assert.strictEqual(spec.version,'0.1.54');
+assert.strictEqual(spec.version,'0.1.55');
 for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
 
 assert.ok(main.includes("{op:'status'}"));
@@ -77,3 +77,5 @@ assert.ok(!main.includes("ui.onClick('BTN_EXPORT'"));
 assert.ok(!main.includes("ui.onClick('BTN_PREV'"));
 assert.ok(!main.includes("ui.onClick('BTN_NEXT'"));
 console.log('Data Diagnostics: English-only translations, new app notice, tool-only manifest passed');
+
+for(const key of ["Readable focused results","Process boundary","Peer cgroup","Separate cgroup","Same UID","Process stat","readable","unavailable","yes","no","Boundary details unavailable","Package identity NOT verified","Production access OFF","ECU reference","DDE / DPF","EGS / transmission","IHKA / climate","BDC / steering","ACSM / seatbelts","Full report: Send report"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
