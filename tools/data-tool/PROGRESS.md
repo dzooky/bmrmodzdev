@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## Vehicle baseline and next isolated test — 2026-11-24
+- **In-car observation, Tool 0.1.43 + Diagnostics 0.1.52:** new passive Tool UDS health display appeared on MGU; user reported **11 successful ECU reads** after one full manual diagnostic Run, and confirmed independent DPF, OSA EGS and other applications still operated afterwards. This is one positive session, not a sustained or multi-load verification. Exact cache/coalescing rates were not reported.
+- **Next experiment (Diagnostics v0.1.53 only):** on-demand pair of simultaneous existing IHKA reads, then immediate cached read, with existing Tool status counter deltas; **Tool code and version remain 0.1.43**, no change to TASU transport, request queue, caching algorithm or production applications. Verify in car after CI and MGU Store availability.
+
+
 ## v0.1.43 — dev MGU Store refresh experiment (2026-11-24)
 - **Problem:** user reports no updates visible for Data Tool 0.1.42 / Diagnostics 0.1.51 in MGU Store; reboot of HU did not fix it. Root cause unconfirmed.
 - **Experiment:** manifest version 0.1.43, same value in passive service status/report and offline health test; no transport, ECU reads, cache, queue, scheduler or other functional behavior changed. Companion Diagnostics 0.1.52 requires Tool 0.1.43.
