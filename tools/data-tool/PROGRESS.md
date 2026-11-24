@@ -1,5 +1,12 @@
 # Data Tool progress
 
+## v0.1.41 — isolated idle TASU connection probe (2026-11-24)
+- **Purpose:** distinguish an independently open TASU client from actual concurrent ECU requests without repeating the already failed per-read-helper teardown experiment.
+- **Implemented:** explicit diagnostic-socket `{op:"tasuIdleProbe",mode:"open"|"close"}` operation. Open initializes the existing hmictl TASU subscription **without any UDS/ECU call**; close releases it. Actions serialize with the established request queue; ordinary read transport, timeouts, DID allowlist, 200 ms queue and 500 ms cache are unchanged. No background polling or application migration.
+- **Offline regression:** `tools/data-tool/test.js` asserts open/close state, zero physical ECU requests and subsequent normal read; health-startup version expectation bumped. **CI and real-car coexistence verification pending** until observed separately.
+- **Safety:** use only as parked, manual diagnostic isolation. A successful open confirms helper/subscription setup, **not** that other TASU clients can still read. Normal production DPF/OSA/Car Equipment are unchanged. Close the probe after observation; do not run the full diagnostics while the idle probe is deliberately open.
+
+
 ## In-car isolation result and code inspection — 2026-11-24
 - **Vehicle observation:** restored Data Tool 0.1.40 + Diagnostics 0.1.47 reported **23 PASS / 0 FAIL / 5 SKIP** on one manual diagnostic run, but DPF and OSA then showed no data. After uninstalling both dev components, DPF and OSA recovered only after a substantial delay. The reported positive diagnostics therefore **does not prove safe multi-application coexistence**, and delayed recovery does not prove which process caused the interruption.
 - **Code-confirmed mechanism:** `service.js` creates the transport lazily on an explicit read; `transport.js` starts an independent `hmictl serve` process, subscribes `0xf8a6`/`0x8001`, and retains the helper after reads. It is killed only by `close()` on service shutdown. The 200 ms serialized queue, 500 ms cache, and deduplication apply **only to Tool requests**. Existing production DPF and OSA have separate `ReadOnlyDiag` TASU paths, not shared with the Tool queue. OSA also reads native CDS signals separately.
