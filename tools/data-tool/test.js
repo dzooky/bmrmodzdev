@@ -17,15 +17,15 @@ async function run(){
  const uds=[0x62,0x44,0xbb,0x05],frame=[0xf0,0xf2,0x71,1,15,11,0x12,0,uds.length].concat(uds);
  const hex=frame.length.toString(16).padStart(8,'0')+Buffer.from(frame).toString('hex');
  assert.deepStrictEqual(decode(hex).uds,uds);
- let sent=0;
- const mock={ready:true,async read(ecu,did){sent++;await new Promise(r=>setTimeout(r,30));return [0x62,did>>8,did&255,0x05];},close(){}};
+ let sent=0,opened=0,closed=0;
+ const mock={ready:true,async init(){opened++;},async read(ecu,did){sent++;await new Promise(r=>setTimeout(r,30));return [0x62,did>>8,did&255,0x05];},close(){closed++;}};
  const socket=path.join(os.tmpdir(),'bmrmodz-data-test-'+process.pid+'.sock');
  let signalTests=0;
  const svc=serve(()=>mock,socket,{secureEndpoint:{inspect:()=>({present:true,mode:'0600',ownerOnly:true}),close:()=>{}},cdsEngine:{demand:()=>({ok:true,running:true}),snapshot:()=>({ok:true,fields:{}}),release:()=>({ok:true,running:false}),close:()=>{}},signalRunner:{run:async(mode,field)=>{signalTests++;return {ok:true,mode,field,isolated:true};}},generator:{inspect:()=>({ok:false,stage:'missing'}),run:async()=>({ok:true,stage:'generated',aclRegistered:false})}});
  await new Promise((r,j)=>{svc.server.once('listening',r);svc.server.once('error',j);});
  try{
    const status=await call(socket,{op:'status'});
-   assert.strictEqual(status.version,'0.1.40');
+   assert.strictEqual(status.version,'0.1.41');
    assert.strictEqual(status.ok,true);assert.strictEqual(status.stats.sent,0);
    assert.strictEqual(status.capabilities.signals.mode,'demand-driven-experimental');
    const plan=await call(socket,{op:'brokerPlan'});
@@ -93,7 +93,7 @@ async function run(){
    assert.strictEqual(sent,0);
    const report=await call(socket,{op:'report'});
    assert.strictEqual(report.reportVersion,1);
-   assert.strictEqual(report.service.version,'0.1.40');
+   assert.strictEqual(report.service.version,'0.1.41');
    assert.strictEqual(report.checks.udsVehicleVerified,false);
    assert.strictEqual(sent,0);
    const cc=await call(socket,{op:'ccPlan'});
@@ -108,6 +108,19 @@ async function run(){
    const restricted=await call(socket,{op:'readTrace',ecu:0x40,did:0xD074});
    assert.strictEqual(restricted.ok,false);
    assert.strictEqual(sent,0);
+   // Idle probe only initializes/subscribes, never sends an ECU command.
+   assert.strictEqual((await call(socket,{op:'tasuIdleProbe',mode:'invalid'})).ok,false);
+   assert.strictEqual(sent,0);
+   const idleOpen=await call(socket,{op:'tasuIdleProbe',mode:'open'});
+   assert.deepStrictEqual(idleOpen,{ok:true,mode:'open',transportReady:true,vehicleReads:0});
+   assert.strictEqual(opened,1);
+   assert.strictEqual(sent,0);
+   assert.strictEqual((await call(socket,{op:'status'})).transportReady,true);
+   const idleClose=await call(socket,{op:'tasuIdleProbe',mode:'close'});
+   assert.deepStrictEqual(idleClose,{ok:true,mode:'close',transportReady:false,vehicleReads:0});
+   assert.strictEqual(closed,1);
+   assert.strictEqual(sent,0);
+   assert.strictEqual((await call(socket,{op:'status'})).transportReady,false);
    const traced=await call(socket,{op:'readTrace',ecu:0x12,did:0x44BB});
    assert.strictEqual(traced.ok,true);
    assert.strictEqual(traced.cached,undefined);
