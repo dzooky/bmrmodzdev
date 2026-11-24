@@ -66,7 +66,7 @@ mgu.run({
   }
   async function runTest(phase){
    if(tasuOpen){tasuStatus=word('Close TASU before running diagnostics');page=1;return;}
-   if(running||sending||generating||probing)return;
+   if(cacheBusy||running||sending||generating||probing)return;
    page=1;refreshButtons();running=true;progress=0;report=null;reportQr=null;exportState='';sendStatus='';lastResult=null;
    try{
     const output=await runner.run((completed,total,item)=>{
@@ -89,7 +89,7 @@ mgu.run({
    }finally{running=false;}
   }
   async function toggleTasuIdle(){
-   if(probing||running||sending||generating)return;
+   if(cacheBusy||probing||running||sending||generating)return;
    probing=true;page=1;refreshButtons();
    const mode=tasuOpen?'close':'open';
    tasuStatus=word('TASU probe running');
@@ -112,12 +112,14 @@ mgu.run({
      cacheResult=await cacheProbe.run(client.request);
      const live=await client.request({op:'schedulerLiveTest'},{timeoutMs:12000});
      cacheResult.scheduler=live&&live.mode==='internal-fixed-read-test'&&live.productionAccessEnabled===false&&live.ok===true;
+     const profile=await client.request({op:'schedulerProfileTest'},{timeoutMs:45000});
+     if(profile&&profile.mode==='internal-profile-test'&&profile.productionAccessEnabled===false)cacheResult.profile=profile;
    }
    catch(_){cacheError=word('Cache test could not complete');}
    finally{cacheBusy=false;lastHealthPoll=0;}
   }
   async function generateCds(){
-   if(generating||running||sending)return;
+   if(cacheBusy||generating||running||sending)return;
    generating=true;page=1;genStatus=word('Generating CDS');
    try{
     const result=await client.request({op:'someipGenerate'},{timeoutMs:15000});
@@ -169,9 +171,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.61 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.62 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.61 — '+word('Live scheduler test'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.62 — '+word('DPF scheduler profile test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -210,11 +212,23 @@ mgu.run({
   function drawCacheTest(cv,theme){
    header(cv,theme,word('Cache test'),word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word('IHKA climate reference'),800,162,24,theme.text,{align:'center',font:'bold'});
-   label(cv,word('Two parallel reads and one cached read'),800,203,19,theme.dim,{align:'center'});
+   if(!cacheResult||!cacheResult.profile){
+    label(cv,word('IHKA climate reference'),800,162,24,theme.text,{align:'center',font:'bold'});
+    label(cv,word('Two parallel reads and one cached read'),800,203,19,theme.dim,{align:'center'});
+   }
    cv.roundRect(520,240,560,70,12,cacheBusy?theme.track:theme.accent2);
    label(cv,word(cacheBusy?'Cache test running':'Tap to run cache test'),800,285,24,cacheBusy?theme.dim:theme.text,{align:'center',font:'bold'});
-   if(cacheResult){
+   if(cacheResult&&cacheResult.profile){
+    const p=cacheResult.profile,rows=Array.isArray(p.fields)?p.fields.slice(0,12):[];
+    label(cv,word(cacheResult.ok?'Cache test PASS':'Cache test FAIL')+' / '+word(cacheResult.scheduler?'Scheduler test PASS':'Scheduler test FAIL'),800,162,22,cacheResult.ok&&cacheResult.scheduler?theme.ok:theme.crit,{align:'center'});
+    label(cv,(p.engine||word('Unknown'))+' — '+word(p.ok?'DPF profile PASS':'DPF profile FAIL')+'  '+rows.filter(r=>r.samples>=2).length+'/'+rows.length+'  '+(p.elapsedMs/1000).toFixed(1)+' s',800,203,22,p.ok?theme.ok:theme.crit,{align:'center'});
+    rows.forEach((r,i)=>{
+     const x=i<6?80:850,y=335+(i%6)*29;
+     const name=word(String(r.name).toUpperCase().replace(/_/g,' '));
+     label(cv,name,x,y,20,theme.text);
+     label(cv,r.samples>=2?'PASS  '+(r.maxIntervalMs/1000).toFixed(2)+' s':r.samples===1?'1 '+word('Sample'):'FAIL',x+430,y,20,r.samples>=2?theme.ok:theme.warn);
+    });
+   }else if(cacheResult){
     label(cv,word(cacheResult.ok?'Cache test PASS':'Cache test FAIL'),800,349,26,cacheResult.ok?theme.ok:theme.crit,{align:'center',font:'bold'});
     label(cv,word('Physical ECU reads')+': '+cacheResult.physicalReads+
      '   '+word('Coalesced')+': '+cacheResult.coalesced+

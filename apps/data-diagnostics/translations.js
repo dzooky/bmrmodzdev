@@ -256,7 +256,23 @@ const catalogs={
     "unverified": "unverified",
     "Live scheduler test": "Live scheduler test",
     "Scheduler test PASS": "Scheduler test PASS",
-    "Scheduler test FAIL": "Scheduler test FAIL"
+    "Scheduler test FAIL": "Scheduler test FAIL",
+    "DPF scheduler profile test": "DPF scheduler profile test",
+    "DPF profile PASS": "DPF profile PASS",
+    "DPF profile FAIL": "DPF profile FAIL",
+    "Sample": "Sample",
+    "SOOT": "SOOT",
+    "ASH": "ASH",
+    "SINCE": "SINCE",
+    "AVERAGE": "AVERAGE",
+    "REQUEST": "REQUEST",
+    "MODE": "MODE",
+    "PRESSURE": "PRESSURE",
+    "TEMP": "TEMP",
+    "RUNTIME": "RUNTIME",
+    "LOCK": "LOCK",
+    "AVG TEMP": "AVG TEMP",
+    "REMAINING": "REMAINING"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
