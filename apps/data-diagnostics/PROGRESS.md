@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.54 — restored manual process boundary survey (2026-11-24)
+- **Implemented, awaiting CI and in-car proof:** restored the historical `processBoundary` diagnostic step in the existing manual Run immediately after native kernel observation, using Tool `processBoundaryProbe`. The sanitized result reports peer /proc readability, cgroup separation, same-UID flag and process-stat access, with PASS / SKIP / FAIL and explicit package identity **NOT verified**. Existing Results and uploaded sanitized notes include this one step. Tool dependency updated to 0.1.44; English release line identifies the revision.
+- **Non-regression:** no new ECU read, no change to established ECU sequencing, CTS/UDS transport, before/after sleep flow, button labels, other application logic or background activity. DPF DEV and production DPF/OSA untouched.
+- **Goal:** validate actual MGU process-boundary observability only. Distinguishing installed DPF DEV from another app remains an unimplemented later security step, not a PASS result here.
+
+
 ## v0.1.53 — isolated manual UDS cache/coalescing check (2026-11-24)
 **Integration:** PR #66 merged into dev `main` at `41fac73c6f432136f36374d2412caf330592b78d`; CI #228 (PR) and #229 (`main`) **PASS**, including the new offline cache probe and MGU preview. **Cache test not yet verified in car.**
 - **Observed in car (previous 0.1.43/0.1.52 baseline):** user confirmed passive UDS Read Health rendered on MGU, reported **11 successful Data Tool ECU reads** after one diagnostic Run, and independently confirmed DPF, OSA EGS, and other apps continued functioning afterward. This demonstrates one successful coexistence observation, **not** long-term stability or proven cache sharing.
