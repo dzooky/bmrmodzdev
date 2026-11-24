@@ -157,7 +157,7 @@ test('DPF DEV retains production 0.1.74 language controller baseline', () => {
   const main = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf8');
   const dpf = fs.readFileSync(path.join(__dirname, 'language.js'));
   // Production DPF 0.1.74 Git blob SHA; no cross-app OSA dependency in DEV.
-  const sha = crypto.createHash('sha1').update('blob ' + dpf.length + '\\0').update(dpf).digest('hex');
+  const sha = crypto.createHash('sha1').update('blob ' + dpf.length + String.fromCharCode(0)).update(dpf).digest('hex');
   assert.equal(sha, '926246171ee77fa6c56dac066cb763ddb4a17d71',
     'DPF DEV language controller must retain copied production baseline');
   assert.match(main, /Language\\.start\\(ctx\\)/);
