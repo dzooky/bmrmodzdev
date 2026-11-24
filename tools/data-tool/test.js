@@ -39,6 +39,11 @@ async function run(){
    assert.strictEqual(plan.broker.productionAccessEnabled,false);
    assert.ok(plan.broker.fields.includes('dpf.soot'));
    assert.strictEqual((await call(socket,{op:'getData',fields:['dpf.soot']})).ok,false);
+   // Runtime subscriptions must remain unreachable via unauthenticated diagnostics.
+   assert.strictEqual((await call(socket,{op:'udsDemand',consumer:'dpf-dev',fields:['dpf.b57.soot']})).ok,false);
+   assert.strictEqual((await call(socket,{op:'udsSnapshot',consumer:'dpf-dev'})).ok,false);
+   assert.strictEqual((await call(socket,{op:'udsRelease',consumer:'dpf-dev'})).ok,false);
+   assert.strictEqual(sent,0,'unsupported subscription requests must not touch ECU');
    const brokerTest=await call(socket,{op:'brokerSelfTest'});
    assert.strictEqual(brokerTest.ok,true);
    assert.strictEqual(brokerTest.broker.ok,true,JSON.stringify(brokerTest.broker));
