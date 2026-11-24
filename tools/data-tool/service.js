@@ -90,6 +90,10 @@ function serve(factory,socketPath,options){
         transport=null;
         return {ok:true,mode:'close',transportReady:false,vehicleReads:0};
       }catch(e){
+        if(mode==='open'){
+          try{if(transport&&transport.close)transport.close();}catch(_){}
+          transport=null;
+        }
         return {ok:false,mode,error:'TASU lifecycle probe failed',transportReady:!!(transport&&transport.ready),vehicleReads:0};
       }
     });
