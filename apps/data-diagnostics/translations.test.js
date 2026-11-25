@@ -1,91 +1,23 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),path=require('path');
-const {catalogs,t}=require('./translations');
-const spec=require('./app.json');
-const keys=Object.keys(catalogs.en).sort();
-assert.strictEqual(Object.keys(catalogs).length,1);
-const supported=spec.settings.find(s=>s.key==='language').options.map(a=>a[0]);
-assert.deepStrictEqual(Object.keys(catalogs).sort(),supported.sort());
-for(const [lang,catalog] of Object.entries(catalogs)){
-  assert.deepStrictEqual(Object.keys(catalog).sort(),keys,lang+' key mismatch');
-  for(const [key,value] of Object.entries(catalog))assert.ok(typeof value==='string'&&value.trim(),lang+' empty '+key);
-  assert.ok(t(lang,"What's New"));
-  assert.ok(t(lang,'Share'));
-}
-assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_RUN'));
+const {catalogs,t}=require('./translations'),spec=require('./app.json');
+assert.deepStrictEqual(Object.keys(catalogs),['en']);
+assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>a[0]),['en']);
+for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(spec.signals,{});
+assert.strictEqual(spec.version,'0.1.70');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.55');
-assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_SEND'));
-assert.ok(!spec.screens[0].buttons.some(b=>b[0]==='BTN_EXPORT'));
-assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_RUN','BTN_GEN','BTN_SEND']);
-assert.ok(t('en','Secure upload'));
-assert.ok(t('en','Network diagnostics'));
-assert.ok(t('en','HTTPS report upload'));
-assert.ok(t('en','MGU internet access'));
-assert.ok(t('en','HTTP response diagnostics'));
-assert.ok(t('en','Corrected upload endpoint'));
-assert.ok(t('en','SOME/IP setup diagnostics'));
-assert.ok(t('en','Generate CDS test'));
-for(const key of ['Data Tool UDS only','DPF and OSA reads not monitored','Sample age','Sample status','Fresh','Stale','Missing','Last read error'])assert.ok(t('en',key));
-for(const key of ['Open TASU (no read)','Close TASU','TASU connected without ECU reads','TASU connection closed','TASU probe failed'])assert.ok(t('en',key));
-assert.ok(t('en','Send report button restored'));
-assert.ok(t('en','Focused diagnostics'));
-assert.ok(t('en','CDS ACL audit'));
-assert.ok(t('en','CDS numeric validation'));
-assert.ok(t('en','Shared CDS data engine'));
-assert.ok(t('en','CDS multi-consumer test'));
-assert.ok(t('en','Secure IPC audit'));
-assert.ok(t('en','Data Tool startup recovery'));
-assert.ok(t('en','Process identity survey'));
-assert.ok(t('en','Drivetrain ECU retry test'));
-assert.ok(t('en','UDS response tracing'));
-assert.ok(t('en','Short TASU envelope audit'));
-assert.ok(t('en','TASU status and SOME/IP timing'));
-assert.ok(t('en','Report upload compatibility fix'));
-assert.ok(t('en','Immediate TASU rejection handling'));
-assert.ok(t('en','Established ECU-first diagnostics'));
-assert.ok(t('en','Visible report upload action'));
-assert.ok(t('en','Corrected CDS temperature scaling'));
-assert.ok(t('en','Broker and IPC self-test'));
-for(const key of ['Run before sleep','Run after wake','DPF comparison','Vehicle comparison','Before sleep','After wake'])assert.ok(t('en',key));
-assert.ok(spec.screens[0].buttons.some(b=>b[0]==='BTN_GEN'));
-assert.strictEqual(spec.mguInternet,true,'diagnostics requires MGU Store internet uplink');
+assert.strictEqual(spec.mguInternet,true);
+assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
-for(const text of [
- 'This application is still in development phase and not ready for public use.',
- 'We still working on it and will be available soon.',
- 'Thank you'
-])assert.ok(main.includes(text));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test']"));
-assert.ok(main.includes("ui.onClick('BTN_SEND'"));
-assert.ok(main.includes('toggleTasuIdle().catch'));
-assert.strictEqual(spec.screens[0].buttons[1][1],'Open TASU (no read)');
-assert.ok(!main.includes("['BTN_GEN',page===1"),'Runtime label update must not override static MGU text');
-assert.ok(main.includes("ui.onClick('BTN_GEN',()=>{toggleTasuIdle()"));
-assert.ok(main.includes('runTest(nextPhase)'));
-assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test']"));
-assert.ok(main.includes("ctx.onTap((x,y)=>"));
-assert.ok(main.includes("cacheProbe.run(client.request)"));
-assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
-assert.strictEqual(spec.version,'0.1.69');
-for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
-
-assert.ok(main.includes("{op:'status'}"));
-assert.ok(main.includes("nextPhase=before&&!after?'after':'before'"));
-assert.ok(!main.includes("ui.onClick('BTN_AFTER'"));
-assert.ok(!main.includes("ui.onClick('BTN_EXPORT'"));
-assert.ok(!main.includes("ui.onClick('BTN_PREV'"));
-assert.ok(!main.includes("ui.onClick('BTN_NEXT'"));
-console.log('Data Diagnostics: English-only translations, new app notice, tool-only manifest passed');
-
-for(const key of ["Readable focused results","Process boundary","Peer cgroup","Separate cgroup","Same UID","Process stat","readable","unavailable","yes","no","Boundary details unavailable","Package identity NOT verified","Production access OFF","ECU reference","DDE / DPF","EGS / transmission","IHKA / climate","BDC / steering","ACSM / seatbelts","Full report: Send report"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
-
-for(const key of ["Package boundary observation","Package survey","Observed","Unavailable","OAP layout","UID matches layout","Source mode protected","Package candidate","Process stable","DPF DEV"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
-
-for(const key of ["Source protection diagnosis","Protection reason","protected","layout-unavailable","ancestor-stat","ancestor-symlink","ancestor-type","ancestor-owner","ancestor-write","app-root-stat","app-root-symlink","app-root-type","app-root-owner","app-root-write","source-stat","source-symlink","source-type","source-owner","source-write","manifest-stat","manifest-symlink","manifest-type","manifest-owner","manifest-write","manifest-size","open-flags","manifest-open","manifest-changed","manifest-read","manifest-invalid","unknown"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
-
-for(const key of ['Background Tool','Rules','Evaluation ticks','Background Tool monitoring'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key));
-assert.ok(main.includes('/run/bmrmodz-background-tool/ctl.sock'));
-
+assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool']"));
+for(const text of ['This application is still in development phase and not ready for public use.','We still working on it and will be available soon.','Thank you'])assert.ok(main.includes(text));
+for(const key of ['Data Tool','Background Tool','Notification Tool','Remaining time','Queue','Accepted','Submitted','Failed','Expired','Start / stop BT test','Test notification','Notification test','Slow','Fast','Queued'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
+assert.ok(main.includes("ui.onClick('BTN_NT',()=>{testNotification()"));
+assert.ok(main.includes("ui.onClick('BTN_BT',()=>{toggleBackgroundTest()"));
+assert.ok(main.includes('if(page===3)testNotification();'));
+assert.ok(main.includes('if(page===2)toggleBackgroundTest();'));
 assert.ok(main.includes("op:'showText'"));
-for(const key of ['Sending','Notification test','Slow','Fast','Queued','Test notification','Notification Tool test'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key));
+assert.ok(main.includes('/run/bmrmodz-background-tool/ctl.sock'));
+assert.ok(main.includes('/run/bmrmodz-notification/ctl.sock'));
+console.log('Focused Diagnostics manifest, input bindings and English catalog passed');

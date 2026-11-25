@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.69",
+  "version": "0.1.70",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -16,16 +16,12 @@
       "title": "Data Tool Diagnostics",
       "buttons": [
         [
-          "BTN_RUN",
-          "Run before sleep"
+          "BTN_BT",
+          "Start / stop BT test"
         ],
         [
-          "BTN_GEN",
-          "Open TASU (no read)"
-        ],
-        [
-          "BTN_SEND",
-          "Send report"
+          "BTN_NT",
+          "Test notification"
         ]
       ]
     }
