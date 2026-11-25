@@ -2,6 +2,10 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Background Tool": "Background Tool",
+    "Rules": "Rules",
+    "Evaluation ticks": "Evaluation ticks",
+    "Background Tool monitoring": "Background Tool monitoring",
     "Share": "Share",
     "Info": "Info",
     "Diagnostics": "Diagnostics",
