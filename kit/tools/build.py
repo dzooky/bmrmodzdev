@@ -204,7 +204,7 @@ def build_ui(spec, language='en'):
                 values, labels = setting_options(s)
                 header = {'value': hmi_text(s['label']), 'type': 'Text'}
                 rows = [{'ItemText': {'value': hmi_text(lb), 'type': 'Text'}} for lb in labels]
-                if app in ('osa', 'dpf', 'dpf-dev'):
+                if app in ('osa', 'osa-dev', 'dpf', 'dpf-dev'):
                     header = text_row('SET_' + s['key'], s['label'])['Text']
                     if s['type'] == 'choice' and s['key'] != 'language':
                         rows = [text_row('SET_' + s['key'] + '_' + str(i), label, 'ItemText')
@@ -558,7 +558,7 @@ def build(app_id, language='en', preview_only=False):
             p = os.path.join(src, 'javascript', 'kit', 'locales', name)
             if os.path.exists(p):
                 os.remove(p)
-    if language == 'ru' or app_id in ('osa', 'spritmonitor', 'dpf', 'dpf-dev'):
+    if language == 'ru' or app_id in ('osa', 'osa-dev', 'spritmonitor', 'dpf', 'dpf-dev'):
         shutil.copy(os.path.join(KIT, 'localization', 'fonts', 'cyrillic-ru.json'),
                     os.path.join(src, 'javascript', 'kit', 'fonts', 'cyrillic.json'))
     if app_id == 'spritmonitor':
@@ -569,7 +569,7 @@ def build(app_id, language='en', preview_only=False):
     if app_id in ('dpf', 'dpf-dev'):
         shutil.copy(os.path.join(KIT, 'localization', 'fonts', 'dpf-cjk.json'),
                     os.path.join(src, 'javascript', 'kit', 'fonts', 'cjk.json'))
-    if app_id == 'osa':
+    if app_id in ('osa', 'osa-dev'):
         shutil.copy(os.path.join(KIT, 'localization', 'fonts', 'osa-cjk.json'),
                     os.path.join(src, 'javascript', 'kit', 'fonts', 'cjk.json'))
     if language == 'ko':
