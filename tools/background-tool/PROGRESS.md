@@ -31,3 +31,6 @@
 
 ## v0.1.2 open API candidate
 - Open local register/update/unregister/status by informational app ID; persisted declarative rules, bounded notification-only adapter, shared workload limits, reserved diagnostic namespace. No authenticated identity; no actuator actions or drive reset. Existing controlled test retained. CI and vehicle public API validation pending; OSA/DPF unchanged.
+
+## v0.1.3 — CDS scope support
+- Independent CDS and legacy DPF sessions, shared evaluation, decoded CDS values, unchanged raw DPF semantics. Failed scope isolated; empty demand releases its session. Data Tool 0.1.60 required. Added mixed-scope regression coverage. CI and in-car verification pending. No OSA registration yet.

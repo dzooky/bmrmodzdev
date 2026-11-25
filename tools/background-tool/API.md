@@ -15,3 +15,6 @@ Example:
 Only named Data Tool catalog fields are evaluated; unsupported fields cannot trigger. Comparisons use raw numeric values, eq/ne/gt/gte/lt/lte and nested all/any. Freshness 5000–300000 ms; last valid sample usable at most 3x requested interval. Once means registration lifetime, not drive cycle; rising fires on initial true or false-to-true. Invalid samples do not reset state. State committed before dispatch, no automatic retry after ambiguous failure.
 
 Only KOMBI notification actions enabled; no arbitrary shell, actuator or vehicle write. App provides localized text, color, duration 500–15000 ms, TTL 1000–60000 ms, 1–8 segments, total 90 characters, blink 0 or 125–3000 ms. Notification Tool owns rendering. Limits: 64 rules globally, 8 per app, 11 distinct public fields (one diagnostic slot), 4 actions/rule, 20 KB request, 8 concurrent connections. Queue acceptance is not visual confirmation. Open API is experimental, not yet verified in car.
+
+
+v0.1.3: CDS fields use decoded engineering values (e.g. engine.oilTemperature in °C); DPF comparisons retain raw numeric values. Independent demand sessions are combined for rule evaluation; unavailable scope does not suppress rules using valid samples from another scope.
