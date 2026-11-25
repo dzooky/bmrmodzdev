@@ -29,6 +29,10 @@
     {
       "id": "bmrmodz-data-tool",
       "path": "tools/data-tool"
+    },
+    {
+      "id": "bmrmodz-background-tool",
+      "path": "tools/background-tool"
     }
   ]
 }
