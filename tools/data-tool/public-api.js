@@ -9,8 +9,8 @@ function createApi(options){
  const grants=new Map(),sessions=new Map();
  // Scheduler requires a nonempty grant map at construction.
  grants.set(Symbol('reserved'),new Set());
- const scheduler=createScheduler({definitions:profile.definitions,grants,now,read:options.read});
- let closed=false,lastTick=-Infinity;
+ let closed=false,lastRead=-Infinity;
+ const scheduler=createScheduler({definitions:profile.definitions,grants,now,read:(ecu,did)=>{lastRead=now();return options.read(ecu,did);}});
  const fail=error=>({ok:false,error});
  function disconnect(token){scheduler.release(token);grants.delete(token);sessions.delete(token);}
  function prune(){for(const [token,s] of sessions)if(s.expires<=now())disconnect(token);}
@@ -49,7 +49,7 @@ function createApi(options){
   if(result.ok)s.expires=now()+LIMITS.leaseMs;
   return result;
  }
- async function tick(){prune();if(closed||now()-lastTick<1000)return false;lastTick=now();return scheduler.tick();}
+ async function tick(){prune();if(closed||now()-lastRead<1000)return false;return scheduler.tick();}
  return {connect,tick,close(){closed=true;for(const token of sessions.keys())disconnect(token);scheduler.close();},status(){prune();return {sessions:sessions.size,scheduler:scheduler.status()};}};
 }
 module.exports={createApi,LIMITS};

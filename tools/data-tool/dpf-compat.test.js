@@ -24,7 +24,7 @@ function call(socket,payload){
  await new Promise((resolve,reject)=>{svc.server.once('listening',resolve);svc.server.once('error',reject);});
  try{
   const status=await call(socket,{op:'status'});
-  assert.strictEqual(status.version,'0.1.54');
+  assert.strictEqual(status.version,'0.1.55');
   assert.strictEqual(sends,0,'status must not send ECU requests');
   const did=0x44BB,ecu=0x12;
   const [one,two]=await Promise.all([call(socket,{op:'read',ecu,did}),call(socket,{op:'read',ecu,did})]);
