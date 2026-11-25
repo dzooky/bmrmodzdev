@@ -197,6 +197,7 @@ mgu.run({
   ctx.onTab(i=>{if(i>=0&&i<pages.length){page=i;refreshButtons();}});
   // Tap-only action inside the Cache test page; existing physical bar remains untouched.
   ctx.onTap((x,y)=>{
+    if(page===1&&x>=520&&x<=1010&&y>=401&&y<=458)testNotification();
    if(page===1&&x>=1050&&x<=1535&&y>=401&&y<=458)toggleBackgroundTest();
    if(page===6&&x>=60&&x<=500&&y>=240&&y<=310)runEndurance().catch(e=>log.warn('Endurance: '+e.message));
    if(page===6&&x>=1100&&x<=1540&&y>=240&&y<=310)runApiProbe().catch(e=>log.warn('API probe: '+e.message));
@@ -212,9 +213,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.69 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.70 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.69 — '+word('Notification Tool test'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.70 — '+word('Notification Tool test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
