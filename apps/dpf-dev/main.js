@@ -1,14 +1,6 @@
 'use strict';
 
-/**
- * DPF Status
- *
- * Read-only DDE monitor. Identifies DDE 0x12 via physical UDS 22 F1 50.
- * Displays validated DPF measurements for identified B57 or B47 DDE.
- *
- * No diagnostic service other than the read-only services exposed by
- * ReadOnlyDiag can be sent by this app.
- */
+/** Read-only DPF monitor consuming the managed Data Tool API. */
 const mgu = require('./kit/mgu');
 const G = require('./kit/gauges');
 const fs = require('fs');
@@ -16,21 +8,16 @@ const path = require('path');
 const { decode: decodePng } = require('./png');
 const regenMessage = require('./regen-message');
 const ddeProfiles = require('./dde-profiles');
-const dataToolRead = require('./data-tool-read');
 const managedData = require('./managed-data');
-const sootCompare = require('./soot-compare');
-const allFieldsCompare = require('./all-fields-compare');
-const referenceRefresh = require('./reference-refresh');
 const distanceRecord = require('./distance-record');
 const { t: translate } = require('./kit/i18n');
 const Language = require('./language');
-const { ReadOnlyDiag } = require('./kit/readonly-diag');
 const CarEquipment = require('./kit/car-equipment');
 const createSettingsCanvas = require('./kit/settings-canvas');
 
 const W = 1600;
 const H = 520;
-const TABS = ['Overview', 'Detail', 'Settings', 'About', 'Diagnostics'];
+const TABS = ['Overview', 'Detail', 'Settings', 'About'];
 
 mgu.run({
     async start(ctx) {
@@ -104,293 +91,27 @@ mgu.run({
 
         Language.start(ctx);
 
-        const link = new ReadOnlyDiag(ctx.signals, log, {
-            gapMs: 50, busyMs: 500,
-            onDebug: message => {
-                if (/^(SENDING|TRANSPORT|FRAME|NO MATCHING RESPONSE|REPLY|SKIPPED)/.test(message)) {
-                    log.info('DPF TASU ' + message.slice(0, 100));
-                }
-            }
-        });
-        const DDE = 0x12;
-        let profile = null;
-        let ddeIndex = null;
-        let identified = false;
-        let identifying = true;
-        let readAttempted = false;
-        let testing = false;
-        const readings = {};
         const managed = managedData.create();
-        const managedEnabled = () => ctx.settings.get('experimentalDataTool') === true;
-        let managedBusy = false, lastManaged = false;
+        let profile = null, identified = false, identifying = true;
+        let readAttempted = false, detailReadAttempted = false;
+        const readings = {};
         let page = 'overview';
-        let readPending = false;
-        let detailReadAttempted = false;
         const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-        const requestOptions = { maxRetries: 2, retryBaseMs: 500, callTimeoutMs: 2500, hardTimeoutMs: 6500, pendingTimeoutMs: 2500 };
-        const diagnostic = {
-            tool: 'Not checked', identification: 'Connecting',
-            lastRead: 'Not checked', lastIssue: 'None',
-            lastDid: null, source: 'Legacy TASU', reads: 0,
-            toolRead: 'Not checked', toolError: 'Not checked',
-            tasuRead: 'Not checked', tasuError: 'Not checked',
-            ddeRecovery: 'Not checked'
-        };
-        let sootComparison = {state:'Not checked',result:null};
-        let allComparison = null;
-        let sootComparisonBusy = false;
-        async function compareSootOnce() {
-            if (sootComparisonBusy) return;
-            if (managedEnabled() || managedBusy) {
-                sootComparison = {state:'Unavailable',result:null,reason:'LEGACY_REQUIRED'};
-                allComparison=null;
-                ctx.settings.actionStatus.compareSoot = 'Unavailable';
-                return;
-            }
-            sootComparisonBusy = true;
-            sootComparison = {state:'Checking',result:null};
-            allComparison=null;
-            ctx.settings.actionStatus.compareSoot = 'Checking';
-            try {
-                if(!identified||!profile) {
-                    sootComparison={state:'Unavailable',result:null};
-                    ctx.settings.actionStatus.compareSoot='Unavailable';
-                    return;
-                }
-                // Do not overlap the existing normal TASU read. A manual test
-                // completes missing/stale native samples only after it finishes.
-                let pending=0;
-                while(testing&&pending<60000){await sleep(250);pending+=250;}
-                if(testing){
-                    sootComparison={state:'Unavailable',result:null};
-                    ctx.settings.actionStatus.compareSoot='Unavailable';
-                    return;
-                }
-                let woke=false;
-                const reference=await referenceRefresh.collect(profile,readings,
-                    async(ecu,did)=>{
-                        if(!link.ready)await link.init();
-                        if(!link.available)throw new Error('TASU unavailable');
-                        if(!woke){link.wake(DDE);woke=true;}
-                        return link.physical(ecu,0x22,[(did>>8)&255,did&255],1800,
-                            u=>u&&((u[0]===0x62&&u[1]===(did>>8)&&u[2]===(did&255))||
-                                (u[0]===0x7f&&u[1]===0x22)),requestOptions);
-                    });
-                const snapshot=await dataToolRead.schedulerCompare();
-                if(snapshot.engine!==profile.engine)throw Error('DDE profile mismatch');
-                const result = await allFieldsCompare.compareAll(profile,reference.snapshots,async(ecu,did)=>{
-                    if(ecu!==DDE||!Object.prototype.hasOwnProperty.call(snapshot.fields,did))return null;
-                    return snapshot.fields[did];
-                });
-                allComparison=result;
-                const state = allFieldsCompare.summaryState(result);
-                sootComparison = {state,result:null};
-                ctx.settings.actionStatus.compareSoot = state;
-            } catch (_) {
-                sootComparison = {state:'Failed',result:null};
-                ctx.settings.actionStatus.compareSoot = 'Failed';
-            } finally {
-                sootComparisonBusy = false;
-            }
-        }
-        ctx.settings.onAction('compareSoot', () => {
-            compareSootOnce().catch(error => log.warn('DPF DEV soot compare: '+String(error.message||error)));
-        });
-        async function checkDataTool() {
-            diagnostic.tool = 'Checking';
-            diagnostic.tool = await dataToolRead.status() ? 'Responding' : 'Unavailable';
-        }
-        // Legacy TASU is the primary, original DPF transport. Data Tool is
-        // explicitly opt-in and must never handle a legacy-only read.
-        const observeLegacy = (ecu, did, response) => {
-            diagnostic.source = 'Legacy TASU';
-            diagnostic.lastDid = did;
-            diagnostic.reads++;
-            diagnostic.lastRead = response && response[0] === 0x62 ? 'Responding'
-                : response && response[0] === 0x7f ? 'Negative response' : 'No response';
-            diagnostic.tasuRead = diagnostic.lastRead;
-            diagnostic.tasuError = response && response[0] === 0x7f && Number.isInteger(response[2])
-                ? 'UDS_NRC_' + response[2].toString(16).toUpperCase().padStart(2,'0')
-                : response && response[0] === 0x62 ? 'None' : 'NO_MATCHING_RESPONSE';
-            if (diagnostic.lastRead !== 'Responding') diagnostic.lastIssue = diagnostic.lastRead;
-        };
-        const dpfTransport = dataToolRead.create(link, {
-            // Match the successful 15-second Data Tool Diagnostics IPC read window.
-            timeoutMs: 15000,
-            enabled: () => ctx.settings.get('experimentalDataTool') === true,
-            requestOptions,
-            onRecovery: status => {
-                diagnostic.ddeRecovery = status;
-                log.info('DPF F150 recovery: ' + status);
-            },
-            onToolResult: (ecu,did,result) => {
-                diagnostic.lastDid = did;
-                diagnostic.toolRead = result.ok ? 'Responding' : 'Failed';
-                diagnostic.toolError = result.ok ? 'None' : result.code;
-            },
-            onFallback: error => {
-                diagnostic.lastIssue = 'Data Tool request failed';
-                log.warn('DPF Data Tool fallback: ' + String(error.message || error));
-            },
-            onLegacyResult: observeLegacy,
-            onSuccess: (ecu,did) => {
-                diagnostic.source = 'Data Tool';
-                diagnostic.tool = 'Responding';
-                diagnostic.lastDid = did;
-                diagnostic.reads++;
-                diagnostic.lastRead = 'Responding';
-                log.info('DPF Data Tool read OK ECU '+ecu.toString(16)+' DID '+did.toString(16));
-            }
-        });
-        // B57 calibration is unchanged; B47 gets only its verified DIDs.
-        const overviewDids = () => profile ? profile.overview : [];
         const detailDids = () => profile ? profile.detail : [];
-        const regenDids = () => profile && profile.regeneration
-            ? profile.overview.filter(([key]) => key === 'REQUEST' || key === 'MODE') : [];
-        const hexBytes = a => a.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
-        async function testSelected(regenOnly = false) {
-            if (managedEnabled() || managedBusy || sootComparisonBusy) return; // Managed mode never reads native TASU.
-            if (!identified || (!regenOnly && (page === 'about' || page === 'settings' || page === 'diagnostics'))) return;
-            if (testing) {
-                readPending = true;
-                return;
-            }
-            testing = true;
-            const address = DDE;
-            const readingPage = page;
-            const selected = regenOnly ? regenDids() : readingPage === 'detail' ? detailDids() : overviewDids();
-            try {
-                const toolEnabled = false;
-                // Match v0.1.66 exactly: one wake before the native DID loop.
-                if (!toolEnabled) link.wake(address);
-                for (const [name, did, len, factor, offset = 0] of selected) {
-                    const response = toolEnabled
-                        ? await dpfTransport.read(address, did)
-                        : await link.physical(address, 0x22, [(did >> 8) & 255, did & 255], 1800,
-                            u => u && ((u[0] === 0x62 && u[1] === (did >> 8) && u[2] === (did & 255)) ||
-                                (u[0] === 0x7F && u[1] === 0x22)),
-                            requestOptions);
-                    if (!toolEnabled) observeLegacy(address, did, response);
-                    let result = 'TIMEOUT';
-                    if(response) {
-                        if(response[0] === 0x7F) result = 'NRC '+hexBytes(response);
-                        else if(response[0] === 0x62 && response[1] === (did>>8) && response[2] === (did&255)) {
-                            const bytes = response.slice(3);
-                            if(bytes.length === len) {
-                                let raw = 0;
-                                for(const b of bytes) raw = raw*256+b;
-                                result = hexBytes(bytes)+' = '+(raw * factor + offset).toFixed(Number.isInteger(factor) ? 0 : 2);
-                            } else result = 'LEN '+bytes.length+' '+hexBytes(bytes);
-                        } else result = 'UNEXPECTED '+hexBytes(response);
-                    }
-                    if (response && response[0] === 0x62 && response[1] === (did >> 8) && response[2] === (did & 255) && response.length === len + 3) {
-                        let raw = 0;
-                        for (const b of response.slice(3)) raw = raw * 256 + b;
-                        readings[name] = { raw, value: raw * factor + offset, at: Date.now() };
-                        readings[name].source = toolEnabled ? 'tool' : 'legacy';
-                        if (name === 'SINCE' && profile)
-                            distanceHistory.observe(ddeProfiles.km(readings[name], profile.distanceFactor));
-                    } else if (name === 'REQUEST' || name === 'MODE' || name === 'LOCK') {
-                        delete readings[name];
-                    }
-                    if (!response) diagnostic.lastIssue = 'DDE did not respond';
-                    else if (result.startsWith('LEN ')) diagnostic.lastIssue = 'Unexpected data length';
-                    const line = name+' '+did.toString(16).toUpperCase()+': '+result;
-                    log.info('DPF READ ECU '+address.toString(16)+' '+line);
-                    if (managedEnabled() || (readPending && page !== readingPage)) break;
-                }
-            } catch (e) { log.warn('DPF read: ' + String(e)); }
-            finally {
-                testing = false;
-                if (!regenOnly) {
-                    if (readingPage === 'detail') detailReadAttempted = true;
-                    else readAttempted = true;
-                }
-                if (readPending) {
-                    readPending = false;
-                    if ((regenOnly || page !== readingPage) && ui.isVisible('MAIN')) await testSelected();
-                }
-            }
-        }
-
-
-        let identifyPending = false;
-        const identify = async () => {
-            // Guard the entire F150 operation, including async TASU initialization and fallback.
-            if (managedEnabled() || managedBusy || identifyPending) return;
-            identifyPending = true;
-            identified = false;
-            profile = null;
-            ddeIndex = null;
-            try {
-                // Data Tool owns its own hmictl/TASU session: do not start a
-                // second local TASU client until legacy fallback is necessary.
-                if (!link.ready) await link.init();
-                if (managedEnabled()) return;
-                diagnostic.identification = 'Checking';
-                if (!link.available) {
-                    diagnostic.identification = 'TASU unavailable';
-                    diagnostic.lastIssue = 'TASU unavailable';
-                    log.warn('DPF diagnostic link unavailable: ' + (link.error || 'TASU unavailable'));
-                    return;
-                }
-                const toolEnabled = ctx.settings.get('experimentalDataTool') === true;
-                // Restore v0.1.66 DDE F150 identification: direct native TASU.
-                if (!toolEnabled) link.wake(DDE);
-                const u = toolEnabled ? await dpfTransport.read(DDE, 0xF150)
-                    : await link.physical(DDE, 0x22, [0xF1, 0x50], 1800,
-                        b => b && ((b[0] === 0x62 && b[1] === 0xF1 && b[2] === 0x50) ||
-                            (b[0] === 0x7F && b[1] === 0x22)),
-                        requestOptions);
-                if (!toolEnabled) observeLegacy(DDE, 0xF150, u);
-                if (!u) {
-                    diagnostic.identification = 'No response';
-                    diagnostic.lastIssue = 'DDE did not respond';
-                    log.warn('DPF DDE did not respond');
-                    return;
-                }
-                if (u[0] !== 0x62 || u.length < 6) {
-                    diagnostic.identification = 'Negative response';
-                    diagnostic.lastIssue = 'DDE identification failed';
-                    log.warn('DPF DDE identification refused: ' + hexBytes(u));
-                    return;
-                }
-                const actual = hexBytes(u.slice(3, 6)).replace(/ /g, '');
-                ddeIndex = actual;
-                profile = ddeProfiles.forDde(actual);
-                if (!profile) {
-                    diagnostic.identification = 'Unsupported DDE';
-                    diagnostic.lastIssue = 'Unsupported DDE';
-                    log.warn('DPF unsupported DDE index: ' + actual);
-                    return;
-                }
-                log.info('DPF DDE ' + profile.engine + ' detected (index ' + actual + ')');
-                identified = true;
-                diagnostic.identification = 'Identified';
-                diagnostic.lastIssue = 'None';
-            } catch (e) {
-                diagnostic.identification = 'Failed';
-                diagnostic.lastIssue = 'DDE identification failed';
-                log.warn('DPF identify: ' + String(e.message || e));
-            } finally {
-                identifyPending = false;
-            }
-        };
-
         const hasReading = key => !!readings[key];
         const hasMeasurements = () => ['SOOT', 'ASH', 'SINCE', 'AVERAGE'].some(hasReading);
         const hasDetailMeasurements = () => detailDids().some(([key]) => hasReading(key) && !stale(key));
-        const stale = key => hasReading(key) && Date.now() - readings[key].at >= 90000;
+        const stale = key => hasReading(key) && Date.now() - readings[key].at > readings[key].validityMs;
 
-        function regenState(maxAge = 90000) {
+        function regenState() {
             // Never reuse B57 mode bit semantics on unverified B47 values.
             if (!profile || !profile.regeneration) return null;
             const now = Date.now();
             const mode = readings.MODE;
-            if (!mode || now - mode.at >= maxAge) return null;
+            if (!mode || now - mode.at > mode.validityMs) return null;
             if (mode.raw & 0x02) return 'active';
             const request = readings.REQUEST;
-            if (!request || now - request.at >= maxAge) return null;
+            if (!request || now - request.at > request.validityMs) return null;
             return request.raw >= 4 && request.raw <= 6 ? 'requested' : 'idle';
         }
 
@@ -405,7 +126,7 @@ mgu.run({
         });
         regenMessage.start(log, () => {
             const now = Date.now();
-            const liveMessage = indicator(clusterEnabled() ? regenState(15000) : null, now);
+            const liveMessage = indicator(clusterEnabled() ? regenState() : null, now);
             if (clusterTestStartedAt !== null) {
                 const message = regenMessage.testMessage(now - clusterTestStartedAt);
                 if (message) return message;
@@ -553,45 +274,6 @@ mgu.run({
                 { align: 'center', font: 'bold' });
         }
 
-        function renderDiagnostics(cv, t) {
-            G.panel(cv, t, 24, 48, 1552, 452, null);
-            cv.text('DPF DIAGNOSTICS', 52, 92, 32, t.text, { font: 'bold' });
-            cv.text('Diagnostic checks are passive', 52, 130, 18, t.dim);
-            const rows = [
-                ['TASU connection', link.available ? 'Ready' : link.ready ? 'Unavailable' : 'Unavailable'],
-                ['Data Tool connection', diagnostic.tool],
-                ['Selected transport', ctx.settings.get('experimentalDataTool') === true ? 'Data Tool' : 'Legacy TASU'],
-                ['DDE identification', diagnostic.identification],
-                ['DDE index', ddeIndex || 'Not checked'],
-                ['Data Tool read', diagnostic.toolRead],
-                ['Data Tool error', diagnostic.toolError],
-                ['TASU read', diagnostic.tasuRead],
-                ['TASU error', diagnostic.tasuError],
-                ['DDE recovery', diagnostic.ddeRecovery],
-                ['Last DID', diagnostic.lastDid === null ? 'Not checked' : '0x' + diagnostic.lastDid.toString(16).toUpperCase()],
-                ['Last issue', diagnostic.lastIssue]
-            ];
-            rows.forEach(([label,value], i) => {
-                const y = 163 + i * 30;
-                cv.text(label, 58, y, 19, t.dim);
-                cv.text(value, 640, y, 19, value === 'Unavailable' || value === 'Failed' || value === 'No response'
-                    ? t.warn : t.text);
-            });
-            // Manual DEV-only comparison: show only OK or nonzero differences.
-            cv.text('Data comparison',1020,166,23,t.text,{font:'bold'});
-            if(allComparison){
-                const rows=allComparison.rows;
-                rows.forEach((r,i)=>{
-                    const y=198+i*23;
-                    cv.text(r.key,1020,y,17,t.dim);
-                    cv.text(r.display,1490,y,17,
-                        r.status==='ok'?t.ok:r.status==='difference'?t.warn:r.status==='no-sample'?t.dim:t.crit,
-                        {align:'right',literal:true});
-                });
-            }else{
-                cv.text(sootComparison.state,1020,205,20,t.dim);
-            }
-        }
         function renderDetail(cv, t) {
             cv.text('DPF DETAIL', 48, 75, 32, t.text, { font: 'bold' });
             if (profile && !profile.detail.length) {
@@ -659,11 +341,7 @@ mgu.run({
                 return drawText(text, x, y, fitted, colour, { ...opts, literal: true });
             };
 
-            if (page === 'diagnostics') {
-                renderDiagnostics(cv, t);
-                G.frame(cv, t, TABS.map(label => translate(label)), 4, []);
-                return ui.image('MAIN_GFX', cv);
-            }
+
             if (page === 'detail') {
                 renderDetail(cv, t);
                 G.frame(cv, t, TABS.map(label => translate(label)), 1, []);
@@ -760,87 +438,40 @@ mgu.run({
         }
 
         function openPage(next) {
-            const openingDetail = next === 'detail' && page !== 'detail';
             page = next;
-            if (next === 'diagnostics') checkDataTool().catch(error => log.warn('DPF diagnostic status: '+error));
-            if (openingDetail || next === 'overview') testSelected();
             return render();
         }
-
         ctx.onScroll(delta => page === 'settings' ? settingsCanvas.scroll(delta) : false);
         ctx.onTab(index => {
-            const next = ['overview', 'detail', 'settings', 'about', 'diagnostics'][index];
+            const next = ['overview', 'detail', 'settings', 'about'][index];
             if (next && next !== page) return openPage(next);
         });
         ui.onVisible((name, visible) => {
             if (name === 'MAIN' && visible) refreshClusterEquipment().catch(error => log.warn('DPF Car Equipment: ' + error));
-            if (name === 'MAIN' && visible && identified && !testing && page !== 'diagnostics'
-                && (page === 'detail' ? !hasDetailMeasurements() : !readAttempted)) {
-                testSelected();
-            }
         });
         ctx.loop('MAIN', 4, render);
-        // Let the app initialize while the diagnostic link is connecting.
         (async () => {
-            if (!managedEnabled()) await identify();
-            identifying = false;
-            if (identified && page !== 'about' && ui.isVisible('MAIN')) await testSelected();
-            let nextPageRead = 0;
             while (true) {
-                const dataReady = page === 'detail' ? hasDetailMeasurements() : hasMeasurements();
-                await sleep(managedEnabled() ? 500 : 5000);
-                const pageVisible = page !== 'about' && page !== 'settings' && page !== 'diagnostics' && ui.isVisible('MAIN');
-                const clusterActive = clusterEnabled();
-                if (managedEnabled()) {
-                    if (testing || identifyPending || sootComparisonBusy) continue;
-                    if (!lastManaged) { for (const key of Object.keys(readings)) delete readings[key]; lastManaged = true; }
-                    managedBusy = true;
-                    try {
-                        const background = ctx.settings.values.cluster6wbAvailable === true && ctx.settings.get('regenCluster') === true;
-                        const result = await managed.poll(pageVisible, background);
-                        if (result.identity) {
-                            ddeIndex = result.identity; profile = ddeProfiles.forDde(ddeIndex); identified = !!profile;
-                            diagnostic.source = 'Data Tool'; diagnostic.tool = 'Responding'; diagnostic.identification = 'Identified';
-                            for (const key of Object.keys(readings)) {
-                                if (['REQUEST','MODE','LOCK'].includes(key) && !result.readings[key]) delete readings[key];
-                            }
-                            for (const key of Object.keys(result.readings)) {
-                                const row = result.readings[key];
-                                if (!readings[key] || readings[key].at !== row.at) {
-                                    readings[key] = row; diagnostic.reads++;
-                                    if (key === 'SINCE') distanceHistory.observe(ddeProfiles.km(row, profile.distanceFactor));
-                                }
-                            }
-                            diagnostic.lastRead = Object.keys(result.readings).length ? 'Responding' : 'No response';
-                            diagnostic.lastIssue = 'None';
-                            if (pageVisible) {readAttempted = true; detailReadAttempted = true;}
-                        } else if (result.error) {
-                            diagnostic.tool = 'Unavailable'; diagnostic.lastIssue = 'Data Tool request failed';
-                            for (const key of Object.keys(readings)) delete readings[key];
+                const pageVisible = (page === 'overview' || page === 'detail') && ui.isVisible('MAIN');
+                const background = ctx.settings.values.cluster6wbAvailable === true && ctx.settings.get('regenCluster') === true;
+                const result = await managed.poll(pageVisible, background);
+                if (result.identity) {
+                    const nextProfile = ddeProfiles.forDde(result.identity);
+                    if (profile && profile !== nextProfile) for (const key of Object.keys(readings)) delete readings[key];
+                    profile = nextProfile; identified = !!profile;
+                    for (const key of Object.keys(result.readings)) {
+                        const row = result.readings[key];
+                        if (!readings[key] || readings[key].at !== row.at) {
+                            readings[key] = row;
+                            if (key === 'SINCE') distanceHistory.observe(ddeProfiles.km(row, profile.distanceFactor));
                         }
-                    } finally {managedBusy = false;}
-                    continue;
-                }
-                if (lastManaged) {
-                    managed.close(); lastManaged = false; identified = false; profile = null;
-                    for (const key of Object.keys(readings)) delete readings[key];
-                    readAttempted = false; detailReadAttempted = false;
-                }
-                if (testing || (!pageVisible && !clusterActive)) continue;
-                if (!identified) await identify();
-                if (!identified) continue;
-
-                const now = Date.now();
-                if (pageVisible && now >= nextPageRead) {
-                    nextPageRead = now + (dataReady ? 60000 : 5000);
-                    await testSelected();
-                } else if (clusterActive) {
-                    if (profile && profile.regeneration) await testSelected(true);
-                }
+                    }
+                } else if (result.error) log.warn('DPF Data Tool: ' + result.error);
+                if (pageVisible) { identifying = false; readAttempted = true; detailReadAttempted = true; }
+                await sleep(500);
             }
         })().catch(e => log.warn('DPF polling: ' + e));
-        render()
-            .then(() => log.info('DPF Status first frame rendered'))
-            .catch((e) => log.warn('DPF Status first render: ' + e));
+        render().then(() => log.info('DPF Status first frame rendered'))
+            .catch(e => log.warn('DPF Status first render: ' + e));
     }
 });

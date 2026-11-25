@@ -23,6 +23,8 @@
 - **Background demand is distinct from foreground display.** The Tool should acquire only the minimum data justified by active consumer needs, including any approved background-only signals. Do not infer that all app screens or functions need continuous high-rate polling. Detailed background scheduling is still subject to verification.
 - **Open local API:** approved for all MGU apps; app ID informational, no mandatory tokens. Enforce named catalog, bounded sessions, intervals, leases and workload. Use existing ctl.sock with separate API session protocol.
 
+- **Approved public API validity (2026-11-25):** last validated sample remains usable for three times the requested acquisition interval; report age and validityMs separately. Acquisition cadence and scheduler eligibility remain unchanged. Failed reads never renew sample time. Private diagnostic probes retain their original strict freshness checks.
+
 ## Adding an application / signal: compact acceptance workflow
 
 1. Inspect latest `AGENTS.md`, this workflow, both Tool/Diagnostics `PROGRESS.md` files, relevant implementation and the most recent *in-car successful* baseline.

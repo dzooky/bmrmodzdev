@@ -6,7 +6,7 @@ const assert=require('assert'),{create}=require('./managed-data');
  calls.push(req.op);
  if(req.op==='catalog')return {ok:true,engine:'B57'};
  if(req.op==='demand'){fields=req.fields;return {ok:true};}
- if(req.op==='snapshot')return {ok:true,active:true,fields:Object.fromEntries(fields.map(k=>[k,{valid:true,raw:1,sampledAt:new Date(t).toISOString()}]))};
+ if(req.op==='snapshot')return {ok:true,active:true,fields:Object.fromEntries(fields.map(k=>[k,{valid:true,raw:1,validityMs:/\.(request|mode)$/.test(k)?15000:180000,sampledAt:new Date(t).toISOString()}]))};
  }})});
  let r=await managed.poll(true,false);assert.strictEqual(Object.keys(r.readings).length,12);assert.strictEqual(r.readings.SOOT.value,0.01525902);
  t+=500;await managed.poll(true,false);assert.strictEqual(calls.filter(x=>x==='demand').length,1);

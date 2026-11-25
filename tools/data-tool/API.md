@@ -2,12 +2,12 @@
 
 Open to local MGU applications regardless of repository. App ID is an informational label, not proof of identity. No installer token required. No arbitrary ECU/DID or vehicle control operations.
 
-**Status:** experimental runtime v0.1.55, vehicle validation pending. Connect to /run/bmrmodz-data-tool/ctl.sock using newline-delimited JSON. First send an apiHello object with api:1 and appId; subsequent messages are apiRequest envelopes with a request object. One outstanding request per connection. Runtime transport and background tests precede DPF DEV migration.
+**Status:** experimental runtime v0.1.56, vehicle validation pending. Connect to /run/bmrmodz-data-tool/ctl.sock using newline-delimited JSON. First send an apiHello object with api:1 and appId; subsequent messages are apiRequest envelopes with a request object. One outstanding request per connection. Runtime transport and background tests precede DPF DEV migration.
 
 A connection owns its session independently of its label. Prototype operations (JSON objects):
 - `{"op":"catalog"}`: supported named fields, minimum intervals and limits for the detected B57/B47 profile.
 - `{"op":"demand","fields":["dpf.b57.request"],"freshnessMs":{"dpf.b57.request":5000}}`: replace this session's demand and renew its 15-second lease.
-- `{"op":"snapshot"}`: passive cache snapshot, validity, ageMs, sampledAt and unsigned raw numeric sample (null if invalid).
+- `{"op":"snapshot"}`: passive cache snapshot, validity, validityMs (three times requested freshnessMs), ageMs, sampledAt and unsigned raw numeric sample (null if invalid).
 - `{"op":"release"}`: remove demand; disconnect removes session.
 
 Initial conservative limits: eight sessions, twelve fields/session, ten operations/session/second, one physical scheduler read start/second globally; idle eligibility checks every 250 ms, 5 s minimum for regeneration request/mode, 60 s for other DPF fields, maximum 300 s. Limits are provisional and require measured vehicle validation. No freshness guarantee under overload. Unknown fields and invalid requests are rejected. Session expiry frees capacity. No source-based restrictions.

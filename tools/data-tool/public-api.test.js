@@ -36,5 +36,12 @@ const assert=require('assert'),{createApi,LIMITS}=require('./public-api');
  for(const row of Object.values(samples)){assert.ok(row.length>=22);assert.ok(row.every((x,i)=>i===0||x-row[i-1]<=5500));}
  assert.strictEqual(Object.keys(samples).length,2);
  timing.close();
+ let v=300000,attempts=0;
+ const expiry=createApi({identity:'0F1FE8',now:()=>v,read:async(ecu,did)=>{attempts++;return attempts===1?{ok:true,uds:[0x62,did>>8,did&255,7],at:new Date(v).toISOString()}:{ok:false};}});
+ const e=expiry.connect('validity');assert.ok(e.request(demand).ok);assert.ok(await expiry.tick());
+ v+=5001;assert.ok(e.request(demand).ok);assert.strictEqual(await expiry.tick(),false);
+ let row=e.request({op:'snapshot'}).fields[field];assert.strictEqual(row.valid,true);assert.strictEqual(row.validityMs,15000);assert.strictEqual(row.raw,7);
+ v+=9999;assert.ok(e.request(demand).ok);assert.strictEqual(e.request({op:'snapshot'}).fields[field].valid,true);
+ v++;assert.strictEqual(e.request({op:'snapshot'}).fields[field].valid,false);expiry.close();
  console.log('Public API foundation: limits, shared reads, passive snapshots, expiry and denied operations PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});

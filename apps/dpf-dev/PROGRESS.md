@@ -1,5 +1,9 @@
 # DPF Status DEV progress
 
+## 2026-11-25 — DEV release candidate DPF 0.1.81 / Tool 0.1.56
+- PR #89 merged ae90e029, both CI PASS. DPF 0.1.80 initially no data in either mode and competing app also no data; diagnostic mode restored communication. B57 managed Overview and Detail populated, temperature updated with engine running to 80 C. User switched screens; intermittent NOT NEEDED/UNKNOWN confirmed. Root cause of initial vehicle-wide unavailability unconfirmed.
+- Approved public API sample validity 3x acquisition interval (15/180 s); keep acquisition scheduler unchanged. DPF managed-only, remove source switch, comparison action and Diagnostics tab; retain cluster test and existing UI/calibration. DEV release candidate only, production repository untouched. CI and new vehicle validation pending; actual regeneration, wake/reconnect and B47 remain unverified.
+
 ## 2026-11-25 — DPF DEV 0.1.80 managed API migration
 - Tool 0.1.55 / Diagnostics 0.1.67, PR #88 merged ef9af123, CI 45649080867 PASS. Two B57 120 s endurance tests PASS, 23 samples per field, REQUEST max 5.46 s / MODE 5.45 s; release PASS. Stale observations 12/14 then 15/15. User confirms other apps, competing apps, native settings and media functional during testing.
 - DPF DEV uses public named demand/snapshot API by default; existing experimental setting retained as explicit native reference switch (previous saved false may require manual enable). All foreground profile fields, background REQUEST/MODE when cluster notifications enabled. No automatic native fallback in managed mode. Existing calibration and timestamps retained, reconnect bounded, no production DPF or Tool runtime changes. CI and vehicle pending.

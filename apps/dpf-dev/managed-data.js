@@ -32,8 +32,8 @@ function create(options){
     const field='dpf.'+p.engine+'.'+name.toLowerCase().replace(/ /g,'_'),row=snap.fields[field];
     if(!fields.includes(field)||!row||!row.valid||!Number.isInteger(row.raw)||row.raw<0||row.raw>=Math.pow(256,len))continue;
     const at=Date.parse(row.sampledAt);
-    if(!Number.isFinite(at)||at>now()+2000||now()-at>p.freshnessMs[field])continue;
-    readings[name]={raw:row.raw,value:row.raw*factor+offset,at,source:'tool'};
+    if(!Number.isFinite(at)||at>now()+2000||row.validityMs!==3*p.freshnessMs[field]||now()-at>row.validityMs)continue;
+    readings[name]={raw:row.raw,value:row.raw*factor+offset,at,validityMs:row.validityMs,source:'tool'};
    }
    return {identity,readings};
   }catch(e){close();retryAt=now()+5000;return {identity:null,readings:{},error:String(e.message||e)};}
