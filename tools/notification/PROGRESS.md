@@ -20,3 +20,8 @@
 - Imported production v0.1.1 tool source, manifest, unit, tests and documentation into DEV without changing runtime behavior. Production remains untouched.
 - Approved next stage: standalone text renderer, per-segment blinking, bounded FIFO, deduplication and expiry, legacy RGBA compatibility; see WORKFLOW.md. Not implemented yet.
 - DEV packaging, CI and vehicle validation pending.
+
+## v0.2.0 DEV — standalone text test candidate
+- Bundled Canvas and available font atlases; already-localized strings; 1–8 segments with stable layout and individual blink intervals (0 or 125–3000 ms). New showText API, bounded FIFO, expiry and request-ID deduplication; legacy RGBA path retained. No replay on restart. Store entry added.
+- Diagnostics 0.1.69 sends two explicit test messages with different colors and blink intervals. No Data Tool or production app changes. Background Tool dispatch not yet integrated. Unicode glyph coverage limited to bundled atlases; actual KOMBI rendering and factory BC restoration unverified. Parked test only.
+- Automated regression added; final CI and vehicle result pending.
