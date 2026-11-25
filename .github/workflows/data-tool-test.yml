@@ -116,6 +116,7 @@ jobs:
           node tools/data-tool/scheduler-profile-test.test.js
           node tools/data-tool/scheduler-compare.test.js
           node tools/data-tool/public-api.test.js
+          node tools/data-tool/public-cds.test.js
           node tools/data-tool/public-runtime.test.js
           node apps/data-diagnostics/api-probe.test.js
           node apps/data-diagnostics/endurance-probe.test.js

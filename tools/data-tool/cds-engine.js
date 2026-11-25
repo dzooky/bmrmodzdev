@@ -9,13 +9,15 @@ function createEngine(options){
   const opts=options||{},now=opts.now||Date.now;
   const spawnProcess=opts.spawn||spawn,worker=opts.worker||path.join(__dirname,'cds-stream-worker.js');
   const leaseMs=opts.leaseMs||3000,staleMs=opts.staleMs||2000;
+  const publicLeases=new Map();
   const leases=new Map(),cache={},updates={oil:0,coolant:0,rpm:0};
   const stats={starts:0,stops:0,invalid:0,errors:0,samples:0};
   let child=null,ready=false,closed=false,buffer='',error=null;
   function active(){
     const clock=now();
     for(const [id,expiry] of leases)if(expiry<=clock)leases.delete(id);
-    return leases.size;
+    for(const [id,expiry] of publicLeases)if(expiry<=clock)publicLeases.delete(id);
+    return leases.size+publicLeases.size;
   }
   function stop(){
     if(!child)return;
@@ -61,7 +63,7 @@ function createEngine(options){
       }
     });
     instance.on('error',e=>{if(instance===child){error=String(e&&e.message||e).slice(0,140);stats.errors++;stop();}});
-    instance.on('exit',()=>{if(instance===child){error='CDS worker exited';stats.errors++;child=null;ready=false;}});
+    instance.on('exit',()=>{if(instance===child){error='CDS worker exited';stats.errors++;child=null;ready=false;FIELDS.forEach(k=>{updates[k]=0;delete cache[k];});}});
   }
   function demand(id){
     if(closed)return {ok:false,error:'CDS engine closed'};
@@ -102,11 +104,27 @@ function createEngine(options){
     if(active()===0)stop();
     return status();
   }
+  // Internal Symbol capability, never supplied by an IPC client.
+  function demandPublic(id,expiry){
+    if(closed||typeof id!=='symbol'||!Number.isFinite(expiry)||expiry<=now())return false;
+    publicLeases.set(id,expiry);
+    if(!child)start();
+    return true;
+  }
+  function releasePublic(id){
+    publicLeases.delete(id);
+    if(active()===0)stop();
+  }
+  function samplePublic(id,key){
+    active();
+    if(!publicLeases.has(id)||!FIELDS.includes(key)||!child||!updates[key])return null;
+    return {raw:cache[key],at:updates[key]};
+  }
   const timer=setInterval(()=>{if(active()===0)stop();},200);
   if(timer.unref)timer.unref();
   function close(){
-    closed=true;leases.clear();clearInterval(timer);stop();
+    closed=true;leases.clear();publicLeases.clear();clearInterval(timer);stop();
   }
-  return {demand,snapshot,status,release,close};
+  return {demand,snapshot,status,release,close,demandPublic,releasePublic,samplePublic};
 }
 module.exports={createEngine};
