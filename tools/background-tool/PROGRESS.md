@@ -34,3 +34,6 @@
 
 ## v0.1.3 — CDS scope support
 - Independent CDS and legacy DPF sessions, shared evaluation, decoded CDS values, unchanged raw DPF semantics. Failed scope isolated; empty demand releases its session. Data Tool 0.1.60 required. Added mixed-scope regression coverage. CI and in-car verification pending. No OSA registration yet.
+
+## v0.1.4 — declarative rearm condition
+- 0.1.3 PR #107 merged; Background Tool and Data Tool CI PASS (45709862688 / 45709862749). Added optional rising-trigger rearm condition, preserving persisted latch and legacy rules. New CI and vehicle validation pending.
