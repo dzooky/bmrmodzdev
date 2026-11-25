@@ -1,6 +1,7 @@
 'use strict';
 module.exports = {
   "sk": {
+    "Background regeneration notifications": "Notifikácie regenerácie na pozadí",
     "Manual comparison using scheduler cache": "Manuálne porovnanie cez cache plánovača",
     "Complete missing reference data during manual comparison": "Doplnenie chýbajúcich referenčných údajov pri ručnom porovnaní",
     "Incomplete": "Neúplné",
@@ -154,6 +155,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správny text v Settings aj po opakovanom vykreslení"
   },
   "cs": {
+    "Background regeneration notifications": "Oznámení o regeneraci na pozadí",
     "Manual comparison using scheduler cache": "Ruční porovnání přes cache plánovače",
     "Complete missing reference data during manual comparison": "Doplnění chybějících referenčních údajů při ručním porovnání",
     "Incomplete": "Neúplné",
@@ -307,6 +309,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Správný text v Nastavení i po opakovaném vykreslení"
   },
   "de": {
+    "Background regeneration notifications": "Regenerationsmeldungen im Hintergrund",
     "Manual comparison using scheduler cache": "Manueller Vergleich mit Scheduler-Cache",
     "Complete missing reference data during manual comparison": "Fehlende Referenzdaten beim manuellen Vergleich ergänzen",
     "Incomplete": "Unvollständig",
@@ -460,6 +463,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekte Schrift in Einstellungen nach wiederholtem Rendern"
   },
   "es": {
+    "Background regeneration notifications": "Avisos de regeneración en segundo plano",
     "Manual comparison using scheduler cache": "Comparación manual con la caché del planificador",
     "Complete missing reference data during manual comparison": "Completar referencias ausentes durante la comparación manual",
     "Incomplete": "Incompleto",
@@ -613,6 +617,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correcto en Ajustes tras renderizados repetidos"
   },
   "fr": {
+    "Background regeneration notifications": "Notifications de régénération en arrière-plan",
     "Manual comparison using scheduler cache": "Comparaison manuelle via le cache du planificateur",
     "Complete missing reference data during manual comparison": "Compléter les références manquantes pendant la comparaison manuelle",
     "Incomplete": "Incomplet",
@@ -766,6 +771,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texte correct dans les paramètres après plusieurs affichages"
   },
   "it": {
+    "Background regeneration notifications": "Notifiche di rigenerazione in background",
     "Manual comparison using scheduler cache": "Confronto manuale con la cache del pianificatore",
     "Complete missing reference data during manual comparison": "Completare i riferimenti mancanti durante il confronto manuale",
     "Incomplete": "Incompleto",
@@ -919,6 +925,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Testo corretto nelle Impostazioni dopo più ridisegni"
   },
   "hu": {
+    "Background regeneration notifications": "Regenerációs értesítések a háttérben",
     "Manual comparison using scheduler cache": "Kézi összehasonlítás az ütemező gyorsítótárával",
     "Complete missing reference data during manual comparison": "Hiányzó referenciaadatok pótlása kézi összehasonlításkor",
     "Incomplete": "Hiányos",
@@ -1072,6 +1079,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Helyes szöveg a Beállításokban ismételt megjelenítés után"
   },
   "pl": {
+    "Background regeneration notifications": "Powiadomienia o regeneracji w tle",
     "Manual comparison using scheduler cache": "Ręczne porównanie z pamięcią podręczną harmonogramu",
     "Complete missing reference data during manual comparison": "Uzupełnianie brakujących danych odniesienia podczas porównania ręcznego",
     "Incomplete": "Niekompletne",
@@ -1225,6 +1233,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Poprawny tekst w Ustawieniach po wielokrotnym renderowaniu"
   },
   "ru": {
+    "Background regeneration notifications": "Фоновые уведомления о регенерации",
     "Manual comparison using scheduler cache": "Ручное сравнение через кэш планировщика",
     "Complete missing reference data during manual comparison": "Дополнение отсутствующих эталонных данных при ручном сравнении",
     "Incomplete": "Неполные данные",
@@ -1378,6 +1387,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Правильный текст настроек после повторной отрисовки"
   },
   "da": {
+    "Background regeneration notifications": "Regenereringsbeskeder i baggrunden",
     "Manual comparison using scheduler cache": "Manuel sammenligning med planlæggerens cache",
     "Complete missing reference data during manual comparison": "Udfyld manglende referencedata ved manuel sammenligning",
     "Incomplete": "Ufuldstændig",
@@ -1531,6 +1541,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt tekst i Indstillinger efter gentagen visning"
   },
   "el": {
+    "Background regeneration notifications": "Ειδοποιήσεις αναγέννησης στο παρασκήνιο",
     "Manual comparison using scheduler cache": "Χειροκίνητη σύγκριση με την κρυφή μνήμη του χρονοπρογραμματιστή",
     "Complete missing reference data during manual comparison": "Συμπλήρωση ελλιπών δεδομένων αναφοράς κατά τη χειροκίνητη σύγκριση",
     "Incomplete": "Ελλιπές",
@@ -1684,6 +1695,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Σωστό κείμενο Ρυθμίσεων μετά από επαναλαμβανόμενη απόδοση"
   },
   "zh-CN": {
+    "Background regeneration notifications": "后台再生通知",
     "Manual comparison using scheduler cache": "使用调度器缓存进行手动比较",
     "Complete missing reference data during manual comparison": "手动比较时补齐缺失的参考数据",
     "Incomplete": "不完整",
@@ -1837,6 +1849,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "重复绘制后设置文字仍正确显示"
   },
   "nl": {
+    "Background regeneration notifications": "Regeneratiemeldingen op de achtergrond",
     "Manual comparison using scheduler cache": "Handmatige vergelijking met de plannercache",
     "Complete missing reference data during manual comparison": "Ontbrekende referentiegegevens aanvullen bij handmatige vergelijking",
     "Incomplete": "Onvolledig",
@@ -1990,6 +2003,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Correcte tekst in Instellingen na herhaald weergeven"
   },
   "nb": {
+    "Background regeneration notifications": "Regenereringsvarsler i bakgrunnen",
     "Manual comparison using scheduler cache": "Manuell sammenligning med planleggerens hurtiglager",
     "Complete missing reference data during manual comparison": "Fyll ut manglende referansedata ved manuell sammenligning",
     "Incomplete": "Ufullstendig",
@@ -2143,6 +2157,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Riktig tekst i Innstillinger etter gjentatt visning"
   },
   "pt": {
+    "Background regeneration notifications": "Notificações de regeneração em segundo plano",
     "Manual comparison using scheduler cache": "Comparação manual com a cache do agendador",
     "Complete missing reference data during manual comparison": "Completar referências em falta durante a comparação manual",
     "Incomplete": "Incompleto",
@@ -2296,6 +2311,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Texto correto nas Definições após várias renderizações"
   },
   "ro": {
+    "Background regeneration notifications": "Notificări de regenerare în fundal",
     "Manual comparison using scheduler cache": "Comparare manuală cu memoria cache a planificatorului",
     "Complete missing reference data during manual comparison": "Completarea datelor de referință lipsă în comparația manuală",
     "Incomplete": "Incomplet",
@@ -2449,6 +2465,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Text corect în Setări după afișări repetate"
   },
   "sl": {
+    "Background regeneration notifications": "Obvestila o regeneraciji v ozadju",
     "Manual comparison using scheduler cache": "Ročna primerjava s predpomnilnikom razporejevalnika",
     "Complete missing reference data during manual comparison": "Dopolnitev manjkajočih referenčnih podatkov pri ročni primerjavi",
     "Incomplete": "Nepopolno",
@@ -2602,6 +2619,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Pravilno besedilo v Nastavitvah po več prikazih"
   },
   "fi": {
+    "Background regeneration notifications": "Regenerointi-ilmoitukset taustalla",
     "Manual comparison using scheduler cache": "Manuaalinen vertailu ajastimen välimuistista",
     "Complete missing reference data during manual comparison": "Puuttuvien vertailutietojen täydentäminen manuaalisessa vertailussa",
     "Incomplete": "Puutteellinen",
@@ -2755,6 +2773,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Asetusten teksti pysyy oikeana toistuvassa piirrossa"
   },
   "sv": {
+    "Background regeneration notifications": "Regenereringsaviseringar i bakgrunden",
     "Manual comparison using scheduler cache": "Manuell jämförelse med schemaläggarens cache",
     "Complete missing reference data during manual comparison": "Komplettera saknade referensdata vid manuell jämförelse",
     "Incomplete": "Ofullständig",
@@ -2908,6 +2927,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Korrekt text i Inställningar efter upprepad rendering"
   },
   "tr": {
+    "Background regeneration notifications": "Arka planda rejenerasyon bildirimleri",
     "Manual comparison using scheduler cache": "Zamanlayıcı önbelleği ile manuel karşılaştırma",
     "Complete missing reference data during manual comparison": "Manuel karşılaştırmada eksik referans verilerini tamamlama",
     "Incomplete": "Eksik",
@@ -3061,6 +3081,7 @@ module.exports = {
     "Correct Settings text after repeated page renders": "Tekrarlanan çizimlerden sonra Ayarlar metni doğru"
   },
   "uk": {
+    "Background regeneration notifications": "Фонові сповіщення про регенерацію",
     "Manual comparison using scheduler cache": "Ручне порівняння через кеш планувальника",
     "Complete missing reference data during manual comparison": "Доповнення відсутніх еталонних даних під час ручного порівняння",
     "Incomplete": "Неповні дані",
