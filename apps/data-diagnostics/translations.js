@@ -2,6 +2,10 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Accepted / Submitted": "Accepted / Submitted",
+    "Rejected / Failed / Expired": "Rejected / Failed / Expired",
+    "Renderer self-test": "Renderer self-test",
+    "Renderer files": "Renderer files",
     "Data Tool": "Data Tool",
     "Notification Tool": "Notification Tool",
     "Remaining time": "Remaining time",
