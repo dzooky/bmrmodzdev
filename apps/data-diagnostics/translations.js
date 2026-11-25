@@ -2,6 +2,9 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Start BT test": "Start BT test",
+    "Stop BT test": "Stop BT test",
+    "Test hits": "Test hits",
     "Background Tool": "Background Tool",
     "Rules": "Rules",
     "Evaluation ticks": "Evaluation ticks",
