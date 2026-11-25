@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.72 — autonomous notification test
+- v0.1.71 confirmed NT 0.2.1 in car after reinstall, 2/2 accepted/submitted, no errors, self-test PASS, 6/6 dependencies, both messages and blinking confirmed. BC restoration not separately verified.
+- BT 0.1.1 status adds actual version, arming delay, service countdown and notification acceptance/error. Existing manual NT test remains intact. CI and autonomous vehicle test pending.
+
+
 ## v0.1.71 — Notification Tool runtime diagnosis
 - In-car v0.1.70: input now responds; FAIL with Running and zero counters. Root cause not confirmed. Preserve test error detail, show actual service version, rejection count, local renderer check and dependency count. Missing legacy fields display unknown rather than zero. Stop after first rejected request. No acquisition or BT changes. CI and parked retest pending.
 
