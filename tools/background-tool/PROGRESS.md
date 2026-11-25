@@ -10,3 +10,6 @@
 - Initial engine and Data Tool regression CI passed (45679017191 / 45679017117).
 - Added atomic file storage, owner-scoped internal API, serialized recurring evaluation, catalog filtering, demand lease renewal and reconnect, status and action failure counters, simulated restart tests. Runtime adapters accept injected connections and dispatchers; no public IPC, live dispatch, installer or autostart yet. New CI pending. No vehicle verification.
 - Raw numeric Data Tool fields only; unsupported fields do not trigger. Once-per-drive semantics pending. Persistence commits before dispatch (at-most-once attempt; crash can lose action). Stale temporary file recovery and authenticated transport remain deployment gates.
+
+## Passive service and Diagnostics integration
+- Runtime CI and Data Tool regression passed (45679787304 / 45679787106). Added standalone status-only Unix socket, Node service and systemd unit draft, copied existing public Data Tool client, optional Diagnostics v0.1.68 passive monitoring. Registration IPC and live actions deliberately disabled; service health does not prove data evaluation. Packaging and real MGU verification pending.
