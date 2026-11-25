@@ -29,6 +29,7 @@ mgu.run({
   let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
   let cacheBusy=false,cacheResult=null,cacheError='',apiResult=null,enduranceResult=null,enduranceElapsed=0,enduranceRunning=false;
   let before=null,after=null;
+  let ntBusy=false,ntMessage='';
   let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='';
   let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
   let nextPhase='before';
@@ -56,6 +57,17 @@ mgu.run({
   // The physical MGU button title is static in app.json, not a runtime ui.text update.
   refreshButtons();
   ctx.settings.onChange(key=>{if(key==='language')refreshButtons();});
+  async function testNotification(){
+   if(ntBusy||running||cacheBusy||tasuOpen)return;
+   ntBusy=true;ntMessage=word('Sending');
+   try{
+    const id='test-'+Date.now();
+    const opts={socket:'/run/bmrmodz-notification/ctl.sock',timeoutMs:2500};
+    const a=await client.request({api:1,op:'showText',target:'kombi',app:'diagnostics',id:id+'-1',durationMs:6000,ttlMs:20000,segments:[{text:word('Notification test')+': ',color:'#FFFFFF',blinkMs:0},{text:word('Slow'),color:'#FF3030',blinkMs:1000}]},opts);
+    const b=await client.request({api:1,op:'showText',target:'kombi',app:'diagnostics',id:id+'-2',durationMs:6000,ttlMs:20000,segments:[{text:word('Notification test')+': ',color:'#FFFFFF',blinkMs:0},{text:word('Fast'),color:'#00FF00',blinkMs:250}]},opts);
+    ntMessage=word(a.ok&&b.ok?'Queued':'FAIL');
+   }catch(_){ntMessage=word('FAIL');}finally{ntBusy=false;}
+  }
   async function toggleBackgroundTest(){
    if(bgCommandBusy||running||cacheBusy||tasuOpen)return;
    bgCommandBusy=true;
@@ -200,9 +212,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.68 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.69 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.68 — '+word('Background Tool monitoring'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.69 — '+word('Notification Tool test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -236,7 +248,8 @@ mgu.run({
    label(cv,word('Background Tool')+': '+(bgHealth?word('Running')+' / '+word('Rules')+': '+bgHealth.rules+' / '+word('Evaluation ticks')+': '+bgHealth.ticks:word('Unavailable')),60,358,17,bgHealth?theme.ok:theme.dim);
    cv.roundRect(60,366,1480,25,6,theme.track);
    cv.roundRect(60,366,Math.max(0,Math.floor(1480*progress/100)),25,6,theme.accent2);
-   label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
+   cv.roundRect(520,401,490,57,10,theme.track);
+    label(cv,word('Test notification')+' '+ntMessage,765,437,20,theme.text,{align:'center'});
    cv.roundRect(1050,401,485,57,10,theme.track);
    label(cv,word(bgHealth&&bgHealth.testActive?'Stop BT test':'Start BT test')+' '+bgMessage,1292,437,20,theme.text,{align:'center'});
    if(bgHealth)label(cv,word('Test hits')+': '+bgHealth.testHits+' / '+word(bgHealth.connected?'ECU':'Unavailable'),60,437,20,theme.text);

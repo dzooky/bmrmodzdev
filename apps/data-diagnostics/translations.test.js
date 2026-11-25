@@ -67,7 +67,7 @@ assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF compar
 assert.ok(main.includes("ctx.onTap((x,y)=>"));
 assert.ok(main.includes("cacheProbe.run(client.request)"));
 assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
-assert.strictEqual(spec.version,'0.1.68');
+assert.strictEqual(spec.version,'0.1.69');
 for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
 
 assert.ok(main.includes("{op:'status'}"));
@@ -86,3 +86,6 @@ for(const key of ["Source protection diagnosis","Protection reason","protected",
 
 for(const key of ['Background Tool','Rules','Evaluation ticks','Background Tool monitoring'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key));
 assert.ok(main.includes('/run/bmrmodz-background-tool/ctl.sock'));
+
+assert.ok(main.includes("op:'showText'"));
+for(const key of ['Sending','Notification test','Slow','Fast','Queued','Test notification','Notification Tool test'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key));

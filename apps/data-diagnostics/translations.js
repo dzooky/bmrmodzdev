@@ -2,6 +2,13 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Sending": "Sending",
+    "Notification test": "Notification test",
+    "Slow": "Slow",
+    "Fast": "Fast",
+    "Queued": "Queued",
+    "Test notification": "Test notification",
+    "Notification Tool test": "Notification Tool test",
     "Start BT test": "Start BT test",
     "Stop BT test": "Stop BT test",
     "Test hits": "Test hits",

@@ -33,6 +33,10 @@
     {
       "id": "bmrmodz-background-tool",
       "path": "tools/background-tool"
+    },
+    {
+      "id": "bmrmodz-notification",
+      "path": "tools/notification"
     }
   ]
 }
