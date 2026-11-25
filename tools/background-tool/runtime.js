@@ -7,7 +7,7 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
  const engine=new Engine(store.save,async(a,k)=>{attempts++;try{await dispatch(a,k);}catch(e){failures++;throw e;}});
  engine.rules=store.load();
  function request(req,owner){if(closed)throw Error('Closed');if(!req||req.api!==1||typeof owner!=='string'||!/^[a-zA-Z0-9_.-]{1,96}$/.test(owner))throw Error('Unauthorized request');
- if(req.op==='status')return {ok:true,rules:Array.from(engine.rules.values()).filter(x=>x.rule.appId===owner).map(x=>({ruleId:x.rule.ruleId,last:x.last,fired:x.fired})),dataError:error,unsupported:unsupported.slice(),attempts,failures};
+ if(req.op==='status')return {ok:true,rules:Array.from(engine.rules.values()).filter(x=>x.rule.appId===owner).map(x=>({ruleId:x.rule.ruleId,last:x.last,fired:x.fired,stateId:x.stateId,repeatAt:x.repeatAt})),dataError:error,unsupported:unsupported.slice(),attempts,failures};
  if(req.op==='register'||req.op==='update'){const rule=validate(req.rule);if(rule.appId!==owner)throw Error('Owner mismatch');engine.register(rule);}
  else if(req.op==='unregister'){if(typeof req.ruleId!=='string'||!/^[a-zA-Z0-9_.-]{1,96}$/.test(req.ruleId))throw Error('Invalid rule ID');engine.unregister(owner,req.ruleId);}
  else throw Error('Unknown operation');revision++;return {ok:true};}
@@ -37,6 +37,6 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
  unsupported=[].concat(...results.map(x=>x.unsupported));const failed=results.find(x=>x.error);error=failed?failed.error:null;
  if(!closed&&rev===revision)await engine.tick(samples,now());
  }catch(e){error='DATA_UNAVAILABLE';}finally{busy=false;}}
- return {request,tick,health(){return {ok:true,api:1,version:'0.1.4',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:groups.some(g=>!!g.client),dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);groups.forEach(disconnect);}};
+ return {request,tick,health(){return {ok:true,api:1,version:'0.1.5',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:groups.some(g=>!!g.client),dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);groups.forEach(disconnect);}};
 }
 module.exports={createRuntime};
