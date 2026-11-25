@@ -25,3 +25,9 @@
 
 ## v0.1.1 — autonomous notification experiment
 - Prior 0.1.0 reference test in vehicle recorded one hit with successful reads. Notification Tool 0.2.1 independent display confirmed in car. New explicit test starts with 15 s arming delay, then registers the same B57 reference field for 120 s; valid nonnegative sample triggers one fixed KOMBI notification via showText. No direct ECU reads or arbitrary registration; no automatic retry. Stop/expiry removes demand. Restart discards test. Runtime counters distinguish hits and queue acceptance; actual display requires vehicle confirmation. Requires NT 0.2.1. CI pending.
+
+## v0.1.1 vehicle verification — 2026-11-25
+- PR #99 CI PASS. Test hits/notification accepted 1/1; user confirmed autonomous KOMBI display while radio and navigation foreground, and automatic return of BC after notification. Verified baseline.
+
+## v0.1.2 open API candidate
+- Open local register/update/unregister/status by informational app ID; persisted declarative rules, bounded notification-only adapter, shared workload limits, reserved diagnostic namespace. No authenticated identity; no actuator actions or drive reset. Existing controlled test retained. CI and vehicle public API validation pending; OSA/DPF unchanged.
