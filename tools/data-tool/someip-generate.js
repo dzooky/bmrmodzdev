@@ -41,6 +41,7 @@ function checkStaging(directory,io){
 function inspect(){return checkStaging(STAGING,fs);}
 function createGenerator(options){
   const opts=options||{},io=opts.fs||fs,spawn=opts.spawn||cp.spawn;
+  const validate=opts.check||checkStaging;
   const paths=opts.paths||{root:ROOT,staging:STAGING,catalog:CATALOG,manifest:MANIFEST,generator:GENERATOR};
   const timeoutMs=opts.timeoutMs||12000;
   let running=false,attempts=0,last=null;
@@ -49,7 +50,7 @@ function createGenerator(options){
     return value;
   }
   function status(){
-    const check=checkStaging(paths.staging,io);
+    const check=validate(paths.staging,io);
     if(check.ok)return check;
     if(last&&!last.ok)return Object.assign({},check,{stage:last.stage,error:last.error||check.error,
       note:'Previous generator attempt failed; active config and ACL remain unchanged'});
@@ -99,7 +100,7 @@ function createGenerator(options){
         child.on('error',error=>finish({ok:false,stage:'spawn',error:clean(error)}));
         child.on('close',code=>{
           if(code!==0)return finish({ok:false,stage:'generator',error:clean(output||'Generator exit code '+code)});
-          const result=checkStaging(paths.staging,io);
+          const result=validate(paths.staging,io);
           finish(Object.assign({stage:result.ok?'generated':'invalid-output'},result));
         });
       }catch(error){finish({ok:false,stage:'spawn',error:clean(error)});}
@@ -107,4 +108,16 @@ function createGenerator(options){
   }
   return {run,inspect:status};
 }
-module.exports={createGenerator,inspect,STAGING,checkStaging};
+function createOsaGenerator(){
+ const paths={root:ROOT,staging:path.join(ROOT,'generator-osa'),catalog:CATALOG,manifest:path.join(__dirname,'osa-signal-manifest.json'),generator:GENERATOR};
+ return createGenerator({paths,check(directory,io){
+  try{
+   const speed=readJson(path.join(directory,'de_bmw_infotainment_vehicle_Vehicle2.json'),io);
+   const outside=readJson(path.join(directory,'de_bmw_infrastructure_EnvironmentalInformation.json'),io);
+   const acl=readJson(path.join(directory,'acl.json'),io);
+   const ok=!!(speed.fields&&speed.fields.statusCarSpeed2&&outside.fields&&outside.fields.ExteriorTemperature&&Array.isArray(acl.offers)&&Array.isArray(acl.requests));
+   return {ok,mode:'staging-only',aclRegistered:false,activeConfigChanged:false};
+  }catch(e){return {ok:false,mode:'staging-only',error:clean(e),aclRegistered:false,activeConfigChanged:false};}
+ }});
+}
+module.exports={createGenerator,createOsaGenerator,inspect,STAGING,checkStaging};

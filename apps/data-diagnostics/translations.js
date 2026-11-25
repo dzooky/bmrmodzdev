@@ -2,6 +2,7 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Public CDS signal test": "Public CDS signal test",
     "Accepted / Submitted": "Accepted / Submitted",
     "Rejected / Failed / Expired": "Rejected / Failed / Expired",
     "Renderer self-test": "Renderer self-test",
