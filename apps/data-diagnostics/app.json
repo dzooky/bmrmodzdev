@@ -16,16 +16,12 @@
       "title": "Data Tool Diagnostics",
       "buttons": [
         [
-          "BTN_RUN",
-          "Run before sleep"
+          "BTN_BT",
+          "Start / stop BT test"
         ],
         [
-          "BTN_GEN",
-          "Open TASU (no read)"
-        ],
-        [
-          "BTN_SEND",
-          "Send report"
+          "BTN_NT",
+          "Test notification"
         ]
       ]
     }
