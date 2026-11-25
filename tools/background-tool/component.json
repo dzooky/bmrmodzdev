@@ -1,0 +1,61 @@
+{
+  "id": "bmrmodz-background-tool",
+  "kind": "tool",
+  "version": "0.1.0",
+  "title": "Background Tool",
+  "description": "Experimental BMRMODZ background rule evaluation service",
+  "optional": true,
+  "uninstallable": true,
+  "mguHmi": [
+    "ID7"
+  ],
+  "requires": {
+    "bmrmodz-data-tool": "0.1.56",
+    "mgu-deploy": "0.7.11"
+  },
+  "files": [
+    {
+      "path": "engine.js",
+      "from": "engine.js",
+      "mode": "0644"
+    },
+    {
+      "path": "runtime.js",
+      "from": "runtime.js",
+      "mode": "0644"
+    },
+    {
+      "path": "store.js",
+      "from": "store.js",
+      "mode": "0644"
+    },
+    {
+      "path": "service.js",
+      "from": "service.js",
+      "mode": "0644"
+    },
+    {
+      "path": "data-client.js",
+      "from": "data-client.js",
+      "mode": "0644"
+    }
+  ],
+  "units": [
+    {
+      "name": "bmrmodz-background-tool.service",
+      "from": "bmrmodz-background-tool.service"
+    }
+  ],
+  "enable": [
+    {
+      "unit": "bmrmodz-background-tool.service",
+      "target": "multi-user.target"
+    }
+  ],
+  "restart": [
+    "bmrmodz-background-tool.service"
+  ],
+  "recmgr": [
+    "bmrmodz-background-tool"
+  ]
+}
