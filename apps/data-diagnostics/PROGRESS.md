@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.75 — EGS validation
+- 0.1.74 in-car 5/5 CDS, motor-only 3/3, configuration, DPF reference and release PASS in diagnostic mode with engine off. Engine-running validation remains pending.
+- Add EGS named demand and sixth sample to mixed test, verify all three sessions release. CI and vehicle validation pending.
+
+
 ## v0.1.74 — motor CDS diagnosis
 - v0.1.73 car test: 2/5 signals PASS (speed/outside), 3/5 FAIL (oil/coolant/rpm), DPF and release PASS. Add original CDS staging check, isolated motor-only test and visible errors before mixed test; BC controls unchanged. CI and retest pending.
 

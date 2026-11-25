@@ -43,5 +43,17 @@ const assert=require('assert'),{createApi,LIMITS}=require('./public-api');
  let row=e.request({op:'snapshot'}).fields[field];assert.strictEqual(row.valid,true);assert.strictEqual(row.validityMs,15000);assert.strictEqual(row.raw,7);
  v+=9999;assert.ok(e.request(demand).ok);assert.strictEqual(e.request({op:'snapshot'}).fields[field].valid,true);
  v++;assert.strictEqual(e.request({op:'snapshot'}).fields[field].valid,false);expiry.close();
+ // EGS identity gate, named-only demand, shared sample and freshness.
+ let et=400000,egReads=[];
+ const eg=createApi({scope:'egs',now:()=>et,read:async(ecu,did)=>{egReads.push([ecu,did]);return {ok:true,uds:did===0xF150?[0x62,0xF1,0x50,0x0F,0x25,0xD0]:[0x62,0x60,0,120],at:new Date(et).toISOString()};}});
+ const ea=eg.connect('osa'),eb=eg.connect('second'),ek='transmission.oilTemperature',ed={op:'demand',fields:[ek],freshnessMs:{[ek]:5000}};
+ assert.strictEqual(await eg.tick(),false);
+ assert.strictEqual(ea.request({...ed,freshnessMs:{[ek]:1000}}).ok,false);
+ assert.ok(ea.request(ed).ok);assert.ok(eb.request(ed).ok);
+ assert.strictEqual(await eg.tick(),false);assert.deepStrictEqual(egReads,[[0x18,0xF150]]);
+ et+=5000;assert.ok(await eg.tick());assert.deepStrictEqual(egReads,[[0x18,0xF150],[0x18,0x6000]]);
+ assert.strictEqual(ea.request({op:'snapshot'}).fields[ek].value,80);
+ assert.strictEqual(eb.request({op:'snapshot'}).fields[ek].value,80);
+ ea.request({op:'release'});eb.request({op:'release'});et+=5000;assert.strictEqual(await eg.tick(),false);eg.close();
  console.log('Public API foundation: limits, shared reads, passive snapshots, expiry and denied operations PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -5,13 +5,14 @@ const {build}=require('./dpf-demand-profile');
 const LIMITS=Object.freeze({sessions:8,fields:12,leaseMs:15000,minFastMs:5000,minSlowMs:60000,maxFreshnessMs:300000,requestsPerSecond:10,aggregateReadsPerSecond:1});
 function createApi(options){
  if(options.cdsEngine&&!options.identity)return createCdsApi(options);
- const profile=build(options.identity),now=options.now||Date.now;
+ const egs=options.scope==='egs', field='transmission.oilTemperature';
+ const profile=egs?{engine:'EGS',fields:[field],definitions:{[field]:{ecu:0x18,did:0x6000,length:1}},freshnessMs:{[field]:5000}}:build(options.identity),now=options.now||Date.now;
  if(!profile)throw Error('Unsupported DDE');
  const grants=new Map(),sessions=new Map();
  // Scheduler requires a nonempty grant map at construction.
  grants.set(Symbol('reserved'),new Set());
- let closed=false,lastRead=-Infinity;
- const scheduler=createScheduler({definitions:profile.definitions,grants,now,validityMultiplier:3,read:(ecu,did)=>{lastRead=now();return options.read(ecu,did);}});
+ let closed=false,lastRead=-Infinity,identified=false,identifyAfter=0;
+ const scheduler=createScheduler({definitions:profile.definitions,grants,now,validityMultiplier:3,read:async(ecu,did)=>{lastRead=now();if(egs&&!identified){if(now()<identifyAfter)return {ok:false};identifyAfter=now()+30000;const reply=await options.read(0x18,0xF150);identified=require('./data-catalog').decodeIdentity(reply,0x18)==='0F25D0';return {ok:false};}return options.read(ecu,did);}});
  const fail=error=>({ok:false,error});
  function disconnect(token){scheduler.release(token);grants.delete(token);sessions.delete(token);}
  function prune(){for(const [token,s] of sessions)if(s.expires<=now())disconnect(token);}
@@ -37,6 +38,7 @@ function createApi(options){
     // v1 foundation exposes validated unsigned numeric samples, not raw UDS.
     let raw=null;if(row.valid){raw=0;for(const byte of row.uds.slice(3))raw=raw*256+byte;}
     fields[name]={valid:row.valid,raw,validityMs:row.validityMs,sampledAt:row.sampledAt,ageMs:row.ageMs};
+    if(egs){fields[name].value=row.valid?raw-40:null;fields[name].unit='C';}
    }
    return {ok:true,active:x.active,fields};
   }
