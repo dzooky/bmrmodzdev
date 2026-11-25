@@ -37,6 +37,6 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
  unsupported=[].concat(...results.map(x=>x.unsupported));const failed=results.find(x=>x.error);error=failed?failed.error:null;
  if(!closed&&rev===revision)await engine.tick(samples,now());
  }catch(e){error='DATA_UNAVAILABLE';}finally{busy=false;}}
- return {request,tick,health(){return {ok:true,api:1,version:'0.1.3',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:groups.some(g=>!!g.client),dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);groups.forEach(disconnect);}};
+ return {request,tick,health(){return {ok:true,api:1,version:'0.1.4',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:groups.some(g=>!!g.client),dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);groups.forEach(disconnect);}};
 }
 module.exports={createRuntime};
