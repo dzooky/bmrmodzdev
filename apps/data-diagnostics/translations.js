@@ -2,6 +2,9 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Rules / Evaluation ticks": "Rules / Evaluation ticks",
+    "Notification accepted": "Notification accepted",
+    "Arming delay": "Arming delay",
     "Accepted / Submitted": "Accepted / Submitted",
     "Rejected / Failed / Expired": "Rejected / Failed / Expired",
     "Renderer self-test": "Renderer self-test",
