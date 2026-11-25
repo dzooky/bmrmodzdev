@@ -2,7 +2,7 @@
   "id": "rse-diagnostics",
   "title": "RSE Diagnostics",
   "description": "Experimental read-only RSE observations",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "vendor": "custom",
   "loggingId": "RSED",
   "iconGlyph": "temp",
@@ -16,8 +16,8 @@
       "title": "RSE Diagnostics",
       "buttons": [
         [
-          "BTN_CAPTURE",
-          "Capture"
+          "BTN_EXPORT",
+          "Export"
         ]
       ]
     }
@@ -40,5 +40,6 @@
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1"
-  }
+  },
+  "mguInternet": true
 }

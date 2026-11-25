@@ -13,5 +13,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: node --check apps/rse-diagnostics/main.js && node apps/rse-diagnostics/probe.test.js
+      - run: node --check apps/rse-diagnostics/main.js && node apps/rse-diagnostics/probe.test.js && node apps/rse-diagnostics/report.test.js && node --check apps/rse-diagnostics/upload.js
       - run: python3 kit/tools/build.py --preview-only rse-diagnostics
