@@ -31,3 +31,5 @@
 
 ## 2026-11-25 — v0.2.1 verified in vehicle
 - After uninstall/reinstall, running version 0.2.1 confirmed. Queue 0, accepted/submitted 2/2, rejected/failed/expired 0/0/0, self-test PASS, renderer files 6/6. User confirmed both KOMBI messages and segment blinking worked. BC restoration not separately confirmed. PR #97 CI passed. Next: controlled Background Tool dispatch; notification runtime unchanged.
+
+- 2026-11-25: BT 0.1.1 / NT 0.2.1 automatic notification verified with radio and navigation foreground; user confirms BC display returns after notification. No runtime change.
