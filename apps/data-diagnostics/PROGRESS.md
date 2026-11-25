@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.69 — Public CDS signal test
+- Manual staging of new interfaces, five named CDS samples and concurrent DPF reference, explicit release. Vehicle validation pending.
+
+
 ## v0.1.68 — Background Tool monitoring
 - Passive status poll on existing Diagnostics page, separate socket, displays service availability, registered rule count and evaluation ticks. Optional tool, no new required dependency. Existing Data Tool diagnostic operations unchanged. CI and vehicle validation pending.
 

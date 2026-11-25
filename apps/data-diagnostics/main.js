@@ -12,6 +12,7 @@ const qrReport=require('./qr-report');
 const uploader=require('./upload');
 const cacheProbe=require('./cache-probe');
 const apiProbe=require('./api-probe');
+const cdsProbe=require('./cds-probe');
 const enduranceProbe=require('./endurance-probe');
 const W=1600,H=520;
 const REPORT_NAME='data-tool-diagnostic-report.json';
@@ -27,6 +28,7 @@ mgu.run({
   const {ui,log}=ctx;
   const runner=createRunner(client.request);
   let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
+  let cdsResult=null;
   let cacheBusy=false,cacheResult=null,cacheError='',apiResult=null,enduranceResult=null,enduranceElapsed=0,enduranceRunning=false;
   let before=null,after=null;
   let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='';
@@ -119,7 +121,7 @@ mgu.run({
   async function runCacheProbe(){
    if(cacheBusy||running||sending||generating||probing)return;
    if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
-   cacheBusy=true;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
+   cacheBusy=true;cdsResult=null;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
    try{
      cacheResult=await cacheProbe.run(client.request);
      const live=await client.request({op:'schedulerLiveTest'},{timeoutMs:12000});
@@ -133,16 +135,22 @@ mgu.run({
   async function runApiProbe(){
    if(cacheBusy||running||sending||generating||probing)return;
    if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
-   cacheBusy=true;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
+   cacheBusy=true;cdsResult=null;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
    try{apiResult=await apiProbe.run();}catch(_){cacheError=word('Cache test could not complete');}
    finally{cacheBusy=false;lastHealthPoll=0;}
   }
   async function runEndurance(){
    if(cacheBusy||running||sending||generating||probing)return;
    if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
-   cacheBusy=true;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';enduranceElapsed=0;enduranceRunning=true;
+   cacheBusy=true;cdsResult=null;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';enduranceElapsed=0;enduranceRunning=true;
    try{enduranceResult=await enduranceProbe.run({progress:ms=>{enduranceElapsed=ms;}});}
    finally{cacheBusy=false;enduranceRunning=false;lastHealthPoll=0;}
+  }
+  async function runCdsProbe(){
+   if(cacheBusy||running||sending||generating||probing||tasuOpen)return;
+   cacheBusy=true;cdsResult=null;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
+   try{cdsResult=await cdsProbe.run(client.request);}catch(e){cacheError=String(e.message||e);}
+   finally{cacheBusy=false;lastHealthPoll=0;}
   }
   async function generateCds(){
    if(cacheBusy||generating||running||sending)return;
@@ -186,6 +194,7 @@ mgu.run({
   // Tap-only action inside the Cache test page; existing physical bar remains untouched.
   ctx.onTap((x,y)=>{
    if(page===1&&x>=1050&&x<=1535&&y>=401&&y<=458)toggleBackgroundTest();
+   if(page===6&&x>=1100&&x<=1540&&y>=145&&y<=215)runCdsProbe().catch(e=>log.warn('CDS: '+e.message));
    if(page===6&&x>=60&&x<=500&&y>=240&&y<=310)runEndurance().catch(e=>log.warn('Endurance: '+e.message));
    if(page===6&&x>=1100&&x<=1540&&y>=240&&y<=310)runApiProbe().catch(e=>log.warn('API probe: '+e.message));
    if(page===6&&x>=520&&x<=1080&&y>=240&&y<=310)
@@ -200,9 +209,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.68 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.69 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.68 — '+word('Background Tool monitoring'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.69 — '+word('Public CDS signal test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -249,13 +258,19 @@ mgu.run({
     label(cv,word('IHKA climate reference'),800,162,24,theme.text,{align:'center',font:'bold'});
     label(cv,word('Two parallel reads and one cached read'),800,203,19,theme.dim,{align:'center'});
    }
+   cv.roundRect(1100,145,440,70,12,cacheBusy?theme.track:theme.accent2);
+   label(cv,word('Public CDS signal test'),1320,188,20,theme.text,{align:'center'});
    cv.roundRect(60,240,440,70,12,cacheBusy?theme.track:theme.accent2);
    label(cv,word('2 min background test'),280,285,22,theme.text,{align:'center',font:'bold'});
    cv.roundRect(520,240,560,70,12,cacheBusy?theme.track:theme.accent2);
    label(cv,word(cacheBusy?'Cache test running':'Tap to run cache test'),800,285,24,cacheBusy?theme.dim:theme.text,{align:'center',font:'bold'});
    cv.roundRect(1100,240,440,70,12,cacheBusy?theme.track:theme.accent2);
    label(cv,word('API background test'),1320,285,22,theme.text,{align:'center',font:'bold'});
-   if(enduranceRunning){
+   if(cdsResult){
+    cdsResult.rows.forEach((r,i)=>label(cv,r.name+'  '+(r.valid?r.value+' / PASS':'FAIL'),80,335+i*29,19,r.valid?theme.ok:theme.crit));
+    label(cv,'DPF: '+(cdsResult.reference?'PASS':'FAIL')+' / '+word('Demand released')+': '+(cdsResult.released?'PASS':'FAIL'),850,365,20,cdsResult.ok?theme.ok:theme.warn);
+    if(cdsResult.error)label(cv,cdsResult.error,850,405,16,theme.warn);
+   }else if(enduranceRunning){
     label(cv,word('Background test running')+' '+Math.floor(enduranceElapsed/1000)+'/120 s',800,370,26,theme.text,{align:'center'});
     label(cv,word('Leave Diagnostics and return after 2 min'),800,420,22,theme.dim,{align:'center'});
    }else if(enduranceResult){

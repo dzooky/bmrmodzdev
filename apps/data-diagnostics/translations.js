@@ -2,6 +2,7 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Public CDS signal test": "Public CDS signal test",
     "Start BT test": "Start BT test",
     "Stop BT test": "Stop BT test",
     "Test hits": "Test hits",
