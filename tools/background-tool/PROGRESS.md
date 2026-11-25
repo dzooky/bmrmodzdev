@@ -16,3 +16,6 @@
 
 ## Packaging foundation
 - Background Tool service CI passed (45680259703). Existing Diagnostics CI failed on outdated expected version; corrected test and added monitoring assertions. Component manifest and DEV store entry added following existing Data Tool structure. Installation not verified; public registration and live dispatch still disabled.
+
+## Controlled reference experiment
+- Package and Diagnostics regression CI PASS (45680803922 / 45680803892). Added explicit two-minute B57 regeneration-request read-only test using one fixed rule and an in-memory counter; no real notification or actuator dispatch. Restart removes test registration; stop/expiry releases demand. Public arbitrary registration still disabled. CI and MGU pending.
