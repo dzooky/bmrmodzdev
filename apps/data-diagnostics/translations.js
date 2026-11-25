@@ -283,7 +283,11 @@ const catalogs={
     "Automatic acquisition": "Automatic acquisition",
     "Demand released": "Demand released",
     "First valid sample": "First valid sample",
-    "API first sample timing": "API first sample timing"
+    "API first sample timing": "API first sample timing",
+    "2 min background test": "2 min background test",
+    "Background test running": "Background test running",
+    "Leave Diagnostics and return after 2 min": "Leave Diagnostics and return after 2 min",
+    "Max interval": "Max interval"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}

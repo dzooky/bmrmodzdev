@@ -36,6 +36,9 @@
 - Vehicle verified: Tool 0.1.51 / Diagnostics 0.1.62 B57 profile 12/12 repeated samples, measured 5.15–5.45 s; Tool 0.1.52 / DPF DEV 0.1.79 manual comparison 12/12 exact matches. No production app subscription yet.
 - Mixed freshness vehicle test: 12/12 PASS reported, exact installed revision ambiguous. Next: open API foundation and background validation. See PROGRESS for individual versions.
 
+## Current validation priority (2026-11-25)
+- User prioritizes engine-running data acquisition (stationary or driving). Engine-off acquisition is not a DPF DEV migration gate; handle unavailable data safely without intentional wake-up. This is a validation priority, not an implemented engine-state gate.
+
 ## Roadmap — open API
 - Installer tokens deferred. Validate runtime limits and background acquisition before DPF DEV migration.
 

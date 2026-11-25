@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## 2026-11-25 — Diagnostics 0.1.66 background endurance
+- PR #86 merged 9177c258, CI 45571197190 PASS. B57 v0.1.54/0.1.65 5/5 PASS in diagnostic mode and again after requested exit from diagnostic mode (mode not independently measured). Earlier engine-running 5/5 PASS. User prioritizes running engine / driving, not engine-off acquisition.
+- New bounded 120 s Diagnostics client test for REQUEST/MODE using public API, 500 ms passive snapshots, 5 s lease renewal, unique sample count, max interval and stale count, explicit release. Provisional tolerance 1.5 s; no new tabs, Tool unchanged. User leaves Diagnostics and uses other apps while parked. Tests whether process continues when hidden; no claim of sleep or independent app-free acquisition. CI/car pending.
+
 ## 2026-11-25 — Diagnostics 0.1.65 first sample timing
 - PR #85 merged ba4efe1d, CI 45499098416 PASS. Vehicle B57 Tool 0.1.54 / Diagnostics 0.1.64: awake engine off connection/limits PASS, FIRST_SAMPLE failure after fixed 2.5 s; subsequent checks not executed. Engine running 5/5 PASS. Cause of awake failure unknown.
 - Diagnostics-only: bounded 20 s observation of passive snapshots at 500 ms, renew leases every 5 s, measure first shared valid sample latency, distinguish skipped checks, independently verify release on failure. No transport or Tool changes. CI and vehicle validation pending.
