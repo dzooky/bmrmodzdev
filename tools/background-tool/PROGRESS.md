@@ -19,3 +19,6 @@
 
 ## Controlled reference experiment
 - Package and Diagnostics regression CI PASS (45680803922 / 45680803892). Added explicit two-minute B57 regeneration-request read-only test using one fixed rule and an in-memory counter; no real notification or actuator dispatch. Restart removes test registration; stop/expiry releases demand. Public arbitrary registration still disabled. CI and MGU pending.
+
+## Diagnostics test control
+- CI 45681486412 failed on temporary test directory cleanup (state file); Data Tool regression 45681486299 passed. Avoid writing state on absent unregister; clean test artifacts. Diagnostics now exposes start/stop and hit count for fixed reference experiment. New CI pending. No live notification or general registration yet.
