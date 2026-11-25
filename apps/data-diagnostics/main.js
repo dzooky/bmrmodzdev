@@ -12,6 +12,7 @@ const qrReport=require('./qr-report');
 const uploader=require('./upload');
 const cacheProbe=require('./cache-probe');
 const apiProbe=require('./api-probe');
+const enduranceProbe=require('./endurance-probe');
 const W=1600,H=520;
 const REPORT_NAME='data-tool-diagnostic-report.json';
 const pages=['Info','Diagnostics','Results','DPF comparison','Vehicle comparison','Share','Cache test'];
@@ -26,7 +27,7 @@ mgu.run({
   const {ui,log}=ctx;
   const runner=createRunner(client.request);
   let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
-  let cacheBusy=false,cacheResult=null,cacheError='',apiResult=null;
+  let cacheBusy=false,cacheResult=null,cacheError='',apiResult=null,enduranceResult=null,enduranceElapsed=0,enduranceRunning=false;
   let before=null,after=null;
   let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
   let nextPhase='before';
@@ -108,7 +109,7 @@ mgu.run({
   async function runCacheProbe(){
    if(cacheBusy||running||sending||generating||probing)return;
    if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
-   cacheBusy=true;cacheResult=null;apiResult=null;cacheError='';
+   cacheBusy=true;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
    try{
      cacheResult=await cacheProbe.run(client.request);
      const live=await client.request({op:'schedulerLiveTest'},{timeoutMs:12000});
@@ -122,9 +123,16 @@ mgu.run({
   async function runApiProbe(){
    if(cacheBusy||running||sending||generating||probing)return;
    if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
-   cacheBusy=true;cacheResult=null;apiResult=null;cacheError='';
+   cacheBusy=true;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';
    try{apiResult=await apiProbe.run();}catch(_){cacheError=word('Cache test could not complete');}
    finally{cacheBusy=false;lastHealthPoll=0;}
+  }
+  async function runEndurance(){
+   if(cacheBusy||running||sending||generating||probing)return;
+   if(tasuOpen){cacheError=word('Close TASU before cache test');return;}
+   cacheBusy=true;cacheResult=null;apiResult=null;enduranceResult=null;cacheError='';enduranceElapsed=0;enduranceRunning=true;
+   try{enduranceResult=await enduranceProbe.run({progress:ms=>{enduranceElapsed=ms;}});}
+   finally{cacheBusy=false;enduranceRunning=false;lastHealthPoll=0;}
   }
   async function generateCds(){
    if(cacheBusy||generating||running||sending)return;
@@ -167,6 +175,7 @@ mgu.run({
   ctx.onTab(i=>{if(i>=0&&i<pages.length){page=i;refreshButtons();}});
   // Tap-only action inside the Cache test page; existing physical bar remains untouched.
   ctx.onTap((x,y)=>{
+   if(page===6&&x>=60&&x<=500&&y>=240&&y<=310)runEndurance().catch(e=>log.warn('Endurance: '+e.message));
    if(page===6&&x>=1100&&x<=1540&&y>=240&&y<=310)runApiProbe().catch(e=>log.warn('API probe: '+e.message));
    if(page===6&&x>=520&&x<=1080&&y>=240&&y<=310)
     runCacheProbe().catch(e=>log.warn('Cache probe: '+e.message));
@@ -180,9 +189,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.65 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.66 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.65 — '+word('API first sample timing'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.66 — '+word('2 min background test'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -225,11 +234,21 @@ mgu.run({
     label(cv,word('IHKA climate reference'),800,162,24,theme.text,{align:'center',font:'bold'});
     label(cv,word('Two parallel reads and one cached read'),800,203,19,theme.dim,{align:'center'});
    }
+   cv.roundRect(60,240,440,70,12,cacheBusy?theme.track:theme.accent2);
+   label(cv,word('2 min background test'),280,285,22,theme.text,{align:'center',font:'bold'});
    cv.roundRect(520,240,560,70,12,cacheBusy?theme.track:theme.accent2);
    label(cv,word(cacheBusy?'Cache test running':'Tap to run cache test'),800,285,24,cacheBusy?theme.dim:theme.text,{align:'center',font:'bold'});
    cv.roundRect(1100,240,440,70,12,cacheBusy?theme.track:theme.accent2);
    label(cv,word('API background test'),1320,285,22,theme.text,{align:'center',font:'bold'});
-   if(apiResult){
+   if(enduranceRunning){
+    label(cv,word('Background test running')+' '+Math.floor(enduranceElapsed/1000)+'/120 s',800,370,26,theme.text,{align:'center'});
+    label(cv,word('Leave Diagnostics and return after 2 min'),800,420,22,theme.dim,{align:'center'});
+   }else if(enduranceResult){
+    const r=enduranceResult;
+    label(cv,word(r.ok?'API test PASS':'API test FAIL')+' / '+(r.engine||word('Unknown'))+' / '+Math.floor(r.elapsedMs/1000)+' s',800,335,24,r.ok?theme.ok:theme.crit,{align:'center'});
+    r.fields.forEach((f,i)=>label(cv,word(f.name.toUpperCase())+'  '+(f.met?'PASS':'FAIL')+'  '+word('Sample')+': '+f.samples+'  '+word('Max interval')+': '+(f.maxGapMs/1000).toFixed(2)+' s  '+word('Stale')+': '+f.stale,800,375+i*35,22,f.met?theme.ok:theme.crit,{align:'center'}));
+    label(cv,word('Demand released')+': '+word(r.released?'PASS':'FAIL')+(r.error?' / '+r.error:''),800,475,20,r.released?theme.dim:theme.warn,{align:'center'});
+   }else if(apiResult){
     label(cv,word(apiResult.ok?'API test PASS':'API test FAIL')+' / '+(apiResult.engine||word('Unknown')),800,335,25,apiResult.ok?theme.ok:theme.crit,{align:'center'});
     const rows=[['API connection','connection'],['API limits','limits'],['Shared cache','shared'],['Automatic acquisition','automatic'],['Demand released','released']];
     rows.forEach(([name,key],i)=>{const x=i<3?80:850,y=375+(i%3)*35;label(cv,word(name),x,y,21,theme.text);label(cv,word(apiResult[key]===null?'SKIP':apiResult[key]?'PASS':'FAIL'),x+420,y,21,apiResult[key]===null?theme.dim:apiResult[key]?theme.ok:theme.crit);});
