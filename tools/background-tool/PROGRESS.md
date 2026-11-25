@@ -13,3 +13,6 @@
 
 ## Passive service and Diagnostics integration
 - Runtime CI and Data Tool regression passed (45679787304 / 45679787106). Added standalone status-only Unix socket, Node service and systemd unit draft, copied existing public Data Tool client, optional Diagnostics v0.1.68 passive monitoring. Registration IPC and live actions deliberately disabled; service health does not prove data evaluation. Packaging and real MGU verification pending.
+
+## Packaging foundation
+- Background Tool service CI passed (45680259703). Existing Diagnostics CI failed on outdated expected version; corrected test and added monitoring assertions. Component manifest and DEV store entry added following existing Data Tool structure. Installation not verified; public registration and live dispatch still disabled.
