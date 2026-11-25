@@ -10,7 +10,7 @@ function createApi(options){
  // Scheduler requires a nonempty grant map at construction.
  grants.set(Symbol('reserved'),new Set());
  let closed=false,lastRead=-Infinity;
- const scheduler=createScheduler({definitions:profile.definitions,grants,now,read:(ecu,did)=>{lastRead=now();return options.read(ecu,did);}});
+ const scheduler=createScheduler({definitions:profile.definitions,grants,now,validityMultiplier:3,read:(ecu,did)=>{lastRead=now();return options.read(ecu,did);}});
  const fail=error=>({ok:false,error});
  function disconnect(token){scheduler.release(token);grants.delete(token);sessions.delete(token);}
  function prune(){for(const [token,s] of sessions)if(s.expires<=now())disconnect(token);}
@@ -35,7 +35,7 @@ function createApi(options){
    for(const [name,row] of Object.entries(x.fields)){
     // v1 foundation exposes validated unsigned numeric samples, not raw UDS.
     let raw=null;if(row.valid){raw=0;for(const byte of row.uds.slice(3))raw=raw*256+byte;}
-    fields[name]={valid:row.valid,raw,sampledAt:row.sampledAt,ageMs:row.ageMs};
+    fields[name]={valid:row.valid,raw,validityMs:row.validityMs,sampledAt:row.sampledAt,ageMs:row.ageMs};
    }
    return {ok:true,active:x.active,fields};
   }

@@ -2,7 +2,7 @@
   "id": "dpf-dev",
   "title": "DPF Status DEV",
   "description": "Isolated development copy of BMW DPF Status. Not verified for simultaneous operation with stable DPF.",
-  "version": "0.1.80",
+  "version": "0.1.81",
   "config": {
     "customSettings": true
   },
@@ -23,15 +23,6 @@
     }
   ],
   "signals": {
-    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
-      "_instances": "SystemFunctionsInternalTasuInst1",
-      "_methods": [
-        "sendTasuRequest"
-      ],
-      "_broadcasts": [
-        "sendTasuResponse"
-      ]
-    },
     "de.bmw.infotainment.hmi.hmicontext.HMIContext": {
       "_optional": "Automatic iDrive language",
       "_instances": "HMI_CID",
@@ -163,19 +154,6 @@
       }
     },
     {
-      "key": "experimentalDataTool",
-      "label": "Use Data Tool (experimental)",
-      "type": "bool",
-      "default": true
-    },
-    {
-      "key": "compareSoot",
-      "label": "Compare all DPF data with Data Tool",
-      "type": "action",
-      "actionLabel": "Run",
-      "hint": "Manual comparison of all DPF data via Data Tool"
-    },
-    {
       "key": "reloadEquipment",
       "label": "Reload Equipment",
       "actionLabel": "Reload",
@@ -189,6 +167,6 @@
     "mgu-inputgate": "1.2.1",
     "bmrmodz-car-equipment": "0.1.5",
     "bmrmodz-notification": "0.1.1",
-    "bmrmodz-data-tool": "0.1.55"
+    "bmrmodz-data-tool": "0.1.56"
   }
 }

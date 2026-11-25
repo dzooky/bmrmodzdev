@@ -68,9 +68,10 @@ function createScheduler(options){
   for(const key of sub.fields){
    const entry=cache.get(didKey(key)),age=entry?Math.max(0,time()-entry.at):null;
    const freshness=typeof sub.freshnessMs==='number'?sub.freshnessMs:sub.freshnessMs[key];
-   const valid=!!entry&&age<=freshness&&entry.valid===true;
+   const validityMs=freshness*(opts.validityMultiplier||1);
+   const valid=!!entry&&age<=validityMs&&entry.valid===true;
    if(valid)stats.cacheHits++;
-   result[key]={valid,ageMs:age,sampledAt:entry?new Date(entry.at).toISOString():null,
+   result[key]={valid,validityMs,ageMs:age,sampledAt:entry?new Date(entry.at).toISOString():null,
       uds:valid?entry.uds.slice():null};
   }
   return {ok:true,active:true,fields:result};

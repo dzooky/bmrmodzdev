@@ -31,7 +31,7 @@ async function check(extraEnv){
       try{status=await probe(socket);break;}catch(_){await new Promise(r=>setTimeout(r,50));}
     }
     assert.ok(status,'status socket did not become healthy: '+errorText);
-    assert.strictEqual(status.version,'0.1.55');
+    assert.strictEqual(status.version,'0.1.56');
     assert.strictEqual(status.ok,true);
     assert.strictEqual(status.stats.sent,0);
     assert.strictEqual(child.exitCode,null);
