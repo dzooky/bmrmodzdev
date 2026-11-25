@@ -29,6 +29,7 @@ mgu.run({
   let page=0,running=false,sending=false,generating=false,probing=false,tasuOpen=false,tasuStatus='',genStatus='',report=null,progress=0,exportState='',sendStatus='',lastResult=null,reportQr=null;
   let cacheBusy=false,cacheResult=null,cacheError='',apiResult=null,enduranceResult=null,enduranceElapsed=0,enduranceRunning=false;
   let before=null,after=null;
+  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='';
   let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
   let nextPhase='before';
   const currentLanguage=()=>ctx.settings.get('language')||'en';
@@ -55,6 +56,15 @@ mgu.run({
   // The physical MGU button title is static in app.json, not a runtime ui.text update.
   refreshButtons();
   ctx.settings.onChange(key=>{if(key==='language')refreshButtons();});
+  async function toggleBackgroundTest(){
+   if(bgCommandBusy||running||cacheBusy||tasuOpen)return;
+   bgCommandBusy=true;
+   try{const reply=await client.request({api:1,op:bgHealth&&bgHealth.testActive?'testStop':'testStart'},{socket:'/run/bmrmodz-background-tool/ctl.sock',timeoutMs:2500});bgMessage=word(reply&&reply.ok?'PASS':'FAIL');}catch(_){bgMessage=word('FAIL');}finally{bgCommandBusy=false;lastBgPoll=0;}
+  }
+  async function pollBackground(){
+   if(bgBusy)return;bgBusy=true;
+   try{const h=await client.request({api:1,op:'status'},{socket:'/run/bmrmodz-background-tool/ctl.sock',timeoutMs:1500});bgHealth=h&&h.ok&&h.api===1?h:null;}catch(_){bgHealth=null;}finally{bgBusy=false;}
+  }
   async function pollReadHealth(){
    if(healthBusy)return;
    healthBusy=true;
@@ -175,6 +185,7 @@ mgu.run({
   ctx.onTab(i=>{if(i>=0&&i<pages.length){page=i;refreshButtons();}});
   // Tap-only action inside the Cache test page; existing physical bar remains untouched.
   ctx.onTap((x,y)=>{
+   if(page===1&&x>=1050&&x<=1535&&y>=401&&y<=458)toggleBackgroundTest();
    if(page===6&&x>=60&&x<=500&&y>=240&&y<=310)runEndurance().catch(e=>log.warn('Endurance: '+e.message));
    if(page===6&&x>=1100&&x<=1540&&y>=240&&y<=310)runApiProbe().catch(e=>log.warn('API probe: '+e.message));
    if(page===6&&x>=520&&x<=1080&&y>=240&&y<=310)
@@ -189,9 +200,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.67 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.68 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.67 — '+word('2 min background test'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.68 — '+word('Background Tool monitoring'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -222,9 +233,13 @@ mgu.run({
       '    '+word('Last source')+': '+source,60,297,20,h.freshness==='fresh'?theme.ok:theme.warn);
     label(cv,word('Last read error')+': '+(h.lastError||word('None')),60,335,20,theme.dim);
    }
+   label(cv,word('Background Tool')+': '+(bgHealth?word('Running')+' / '+word('Rules')+': '+bgHealth.rules+' / '+word('Evaluation ticks')+': '+bgHealth.ticks:word('Unavailable')),60,358,17,bgHealth?theme.ok:theme.dim);
    cv.roundRect(60,366,1480,25,6,theme.track);
    cv.roundRect(60,366,Math.max(0,Math.floor(1480*progress/100)),25,6,theme.accent2);
    label(cv,String(progress)+'%',800,441,26,theme.text,{align:'center',font:'num'});
+   cv.roundRect(1050,401,485,57,10,theme.track);
+   label(cv,word(bgHealth&&bgHealth.testActive?'Stop BT test':'Start BT test')+' '+bgMessage,1292,437,20,theme.text,{align:'center'});
+   if(bgHealth)label(cv,word('Test hits')+': '+bgHealth.testHits+' / '+word(bgHealth.connected?'ECU':'Unavailable'),60,437,20,theme.text);
    label(cv,tasuStatus||genStatus||word('Stay parked during the test'),60,474,17,theme.warn);
   }
   function drawCacheTest(cv,theme){
@@ -367,6 +382,7 @@ mgu.run({
    if(page===0)drawInfo(cv,theme);
    if(page===1){
     if(Date.now()-lastHealthPoll>=2000){lastHealthPoll=Date.now();pollReadHealth().catch(e=>log.warn('Read health: '+e.message));}
+    if(Date.now()-lastBgPoll>=2000){lastBgPoll=Date.now();pollBackground();}
     drawDiagnostics(cv,theme);
    }
    if(page===2)drawResults(cv,theme);

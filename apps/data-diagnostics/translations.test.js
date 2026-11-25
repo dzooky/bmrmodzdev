@@ -67,7 +67,7 @@ assert.ok(main.includes("const pages=['Info','Diagnostics','Results','DPF compar
 assert.ok(main.includes("ctx.onTap((x,y)=>"));
 assert.ok(main.includes("cacheProbe.run(client.request)"));
 assert.ok(main.includes("if(page===6)drawCacheTest(cv,theme)"));
-assert.strictEqual(spec.version,'0.1.67');
+assert.strictEqual(spec.version,'0.1.68');
 for(const key of ['Cache test','Tap to run cache test','Physical ECU reads','Coalesced','Cache test PASS','Cache test FAIL','Third reply from cache'])assert.ok(t('en',key));
 
 assert.ok(main.includes("{op:'status'}"));
@@ -83,3 +83,6 @@ for(const key of ["Readable focused results","Process boundary","Peer cgroup","S
 for(const key of ["Package boundary observation","Package survey","Observed","Unavailable","OAP layout","UID matches layout","Source mode protected","Package candidate","Process stable","DPF DEV"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
 
 for(const key of ["Source protection diagnosis","Protection reason","protected","layout-unavailable","ancestor-stat","ancestor-symlink","ancestor-type","ancestor-owner","ancestor-write","app-root-stat","app-root-symlink","app-root-type","app-root-owner","app-root-write","source-stat","source-symlink","source-type","source-owner","source-write","manifest-stat","manifest-symlink","manifest-type","manifest-owner","manifest-write","manifest-size","open-flags","manifest-open","manifest-changed","manifest-read","manifest-invalid","unknown"])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
+
+for(const key of ['Background Tool','Rules','Evaluation ticks','Background Tool monitoring'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key));
+assert.ok(main.includes('/run/bmrmodz-background-tool/ctl.sock'));
