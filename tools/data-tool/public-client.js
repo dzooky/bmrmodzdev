@@ -19,7 +19,7 @@ function connect(appId,path,scope){
   pending={resolve,reject,timer:setTimeout(close,15000)};
   socket.write(JSON.stringify(msg)+String.fromCharCode(10));
  });}
- return send(scope==='cds'?{op:'apiHello',api:1,appId,scope}:{op:'apiHello',api:1,appId}).then(reply=>{
+ return send(['cds','egs'].includes(scope)?{op:'apiHello',api:1,appId,scope}:{op:'apiHello',api:1,appId}).then(reply=>{
   if(!reply.ok){close();throw Error(reply.error);}
   return {request:request=>send({op:'apiRequest',request}),close};
  },e=>{close();throw e;});

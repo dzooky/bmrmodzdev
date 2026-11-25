@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## 2026-11-25 — 0.1.60 EGS demand
+- 0.1.59 / Diagnostics 0.1.74, PR #103 merged 2a3da11a, main CI PASS. Vehicle diagnostic mode, engine off: five CDS signals valid, isolated motor 3/3, configuration, DPF reference and release PASS. Engine-running dynamics not yet verified.
+- Add named EGS scope, supported identity 0F25D0 only, DID 6000 one-byte offset -40, minimum 5 s demand, 3x validity. Shared serialized service queue and DPF-first public scheduling. No transport changes or consumer migration. CI and car validation pending.
+
+
 ## 2026-11-25 — 0.1.59 motor CDS diagnosis
 - 0.1.58 / Diagnostics 0.1.73, PR #102 merged d6785983, main CI PASS. In-car: speed and outside temperature valid, oil/coolant/rpm FAIL, DPF and release PASS. Root cause unconfirmed.
 - Explicit original CDS staging check/generation, isolated motor-only test before mixed test, passive CDS status and stage-specific proxy errors. Existing mixed acquisition and UDS scheduler retained. CI and car verification pending.
