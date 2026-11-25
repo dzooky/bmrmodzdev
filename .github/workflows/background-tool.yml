@@ -9,3 +9,4 @@ jobs:
         with:
           node-version: '12'
       - run: node tools/background-tool/engine.test.js
+      - run: node tools/background-tool/runtime.test.js
