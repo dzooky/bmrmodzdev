@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.69 — standalone Notification Tool test
+- Manual Test notification control on Diagnostics page sends two queued six-second messages (white static prefix, red slow and green fast blinking states). Queued is acceptance only, not display acknowledgement. Optional Notification Tool 0.2.0; existing BT and Data Tool operations unchanged. CI and parked vehicle test pending.
+
+
 ## v0.1.68 — Background Tool monitoring
 - Passive status poll on existing Diagnostics page, separate socket, displays service availability, registered rule count and evaluation ticks. Optional tool, no new required dependency. Existing Data Tool diagnostic operations unchanged. CI and vehicle validation pending.
 
