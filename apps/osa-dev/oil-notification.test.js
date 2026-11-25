@@ -63,10 +63,10 @@ async function run() {
     interval();
     sample.oil = 70;
     sample.enabled = true;
-    clock = 1250;
+    clock = 4750;
     interval();
     sample.oil = 80;
-    clock = 1500;
+    clock = 5000;
     interval();
     await new Promise(resolve => setImmediate(resolve));
     assert.strictEqual(calls.length,2,'Rearm after notifications were disabled and cold');
