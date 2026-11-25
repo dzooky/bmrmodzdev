@@ -29,6 +29,16 @@ function serve(options){
   options=options||{};
   const target=options.socket||SOCKET,renderer=options.renderer||RENDERER;
   let active=null,closing=false;
+  const queue=[],seen=new Map(),stats={accepted:0,submitted:0,failed:0,expired:0};
+  function drain(){if(closing||active)return;while(queue.length){const item=queue.shift();if(item.expires<=Date.now()){stats.expired++;continue;}show(item.req,result=>{if(result.ok)stats.submitted++;else stats.failed++;},item.render);return;}}
+  function enqueue(req,reply){
+    if(req.api!==1||req.target!=='kombi'||typeof req.app!=='string'||!/^[a-z][a-z0-9_-]{0,31}$/.test(req.app)||typeof req.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(req.id)||!Number.isInteger(req.durationMs)||req.durationMs<500||req.durationMs>15000||!Number.isInteger(req.ttlMs)||req.ttlMs<1000||req.ttlMs>60000)return reply({ok:false,error:'Invalid text request'});
+    const now=Date.now(),key=req.app+':'+req.id;for(const [k,v] of seen)if(v<=now)seen.delete(k);
+    if(seen.has(key))return reply({ok:true,status:'duplicate'});
+    if(queue.length>=16||seen.size>=256)return reply({ok:false,error:'queue full'});
+    let render;try{render=require('./text-renderer').prepare(req.segments);}catch(e){return reply({ok:false,error:e.message});}
+    seen.set(key,now+Math.max(req.ttlMs,req.durationMs)+60000);queue.push({req,render,expires:now+req.ttlMs});stats.accepted++;reply({ok:true,status:'queued'});drain();
+  }
   function release(){
     const current=active;active=null;if(!current)return;
     current.timers.forEach(clearTimeout);
@@ -38,11 +48,12 @@ function serve(options){
       const forced=setTimeout(()=>current.socket.destroy(),1000);forced.unref();
       current.socket.once('close',()=>clearTimeout(forced));
     }
+    if(!closing)current.socket.destroyed?setImmediate(drain):current.socket.once('close',drain);
   }
-  function show(req,reply){
+  function show(req,reply,render){
     if(active)return reply({ok:false,error:'busy'});
-    const error=valid(req);if(error)return reply({ok:false,error});
-    const pixels=Buffer.from(req.rgba,'base64');
+    const error=render?null:valid(req);if(error)return reply({ok:false,error});
+    const pixels=render?render.frameAt(0):Buffer.from(req.rgba,'base64');
     if(pixels.length!==WIDTH*HEIGHT*4)return reply({ok:false,error:'Invalid decoded frame'});
     const socket=net.createConnection(renderer),session={socket,timers:[],replied:false,frame:0};
     active=session;
@@ -61,6 +72,12 @@ function serve(options){
       socket.write(command({op:'hello',app:'bmrmodz-notification',proto:1}));
       socket.write(command({op:'layer',ref:1,kind:'image',target:'panel',class:'overlay',
         x:745,y:539,w:WIDTH,h:HEIGHT,iw:WIDTH,ih:HEIGHT,exclusive:0,contend:0}));
+      if(render){
+        const started=Date.now();draw(pixels);
+        function advance(){if(active!==session)return;const elapsed=Date.now()-started;if(elapsed>=req.durationMs)return release();draw(render.frameAt(elapsed));after(Math.max(1,Math.min(req.durationMs,render.nextAt(elapsed))-elapsed),advance);}
+        after(Math.min(req.durationMs,render.nextAt(0)),advance);
+        respond({ok:true,status:'sent_to_renderer',target:'kombi'});return;
+      }
       const transparent=Buffer.alloc(pixels.length);
       for(let i=0;i<req.repeat;i++){
         const start=i*(req.durationMs+req.repeatIntervalMs);
@@ -95,7 +112,8 @@ function serve(options){
       try{req=JSON.parse(buffer.slice(0,n));}
       catch(err){client.end(JSON.stringify({ok:false,error:'Invalid JSON'})+'\n');return;}
       const reply=value=>{if(!client.destroyed)client.end(JSON.stringify(value)+'\n');};
-      if(req&&req.op==='status')return reply({ok:true,active:!!active,target:'kombi',hudSupported:false});
+      if(req&&req.op==='status')return reply({ok:true,active:!!active,target:'kombi',hudSupported:false,queued:queue.length,stats:Object.assign({},stats)});
+      if(req&&req.op==='showText')return enqueue(req,reply);
       show(req,reply);
     });
     client.on('error',()=>{});
