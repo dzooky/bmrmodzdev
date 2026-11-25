@@ -1,5 +1,9 @@
 # DPF Status DEV progress
 
+## 2026-11-25 — DPF DEV 0.1.80 managed API migration
+- Tool 0.1.55 / Diagnostics 0.1.67, PR #88 merged ef9af123, CI 45649080867 PASS. Two B57 120 s endurance tests PASS, 23 samples per field, REQUEST max 5.46 s / MODE 5.45 s; release PASS. Stale observations 12/14 then 15/15. User confirms other apps, competing apps, native settings and media functional during testing.
+- DPF DEV uses public named demand/snapshot API by default; existing experimental setting retained as explicit native reference switch (previous saved false may require manual enable). All foreground profile fields, background REQUEST/MODE when cluster notifications enabled. No automatic native fallback in managed mode. Existing calibration and timestamps retained, reconnect bounded, no production DPF or Tool runtime changes. CI and vehicle pending.
+
 ## Open API foundation — 2026-11-24
 - Mixed B57 freshness in-car screenshot 12/12 PASS (5.36/5.55 s fast, 60.40–61.20 s slow); installed revision ambiguous. PR #83 merged 09225816, both CI runs PASS.
 - User approved open local read-only API with enforced resource limits, no mandatory tokens. Offline dispatcher and draft API.md added; no runtime listener or consumer migration yet. CI pending. Background test remains next runtime milestone.

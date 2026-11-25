@@ -22,11 +22,11 @@ jobs:
           const build=fs.readFileSync('kit/tools/build.py','utf8');
           assert.strictEqual(app.id,'dpf-dev');
           assert.strictEqual(app.title,'DPF Status DEV');
-          assert.strictEqual(app.version,'0.1.79');
+          assert.strictEqual(app.version,'0.1.80');
           assert.strictEqual(app.loggingId,'DPFD');
-          assert.strictEqual(app.settings.find(x=>x.key==='experimentalDataTool').default,false);
-          assert.strictEqual(app.requires['bmrmodz-data-tool'],'0.1.52');
-          assert(source.includes('const u = toolEnabled ? await dpfTransport.read(DDE, 0xF150)'));
+          assert.strictEqual(app.settings.find(x=>x.key==='experimentalDataTool').default,true);
+          assert.strictEqual(app.requires['bmrmodz-data-tool'],'0.1.55');
+          assert(source.includes('await managed.poll(pageVisible, background)'));
           assert(source.includes('if (!toolEnabled) link.wake(DDE)'));
           assert(build.includes("app_id in ('dpf', 'dpf-dev')"));
           for(const filename of ['icon.png','brmodz_logo.png','qr_facebook.png','qr_instagram.png','qr_report_bug.png','qr_request_feature.png']) assert(fs.statSync('apps/dpf-dev/'+filename).size>0,filename);
@@ -42,6 +42,7 @@ jobs:
           node apps/dpf-dev/data-tool-read.test.js
           node apps/dpf-dev/soot-compare.test.js
           node apps/dpf-dev/data-demand-plan.test.js
+          node apps/dpf-dev/managed-data.test.js
           node apps/dpf-dev/all-fields-compare.test.js
           node apps/dpf-dev/reference-refresh.test.js
           node apps/dpf-dev/diagnostics.test.js

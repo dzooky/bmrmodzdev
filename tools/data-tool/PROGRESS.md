@@ -1,5 +1,9 @@
 # Data Tool progress
 
+## 2026-11-25 — DPF DEV 0.1.80 managed API migration
+- Tool 0.1.55 / Diagnostics 0.1.67, PR #88 merged ef9af123, CI 45649080867 PASS. Two B57 120 s endurance tests PASS, 23 samples per field, REQUEST max 5.46 s / MODE 5.45 s; release PASS. Stale observations 12/14 then 15/15. User confirms other apps, competing apps, native settings and media functional during testing.
+- DPF DEV uses public named demand/snapshot API by default; existing experimental setting retained as explicit native reference switch (previous saved false may require manual enable). All foreground profile fields, background REQUEST/MODE when cluster notifications enabled. No automatic native fallback in managed mode. Existing calibration and timestamps retained, reconnect bounded, no production DPF or Tool runtime changes. CI and vehicle pending.
+
 ## 2026-11-25 — Tool 0.1.55 / Diagnostics 0.1.67 scheduler timing
 - PR #87 merged 227e19a4, CI 45638707936 PASS. B57 120 s endurance FAIL: REQUEST 20 samples, max 7.37 s, stale observations 40; MODE 20 samples, max 6.66 s, stale observations 43. Release PASS. Acquisition continued but timing target missed.
 - API previously consumed the 1 s rate slot even on idle scheduler ticks. Apply the same global 1 s minimum to actual scheduler read starts only; eligibility remains checked every 250 ms. Existing per-field freshness, transport, serialization, leases and endurance test thresholds unchanged. Added simulated two-field timing and global-spacing regression. CI and in-car validation pending.

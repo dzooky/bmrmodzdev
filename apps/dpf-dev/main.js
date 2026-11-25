@@ -17,6 +17,7 @@ const { decode: decodePng } = require('./png');
 const regenMessage = require('./regen-message');
 const ddeProfiles = require('./dde-profiles');
 const dataToolRead = require('./data-tool-read');
+const managedData = require('./managed-data');
 const sootCompare = require('./soot-compare');
 const allFieldsCompare = require('./all-fields-compare');
 const referenceRefresh = require('./reference-refresh');
@@ -119,6 +120,9 @@ mgu.run({
         let readAttempted = false;
         let testing = false;
         const readings = {};
+        const managed = managedData.create();
+        const managedEnabled = () => ctx.settings.get('experimentalDataTool') === true;
+        let managedBusy = false, lastManaged = false;
         let page = 'overview';
         let readPending = false;
         let detailReadAttempted = false;
@@ -137,7 +141,7 @@ mgu.run({
         let sootComparisonBusy = false;
         async function compareSootOnce() {
             if (sootComparisonBusy) return;
-            if (ctx.settings.get('experimentalDataTool') === true) {
+            if (managedEnabled() || managedBusy) {
                 sootComparison = {state:'Unavailable',result:null,reason:'LEGACY_REQUIRED'};
                 allComparison=null;
                 ctx.settings.actionStatus.compareSoot = 'Unavailable';
@@ -245,7 +249,7 @@ mgu.run({
             ? profile.overview.filter(([key]) => key === 'REQUEST' || key === 'MODE') : [];
         const hexBytes = a => a.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ');
         async function testSelected(regenOnly = false) {
-            if (sootComparisonBusy) return; // Never overlap manual reference acquisition.
+            if (managedEnabled() || managedBusy || sootComparisonBusy) return; // Managed mode never reads native TASU.
             if (!identified || (!regenOnly && (page === 'about' || page === 'settings' || page === 'diagnostics'))) return;
             if (testing) {
                 readPending = true;
@@ -256,7 +260,7 @@ mgu.run({
             const readingPage = page;
             const selected = regenOnly ? regenDids() : readingPage === 'detail' ? detailDids() : overviewDids();
             try {
-                const toolEnabled = ctx.settings.get('experimentalDataTool') === true;
+                const toolEnabled = false;
                 // Match v0.1.66 exactly: one wake before the native DID loop.
                 if (!toolEnabled) link.wake(address);
                 for (const [name, did, len, factor, offset = 0] of selected) {
@@ -293,7 +297,7 @@ mgu.run({
                     else if (result.startsWith('LEN ')) diagnostic.lastIssue = 'Unexpected data length';
                     const line = name+' '+did.toString(16).toUpperCase()+': '+result;
                     log.info('DPF READ ECU '+address.toString(16)+' '+line);
-                    if (readPending && page !== readingPage) break;
+                    if (managedEnabled() || (readPending && page !== readingPage)) break;
                 }
             } catch (e) { log.warn('DPF read: ' + String(e)); }
             finally {
@@ -313,7 +317,7 @@ mgu.run({
         let identifyPending = false;
         const identify = async () => {
             // Guard the entire F150 operation, including async TASU initialization and fallback.
-            if (identifyPending) return;
+            if (managedEnabled() || managedBusy || identifyPending) return;
             identifyPending = true;
             identified = false;
             profile = null;
@@ -321,9 +325,10 @@ mgu.run({
             try {
                 // Data Tool owns its own hmictl/TASU session: do not start a
                 // second local TASU client until legacy fallback is necessary.
-                if (ctx.settings.get('experimentalDataTool') !== true && !link.ready) await link.init();
+                if (!link.ready) await link.init();
+                if (managedEnabled()) return;
                 diagnostic.identification = 'Checking';
-                if (!link.available && ctx.settings.get('experimentalDataTool') !== true) {
+                if (!link.available) {
                     diagnostic.identification = 'TASU unavailable';
                     diagnostic.lastIssue = 'TASU unavailable';
                     log.warn('DPF diagnostic link unavailable: ' + (link.error || 'TASU unavailable'));
@@ -777,15 +782,50 @@ mgu.run({
         ctx.loop('MAIN', 4, render);
         // Let the app initialize while the diagnostic link is connecting.
         (async () => {
-            await identify();
+            if (!managedEnabled()) await identify();
             identifying = false;
             if (identified && page !== 'about' && ui.isVisible('MAIN')) await testSelected();
             let nextPageRead = 0;
             while (true) {
                 const dataReady = page === 'detail' ? hasDetailMeasurements() : hasMeasurements();
-                await sleep(5000);
+                await sleep(managedEnabled() ? 500 : 5000);
                 const pageVisible = page !== 'about' && page !== 'settings' && page !== 'diagnostics' && ui.isVisible('MAIN');
                 const clusterActive = clusterEnabled();
+                if (managedEnabled()) {
+                    if (testing || identifyPending || sootComparisonBusy) continue;
+                    if (!lastManaged) { for (const key of Object.keys(readings)) delete readings[key]; lastManaged = true; }
+                    managedBusy = true;
+                    try {
+                        const background = ctx.settings.values.cluster6wbAvailable === true && ctx.settings.get('regenCluster') === true;
+                        const result = await managed.poll(pageVisible, background);
+                        if (result.identity) {
+                            ddeIndex = result.identity; profile = ddeProfiles.forDde(ddeIndex); identified = !!profile;
+                            diagnostic.source = 'Data Tool'; diagnostic.tool = 'Responding'; diagnostic.identification = 'Identified';
+                            for (const key of Object.keys(readings)) {
+                                if (['REQUEST','MODE','LOCK'].includes(key) && !result.readings[key]) delete readings[key];
+                            }
+                            for (const key of Object.keys(result.readings)) {
+                                const row = result.readings[key];
+                                if (!readings[key] || readings[key].at !== row.at) {
+                                    readings[key] = row; diagnostic.reads++;
+                                    if (key === 'SINCE') distanceHistory.observe(ddeProfiles.km(row, profile.distanceFactor));
+                                }
+                            }
+                            diagnostic.lastRead = Object.keys(result.readings).length ? 'Responding' : 'No response';
+                            diagnostic.lastIssue = 'None';
+                            if (pageVisible) {readAttempted = true; detailReadAttempted = true;}
+                        } else if (result.error) {
+                            diagnostic.tool = 'Unavailable'; diagnostic.lastIssue = 'Data Tool request failed';
+                            for (const key of Object.keys(readings)) delete readings[key];
+                        }
+                    } finally {managedBusy = false;}
+                    continue;
+                }
+                if (lastManaged) {
+                    managed.close(); lastManaged = false; identified = false; profile = null;
+                    for (const key of Object.keys(readings)) delete readings[key];
+                    readAttempted = false; detailReadAttempted = false;
+                }
                 if (testing || (!pageVisible && !clusterActive)) continue;
                 if (!identified) await identify();
                 if (!identified) continue;
