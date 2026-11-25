@@ -18,3 +18,6 @@ Only KOMBI notification actions enabled; no arbitrary shell, actuator or vehicle
 
 
 v0.1.3: CDS fields use decoded engineering values (e.g. engine.oilTemperature in °C); DPF comparisons retain raw numeric values. Independent demand sessions are combined for rule evaluation; unavailable scope does not suppress rules using valid samples from another scope.
+
+
+v0.1.4: optional `rearm` condition for rising triggers. Once fired, the rule remains latched until a valid sample satisfies rearm; invalid data never re-arms. Existing rules without rearm are unchanged.

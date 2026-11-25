@@ -18,6 +18,7 @@ jobs:
           node --check apps/osa-dev/main.js
           node --check apps/osa-dev/managed-data.js
           node apps/osa-dev/managed-data.test.js
+          node apps/osa-dev/background-registration.test.js
           node apps/osa-dev/oil-notification.test.js
           node apps/osa-dev/test-oil-notification-delivery.js
           node -e "const a=require('./apps/osa-dev/app.json'),assert=require('assert'); assert.equal(a.id,'osa-dev'); assert.equal(a.loggingId,'OSAD'); assert.equal(a.requires['bmrmodz-data-tool'],'0.1.60');"

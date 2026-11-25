@@ -3,6 +3,7 @@
 // English display labels map to their localized equivalents.
 module.exports = {
   "de": {
+    "Background oil temperature notifications": "Öltemperaturmeldungen im Hintergrund",
     "Data Tool integration": "Data-Tool-Integration",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-Abkühlung · auf 30°C",
@@ -156,6 +157,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zuverlässige Benachrichtigung bei erreichter Öltemperatur"
   },
   "es": {
+    "Background oil temperature notifications": "Avisos de temperatura del aceite en segundo plano",
     "Data Tool integration": "Integración de Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Enfriamiento del ATF · a 30°c",
@@ -309,6 +311,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificación fiable al alcanzar la temperatura del aceite"
   },
   "fr": {
+    "Background oil temperature notifications": "Notifications de température d’huile en arrière-plan",
     "Data Tool integration": "Intégration de Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Refroidissement de l'ATF · à 30°c",
@@ -462,6 +465,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notification fiable lorsque l’huile atteint sa température"
   },
   "hu": {
+    "Background oil temperature notifications": "Olajhőmérséklet-értesítések a háttérben",
     "Data Tool integration": "Data Tool integráció",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF lehűtés · 30°C-ra",
@@ -615,6 +619,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Megbízható értesítés az olaj célhőmérsékletének elérésekor"
   },
   "pl": {
+    "Background oil temperature notifications": "Powiadomienia o temperaturze oleju w tle",
     "Data Tool integration": "Integracja Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Schładzanie ATF · do 30°c",
@@ -768,6 +773,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Niezawodne powiadomienie po osiągnięciu temperatury oleju"
   },
   "sk": {
+    "Background oil temperature notifications": "Upozornenia na teplotu oleja na pozadí",
     "Data Tool integration": "Integrácia Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Chladnutie ATF na 30 °C",
@@ -921,6 +927,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spoľahlivé upozornenie pri dosiahnutí teploty oleja"
   },
   "cs": {
+    "Background oil temperature notifications": "Upozornění na teplotu oleje na pozadí",
     "Data Tool integration": "Integrace Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Chlazení ATF · na 30°C",
@@ -1074,6 +1081,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spolehlivé upozornění při dosažení teploty oleje"
   },
   "it": {
+    "Background oil temperature notifications": "Notifiche della temperatura dell’olio in background",
     "Data Tool integration": "Integrazione di Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Raffreddamento ATF · a 30°C",
@@ -1227,6 +1235,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notifica affidabile al raggiungimento della temperatura dell’olio"
   },
   "ru": {
+    "Background oil temperature notifications": "Фоновые уведомления о температуре масла",
     "Data Tool integration": "Интеграция Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Охлаждение ATF · до 30°c",
@@ -1380,6 +1389,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Надёжное уведомление при достижении температуры масла"
   },
   "da": {
+    "Background oil temperature notifications": "Beskeder om olietemperatur i baggrunden",
     "Data Tool integration": "Integration af Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-afkøling · til 30°c",
@@ -1533,6 +1543,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålidelig besked, når olietemperaturen er nået"
   },
   "el": {
+    "Background oil temperature notifications": "Ειδοποιήσεις θερμοκρασίας λαδιού στο παρασκήνιο",
     "Data Tool integration": "Ενσωμάτωση Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF ψύξη · στους 30°c",
@@ -1686,6 +1697,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Αξιόπιστη ειδοποίηση όταν το λάδι φτάσει στη θερμοκρασία στόχο"
   },
   "zh-CN": {
+    "Background oil temperature notifications": "后台机油温度通知",
     "Data Tool integration": "集成 Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF 冷却至 30°c",
@@ -1839,6 +1851,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "可靠的机油温度达标通知"
   },
   "nl": {
+    "Background oil temperature notifications": "Olietemperatuurmeldingen op de achtergrond",
     "Data Tool integration": "Integratie van Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-afkoeling · tot 30°C",
@@ -1992,6 +2005,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Betrouwbare melding bij het bereiken van de olietemperatuur"
   },
   "nb": {
+    "Background oil temperature notifications": "Oljetemperaturvarsler i bakgrunnen",
     "Data Tool integration": "Integrasjon av Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF nedkjøling · til 30°c",
@@ -2145,6 +2159,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålitelig varsel når oljen når måltemperaturen"
   },
   "pt": {
+    "Background oil temperature notifications": "Notificações de temperatura do óleo em segundo plano",
     "Data Tool integration": "Integração do Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Resfriamento do ATF · até 30°c",
@@ -2298,6 +2313,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificação fiável ao atingir a temperatura do óleo"
   },
   "ro": {
+    "Background oil temperature notifications": "Notificări de temperatură a uleiului în fundal",
     "Data Tool integration": "Integrare Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Răcire ATF · la 30°c",
@@ -2451,6 +2467,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificare fiabilă la atingerea temperaturii uleiului"
   },
   "sl": {
+    "Background oil temperature notifications": "Obvestila o temperaturi olja v ozadju",
     "Data Tool integration": "Integracija Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Hlajenje ATF · na 30°c",
@@ -2604,6 +2621,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zanesljivo obvestilo ob doseženi temperaturi olja"
   },
   "fi": {
+    "Background oil temperature notifications": "Öljyn lämpötilailmoitukset taustalla",
     "Data Tool integration": "Data Tool -integraatio",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-jäähdytys · 30°c:een",
@@ -2757,6 +2775,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Luotettava ilmoitus öljyn tavoitelämpötilan saavuttamisesta"
   },
   "sv": {
+    "Background oil temperature notifications": "Oljetemperaturaviseringar i bakgrunden",
     "Data Tool integration": "Integration av Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF nedkylning · till 30°c",
@@ -2910,6 +2929,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Tillförlitligt meddelande när oljan når måltemperaturen"
   },
   "tr": {
+    "Background oil temperature notifications": "Arka planda yağ sıcaklığı bildirimleri",
     "Data Tool integration": "Data Tool entegrasyonu",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF soğuması · 30°c'ye kadar",
@@ -3063,6 +3083,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Yağ hedef sıcaklığına ulaştığında güvenilir bildirim"
   },
   "uk": {
+    "Background oil temperature notifications": "Фонові сповіщення про температуру оливи",
     "Data Tool integration": "Інтеграція Data Tool",
     "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Охолодження ATF · до 30°c",

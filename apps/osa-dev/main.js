@@ -191,6 +191,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.2.65', 'Background oil temperature notifications'],
                 ['0.2.64', 'Data Tool integration'],
                 ['0.2.63', 'Reliable oil temperature reached notification'],
                 ['0.2.61', 'Changed cluster notification preview from toggle to Run action'],
@@ -385,17 +386,12 @@ mgu.run({
             // Manual preview is independent of live engine temperature.
             oilNotification.show(log, getLanguage(), oilWarmTarget(), 'preview');
         });
-        // The warm-up state machine runs only with output enabled and available data.
-        // The tool handles rendering without waiting for an OSA-owned renderer socket.
-        oilNotification.start(log, () => {
-            const { demo, oil } = car.data();
-            return {
-                enabled: !demo && ctx.settings.get('oilCluster') === true,
-                demo,
-                oil: G.isNum(oil) ? oil : null,
-                target: oilWarmTarget()
-            };
-        }, getLanguage);
+        const background = require('./background-registration');
+        background.start(log, () => ({
+            enabled: ctx.settings.get('oilCluster') === true,
+            target: oilWarmTarget(),
+            language: getLanguage()
+        }), ctx.settings);
         const hist = [];
         let lastHist = 0;
         // Keep the calculated heating rate stable between samples. The display
