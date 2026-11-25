@@ -54,7 +54,7 @@ function createApi(options){
  return {connect,tick,close(){closed=true;for(const token of sessions.keys())disconnect(token);scheduler.close();},status(){prune();return {sessions:sessions.size,scheduler:scheduler.status()};}};
 }
 // CDS scope uses the same service-owned engine and raw signal cache.
-const CDS=Object.freeze({'engine.oilTemperature':'oil','engine.coolantTemperature':'coolant','engine.rpm':'rpm'});
+const CDS=Object.freeze({'engine.oilTemperature':'oil','engine.coolantTemperature':'coolant','engine.rpm':'rpm','vehicle.speed':'speed','environment.outsideTemperature':'outside'});
 function createCdsApi(options){
  const engine=options.cdsEngine,now=options.now||Date.now,sessions=new Map();
  const {DEFINITIONS,decodeCds}=require('./data-catalog');
@@ -91,7 +91,7 @@ function createCdsApi(options){
    const fields=req.fields,fresh=req.freshnessMs;
    if(!Array.isArray(fields)||!fields.length||new Set(fields).size!==fields.length||!fresh||typeof fresh!=='object'||Array.isArray(fresh)||Object.keys(fresh).length!==fields.length||fields.some(k=>!Object.prototype.hasOwnProperty.call(CDS,k)||!Object.prototype.hasOwnProperty.call(fresh,k)||!Number.isInteger(fresh[k])||fresh[k]<1000||fresh[k]>LIMITS.maxFreshnessMs))return fail('INVALID_DEMAND');
    const expiry=now()+LIMITS.leaseMs;
-   if(!engine.demandPublic(id,expiry))return fail('CDS_UNAVAILABLE');
+   if(!engine.demandPublic(id,expiry,fields.map(k=>CDS[k])))return fail('CDS_UNAVAILABLE');
    s.fields=fields.slice();s.fresh=Object.assign(Object.create(null),fresh);s.expires=expiry;
    return {ok:true,accepted:fields.length,leaseMs:LIMITS.leaseMs};
   },close:()=>disconnect(id)};

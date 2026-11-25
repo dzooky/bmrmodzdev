@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.73 — OSA signal validation
+- Reconciled PR #98 (CI PASS) with autonomous BC notification test from PR #99. Five CDS signals and DPF reference test; vehicle validation pending.
+
+
 ## v0.1.72 — autonomous notification test
 - v0.1.71 confirmed NT 0.2.1 in car after reinstall, 2/2 accepted/submitted, no errors, self-test PASS, 6/6 dependencies, both messages and blinking confirmed. BC restoration not separately verified.
 - BT 0.1.1 status adds actual version, arming delay, service countdown and notification acceptance/error. Existing manual NT test remains intact. CI and autonomous vehicle test pending.
