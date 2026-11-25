@@ -1,7 +1,7 @@
 'use strict';
 // Node-compatible local client. One outstanding request; reconnect explicitly.
 const net=require('net');
-function connect(appId,path){
+function connect(appId,path,scope){
  const socket=net.createConnection(path||'/run/bmrmodz-data-tool/ctl.sock');
  let pending=null,buffer='',closed=false;
  function close(){closed=true;socket.destroy();if(pending){const p=pending;pending=null;clearTimeout(p.timer);p.reject(Error('API disconnected'));}}
@@ -19,7 +19,7 @@ function connect(appId,path){
   pending={resolve,reject,timer:setTimeout(close,15000)};
   socket.write(JSON.stringify(msg)+String.fromCharCode(10));
  });}
- return send({op:'apiHello',api:1,appId}).then(reply=>{
+ return send(scope==='cds'?{op:'apiHello',api:1,appId,scope}:{op:'apiHello',api:1,appId}).then(reply=>{
   if(!reply.ok){close();throw Error(reply.error);}
   return {request:request=>send({op:'apiRequest',request}),close};
  },e=>{close();throw e;});

@@ -1,8 +1,12 @@
 # Data Tool progress
 
+## 2026-11-25 — 0.1.58 selective signal groups
+- Public CDS scope adds speed and outside temperature with original OSA scaling. Demand selects physical signal groups; engine temperature is one shared signal. New interface configs generated only on explicit diagnostics request in separate generator-osa staging; no ACL registration or overwrite of existing config. Group changes restart the shared worker; vehicle impact and new proxy access unverified. DPF UDS scheduler unchanged. CI pending.
+
+
 ## 2026-11-25 — 0.1.57 public CDS scope
 - Added opt-in CDS API scope independent of DDE identification; existing DPF API and scheduler retained. Shared CDS engine, session leases, filtered snapshots, raw and decoded values with 3x requested validity.
-- Existing worker still subscribes to both CDS groups at its original cadence; physical selective subscription and mixed CDS/UDS session are deferred. No OSA consumer migration yet. CI and vehicle verification pending.
+- Existing worker still subscribes to both CDS groups at its original cadence; physical selective subscription and mixed CDS/UDS session are deferred. No OSA consumer migration yet. PR #93 merged d50cf7b5; PR and main CI PASS. Vehicle verification pending.
 
 
 ## 2026-11-25 — DEV release candidate DPF 0.1.81 / Tool 0.1.56

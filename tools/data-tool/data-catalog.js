@@ -16,7 +16,9 @@ const DEFINITIONS=Object.freeze({
  'climate.rearRightFootwell':{source:'uds',ecu:0x78,did:0xD8D7,profile:'ihka',index:12,unit:'C'},
  'engine.oilTemperature':{source:'cds',field:'oil',unit:'C',factor:1,offset:-48,invalid:255},
  'engine.coolantTemperature':{source:'cds',field:'coolant',unit:'C',factor:1,offset:-48,invalid:255},
- 'engine.rpm':{source:'cds',field:'rpm',unit:'rpm',factor:0.25,offset:0,invalid:65535}
+ 'engine.rpm':{source:'cds',field:'rpm',unit:'rpm',factor:0.25,offset:0,invalid:65535},
+ 'vehicle.speed':{source:'cds',field:'speed',unit:'km/h',factor:0.015625,offset:0,invalid:65535},
+ 'environment.outsideTemperature':{source:'cds',field:'outside',unit:'C',factor:0.5,offset:-40,invalid:255}
 });
 function decode(reply,definition,identity){
  if(!reply||reply.ok!==true||!Array.isArray(reply.uds))return null;
@@ -55,7 +57,7 @@ function decodeIdentity(reply,ecu){
    ecu===0x18?(id==='0F25D0'?id:null):null;
 }
 function decodeCds(value,definition){
- if(!Number.isInteger(value)||value<0||value>65535||value===definition.invalid)return null;
+ if(!Number.isInteger(value)||value<0||value>definition.invalid||value===definition.invalid)return null;
  return {value:value*definition.factor+definition.offset,unit:definition.unit};
 }
 function describe(){
