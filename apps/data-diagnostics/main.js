@@ -180,9 +180,9 @@ mgu.run({
    if(extra)label(cv,extra,1540,93,18,theme.dim,{align:'right'});
   }
   function drawInfo(cv,theme){
-   header(cv,theme,'BMRMODZ DATA TOOL','0.1.64 / '+word('Read-only'));
+   header(cv,theme,'BMRMODZ DATA TOOL','0.1.65 / '+word('Read-only'));
    G.panel(cv,theme,24,115,1552,380,null);
-   label(cv,word("What's New")+' 0.1.64 — '+word('API background test'),800,155,16,theme.dim,{align:'center'});
+   label(cv,word("What's New")+' 0.1.65 — '+word('API first sample timing'),800,155,16,theme.dim,{align:'center'});
    // Exact required development notice on three lines.
    DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*40,i===0?22:23,theme.text,{align:'center'}));
    label(cv,word('Read-only diagnostic test'),800,365,27,theme.accent2,{align:'center',font:'bold'});
@@ -232,8 +232,8 @@ mgu.run({
    if(apiResult){
     label(cv,word(apiResult.ok?'API test PASS':'API test FAIL')+' / '+(apiResult.engine||word('Unknown')),800,335,25,apiResult.ok?theme.ok:theme.crit,{align:'center'});
     const rows=[['API connection','connection'],['API limits','limits'],['Shared cache','shared'],['Automatic acquisition','automatic'],['Demand released','released']];
-    rows.forEach(([name,key],i)=>{const x=i<3?80:850,y=375+(i%3)*35;label(cv,word(name),x,y,21,theme.text);label(cv,word(apiResult[key]?'PASS':'FAIL'),x+420,y,21,apiResult[key]?theme.ok:theme.crit);});
-    if(apiResult.error)label(cv,apiResult.error,800,489,17,theme.warn,{align:'center'});
+    rows.forEach(([name,key],i)=>{const x=i<3?80:850,y=375+(i%3)*35;label(cv,word(name),x,y,21,theme.text);label(cv,word(apiResult[key]===null?'SKIP':apiResult[key]?'PASS':'FAIL'),x+420,y,21,apiResult[key]===null?theme.dim:apiResult[key]?theme.ok:theme.crit);});
+    label(cv,word('First valid sample')+': '+(apiResult.firstSampleMs===null?'—':(apiResult.firstSampleMs/1000).toFixed(2)+' s')+(apiResult.error?' / '+apiResult.error:''),800,489,17,apiResult.error?theme.warn:theme.text,{align:'center'});
    }else if(cacheResult&&cacheResult.profile){
     const p=cacheResult.profile,rows=Array.isArray(p.fields)?p.fields.slice(0,12):[];
     label(cv,word(cacheResult.ok?'Cache test PASS':'Cache test FAIL')+' / '+word(cacheResult.scheduler?'Scheduler test PASS':'Scheduler test FAIL'),800,162,22,cacheResult.ok&&cacheResult.scheduler?theme.ok:theme.crit,{align:'center'});

@@ -281,7 +281,9 @@ const catalogs={
     "API limits": "API limits",
     "Shared cache": "Shared cache",
     "Automatic acquisition": "Automatic acquisition",
-    "Demand released": "Demand released"
+    "Demand released": "Demand released",
+    "First valid sample": "First valid sample",
+    "API first sample timing": "API first sample timing"
   }
 };
 function t(language,key){return catalogs.en[key]||key;}
