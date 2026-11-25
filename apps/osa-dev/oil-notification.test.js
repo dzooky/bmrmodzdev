@@ -74,7 +74,11 @@ async function run() {
     assert.strictEqual(calls.length,3,'Manual preview does not require live temperature data');
     const app=JSON.parse(fs.readFileSync(__dirname + '/app.json','utf8'));
     const main=fs.readFileSync(__dirname + '/main.js','utf8');
-    assert.strictEqual(app.version,'0.2.63');
+    assert.strictEqual(app.version,'0.2.64');
+    assert.strictEqual(app.requires['bmrmodz-data-tool'],'0.1.60');
+    assert(!main.includes("require('./kit/car')"));
+    assert(!main.includes("require('./transmission')"));
+    assert.strictEqual(Object.keys(app.signals).length,1);
     assert.strictEqual(app.requires['bmrmodz-notification'],'0.1.1');
     assert(!app.settings.some(s=>s.key==='clusterLowerTest'||s.key==='clusterPassiveTest'));
     assert(!main.includes('turboIconPreview'));
@@ -92,6 +96,7 @@ async function run() {
     const settingLanguages = app.settings.find(s=>s.key==='language').options
         .map(([key])=>key).filter(key=>key!=='en'&&key!=='auto');
     const labels = [
+        'Data Tool integration',
         'Show notification message',
         'Run',
         'Changed cluster notification preview from toggle to Run action',

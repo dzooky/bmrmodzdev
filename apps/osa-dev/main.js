@@ -3,17 +3,14 @@
 /**
  * Oil Service Assistant
  *
- * Engine oil temperature comes from BMW's native CDS vehicle signal.
- * Transmission oil temperature is read from the verified EGS variant using
- * the shared read-only diagnostic transport.
+ * All live vehicle values are supplied by the shared Data Tool.
  */
 const mgu = require('./kit/mgu');
 const G = require('./kit/gauges');
-const Car = require('./kit/car');
+const managedData = require('./managed-data');
 const Language = require('./language');
 const { t: translate } = require('./kit/i18n');
 const { withAlpha } = require('./kit/canvas');
-const TransmissionReader = require('./transmission');
 const CarEquipment = require('./kit/car-equipment');
 const createSettingsCanvas = require('./kit/settings-canvas');
 const oilNotification = require('./oil-notification');
@@ -194,6 +191,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.2.64', 'Data Tool integration'],
                 ['0.2.63', 'Reliable oil temperature reached notification'],
                 ['0.2.61', 'Changed cluster notification preview from toggle to Run action'],
                 ['0.2.60', 'Migrated KOMBI oil notifications to the shared Notification Tool'],
@@ -285,7 +283,7 @@ mgu.run({
         let atfCoolSession = pendingCool;
         const updateAtfHistory = (d) => {
             const running = G.isNum(d.rpm) ? d.rpm >= ENGINE_RUNNING_RPM : null;
-            const atf = transmission.fresh ? transmission.temp : null;
+            const atf = d.atf;
             const now = Date.now();
             if (running === null) return;
             if (running) {
@@ -296,7 +294,7 @@ mgu.run({
                     saveHistory();
                 }
                 if (!atfWarmSession && G.isNum(atf) && atf < 30) {
-                    atfWarmSession = { start: mono(), startTemp: atf, outside: G.isNum(outsideTemp) ? outsideTemp : null };
+                    atfWarmSession = { start: mono(), startTemp: atf, outside: G.isNum(d.outside) ? d.outside : null };
                 }
                 if (atfWarmSession && G.isNum(atf) && atf >= 30) {
                     atfHistory.push({ kind: 'atf-warm', at: now, outside: atfWarmSession.outside,
@@ -356,10 +354,10 @@ mgu.run({
                 // Without this guard the next render dereferences warmSession=null.
                 if (sessionDone) return;
                 if (!warmSession) {
-                    if (!G.isNum(d.oil) || !G.isNum(d.coolant) || !G.isNum(outsideTemp)) return;
-                    warmSession = { start: now, outside: outsideTemp, oilStart: d.oil, coolantStart: d.coolant,
+                    if (!G.isNum(d.oil) || !G.isNum(d.coolant) || !G.isNum(d.outside)) return;
+                    warmSession = { start: now, outside: d.outside, oilStart: d.oil, coolantStart: d.coolant,
                         oilTarget, coolantTarget, oilAt: null, coolantAt: null };
-                    currentStart = { outside: outsideTemp, oilStart: d.oil, coolantStart: d.coolant };
+                    currentStart = { outside: d.outside, oilStart: d.oil, coolantStart: d.coolant };
                 }
                 if (warmSession.oilAt === null && G.isNum(d.oil) && d.oil >= warmSession.oilTarget) warmSession.oilAt = (now - warmSession.start) / 60000;
                 if (warmSession.coolantAt === null && G.isNum(d.coolant) && d.coolant >= warmSession.coolantTarget) warmSession.coolantAt = (now - warmSession.start) / 60000;
@@ -380,7 +378,7 @@ mgu.run({
             }
         };
         const mono = () => { const h = process.hrtime(); return h[0] * 1000 + h[1] / 1e6; };
-        const car = new Car(ctx, ['rpm', 'speed', 'temps']);
+        const car = managedData.create();
         const oilWarmTarget = () => Number(ctx.settings.get('warmOil')) || 80;
         // Preview is a user-requested display sample; no oil temperature or DDE is needed.
         ctx.settings.onAction('clusterBcTest', () => {
@@ -398,18 +396,6 @@ mgu.run({
                 target: oilWarmTarget()
             };
         }, getLanguage);
-        const transmission = new TransmissionReader(ctx);
-        let outsideTemp = null;
-        ctx.signals.watch('de.bmw.infrastructure.EnvironmentalInformation', '1', {
-            ExteriorTemperature: (v) => {
-                const raw = v && v.temperatureExterior;
-                outsideTemp = typeof raw === 'number' && isFinite(raw) && raw !== 255
-                    ? raw * 0.5 - 40 : null;
-            }
-        }, log).then((sub) => {
-            if (sub.error) log.warn('OSA outside temperature: ' + sub.error);
-        });
-
         const hist = [];
         let lastHist = 0;
         // Keep the calculated heating rate stable between samples. The display
@@ -546,17 +532,16 @@ mgu.run({
                     align: 'center', font: 'bold', spacing: 2
                 });
                 cv.text('OUTSIDE TEMPERATURE', 952, 170, 22, t.dim, { font: 'bold', spacing: 1.5 });
-                const outsideText = G.isNum(outsideTemp) ? ((outsideTemp > 0 ? '+' : '') + outsideTemp.toFixed(1)) : '--';
-                cv.text(outsideText, 952, 225, 42, G.isNum(outsideTemp) ? t.text : t.dim, { font: 'num' });
+                const outsideText = G.isNum(d.outside) ? ((d.outside > 0 ? '+' : '') + d.outside.toFixed(1)) : '--';
+                cv.text(outsideText, 952, 225, 42, G.isNum(d.outside) ? t.text : t.dim, { font: 'num' });
                 cv.text('°C', 1045, 225, 25, t.dim);
                 etaRow(cv, t, 270, 'OIL READY IN', eta('oil', d.oil, oilTarget, d), oilTarget, historical ? historical.oil : null);
                 etaRow(cv, t, 370, 'COOLANT READY IN', eta('coolant', d.coolant, coolantTarget, d), coolantTarget, historical ? historical.coolant : null);
-                cv.text('BMW native vehicle signals · CDS / EnvironmentalInformation', 952, 475, 17, t.dim);
+                cv.text('Data Tool', 952, 475, 17, t.dim);
             } else if (page === 1) {
-                const live = transmission.fresh;
-                const value = live ? transmission.temp : null;
-                const status = live ? 'LIVE' :
-                    transmission.statusText === 'LIVE' ? 'LINK STALE' : transmission.statusText.replace('IDENTIFIED · 0F25D0', translate('Identified') + ' · 0F25D0');
+                const live = G.isNum(d.atf);
+                const value = live ? d.atf : null;
+                const status = live ? 'LIVE' : 'WAITING FOR DATA';
                 const statusColor = live ? t.ok : t.dim;
 
                 // Match the Engine oil page layout; only the data source and
@@ -612,7 +597,7 @@ mgu.run({
                     cv.text('HEAT <30°C  ·  COOL >40°C + ENGINE OFF', 952, 385, 20, t.dim);
                 }
                 cv.text('One service mode at a time · HEAT / COOL', 952, 445, 18, t.dim);
-                if (transmission.error) fitText(cv, transmission.error, 952, 475, 17, t.warn, 590);
+                cv.text('Data Tool', 952, 475, 17, t.dim);
             } else if (page === 2) {
                 G.panel(cv, t, 24, 44, 1552, 468, null);
                 const statsHistory = history.filter((x) => x.oilTarget === oilTarget && x.coolantTarget === coolantTarget);
@@ -680,10 +665,12 @@ mgu.run({
 
         ui.onVisible((name, on) => {
             if (name === 'MAIN' && on) refreshClusterEquipment().catch(error => log.warn('OSA Car Equipment: ' + error));
-            if (name === 'MAIN') transmission.setVisible(on);
+            if (name === 'MAIN') car.setVisible(on);
         });
-        transmission.setVisible(ui.isVisible('MAIN'));
-        transmission.init().catch((e) => log.warn('OSA diagnostic link: ' + e));
+        car.setVisible(ui.isVisible('MAIN'));
+        const dataTimer = setInterval(() => car.poll(), 250);
+        dataTimer.unref();
+        car.poll();
 
         ctx.loop('MAIN', 4, render);
         render()

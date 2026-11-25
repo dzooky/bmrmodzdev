@@ -3,6 +3,8 @@
 // English display labels map to their localized equivalents.
 module.exports = {
   "de": {
+    "Data Tool integration": "Data-Tool-Integration",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-Abkühlung · auf 30°C",
     "ATF HEAT-UP · TO 30°C": "ATF-Erwärmung · auf 30°C",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Die ATF-Aufwärmphase beginnt unter 30 °C; Die Abkühlung beginnt nach dem Abstellen des Motors über 40 °C.",
@@ -154,6 +156,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zuverlässige Benachrichtigung bei erreichter Öltemperatur"
   },
   "es": {
+    "Data Tool integration": "Integración de Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Enfriamiento del ATF · a 30°c",
     "ATF HEAT-UP · TO 30°C": "Calentamiento del ATF · a 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "El calentamiento del ATF comienza por debajo de 30°C; El enfriamiento comienza por encima de 40°C después de detener el motor.",
@@ -305,6 +309,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificación fiable al alcanzar la temperatura del aceite"
   },
   "fr": {
+    "Data Tool integration": "Intégration de Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Refroidissement de l'ATF · à 30°c",
     "ATF HEAT-UP · TO 30°C": "Réchauffement de l'ATF · à 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "L'échauffement de l'ATF commence en dessous de 30°C ; le refroidissement commence au-dessus de 40°C après l'arrêt du moteur.",
@@ -456,6 +462,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notification fiable lorsque l’huile atteint sa température"
   },
   "hu": {
+    "Data Tool integration": "Data Tool integráció",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF lehűtés · 30°C-ra",
     "ATF HEAT-UP · TO 30°C": "ATF felfűtés · 30°c-ra",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Az ATF bemelegítése 30°C alatt kezdődik; a lehűlés a motor leállítása után 40°C felett kezdődik.",
@@ -607,6 +615,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Megbízható értesítés az olaj célhőmérsékletének elérésekor"
   },
   "pl": {
+    "Data Tool integration": "Integracja Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Schładzanie ATF · do 30°c",
     "ATF HEAT-UP · TO 30°C": "Rozgrzewanie ATF · do 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Rozgrzewanie ATF rozpoczyna się poniżej 30°C; schładzanie rozpoczyna się powyżej 40°C po wyłączeniu silnika.",
@@ -758,6 +768,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Niezawodne powiadomienie po osiągnięciu temperatury oleju"
   },
   "sk": {
+    "Data Tool integration": "Integrácia Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Chladnutie ATF na 30 °C",
     "ATF HEAT-UP · TO 30°C": "Zohrievanie ATF na 30 °C",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Zahrievanie ATF začína pod 30 °C; ochladzovanie začína nad 40°C po zastavení motora.",
@@ -909,6 +921,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spoľahlivé upozornenie pri dosiahnutí teploty oleja"
   },
   "cs": {
+    "Data Tool integration": "Integrace Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Chlazení ATF · na 30°C",
     "ATF HEAT-UP · TO 30°C": "Zahřívání ATF · na 30°C",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Zahřívání ATF začíná pod 30 °C; ochlazování začíná nad 40°C po zastavení motoru.",
@@ -1060,6 +1074,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spolehlivé upozornění při dosažení teploty oleje"
   },
   "it": {
+    "Data Tool integration": "Integrazione di Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Raffreddamento ATF · a 30°C",
     "ATF HEAT-UP · TO 30°C": "Riscaldamento ATF · a 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Il riscaldamento dell'ATF inizia sotto i 30°C; il raffreddamento inizia sopra i 40°C dopo l'arresto del motore.",
@@ -1211,6 +1227,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notifica affidabile al raggiungimento della temperatura dell’olio"
   },
   "ru": {
+    "Data Tool integration": "Интеграция Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Охлаждение ATF · до 30°c",
     "ATF HEAT-UP · TO 30°C": "Нагрев ATF · до 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Прогрев ATF начинается при температуре ниже 30°C; Охлаждение начинается при температуре выше 40°C после остановки двигателя.",
@@ -1362,6 +1380,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Надёжное уведомление при достижении температуры масла"
   },
   "da": {
+    "Data Tool integration": "Integration af Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-afkøling · til 30°c",
     "ATF HEAT-UP · TO 30°C": "ATF-opvarmning · til 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF-opvarmning starter under 30°C; nedkøling starter over 40°C efter motorstop.",
@@ -1513,6 +1533,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålidelig besked, når olietemperaturen er nået"
   },
   "el": {
+    "Data Tool integration": "Ενσωμάτωση Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF ψύξη · στους 30°c",
     "ATF HEAT-UP · TO 30°C": "Προθέρμανση ATF · έως 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Η προθέρμανση ATF ξεκινά κάτω από τους 30°C. η ψύξη ξεκινά πάνω από 40°C μετά το σταμάτημα του κινητήρα.",
@@ -1664,6 +1686,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Αξιόπιστη ειδοποίηση όταν το λάδι φτάσει στη θερμοκρασία στόχο"
   },
   "zh-CN": {
+    "Data Tool integration": "集成 Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF 冷却至 30°c",
     "ATF HEAT-UP · TO 30°C": "ATF 加热·至 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF 预热在低于 30°C 时开始；发动机停止后，温度高于 40°C 时开始冷却。",
@@ -1815,6 +1839,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "可靠的机油温度达标通知"
   },
   "nl": {
+    "Data Tool integration": "Integratie van Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-afkoeling · tot 30°C",
     "ATF HEAT-UP · TO 30°C": "ATF opwarming · tot 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF-opwarming begint onder de 30°C; het afkoelen begint boven 40°C na het stoppen van de motor.",
@@ -1966,6 +1992,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Betrouwbare melding bij het bereiken van de olietemperatuur"
   },
   "nb": {
+    "Data Tool integration": "Integrasjon av Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF nedkjøling · til 30°c",
     "ATF HEAT-UP · TO 30°C": "ATF oppvarming · til 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF-oppvarming starter under 30°C; nedkjøling starter over 40°C etter motorstopp.",
@@ -2117,6 +2145,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålitelig varsel når oljen når måltemperaturen"
   },
   "pt": {
+    "Data Tool integration": "Integração do Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Resfriamento do ATF · até 30°c",
     "ATF HEAT-UP · TO 30°C": "Aquecimento do ATF · até 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "O aquecimento do ATF começa abaixo de 30°C; o resfriamento começa acima de 40°C após a parada do motor.",
@@ -2268,6 +2298,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificação fiável ao atingir a temperatura do óleo"
   },
   "ro": {
+    "Data Tool integration": "Integrare Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Răcire ATF · la 30°c",
     "ATF HEAT-UP · TO 30°C": "Încălzire ATF · la 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Încălzirea ATF începe sub 30°C; răcirea începe la peste 40°C după oprirea motorului.",
@@ -2419,6 +2451,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificare fiabilă la atingerea temperaturii uleiului"
   },
   "sl": {
+    "Data Tool integration": "Integracija Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Hlajenje ATF · na 30°c",
     "ATF HEAT-UP · TO 30°C": "ATF segrevanje · na 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Ogrevanje ATF se začne pod 30 °C; ohlajanje se začne nad 40 °C po zaustavitvi motorja.",
@@ -2570,6 +2604,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zanesljivo obvestilo ob doseženi temperaturi olja"
   },
   "fi": {
+    "Data Tool integration": "Data Tool -integraatio",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF-jäähdytys · 30°c:een",
     "ATF HEAT-UP · TO 30°C": "ATF-lämmitys · 30°c:een",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF:n lämpeneminen alkaa alle 30°C; jäähdytys alkaa yli 40°C:ssa moottorin sammutuksen jälkeen.",
@@ -2721,6 +2757,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Luotettava ilmoitus öljyn tavoitelämpötilan saavuttamisesta"
   },
   "sv": {
+    "Data Tool integration": "Integration av Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF nedkylning · till 30°c",
     "ATF HEAT-UP · TO 30°C": "ATF uppvärmning · till 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF-uppvärmning börjar under 30°C; nedkylningen startar över 40°C efter motorstopp.",
@@ -2872,6 +2910,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Tillförlitligt meddelande när oljan når måltemperaturen"
   },
   "tr": {
+    "Data Tool integration": "Data Tool entegrasyonu",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "ATF soğuması · 30°c'ye kadar",
     "ATF HEAT-UP · TO 30°C": "ATF ısınması · 30°c'ye kadar",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "ATF ısınması 30°C'nin altında başlar; Motor durduktan sonra 40°C'nin üzerinde soğuma başlar.",
@@ -3023,6 +3063,8 @@ module.exports = {
     "Reliable oil temperature reached notification": "Yağ hedef sıcaklığına ulaştığında güvenilir bildirim"
   },
   "uk": {
+    "Data Tool integration": "Інтеграція Data Tool",
+    "Data Tool": "Data Tool",
     "ATF COOL-DOWN · TO 30°C": "Охолодження ATF · до 30°c",
     "ATF HEAT-UP · TO 30°C": "Розігрів ATF · до 30°c",
     "ATF warm-up starts below 30°C; cool-down starts above 40°C after engine stop.": "Розігрів ATF починається нижче 30°C; охолодження починається вище 40°C після зупинки двигуна.",
