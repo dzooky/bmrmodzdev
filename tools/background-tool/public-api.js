@@ -15,7 +15,7 @@ function request(req,rt){
  const owner=req.appId;
  if(req.op==='register'||req.op==='update'){
   const rule=validate(req.rule);if(rule.appId!==owner)throw Error('App ID mismatch');
-  rule.actions.forEach(notification);
+  if(rule.trigger==='state'){for(const s of rule.states){s.actions.forEach(notification);if(s.repeat)s.repeat.actions.forEach(notification);}}else rule.actions.forEach(notification);
   return rt.request({api:1,op:req.op,rule},owner);
  }
  if(req.op==='unregister')return rt.request({api:1,op:req.op,ruleId:req.ruleId},owner);
