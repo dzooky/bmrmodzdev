@@ -68,7 +68,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.71');
+  header(cv,theme,'Info','0.1.72');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -86,13 +86,14 @@ mgu.run({start(ctx){
   label(cv,word('Data Tool UDS only'),800,475,18,theme.dim,{align:'center'});
  }
  function drawBackground(cv,theme){
-  const h=bgHealth;header(cv,theme,'Background Tool',word(h?'Running':'Unavailable'));
+  const h=bgHealth;header(cv,theme,'Background Tool',word(h?'Running':'Unavailable')+(h?' / '+(h.version||word('Unknown')):''));
   if(h){
-   row(cv,theme,'Rules',h.rules,170);
-   row(cv,theme,'Evaluation ticks',h.ticks,220);
-   row(cv,theme,'Test hits',h.testHits,270);
-   const remaining=h.testActive?(bgDeadline?Math.max(0,Math.ceil((bgDeadline-Date.now())/1000))+' s':word('Unknown')):'—';
-   row(cv,theme,'Remaining time',remaining,320);
+   row(cv,theme,'Rules / Evaluation ticks',h.rules+' / '+h.ticks,150);
+   row(cv,theme,'Test hits',h.testHits,190);
+   row(cv,theme,'Notification accepted',h.notificationAccepted==null?'—':h.notificationAccepted,230);
+   row(cv,theme,'Remaining time',h.testActive?(Number.isFinite(h.testRemainingMs)?Math.ceil(h.testRemainingMs/1000)+' s':word('Unknown')):'—',270);
+   row(cv,theme,'Arming delay',h.armRemainingMs>0?Math.ceil(h.armRemainingMs/1000)+' s':'—',310);
+   if(h.notificationError)label(cv,h.notificationError,800,365,20,theme.warn,{align:'center'});
   }
   button(cv,theme,word(h&&h.testActive?'Stop BT test':'Start BT test')+' '+bgMessage,bgCommandBusy);
  }
