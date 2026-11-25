@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-background-tool",
   "kind": "tool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "title": "Background Tool",
   "description": "Experimental BMRMODZ background rule evaluation service",
   "optional": true,
@@ -38,6 +38,11 @@
     {
       "path": "data-client.js",
       "from": "data-client.js",
+      "mode": "0644"
+    },
+    {
+      "path": "public-api.js",
+      "from": "public-api.js",
       "mode": "0644"
     }
   ],
