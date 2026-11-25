@@ -1,9 +1,9 @@
 {
   "id": "bmrmodz-notification",
   "kind": "tool",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "title": "Notification Tool",
-  "description": "Central transient KOMBI notifications for BMRMODZ apps. Multi-color text rendered by shared client; blink and repeats managed by HU service. BC coexistence unverified.",
+  "description": "Experimental standalone segmented KOMBI text renderer and bounded notification queue; BC coexistence unverified.",
   "optional": true,
   "uninstallable": true,
   "mguHmi": [
@@ -17,6 +17,46 @@
     {
       "path": "service.js",
       "from": "service.js",
+      "mode": "0644"
+    },
+    {
+      "path": "text-renderer.js",
+      "from": "text-renderer.js",
+      "mode": "0644"
+    },
+    {
+      "path": "canvas.js",
+      "from": "canvas.js",
+      "mode": "0644"
+    },
+    {
+      "path": "fonts.js",
+      "from": "fonts.js",
+      "mode": "0644"
+    },
+    {
+      "path": "fonts/bold.json",
+      "from": "fonts/bold.json",
+      "mode": "0644"
+    },
+    {
+      "path": "fonts/label.json",
+      "from": "fonts/label.json",
+      "mode": "0644"
+    },
+    {
+      "path": "fonts/cjk.json",
+      "from": "fonts/cjk.json",
+      "mode": "0644"
+    },
+    {
+      "path": "fonts/LICENCE-UbuntuSans.txt",
+      "from": "fonts/LICENCE-UbuntuSans.txt",
+      "mode": "0644"
+    },
+    {
+      "path": "fonts/OFL-NotoSansSC.txt",
+      "from": "fonts/OFL-NotoSansSC.txt",
       "mode": "0644"
     }
   ],
