@@ -28,9 +28,9 @@ function valid(req){
 function serve(options){
   options=options||{};
   const target=options.socket||SOCKET,renderer=options.renderer||RENDERER;
-  let active=null,closing=false;
+  let active=null,closing=false,releasing=false;
   const queue=[],seen=new Map(),stats={accepted:0,submitted:0,failed:0,expired:0};
-  function drain(){if(closing||active)return;while(queue.length){const item=queue.shift();if(item.expires<=Date.now()){stats.expired++;continue;}show(item.req,result=>{if(result.ok)stats.submitted++;else stats.failed++;},item.render);return;}}
+  function drain(){if(closing||active||releasing)return;while(queue.length){const item=queue.shift();if(item.expires<=Date.now()){stats.expired++;continue;}show(item.req,result=>{if(result.ok)stats.submitted++;else stats.failed++;},item.render);return;}}
   function enqueue(req,reply){
     if(req.api!==1||req.target!=='kombi'||typeof req.app!=='string'||!/^[a-z][a-z0-9_-]{0,31}$/.test(req.app)||typeof req.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(req.id)||!Number.isInteger(req.durationMs)||req.durationMs<500||req.durationMs>15000||!Number.isInteger(req.ttlMs)||req.ttlMs<1000||req.ttlMs>60000)return reply({ok:false,error:'Invalid text request'});
     const now=Date.now(),key=req.app+':'+req.id;for(const [k,v] of seen)if(v<=now)seen.delete(k);
@@ -41,6 +41,8 @@ function serve(options){
   }
   function release(){
     const current=active;active=null;if(!current)return;
+    releasing=true;
+    const released=()=>{releasing=false;drain();};
     current.timers.forEach(clearTimeout);
     if(!current.socket.destroyed){
       try{current.socket.write(command({op:'drop',ref:1}));current.socket.end();}
@@ -48,10 +50,10 @@ function serve(options){
       const forced=setTimeout(()=>current.socket.destroy(),1000);forced.unref();
       current.socket.once('close',()=>clearTimeout(forced));
     }
-    if(!closing)current.socket.destroyed?setImmediate(drain):current.socket.once('close',drain);
+    if(current.socket.destroyed)setImmediate(released);else current.socket.once('close',released);
   }
   function show(req,reply,render){
-    if(active)return reply({ok:false,error:'busy'});
+    if(active||releasing||(!render&&queue.length))return reply({ok:false,error:'busy'});
     const error=render?null:valid(req);if(error)return reply({ok:false,error});
     const pixels=render?render.frameAt(0):Buffer.from(req.rgba,'base64');
     if(pixels.length!==WIDTH*HEIGHT*4)return reply({ok:false,error:'Invalid decoded frame'});
@@ -61,6 +63,7 @@ function serve(options){
     function after(ms,fn){const timer=setTimeout(fn,ms);timer.unref();session.timers.push(timer);}
     function draw(data){
       if(active!==session||socket.destroyed)return;
+      if(socket.writableLength>WIDTH*HEIGHT*8||socket.bufferSize>WIDTH*HEIGHT*8){stats.failed++;release();return;}
       session.frame=(session.frame+1)>>>0;socket.write(frame(data,session.frame));
     }
     const deadline=setTimeout(()=>{
@@ -104,6 +107,7 @@ function serve(options){
   try{fs.mkdirSync(path.dirname(target));}catch(err){if(err.code!=='EEXIST')throw err;}
   try{fs.unlinkSync(target);}catch(err){if(err.code!=='ENOENT')throw err;}
   const server=net.createServer(client=>{
+    client.setTimeout(4000,()=>client.destroy());
     client.setEncoding('utf8');let buffer='',processed=false;
     client.on('data',chunk=>{
       if(processed)return;buffer+=chunk;
@@ -112,12 +116,13 @@ function serve(options){
       try{req=JSON.parse(buffer.slice(0,n));}
       catch(err){client.end(JSON.stringify({ok:false,error:'Invalid JSON'})+'\n');return;}
       const reply=value=>{if(!client.destroyed)client.end(JSON.stringify(value)+'\n');};
-      if(req&&req.op==='status')return reply({ok:true,active:!!active,target:'kombi',hudSupported:false,queued:queue.length,stats:Object.assign({},stats)});
+      if(req&&req.op==='status')return reply({ok:true,active:!!active||releasing,target:'kombi',hudSupported:false,queued:queue.length,stats:Object.assign({},stats)});
       if(req&&req.op==='showText')return enqueue(req,reply);
       show(req,reply);
     });
     client.on('error',()=>{});
   });
+  server.maxConnections=16;
   server.listen(target,()=>fs.chmodSync(target,0o666));
   function close(){
     if(closing)return;closing=true;release();server.close();
