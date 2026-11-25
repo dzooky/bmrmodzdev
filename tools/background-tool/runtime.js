@@ -25,6 +25,6 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
  const samples=Object.create(null);for(const k of fields){const s=reply.fields[k];if(s)samples[k]={valid:s.valid===true,value:s.raw,sampledAt:Date.parse(s.sampledAt)};}
  if(!closed&&rev===revision)await engine.tick(samples,now());error=null;
  }catch(e){error='DATA_UNAVAILABLE';disconnect();}finally{busy=false;}}
- return {request,tick,health(){return {ok:true,api:1,version:'0.1.1',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:!!client,dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);disconnect();}};
+ return {request,tick,health(){return {ok:true,api:1,version:'0.1.2',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:!!client,dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);disconnect();}};
 }
 module.exports={createRuntime};
