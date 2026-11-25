@@ -28,3 +28,6 @@
 
 ## v0.2.1 DEV — runtime failure diagnosis
 - Vehicle Diagnostics 0.1.70 reported FAIL with Running and all counters zero. Exact rejection or IPC error unknown. Added running service version, rejection counter, last error and local rasterization self-test with installed dependency presence. No renderer protocol or panel changes. CI and vehicle verification pending.
+
+## 2026-11-25 — v0.2.1 verified in vehicle
+- After uninstall/reinstall, running version 0.2.1 confirmed. Queue 0, accepted/submitted 2/2, rejected/failed/expired 0/0/0, self-test PASS, renderer files 6/6. User confirmed both KOMBI messages and segment blinking worked. BC restoration not separately confirmed. PR #97 CI passed. Next: controlled Background Tool dispatch; notification runtime unchanged.

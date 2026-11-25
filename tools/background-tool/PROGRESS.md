@@ -22,3 +22,6 @@
 
 ## Diagnostics test control
 - CI 45681486412 failed on temporary test directory cleanup (state file); Data Tool regression 45681486299 passed. Avoid writing state on absent unregister; clean test artifacts. Diagnostics now exposes start/stop and hit count for fixed reference experiment. New CI pending. No live notification or general registration yet.
+
+## v0.1.1 — autonomous notification experiment
+- Prior 0.1.0 reference test in vehicle recorded one hit with successful reads. Notification Tool 0.2.1 independent display confirmed in car. New explicit test starts with 15 s arming delay, then registers the same B57 reference field for 120 s; valid nonnegative sample triggers one fixed KOMBI notification via showText. No direct ECU reads or arbitrary registration; no automatic retry. Stop/expiry removes demand. Restart discards test. Runtime counters distinguish hits and queue acceptance; actual display requires vehicle confirmation. Requires NT 0.2.1. CI pending.
