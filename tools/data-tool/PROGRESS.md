@@ -1,5 +1,10 @@
 # Data Tool progress
 
+## 2026-11-25 — 0.1.59 motor CDS diagnosis
+- 0.1.58 / Diagnostics 0.1.73, PR #102 merged d6785983, main CI PASS. In-car: speed and outside temperature valid, oil/coolant/rpm FAIL, DPF and release PASS. Root cause unconfirmed.
+- Explicit original CDS staging check/generation, isolated motor-only test before mixed test, passive CDS status and stage-specific proxy errors. Existing mixed acquisition and UDS scheduler retained. CI and car verification pending.
+
+
 ## 2026-11-25 — 0.1.58 OSA signal validation
 - Add public speed and outside temperature, separate manual staging, selected signal groups. No UDS scheduler changes. CI and vehicle verification pending. Reconciled with BC Diagnostics 0.1.71.
 

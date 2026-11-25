@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.74 — motor CDS diagnosis
+- v0.1.73 car test: 2/5 signals PASS (speed/outside), 3/5 FAIL (oil/coolant/rpm), DPF and release PASS. Add original CDS staging check, isolated motor-only test and visible errors before mixed test; BC controls unchanged. CI and retest pending.
+
+
 ## v0.1.73 — OSA signal validation
 - Reconciled PR #98 (CI PASS) with autonomous BC notification test from PR #99. Five CDS signals and DPF reference test; vehicle validation pending.
 
