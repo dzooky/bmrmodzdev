@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.71 — Notification Tool runtime diagnosis
+- In-car v0.1.70: input now responds; FAIL with Running and zero counters. Root cause not confirmed. Preserve test error detail, show actual service version, rejection count, local renderer check and dependency count. Missing legacy fields display unknown rather than zero. Stop after first rejected request. No acquisition or BT changes. CI and parked retest pending.
+
+
 ## v0.1.70 — notification test input fix
 - In-car 0.1.69: user reported the notification test button could not be pressed. Source inspection confirmed missing tap dispatch for its visible rectangle. Bind the existing test function to the matching region; no service changes. CI and in-car retest pending.
 - Approved UI cleanup: four tabs (Info, Data Tool, Background Tool, Notification Tool); obsolete snapshot, report, TASU and cache test controls removed from UI, standalone test modules retained. Native BT/NT actions plus matching canvas touch targets. BT countdown is locally estimated after successful start; unknown if app restarted mid-test. NT status shows queue and counters, not actual display acknowledgement. No tool runtime changes.

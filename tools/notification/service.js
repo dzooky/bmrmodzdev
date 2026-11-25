@@ -3,6 +3,7 @@
 const net=require('net'),fs=require('fs'),path=require('path');
 const SOCKET=process.env.BMRMODZ_NOTIFICATION_SOCKET||'/run/bmrmodz-notification/ctl.sock';
 const RENDERER=process.env.BMRMODZ_CLUSTER_RENDER_SOCKET||'/dev/shm/cluster-render/render.sock';
+const VERSION='0.2.1';
 const WIDTH=430,HEIGHT=76,MAX_REQUEST=256*1024;
 function packet(type,body){
   const header=Buffer.alloc(5);header.writeUInt32LE(body.length+1,0);header[4]=type;
@@ -29,14 +30,26 @@ function serve(options){
   options=options||{};
   const target=options.socket||SOCKET,renderer=options.renderer||RENDERER;
   let active=null,closing=false,releasing=false;
-  const queue=[],seen=new Map(),stats={accepted:0,submitted:0,failed:0,expired:0};
-  function drain(){if(closing||active||releasing)return;while(queue.length){const item=queue.shift();if(item.expires<=Date.now()){stats.expired++;continue;}show(item.req,result=>{if(result.ok)stats.submitted++;else stats.failed++;},item.render);return;}}
+  const queue=[],seen=new Map(),stats={accepted:0,submitted:0,failed:0,expired:0,rejected:0};
+  let lastError='',rendererCheck=null;
+  function checkRenderer(){
+    const files={};for(const name of ['text-renderer.js','canvas.js','fonts.js','fonts/bold.json','fonts/label.json','fonts/cjk.json'])files[name]=fs.existsSync(path.join(__dirname,name));
+    try{for(const name of Object.keys(files))if(!files[name])throw Error('Missing '+name);
+      const f=require('./text-renderer').prepare([{text:'Test',color:'#FFFFFF',blinkMs:0}]).frameAt(0);
+      if(f.length!==WIDTH*HEIGHT*4||!f.some(v=>v>0))throw Error('Empty or invalid frame');
+      rendererCheck={ok:true,files};
+    }catch(e){rendererCheck={ok:false,files,error:String(e.message).slice(0,240)};}
+    return rendererCheck;
+  }
+  function rejectText(reply,error,code){stats.rejected++;lastError=String(error).slice(0,240);return reply({ok:false,error:lastError,code});}
+
+  function drain(){if(closing||active||releasing)return;while(queue.length){const item=queue.shift();if(item.expires<=Date.now()){stats.expired++;continue;}show(item.req,result=>{if(result.ok)stats.submitted++;else{stats.failed++;lastError=result.error||'Renderer submission failed';}},item.render);return;}}
   function enqueue(req,reply){
-    if(req.api!==1||req.target!=='kombi'||typeof req.app!=='string'||!/^[a-z][a-z0-9_-]{0,31}$/.test(req.app)||typeof req.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(req.id)||!Number.isInteger(req.durationMs)||req.durationMs<500||req.durationMs>15000||!Number.isInteger(req.ttlMs)||req.ttlMs<1000||req.ttlMs>60000)return reply({ok:false,error:'Invalid text request'});
+    if(req.api!==1||req.target!=='kombi'||typeof req.app!=='string'||!/^[a-z][a-z0-9_-]{0,31}$/.test(req.app)||typeof req.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(req.id)||!Number.isInteger(req.durationMs)||req.durationMs<500||req.durationMs>15000||!Number.isInteger(req.ttlMs)||req.ttlMs<1000||req.ttlMs>60000)return rejectText(reply,'Invalid text request','INVALID_REQUEST');
     const now=Date.now(),key=req.app+':'+req.id;for(const [k,v] of seen)if(v<=now)seen.delete(k);
     if(seen.has(key))return reply({ok:true,status:'duplicate'});
-    if(queue.length>=16||seen.size>=256)return reply({ok:false,error:'queue full'});
-    let render;try{render=require('./text-renderer').prepare(req.segments);}catch(e){return reply({ok:false,error:e.message});}
+    if(queue.length>=16||seen.size>=256)return rejectText(reply,'queue full','QUEUE_FULL');
+    let render;try{render=require('./text-renderer').prepare(req.segments);}catch(e){return rejectText(reply,e.message,'TEXT_PREPARE_FAILED');}
     seen.set(key,now+Math.max(req.ttlMs,req.durationMs)+60000);queue.push({req,render,expires:now+req.ttlMs});stats.accepted++;reply({ok:true,status:'queued'});drain();
   }
   function release(){
@@ -63,7 +76,7 @@ function serve(options){
     function after(ms,fn){const timer=setTimeout(fn,ms);timer.unref();session.timers.push(timer);}
     function draw(data){
       if(active!==session||socket.destroyed)return;
-      if(socket.writableLength>WIDTH*HEIGHT*8||socket.bufferSize>WIDTH*HEIGHT*8){stats.failed++;release();return;}
+      if(socket.writableLength>WIDTH*HEIGHT*8||socket.bufferSize>WIDTH*HEIGHT*8){stats.failed++;lastError='Renderer backpressure';release();return;}
       session.frame=(session.frame+1)>>>0;socket.write(frame(data,session.frame));
     }
     const deadline=setTimeout(()=>{
@@ -116,7 +129,8 @@ function serve(options){
       try{req=JSON.parse(buffer.slice(0,n));}
       catch(err){client.end(JSON.stringify({ok:false,error:'Invalid JSON'})+'\n');return;}
       const reply=value=>{if(!client.destroyed)client.end(JSON.stringify(value)+'\n');};
-      if(req&&req.op==='status')return reply({ok:true,active:!!active||releasing,target:'kombi',hudSupported:false,queued:queue.length,stats:Object.assign({},stats)});
+      if(req&&req.op==='status')return reply({ok:true,version:VERSION,api:1,rendererCheck:rendererCheck||checkRenderer(),lastError,active:!!active||releasing,target:'kombi',hudSupported:false,queued:queue.length,stats:Object.assign({},stats)});
+      if(req&&req.op==='selfTest')return reply({ok:true,version:VERSION,rendererCheck:checkRenderer()});
       if(req&&req.op==='showText')return enqueue(req,reply);
       show(req,reply);
     });

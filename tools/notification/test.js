@@ -58,7 +58,16 @@ function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
   assert.strictEqual(render.nextAt(250),500);
   const manifest=require('./component.json');
   for(const file of manifest.files)assert.ok(fs.existsSync(path.join(__dirname,file.from)),file.from);
-  assert.strictEqual(manifest.version,'0.2.0');
+  assert.strictEqual(manifest.version,'0.2.1');
+  assert.strictEqual(status.version,manifest.version);
+  assert.strictEqual(status.rendererCheck.ok,true);
+  assert.strictEqual((await request({op:'selfTest'})).rendererCheck.ok,true);
+  const invalid=await request(Object.assign({},text,{id:'bad',segments:[]}));
+  assert.strictEqual(invalid.code,'TEXT_PREPARE_FAILED');
+  const rejected=await request({op:'status'});
+  assert.strictEqual(rejected.stats.rejected,1);
+  assert.strictEqual(rejected.lastError,'Invalid segments');
+  assert.strictEqual(rejected.stats.accepted,2);
   tool.close();await new Promise(resolve=>fake.close(resolve));
   fs.rmSync(dir,{recursive:true,force:true});
   console.log('Notification Tool mocked renderer: passed');

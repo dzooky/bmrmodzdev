@@ -5,7 +5,7 @@ assert.deepStrictEqual(Object.keys(catalogs),['en']);
 assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>a[0]),['en']);
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(spec.signals,{});
-assert.strictEqual(spec.version,'0.1.70');
+assert.strictEqual(spec.version,'0.1.71');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.55');
 assert.strictEqual(spec.mguInternet,true);
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
@@ -21,3 +21,7 @@ assert.ok(main.includes("op:'showText'"));
 assert.ok(main.includes('/run/bmrmodz-background-tool/ctl.sock'));
 assert.ok(main.includes('/run/bmrmodz-notification/ctl.sock'));
 console.log('Focused Diagnostics manifest, input bindings and English catalog passed');
+
+for(const key of ['Accepted / Submitted','Rejected / Failed / Expired','Renderer self-test','Renderer files'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key));
+assert.ok(main.includes('ntError=String(e.message||e)'));
+assert.ok(main.includes('h.rendererCheck'));
