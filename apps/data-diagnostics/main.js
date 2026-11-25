@@ -10,21 +10,23 @@ const DEV_NOTICE=[
 ];
 mgu.run({start(ctx){
  const {ui,log}=ctx;
- let page=0,ntBusy=false,ntMessage='',ntCooldown=0,ntHealth=null,ntPoll=false,lastNtPoll=0;
+ let page=0,ntBusy=false,ntMessage='',ntError='',ntCooldown=0,ntHealth=null,ntPoll=false,lastNtPoll=0;
  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='',bgDeadline=0;
  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
    if(ntBusy||Date.now()<ntCooldown)return;
    page=3;ntCooldown=Date.now()+15000;
-   ntBusy=true;ntMessage=word('Sending');
+   ntBusy=true;ntError='';ntMessage=word('Sending');
    try{
     const id='test-'+Date.now();
     const opts={socket:'/run/bmrmodz-notification/ctl.sock',timeoutMs:2500};
     const a=await client.request({api:1,op:'showText',target:'kombi',app:'diagnostics',id:id+'-1',durationMs:6000,ttlMs:20000,segments:[{text:word('Notification test')+': ',color:'#FFFFFF',blinkMs:0},{text:word('Slow'),color:'#FF3030',blinkMs:1000}]},opts);
+    if(!a||!a.ok)throw Error('1: '+(a&&(a.code?a.code+': ':'')+(a.error||'Rejected')||'No reply'));
     const b=await client.request({api:1,op:'showText',target:'kombi',app:'diagnostics',id:id+'-2',durationMs:6000,ttlMs:20000,segments:[{text:word('Notification test')+': ',color:'#FFFFFF',blinkMs:0},{text:word('Fast'),color:'#00FF00',blinkMs:250}]},opts);
-    ntMessage=word(a.ok&&b.ok?'Queued':'FAIL');
-   }catch(_){ntMessage=word('FAIL');}finally{ntBusy=false;}
+    if(!b||!b.ok)throw Error('2: '+(b&&(b.code?b.code+': ':'')+(b.error||'Rejected')||'No reply'));
+    ntMessage=word('Queued');
+   }catch(e){ntMessage=word('FAIL');ntError=String(e.message||e);log.warn('Notification test: '+ntError);}finally{ntBusy=false;lastNtPoll=0;}
   }
   async function toggleBackgroundTest(){
    if(bgCommandBusy)return;
@@ -66,7 +68,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.70');
+  header(cv,theme,'Info','0.1.71');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -95,14 +97,18 @@ mgu.run({start(ctx){
   button(cv,theme,word(h&&h.testActive?'Stop BT test':'Start BT test')+' '+bgMessage,bgCommandBusy);
  }
  function drawNotification(cv,theme){
-  const h=ntHealth;header(cv,theme,'Notification Tool',word(h?'Running':'Unavailable'));
+  const h=ntHealth;header(cv,theme,'Notification Tool',word(h?'Running':'Unavailable')+(h?' / '+(h.version||word('Unknown')):''));
   if(h){
    const s=h.stats||{};
-   row(cv,theme,'Queue',h.queued||0,155);
-   row(cv,theme,'Accepted',s.accepted||0,200);
-   row(cv,theme,'Submitted',s.submitted||0,245);
-   row(cv,theme,'Failed',s.failed||0,290);
-   row(cv,theme,'Expired',s.expired||0,335);
+   row(cv,theme,'Queue',h.queued==null?'—':h.queued,150);
+   row(cv,theme,'Accepted / Submitted',(s.accepted==null?'—':s.accepted)+' / '+(s.submitted==null?'—':s.submitted),190);
+   row(cv,theme,'Rejected / Failed / Expired',[s.rejected,s.failed,s.expired].map(v=>v==null?'—':v).join(' / '),230);
+   row(cv,theme,'Renderer self-test',h.rendererCheck?word(h.rendererCheck.ok?'PASS':'FAIL'):word('Unknown'),270);
+   const files=h.rendererCheck&&h.rendererCheck.files;
+   row(cv,theme,'Renderer files',files?Object.keys(files).filter(k=>files[k]).length+' / '+Object.keys(files).length:'—',310);
+   const err=ntError||h.lastError||(h.rendererCheck&&h.rendererCheck.error)||'';
+   if(err)label(cv,err,800,365,20,theme.warn,{align:'center'});
+  }else if(ntError){label(cv,ntError,800,365,20,theme.warn,{align:'center'});
   }
   button(cv,theme,word('Test notification')+' '+ntMessage,ntBusy||Date.now()<ntCooldown);
   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
