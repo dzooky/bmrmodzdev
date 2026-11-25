@@ -2,6 +2,8 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "CDS configuration": "CDS configuration",
+    "Motor-only test": "Motor-only test",
     "Public CDS signal test": "Public CDS signal test",
     "Rules / Evaluation ticks": "Rules / Evaluation ticks",
     "Notification accepted": "Notification accepted",

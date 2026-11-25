@@ -75,7 +75,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.73');
+  header(cv,theme,'Info','0.1.74');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -89,7 +89,9 @@ mgu.run({start(ctx){
   if(cdsResult){
    cdsResult.rows.forEach((r,i)=>label(cv,r.name+'  '+(r.valid?r.value+' / '+word('PASS'):word('FAIL')),85,245+i*25,18,r.valid?theme.ok:theme.crit));
    label(cv,'DPF: '+word(cdsResult.reference?'PASS':'FAIL')+' / '+word('Demand released')+': '+word(cdsResult.released?'PASS':'FAIL'),1500,245,18,theme.text,{align:'right'});
-   if(cdsResult.error)label(cv,cdsResult.error,1500,275,16,theme.warn,{align:'right'});
+   label(cv,word('CDS configuration')+': '+word(cdsResult.config?'PASS':'FAIL')+' / '+word('Motor-only test')+': '+(cdsResult.isolated||0)+'/3',1500,270,18,theme.text,{align:'right'});
+   const errors=[cdsResult.isolatedError,cdsResult.mixedError,cdsResult.error].filter(Boolean);
+   errors.forEach((err,i)=>label(cv,err,1500,295+i*23,16,theme.warn,{align:'right'}));
   }
   button(cv,theme,word(cdsBusy?'Running':'Public CDS signal test'),cdsBusy);
   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
