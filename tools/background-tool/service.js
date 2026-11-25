@@ -1,21 +1,26 @@
 'use strict';
 const fs=require('fs'),net=require('net'),path=require('path');
 const {createRuntime}=require('./runtime'),{createStore}=require('./store');
-function serve({socket,state,connect}){
- let testUntil=0,testHits=0;
- const rt=createRuntime({store:createStore(state),connect,dispatch:async(a,k)=>{if(k==='diagnostics:reference'&&a.type==='action'&&a.name==='count'&&Date.now()<testUntil){testHits++;return;}throw Error('Live actions disabled');}});
+function serve({socket,state,connect,notificationSocket='/run/bmrmodz-notification/ctl.sock',armMs=15000}){
+ let testUntil=0,testHits=0,testArmAt=0,testId='',notificationAccepted=0,notificationError='';
+ function notify(payload){return new Promise((resolve,reject)=>{const c=net.createConnection(notificationSocket);let raw='',done=false;const finish=(e,v)=>{if(done)return;done=true;c.destroy();if(e)reject(e);else resolve(v);};c.setTimeout(2500,()=>finish(Error('Notification timeout')));c.on('error',finish);c.on('end',()=>finish(Error('Notification closed')));c.on('connect',()=>c.write(JSON.stringify(payload)+'\n'));c.on('data',x=>{raw+=x.toString('utf8');if(raw.length>8192)return finish(Error('Reply too large'));const n=raw.indexOf('\n');if(n>=0){try{finish(null,JSON.parse(raw.slice(0,n)));}catch(e){finish(e);}}});});}
+ const rt=createRuntime({store:createStore(state),connect,dispatch:async(a,k)=>{if(k==='diagnostics:reference'&&a.type==='notification'&&a.name==='kombi'&&Date.now()<testUntil){testHits++;try{const reply=await notify(Object.assign({},a.payload,{api:1,op:'showText',app:'background-test',id:testId,target:'kombi'}));if(!reply||!reply.ok||reply.status!=='queued')throw Error(reply&&reply.error||'Notification not queued');notificationAccepted++;}catch(e){notificationError=String(e.message||e);throw e;}return;}throw Error('Live actions disabled');}});
  // Never resume an experimental test after restart.
  rt.request({api:1,op:'unregister',ruleId:'reference'},'diagnostics');
- const stopTest=()=>{if(testUntil){rt.request({api:1,op:'unregister',ruleId:'reference'},'diagnostics');testUntil=0;}};
- const expiry=setInterval(()=>{if(testUntil&&Date.now()>=testUntil)try{stopTest();}catch(_){}},1000);
+ const stopTest=()=>{if(testUntil){testArmAt=0;rt.request({api:1,op:'unregister',ruleId:'reference'},'diagnostics');testUntil=0;}};
+ const expiry=setInterval(()=>{try{
+ if(testUntil&&Date.now()>=testUntil)stopTest();
+ else if(testArmAt&&Date.now()>=testArmAt){testArmAt=0;
+ rt.request({api:1,op:'register',rule:{api:1,appId:'diagnostics',ruleId:'reference',fields:[{name:'dpf.b57.request',freshnessMs:5000}],condition:{field:'dpf.b57.request',op:'gte',value:0},trigger:'once',actions:[{type:'notification',name:'kombi',payload:{durationMs:6000,ttlMs:10000,segments:[{text:'Background test: ',color:'#FFFFFF',blinkMs:0},{text:'OK',color:'#00FF00',blinkMs:500}]}}]}},'diagnostics');
+ }
+ }catch(e){notificationError=String(e.message||e);}},1000);
  function handle(req){
   if(!req||req.api!==1||Object.keys(req).length!==2)return {ok:false,error:'INVALID_REQUEST'};
-  if(req.op==='status')return Object.assign(rt.health(),{testActive:testUntil>Date.now(),testHits});
+  if(req.op==='status')return Object.assign(rt.health(),{testActive:testUntil>Date.now(),testHits,testRemainingMs:Math.max(0,testUntil-Date.now()),armRemainingMs:Math.max(0,testArmAt-Date.now()),notificationAccepted,notificationError});
   if(req.op==='testStart'){
    if(testUntil>Date.now())return {ok:false,error:'TEST_ACTIVE'};
-   stopTest();testHits=0;
-   rt.request({api:1,op:'register',rule:{api:1,appId:'diagnostics',ruleId:'reference',fields:[{name:'dpf.b57.request',freshnessMs:5000}],condition:{field:'dpf.b57.request',op:'gte',value:0},trigger:'once',actions:[{type:'action',name:'count',payload:{}}]}},'diagnostics');
-   testUntil=Date.now()+120000;return {ok:true};
+   stopTest();testHits=0;notificationAccepted=0;notificationError='';testId='bt-'+Date.now();
+   testArmAt=Date.now()+armMs;testUntil=testArmAt+120000;return {ok:true};
   }
   if(req.op==='testStop'){stopTest();return {ok:true};}
   return {ok:false,error:'READ_ONLY'};
