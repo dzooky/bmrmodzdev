@@ -1,0 +1,44 @@
+{
+  "id": "rse-diagnostics",
+  "title": "RSE Diagnostics",
+  "description": "Experimental read-only RSE observations",
+  "version": "0.1.0",
+  "vendor": "custom",
+  "loggingId": "RSED",
+  "iconGlyph": "temp",
+  "config": {
+    "customSettings": false
+  },
+  "screens": [
+    {
+      "name": "MAIN",
+      "kind": "canvas",
+      "title": "RSE Diagnostics",
+      "buttons": [
+        [
+          "BTN_CAPTURE",
+          "Capture"
+        ]
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "key": "language",
+      "label": "Language",
+      "type": "choice",
+      "default": "en",
+      "options": [
+        [
+          "en",
+          "English"
+        ]
+      ]
+    }
+  ],
+  "signals": {},
+  "requires": {
+    "idrive7-renderd": "2.1.19",
+    "mgu-inputgate": "1.2.1"
+  }
+}
