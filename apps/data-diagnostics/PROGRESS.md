@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## v0.1.72 — OSA signal validation
+- Retain four-tab BC layout and notification/background tests. Add manual CDS test to Data Tool tab with DPF reference. CI and car verification pending.
+
+
 ## v0.1.71 — Notification Tool runtime diagnosis
 - In-car v0.1.70: input now responds; FAIL with Running and zero counters. Root cause not confirmed. Preserve test error detail, show actual service version, rejection count, local renderer check and dependency count. Missing legacy fields display unknown rather than zero. Stop after first rejected request. No acquisition or BT changes. CI and parked retest pending.
 

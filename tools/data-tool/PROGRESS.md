@@ -1,8 +1,12 @@
 # Data Tool progress
 
+## 2026-11-25 — 0.1.58 OSA signal validation
+- Add public speed and outside temperature, separate manual staging, selected signal groups. No UDS scheduler changes. CI and vehicle verification pending. Reconciled with BC Diagnostics 0.1.71.
+
+
 ## 2026-11-25 — 0.1.57 public CDS scope
 - Added opt-in CDS API scope independent of DDE identification; existing DPF API and scheduler retained. Shared CDS engine, session leases, filtered snapshots, raw and decoded values with 3x requested validity.
-- Existing worker still subscribes to both CDS groups at its original cadence; physical selective subscription and mixed CDS/UDS session are deferred. No OSA consumer migration yet. CI and vehicle verification pending.
+- Existing worker still subscribes to both CDS groups at its original cadence; physical selective subscription and mixed CDS/UDS session are deferred. No OSA consumer migration yet. PR #93 merged d50cf7b5, CI PASS. Vehicle verification pending.
 
 
 ## 2026-11-25 — DEV release candidate DPF 0.1.81 / Tool 0.1.56

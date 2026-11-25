@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.57",
+  "version": "0.1.58",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
@@ -212,6 +212,11 @@
     {
       "path": "public-client.js",
       "from": "public-client.js",
+      "mode": "0644"
+    },
+    {
+      "path": "osa-signal-manifest.json",
+      "from": "osa-signal-manifest.json",
       "mode": "0644"
     }
   ],

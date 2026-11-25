@@ -10,6 +10,12 @@
     },
     "rpm": {
       "source": "CDS.statusEngineSpeed2.actualValueRPMEngineCrankshaft"
+    },
+    "speed": {
+      "source": "Vehicle2.statusCarSpeed2.speedVehicleCentreOfGravity"
+    },
+    "outside": {
+      "source": "EnvironmentalInformation.ExteriorTemperature.temperatureExterior"
     }
   },
   "consumers": {

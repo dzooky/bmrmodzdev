@@ -1,6 +1,7 @@
 'use strict';
 const mgu=require('./kit/mgu'),G=require('./kit/gauges'),client=require('./client');
 const {t}=require('./translations');
+const cdsProbe=require('./cds-probe');
 const W=1600,H=520;
 const pages=['Info','Data Tool','Background Tool','Notification Tool'];
 const DEV_NOTICE=[
@@ -12,6 +13,7 @@ mgu.run({start(ctx){
  const {ui,log}=ctx;
  let page=0,ntBusy=false,ntMessage='',ntError='',ntCooldown=0,ntHealth=null,ntPoll=false,lastNtPoll=0;
  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='',bgDeadline=0;
+ let cdsBusy=false,cdsResult=null;
  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
@@ -50,6 +52,10 @@ mgu.run({start(ctx){
    finally{healthBusy=false;}
   }
 
+ async function testCds(){
+  if(cdsBusy)return;cdsBusy=true;cdsResult=null;
+  try{cdsResult=await cdsProbe.run(client.request);}catch(e){cdsResult={rows:[],error:String(e.message||e)};}finally{cdsBusy=false;}
+ }
  async function pollNotification(){
   if(ntPoll)return;ntPoll=true;
   try{const h=await client.request({op:'status'},{socket:'/run/bmrmodz-notification/ctl.sock',timeoutMs:1500});ntHealth=h&&h.ok?h:null;}catch(_){ntHealth=null;}finally{ntPoll=false;}
@@ -59,6 +65,7 @@ mgu.run({start(ctx){
  ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
  ctx.onTap((x,y)=>{
   if(x>=520&&x<=1080&&y>=390&&y<=455){
+   if(page===1)testCds();
    if(page===2)toggleBackgroundTest();
    if(page===3)testNotification();
   }
@@ -68,22 +75,24 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.71');
+  header(cv,theme,'Info','0.1.72');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
  }
  function drawData(cv,theme){
   const h=udsHealth;header(cv,theme,'Data Tool',word(h?'Running':healthError?'Unavailable':'Loading Tool status'));
-  if(!h)return;
-  const n=h.stats||{};
-  row(cv,theme,'Successful reads',n.ok||0,170);
-  row(cv,theme,'Failed reads',(n.error||0)+(n.timeout||0),220);
-  row(cv,theme,'Cache hits',n.cacheHits||0,270);
-  row(cv,theme,'Sample status',word(h.freshness==='fresh'?'Fresh':h.freshness==='stale'?'Stale':'Missing'),320);
-  row(cv,theme,'Sample age',Number.isFinite(h.sampleAgeMs)?Math.floor(h.sampleAgeMs/1000)+' s':word('Unknown'),370);
-  row(cv,theme,'Last read error',h.lastError||word('None'),420);
-  label(cv,word('Data Tool UDS only'),800,475,18,theme.dim,{align:'center'});
+  const n=h&&h.stats||{};
+  row(cv,theme,'Successful reads',h?n.ok||0:'—',155);
+  row(cv,theme,'Failed reads',h?(n.error||0)+(n.timeout||0):'—',185);
+  row(cv,theme,'Cache hits',h?n.cacheHits||0:'—',215);
+  if(cdsResult){
+   cdsResult.rows.forEach((r,i)=>label(cv,r.name+'  '+(r.valid?r.value+' / '+word('PASS'):word('FAIL')),85,245+i*25,18,r.valid?theme.ok:theme.crit));
+   label(cv,'DPF: '+word(cdsResult.reference?'PASS':'FAIL')+' / '+word('Demand released')+': '+word(cdsResult.released?'PASS':'FAIL'),1500,245,18,theme.text,{align:'right'});
+   if(cdsResult.error)label(cv,cdsResult.error,1500,275,16,theme.warn,{align:'right'});
+  }
+  button(cv,theme,word(cdsBusy?'Running':'Public CDS signal test'),cdsBusy);
+  label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
  }
  function drawBackground(cv,theme){
   const h=bgHealth;header(cv,theme,'Background Tool',word(h?'Running':'Unavailable'));
