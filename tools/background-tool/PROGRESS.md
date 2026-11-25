@@ -37,3 +37,6 @@
 
 ## v0.1.4 — declarative rearm condition
 - 0.1.3 PR #107 merged; Background Tool and Data Tool CI PASS (45709862688 / 45709862749). Added optional rising-trigger rearm condition, preserving persisted latch and legacy rules. New CI and vehicle validation pending.
+
+## v0.1.5 — declarative state transitions
+- 0.1.4 PR #108 merged; OSA, BG and Data Tool CI PASS. Add bounded state rules, bit masks, optional previous-state gate and timed repeat with persisted state. Existing rising/rearm behavior unchanged. No DPF-specific logic in BG. CI and vehicle verification pending.
