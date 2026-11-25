@@ -25,7 +25,7 @@ class Engine{
  const others=Array.from(this.rules.entries()).filter(([key])=>key!==k).map(([,v])=>v.rule);
  if(others.filter(v=>v.appId===r.appId).length>=8)throw Error('App rule limit');
  const fields=new Set();others.concat([r]).forEach(v=>v.fields.forEach(f=>fields.add(f.name)));
- if(fields.size>12)throw Error('Shared field limit');const next=new Map(this.rules);next.set(k,{rule:r,last:null,fired:false});this.save(next);this.rules=next;}
+ if(fields.size>11&&r.appId!=='diagnostics'||fields.size>12)throw Error('Shared field limit');const next=new Map(this.rules);next.set(k,{rule:r,last:null,fired:false});this.save(next);this.rules=next;}
  unregister(a,b){if(!this.rules.has(this.key(a,b)))return;const next=new Map(this.rules);next.delete(this.key(a,b));this.save(next);this.rules=next;}
  demand(){const d=Object.create(null);for(const x of this.rules.values())for(const f of x.rule.fields)d[f.name]=Math.min(d[f.name]||Infinity,f.freshnessMs);return d;}
  async tick(samples,now){for(const [k,x] of Array.from(this.rules)){try{if(this.rules.get(k)!==x)continue;const result=evaluate(x.rule,samples,now);if(result===null)continue;const fire=result&&x.last!==true&&!(x.rule.trigger==='once'&&x.fired);if(result===x.last&&!fire)continue;const next=new Map(this.rules);next.set(k,{rule:x.rule,last:result,fired:x.fired||fire});this.save(next);this.rules=next;if(fire)for(const a of x.rule.actions){try{if(this.rules.get(k)!==next.get(k))break;await this.dispatch(a,k);}catch(e){/* Independent action failures; no ambiguous automatic retries. */}}}catch(e){/* Isolate rule failures. */}}}
