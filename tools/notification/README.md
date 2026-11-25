@@ -18,3 +18,6 @@ The tool returns `sent_to_renderer`, **not** a real car display acknowledgment. 
 `node tools/notification/test.js` (mock renderer), `node apps/dpf/regen-message.test.js`. Install via MGU Store dependency `bmrmodz-notification >=0.1.1` in DPF v0.1.56. Test only while parked.
 
 **Known blocker:** renderer can replace the BMW BC information slot. This change does not fix the BC conflict. No guarantee of BMW original content restoration; HUD output remains unsupported.
+
+## DEV 0.2.0 text API
+Send newline-delimited JSON on the same socket: `{"api":1,"op":"showText","target":"kombi","app":"diagnostics","id":"unique-id","durationMs":6000,"ttlMs":20000,"segments":[{"text":"Test: ","color":"#FFFFFF","blinkMs":0},{"text":"Slow","color":"#FF3030","blinkMs":1000}]}`. Each segment retains its position; blink interval is a visibility half-cycle. `queued` is accepted, not displayed; `duplicate` does not enqueue again. Status includes queue depth and counters. Legacy show remains supported. No HUD. Test parked with Diagnostics 0.1.69.
