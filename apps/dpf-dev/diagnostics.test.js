@@ -20,7 +20,7 @@ assert.ok(source.includes("['TASU error', diagnostic.tasuError]"));
 assert.ok(adapter.includes("JSON.stringify({op:'status'})"));
 assert.ok(adapter.includes("JSON.stringify({op:'read',ecu,did})"));
 assert.match(source, /timeoutMs: 15000,/);
-assert.match(source, /if \(identifyPending\) return;/);
+assert.match(source, /if \(managedEnabled\(\) \|\| managedBusy \|\| identifyPending\) return;/);
 assert.match(source, /identifyPending = true;/);
 assert.match(source, /finally \{\s+identifyPending = false;/);
 assert.ok(source.includes("['DDE recovery', diagnostic.ddeRecovery]"));
