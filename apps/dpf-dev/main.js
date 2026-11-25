@@ -1,14 +1,6 @@
 'use strict';
 
-/**
- * DPF Status
- *
- * Read-only DDE monitor. Identifies DDE 0x12 via physical UDS 22 F1 50.
- * Displays validated DPF measurements for identified B57 or B47 DDE.
- *
- * No diagnostic service other than the read-only services exposed by
- * ReadOnlyDiag can be sent by this app.
- */
+/** Read-only DPF monitor consuming the managed Data Tool API. */
 const mgu = require('./kit/mgu');
 const G = require('./kit/gauges');
 const fs = require('fs');
