@@ -15,3 +15,8 @@
 1. CI: test notification API, state transitions, tool installation and DPF dependency.
 2. Parked car: verify DPF test sequence, localization, automatic regeneration events, BC button before/during/after notifications.
 3. Investigate BC-safe rendering before general deployment and HUD independently.
+
+## DEV baseline import — 2026-11-25
+- Imported production v0.1.1 tool source, manifest, unit, tests and documentation into DEV without changing runtime behavior. Production remains untouched.
+- Approved next stage: standalone text renderer, per-segment blinking, bounded FIFO, deduplication and expiry, legacy RGBA compatibility; see WORKFLOW.md. Not implemented yet.
+- DEV packaging, CI and vehicle validation pending.
