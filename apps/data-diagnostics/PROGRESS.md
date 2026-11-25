@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## 2026-11-25 — Diagnostics 0.1.65 first sample timing
+- PR #85 merged ba4efe1d, CI 45499098416 PASS. Vehicle B57 Tool 0.1.54 / Diagnostics 0.1.64: awake engine off connection/limits PASS, FIRST_SAMPLE failure after fixed 2.5 s; subsequent checks not executed. Engine running 5/5 PASS. Cause of awake failure unknown.
+- Diagnostics-only: bounded 20 s observation of passive snapshots at 500 ms, renew leases every 5 s, measure first shared valid sample latency, distinguish skipped checks, independently verify release on failure. No transport or Tool changes. CI and vehicle validation pending.
+
 ## Diagnostics v0.1.64 — API background test
 - Separate API test button on existing Cache Test page; two live sessions, invalid interval rejection, shared timestamp/raw sample, wait without snapshot, repeated sample and release. Tool 0.1.54 required. Tests scheduler timer with Diagnostics process running, not MGU sleep or app suspension. CI and vehicle pending.
 
