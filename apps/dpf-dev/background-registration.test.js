@@ -1,0 +1,20 @@
+'use strict';
+const assert=require('assert'),{create,desired}=require('./background-registration'),{Engine}=require('../../tools/background-tool/engine'),publicApi=require('../../tools/background-tool/public-api'),{createStore}=require('../../tools/background-tool/store'),fs=require('fs'),os=require('os'),path=require('path');
+(async()=>{const s={enabled:true,equipment:null,translate:x=>x},calls=[];let fail=false;
+ const c=create({info(){},warn(){}},()=>s,async msg=>{calls.push(msg);return {ok:!fail};});
+ await c.sync();assert.equal(calls.length,0);s.equipment=true;fail=true;await c.sync();fail=false;await c.sync();assert.equal(calls.length,2);await c.sync();assert.equal(calls.length,2);
+ const rule=calls[1].rule;assert.deepStrictEqual(rule.fields.map(f=>f.name),['dpf.b57.request','dpf.b57.mode']);assert.equal(rule.states[0].repeat.intervalMs,60000);assert.equal(rule.states[0].repeat.actions[0].payload.durationMs,1332);
+ publicApi.request(calls[1],{request(req){assert.equal(req.rule.trigger,'state');return {ok:true};}});
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'dpf-bg-')),file=path.join(dir,'rules.json'),store=createStore(file),events=[];
+ try{let engine=new Engine(store.save,async a=>events.push(a.payload.segments[1].text));engine.register(rule);
+ const tick=async(m,r,t,valid=true)=>engine.tick({'dpf.b57.mode':{value:m,valid,sampledAt:t},'dpf.b57.request':{value:r,valid,sampledAt:t}},t);
+ await tick(0,0,10000);await tick(0,4,11000);await tick(2,4,12000);await tick(2,4,15000);
+ engine=new Engine(store.save,async a=>events.push(a.payload.segments[1].text));engine.rules=store.load();await tick(2,4,75000);await tick(0,0,76000,false);await tick(0,0,77000);
+ assert.deepStrictEqual(events,['Requested','Started','In Progress','In Progress','Finished']);
+ await tick(2,0,78000);await tick(0,4,79000);await tick(0,0,80000);assert.deepStrictEqual(events.slice(5),['Started','Requested']);
+ }finally{if(fs.existsSync(file))fs.unlinkSync(file);fs.rmdirSync(dir);}
+ s.equipment=null;await c.sync();assert.equal(calls.length,2);s.enabled=false;await c.sync();assert.equal(calls[2].op,'unregister');
+ s.enabled=true;s.equipment=true;s.translate=x=>'SK '+x;await c.sync();assert.equal(calls[3].rule.states[0].actions[0].payload.segments[1].text,'SK Started');
+ s.equipment=false;await c.sync();assert.equal(calls[4].op,'unregister');
+ console.log('DPF BG lifecycle, state persistence and notification cadence passed');
+})().catch(e=>{console.error(e);process.exitCode=1;});
