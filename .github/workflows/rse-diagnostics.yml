@@ -1,0 +1,17 @@
+name: RSE Diagnostics checks
+on:
+  pull_request:
+    paths: ['apps/rse-diagnostics/**', '.github/workflows/rse-diagnostics.yml']
+  push:
+    branches: [main]
+    paths: ['apps/rse-diagnostics/**', '.github/workflows/rse-diagnostics.yml']
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: node --check apps/rse-diagnostics/main.js && node apps/rse-diagnostics/probe.test.js
+      - run: python3 kit/tools/build.py --preview-only rse-diagnostics
