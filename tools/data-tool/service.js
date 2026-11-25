@@ -128,7 +128,7 @@ function serve(factory,socketPath,options){
     queue=operation.then(()=>{},()=>{});
     return operation;
   }
-  const publicRuntime=require('./public-runtime').createRuntime(read);
+  const publicRuntime=require('./public-runtime').createRuntime(read,cdsEngine);
   const capabilities=()=>({
     uds:{mode:'read-only-experimental',reads:READS,controls:'not implemented'},
     signals:{mode:'demand-driven-experimental',stagingOnly:true,aclRegistration:'unverified',fields:['oil','coolant','rpm']},
@@ -153,7 +153,7 @@ function serve(factory,socketPath,options){
             if(!apiSession)apiSession=publicRuntime.attach(client);
             if(!apiSession){client.destroy();return;}
             apiBusy=true;try{reply=await apiSession.request(req);}finally{apiBusy=false;}
-          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.56',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
+          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.57',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='tasuIdleProbe')reply=await tasuIdleProbe(req.mode);
           else if(req.op==='schedulerLiveTest'){
