@@ -5,3 +5,8 @@
 - Implemented: isolated engine, validation, shared demand calculation, rising/once triggers, invalid/stale input suppression, injectable persistence and dispatch, regression test.
 - Not implemented: MGU packaging/service, durable storage adapter, authenticated registration IPC, Data Tool runtime adapter, Notification Tool integration, real vehicle action handlers, session/drive reset, diagnostic reporting. Once means registration lifetime in this foundation, not once per drive. No vehicle control enabled.
 - Automated tests: included; execution pending at authoring. In-car: not tested. No existing application or Data Tool changes.
+
+## Runtime foundation — 2026-11-25
+- Initial engine and Data Tool regression CI passed (45679017191 / 45679017117).
+- Added atomic file storage, owner-scoped internal API, serialized recurring evaluation, catalog filtering, demand lease renewal and reconnect, status and action failure counters, simulated restart tests. Runtime adapters accept injected connections and dispatchers; no public IPC, live dispatch, installer or autostart yet. New CI pending. No vehicle verification.
+- Raw numeric Data Tool fields only; unsupported fields do not trigger. Once-per-drive semantics pending. Persistence commits before dispatch (at-most-once attempt; crash can lose action). Stale temporary file recovery and authenticated transport remain deployment gates.
