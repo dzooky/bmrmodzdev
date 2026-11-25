@@ -4,7 +4,8 @@
 const {spawn}=require('child_process'),path=require('path');
 const manifest=require('./data-manifest.json');
 const CONSUMERS=manifest.consumers;
-const FIELDS=['oil','coolant','rpm'];
+const FIELDS=['oil','coolant','rpm','speed','outside'];
+const GROUPS={oil:'statusEngineTemperature',coolant:'statusEngineTemperature',rpm:'statusEngineSpeed2',speed:'statusCarSpeed2',outside:'ExteriorTemperature'};
 function createEngine(options){
   const opts=options||{},now=opts.now||Date.now;
   const spawnProcess=opts.spawn||spawn,worker=opts.worker||path.join(__dirname,'cds-stream-worker.js');
@@ -12,11 +13,11 @@ function createEngine(options){
   const publicLeases=new Map();
   const leases=new Map(),cache={},updates={oil:0,coolant:0,rpm:0};
   const stats={starts:0,stops:0,invalid:0,errors:0,samples:0};
-  let child=null,ready=false,closed=false,buffer='',error=null;
+  let child=null,ready=false,closed=false,buffer='',error=null,selected='';
   function active(){
     const clock=now();
     for(const [id,expiry] of leases)if(expiry<=clock)leases.delete(id);
-    for(const [id,expiry] of publicLeases)if(expiry<=clock)publicLeases.delete(id);
+    for(const [id,lease] of publicLeases)if(lease.expiry<=clock)publicLeases.delete(id);
     return leases.size+publicLeases.size;
   }
   function stop(){
@@ -34,22 +35,28 @@ function createEngine(options){
     if(source!==child||!message||typeof message!=='object')return;
     if(message.type==='ready'){ready=true;return;}
     if(message.type==='error'){stats.errors++;error=String(message.error||'CDS stream error').slice(0,140);stop();return;}
-    if(message.type==='invalid'){stats.invalid++;return;}
+    if(message.type==='invalid'){stats.invalid++;if(message.error)error=String(message.error).slice(0,140);return;}
     if(message.type!=='sample')return;
     const keys=message.field==='statusEngineTemperature'?['oil','coolant']:
-      message.field==='statusEngineSpeed2'?['rpm']:[];
+      message.field==='statusEngineSpeed2'?['rpm']:message.field==='statusCarSpeed2'?['speed']:message.field==='ExteriorTemperature'?['outside']:[];
     if(!keys.length)return;
-    if(!message.value||keys.some(k=>typeof message.value[k]!=='number'||!Number.isFinite(message.value[k]))){
-      stats.invalid++;return;
-    }
     const at=now();
-    keys.forEach(k=>{cache[k]=message.value[k];updates[k]=at;});
+    keys.forEach(k=>{const raw=message.value&&message.value[k];if(!Number.isInteger(raw)||raw<0||raw>(k==='rpm'||k==='speed'?65535:255)||raw===(k==='rpm'||k==='speed'?65535:255)){stats.invalid++;return;}cache[k]=raw;updates[k]=at;});
     stats.samples++;
+  }
+  function desired(){
+    active();const fields=new Set();for(const id of leases.keys())for(const k of CONSUMERS[id].fields)fields.add(k);
+    for(const lease of publicLeases.values())for(const k of lease.fields)fields.add(k);
+    return [...new Set([...fields].map(k=>GROUPS[k]))].sort().join(',');
+  }
+  function reconcile(){
+    const next=desired();if(!next){stop();selected='';return;}
+    if(child&&selected!==next)stop();selected=next;if(!child)start();
   }
   function start(){
     if(child||closed)return;
     error=null;ready=false;buffer='';
-    const instance=spawnProcess(process.execPath,[worker],{stdio:['ignore','pipe','ignore'],env:process.env});
+    const instance=spawnProcess(process.execPath,[worker,selected],{stdio:['ignore','pipe','ignore'],env:process.env});
     child=instance;stats.starts++;
     instance.stdout.setEncoding('utf8');
     instance.stdout.on('data',chunk=>{
@@ -70,7 +77,7 @@ function createEngine(options){
     if(typeof id!=='string'||!Object.prototype.hasOwnProperty.call(CONSUMERS,id))return {ok:false,error:'Consumer is not allowlisted'};
     active();
     leases.set(id,now()+Math.min(leaseMs,CONSUMERS[id].leaseMs));
-    if(!child)start();
+    reconcile();
     return status();
   }
   function status(){
@@ -82,7 +89,7 @@ function createEngine(options){
       fields[k]={valid:age!==null&&age<=staleMs,ageMs:age};
     });
     return {ok:true,mode:'request-driven',running:!!child,ready,consumers:count,
-      fields,stats:Object.assign({},stats),error};
+      fields,groups:selected?selected.split(','):[],stats:Object.assign({},stats),error};
   }
   function snapshot(id){
     const consumer=id||'diagnostics'; // Compatible with existing diagnostic probes.
@@ -101,26 +108,26 @@ function createEngine(options){
   function release(id){
     if(typeof id!=='string'||!Object.prototype.hasOwnProperty.call(CONSUMERS,id))return {ok:false,error:'Consumer is not allowlisted'};
     leases.delete(id);
-    if(active()===0)stop();
+    reconcile();
     return status();
   }
   // Internal Symbol capability, never supplied by an IPC client.
-  function demandPublic(id,expiry){
-    if(closed||typeof id!=='symbol'||!Number.isFinite(expiry)||expiry<=now())return false;
-    publicLeases.set(id,expiry);
-    if(!child)start();
+  function demandPublic(id,expiry,fields){
+    if(closed||typeof id!=='symbol'||!Number.isFinite(expiry)||expiry<=now()||!Array.isArray(fields)||!fields.length||fields.some(k=>!FIELDS.includes(k)))return false;
+    publicLeases.set(id,{expiry,fields:fields.slice()});
+    reconcile();
     return true;
   }
   function releasePublic(id){
     publicLeases.delete(id);
-    if(active()===0)stop();
+    reconcile();
   }
   function samplePublic(id,key){
     active();
-    if(!publicLeases.has(id)||!FIELDS.includes(key)||!child||!updates[key])return null;
+    if(!publicLeases.has(id)||!publicLeases.get(id).fields.includes(key)||!child||!updates[key])return null;
     return {raw:cache[key],at:updates[key]};
   }
-  const timer=setInterval(()=>{if(active()===0)stop();},200);
+  const timer=setInterval(()=>{const next=desired();if(next!==selected)reconcile();},200);
   if(timer.unref)timer.unref();
   function close(){
     closed=true;leases.clear();publicLeases.clear();clearInterval(timer);stop();
