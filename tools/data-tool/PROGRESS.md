@@ -1,5 +1,9 @@
 # Data Tool progress
 
+## 2026-11-25 — Tool 0.1.55 / Diagnostics 0.1.67 scheduler timing
+- PR #87 merged 227e19a4, CI 45638707936 PASS. B57 120 s endurance FAIL: REQUEST 20 samples, max 7.37 s, stale observations 40; MODE 20 samples, max 6.66 s, stale observations 43. Release PASS. Acquisition continued but timing target missed.
+- API previously consumed the 1 s rate slot even on idle scheduler ticks. Apply the same global 1 s minimum to actual scheduler read starts only; eligibility remains checked every 250 ms. Existing per-field freshness, transport, serialization, leases and endurance test thresholds unchanged. Added simulated two-field timing and global-spacing regression. CI and in-car validation pending.
+
 ## 2026-11-25 — Diagnostics 0.1.66 background endurance
 - PR #86 merged 9177c258, CI 45571197190 PASS. B57 v0.1.54/0.1.65 5/5 PASS in diagnostic mode and again after requested exit from diagnostic mode (mode not independently measured). Earlier engine-running 5/5 PASS. User prioritizes running engine / driving, not engine-off acquisition.
 - New bounded 120 s Diagnostics client test for REQUEST/MODE using public API, 500 ms passive snapshots, 5 s lease renewal, unique sample count, max interval and stale count, explicit release. Provisional tolerance 1.5 s; no new tabs, Tool unchanged. User leaves Diagnostics and uses other apps while parked. Tests whether process continues when hidden; no claim of sleep or independent app-free acquisition. CI/car pending.
