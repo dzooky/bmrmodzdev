@@ -72,3 +72,6 @@
 - **In-car:** unverified. Do not launch stable and DEV DPF simultaneously for initial TASU tests; cloned app identity does not isolate the shared vehicle TASU or Data Tool service. Production 0.1.74 recovery is also unverified in car.
 - **Next:** restore Data Tool successful before/after-sleep baseline separately; then experiment with Tool reading **only in this DEV copy**, perform targeted car verification, and port a proven minimal change to production only after explicit approval.
 
+
+## 2026-11-25 — 0.1.82 Background Registration
+- Move automatic B57 regeneration notifications to persistent BG state rule (REQUEST/MODE only). Requested, Started, In Progress every 60 s and Finished on active-to-idle; preserve colors and blink durations. All state samples must be valid; B47 remains unsupported for regeneration. Foreground Data Tool demand releases when hidden, manual preview retained. Unknown equipment does not erase an existing registration; confirmed unsupported or disabled unregisters. BG 0.1.5, Data 0.1.60, NT 0.2.1 required for this test package. Conditional dependencies and uninstall cleanup pending. CI and vehicle verification pending.

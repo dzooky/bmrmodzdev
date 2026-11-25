@@ -22,8 +22,7 @@ callbacks.regenClusterTest();
 assert.strictEqual(sandbox.clusterTestStartedAt,12345,'Preview must run without a DDE');
 assert(!m[1].includes('if (profile'),'Preview action must never depend on a DDE profile');
 assert(!m[1].includes('profile.regeneration'),'Preview action must never depend on a regeneration state');
-assert(main.includes("ctx.settings.values.cluster6wbAvailable === true && ctx.settings.get('regenCluster') === true"),
-       'Live cluster equipment/user gate must remain');
-assert(main.includes('profile && profile.regeneration'),'Live B47 guard must remain');
+assert(main.includes("enabled: ctx.settings.get('regenCluster') === true") && main.includes('equipment: backgroundEquipment'), 'Background equipment/user gate must remain');
+assert(main.includes('!profile || !profile.regeneration'),'Live B47 guard must remain');
 assert(!main.includes("': detected'"),'Settings must not expose detected message');
 console.log('DPF preview without DDE: passed');

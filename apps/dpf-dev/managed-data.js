@@ -6,8 +6,8 @@ function create(options){
  const o=options||{},now=o.now||Date.now,open=o.connect||connect;
  let client=null,identity=null,declared='',renewed=0,retryAt=0;
  function close(){if(client)client.close();client=null;identity=null;declared='';renewed=0;}
- async function poll(foreground,background){
-  if(!foreground&&!background){close();return {identity:null,readings:{}};}
+ async function poll(foreground){
+  if(!foreground){close();return {identity:null,readings:{}};}
   if(now()<retryAt)return {identity:null,readings:{}};
   try{
    if(!client){
@@ -16,7 +16,7 @@ function create(options){
     identity=cat.ok&&(cat.engine==='B57'?B57:cat.engine==='B47'?B47:null);
     if(!identity)throw Error('Unsupported DDE');
    }
-   const p=plan(identity),fields=foreground?p.fields:p.background;
+   const p=plan(identity),fields=p.fields;
    if(!fields.length){close();return {identity:null,readings:{}};}
    const key=fields.join(',');
    if(key!==declared||now()-renewed>=5000){

@@ -2,7 +2,7 @@
   "id": "dpf-dev",
   "title": "DPF Status DEV",
   "description": "Isolated development copy of BMW DPF Status. Not verified for simultaneous operation with stable DPF.",
-  "version": "0.1.81",
+  "version": "0.1.82",
   "config": {
     "customSettings": true
   },
@@ -166,7 +166,8 @@
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1",
     "bmrmodz-car-equipment": "0.1.5",
-    "bmrmodz-notification": "0.1.1",
-    "bmrmodz-data-tool": "0.1.56"
+    "bmrmodz-notification": "0.2.1",
+    "bmrmodz-data-tool": "0.1.60",
+    "bmrmodz-background-tool": "0.1.5"
   }
 }

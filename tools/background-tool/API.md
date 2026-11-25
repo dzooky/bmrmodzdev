@@ -21,3 +21,6 @@ v0.1.3: CDS fields use decoded engineering values (e.g. engine.oilTemperature in
 
 
 v0.1.4: optional `rearm` condition for rising triggers. Once fired, the rule remains latched until a valid sample satisfies rearm; invalid data never re-arms. Existing rules without rearm are unchanged.
+
+
+v0.1.5: `trigger: state` with up to eight ordered states `{id,condition,actions,from?,repeat?}`. First matching state wins; `from` restricts entry actions to listed previous state IDs. `repeat:{delayMs,intervalMs,actions}` runs only while matching that state; missed intervals are not replayed. State ID and next repeat are persisted. All declared samples must be valid. `bitSet`/`bitClear` compare unsigned 32-bit masks. Existing rising/once rules unchanged. All state and repeat actions remain notification-only on the public API.

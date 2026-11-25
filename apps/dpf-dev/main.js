@@ -29,6 +29,7 @@ mgu.run({
         // An unresolved VO is a temporary state, not a reason to overwrite user preferences.
         ctx.settings.values.cluster6wbAvailable = false;
         let equipmentChecking = false;
+        let backgroundEquipment = null;
         let equipmentCheckedAt = 0;
         let equipmentRetry = null;
         function scheduleEquipmentCheck() {
@@ -55,6 +56,7 @@ mgu.run({
                 const sixU3 = checked.results['6U3'];
                 const supported = sixWb === true || sixU3 === true;
                 const confirmed = [sixWb, sixU3].every(value => value === true || value === false);
+                backgroundEquipment = supported ? true : confirmed ? false : null;
                 ctx.settings.set('cluster6wbAvailable', supported);
                 // Keep automatic equipment detection silent in Settings.
                 if (force) ctx.settings.actionStatus.reloadEquipment = reloadOk ? '' : 'Equipment reload failed';
@@ -63,6 +65,7 @@ mgu.run({
                 else if (equipmentRetry) { clearTimeout(equipmentRetry); equipmentRetry = null; }
                 return reloadOk;
             } catch (error) {
+                backgroundEquipment = null;
                 ctx.settings.set('cluster6wbAvailable', false);
                 log.warn('DPF Car Equipment 6WB: ' + String(error && error.message || error));
                 if (force) ctx.settings.actionStatus.reloadEquipment = 'Equipment read error';
@@ -115,9 +118,12 @@ mgu.run({
             return request.raw >= 4 && request.raw <= 6 ? 'requested' : 'idle';
         }
 
-        const clusterEnabled = () => !!(profile && profile.regeneration) &&
-            ctx.settings.values.cluster6wbAvailable === true && ctx.settings.get('regenCluster') === true;
-        const indicator = regenMessage.createIndicator();
+        const background = require('./background-registration');
+        background.start(log, () => ({
+            enabled: ctx.settings.get('regenCluster') === true,
+            equipment: backgroundEquipment,
+            translate
+        }), ctx.settings);
         let clusterTestStartedAt = null;
         ctx.settings.onAction('regenClusterTest', () => {
             // A visual preview must not depend on the DDE profile or regeneration state.
@@ -126,13 +132,12 @@ mgu.run({
         });
         regenMessage.start(log, () => {
             const now = Date.now();
-            const liveMessage = indicator(clusterEnabled() ? regenState() : null, now);
             if (clusterTestStartedAt !== null) {
                 const message = regenMessage.testMessage(now - clusterTestStartedAt);
                 if (message) return message;
                 clusterTestStartedAt = null;
             }
-            return liveMessage;
+            return null;
         });
 
         const rasterRuns = src => {
@@ -229,6 +234,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.82', 'Background regeneration notifications'],
                 ['0.1.79', 'Manual comparison using scheduler cache'],
                 ['0.1.78', 'Complete missing reference data during manual comparison'],
                 ['0.1.77', 'Correct data comparison result status'],
@@ -453,8 +459,7 @@ mgu.run({
         (async () => {
             while (true) {
                 const pageVisible = (page === 'overview' || page === 'detail') && ui.isVisible('MAIN');
-                const background = ctx.settings.values.cluster6wbAvailable === true && ctx.settings.get('regenCluster') === true;
-                const result = await managed.poll(pageVisible, background);
+                const result = await managed.poll(pageVisible);
                 if (result.identity) {
                     const nextProfile = ddeProfiles.forDde(result.identity);
                     if (profile && profile !== nextProfile) for (const key of Object.keys(readings)) delete readings[key];
