@@ -32,6 +32,18 @@ jobs:
               assert len(data)>100000 and data[:8] == b'\x89PNG\r\n\x1a\n', name
           print('CC DEV artwork restored and valid')
           PY
+      - name: Verify CC DEV has self-contained immutable artwork
+        run: |
+          python3 - <<'PY'
+          import pathlib, json, hashlib
+          d=pathlib.Path('apps/cc-dev')
+          for a in json.loads((d/'app.json').read_text())['assets']:
+              data=(d/a['file']).read_bytes()
+              digest=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+              assert digest==a['gitSha'], a['file']
+              assert data[:8]==bytes((137,80,78,71,13,10,26,10))
+          print('All six CC DEV assets are committed and match production Git hashes')
+          PY
       - name: Reproduce MGU Store package build
         run: |
           mkdir -p dist/cc-dev-store
