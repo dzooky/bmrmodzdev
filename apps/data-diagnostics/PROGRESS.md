@@ -2,7 +2,7 @@
 
 ## v0.1.79 — native TASU versus Tool front-belt comparison (2026-11-26)
 - **Implemented:** One-shot, explicit-only `CC Test` native InternalTasu `sendTasuRequest` reading of ACSM contacts 1/2, alongside the unchanged Data Tool `hmictl` readings. Native signal and broadcast registered as optional app signals using the original CC API; test runs only on user click. Fixed `31 01 A0 D2 01/02` payload, `maxRetries:0`, bounded per-contact time and proxy shutdown. Rows report `Tool` / `Native` individually and retain the verified rear belt read.
-- **Automated-tested:** Pending diagnostics CI and preview build; simulated latched, unlatched, NRC 13, invalid frame and unavailable native proxy.
+- **Automated-tested:** Data Tool / Diagnostics CI 45821486900 PASS, including simulated latched, unlatched, NRC 13, invalid frame, unavailable native proxy, other existing regressions and MGU preview build. Vehicle behavior still unverified.
 - **In-car verified:** Pending. Original production CC includes native read logic but does NOT by itself prove it succeeded in this vehicle. Compare each front row result with Tool 0.1.67. Do not migrate Data Tool to native transport without explicit evidence.
 - **Scope:** No Data Tool or BG Tool code changes, no persistent subscription, no climate actuator functions, no changed gear generator.
 
