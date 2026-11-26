@@ -19,6 +19,7 @@ jobs:
           node --check apps/cc-dev/managed-temperature.js
           node --check apps/cc-dev/public-client.js
           node apps/cc-dev/managed-temperature.test.js
+          node apps/cc-dev/tab-navigation.test.js
           node -e "const a=require('./apps/cc-dev/app.json'),assert=require('assert');assert.equal(a.id,'cc-dev');assert.equal(a.requires['bmrmodz-data-tool'],'0.1.61')"
       - name: Offline CC DEV preview
         run: python3 kit/tools/build.py --preview-only cc-dev

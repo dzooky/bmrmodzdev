@@ -1,5 +1,12 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — 0.1.63 tab navigation regression fix
+- **In-car report:** CC DEV 0.1.62 opens after MGU restart, correct DEV name, VO configuration detected and Front/Rear/Steering tab labels visible, but touch on those tabs does not switch pages.
+- **Implemented:** Always attach the ordered application tab list and selected index to the display recorder (`cv.tabInfo`), so the shared display tab dispatcher resolves page taps when the header is not using `cv.chrome`. Preserve existing equipment gating, temperature reading, controls and rendered tab layout.
+- **Automated-tested:** CI pending. Add static integration guard for recorder metadata.
+- **In-car verified:** No. Re-test tab switching on 0.1.63; no change to production CC.
+
+
 ## 2026-11-26 — 0.1.62 managed temperature migration
 - **Implemented:** CC DEV foreground temperatures now consume Data Tool CDS outside temperature and four IHKA D8D7 footwell values through separate opt-in sessions. Session renews every 5 s and closes when MAIN is hidden. No direct CC-side footwell/exterior acquisition and no native fallback; invalid/stale samples disable temperature-driven commands. Existing engine RPM safety, manual IHKA/steering controls, equipment detection and UI are preserved.
 - **Automated-tested:** CI pending; managed temperature tests cover subscription, validity, disconnect, recovery and unsupported/missing values.
