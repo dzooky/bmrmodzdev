@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.66",
+  "version": "0.1.67",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
@@ -152,6 +152,11 @@
     {
       "path": "cc-gear-manifest.json",
       "from": "cc-gear-manifest.json",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-generator-audit.js",
+      "from": "cc-generator-audit.js",
       "mode": "0644"
     },
     {

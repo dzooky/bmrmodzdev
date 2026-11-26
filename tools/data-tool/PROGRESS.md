@@ -1,3 +1,7 @@
+## 2026-11-26 — 0.1.67 CC gearbox generator source preflight
+- **Implemented:** Explicit `ccGearSourceAudit` reads only bounded local BMW SOME/IP catalog and AppManagement bundle; compiles the wrapper with VM parse-only (never executes BMW firmware), reports module markers and bundle syntax category/line. No ACL registration, generator write, vehicle request or change to TASU reads.
+- **ACSM:** Front A0D2 contacts still returned NRC 13. Repository does not contain `hmictl` helper source or on-wire capture; exact serialized wire frame is unproven. No new contact commands or timing changes.
+- **Automated-tested:** Pending CI. **In-car verified:** No. Bundle syntax valid is not proof selector works; P/D and front belts remain unverified.
 ## 2026-11-26 — 0.1.66 rollback of unsuccessful ACSM four-byte experiment
 - **In-car observation (0.1.65 / Diagnostics 0.1.77):** both front contacts `Unknown` with `ACSM command rejected` (TASU helper did not accept the truncated command). Rear left `unlatched` and rear right `latched` still correctly decoded; gear-config unchanged.
 - **Regression fix:** restore the final zero byte in the fixed A0D2 request, identically to v0.1.64. Existing DID 0x22 and other read paths remain untouched. No speculative retries or alternative ACSM routines.
