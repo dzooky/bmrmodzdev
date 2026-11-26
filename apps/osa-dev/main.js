@@ -26,6 +26,11 @@ mgu.run({
         const { ui, log } = ctx;
         ctx.hideButton('BTN_SETTINGS');
         const settingsCanvas = createSettingsCanvas(ctx.settings, ctx.spec.version, () => switchPage(0));
+        const release = ctx.isPreview ? null : {
+            version: ctx.spec.version,
+            existing: fs.existsSync(ctx.settings.file) || fs.existsSync(path.join(ctx.dataDir, 'osa-warmup-history.json')),
+        };
+        const notices = require('./notices').start(ctx.settings, release);
         const getLanguage = Language.start(ctx);
         let page = 0;
         // Cluster output is disabled until VO confirms 6WB or Live Cockpit Professional (6U3).
@@ -191,6 +196,8 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.2.70', 'Welcome on first launch and notices after important updates'],
+                ['0.2.70', 'Gauge titles follow the selected language'],
                 ['0.2.66', 'Oil temperature notification at every engine start'],
                 ['0.2.65', 'Background oil temperature notifications'],
                 ['0.2.64', 'Data Tool integration'],
@@ -490,7 +497,7 @@ mgu.run({
                 // Engine page keeps BOTH Warm-Up temperature gauges:
                 // engine oil and engine coolant. Transmission page is oil-only.
                 G.segBar(cv, t, 24, 44, 880, 250, {
-                    label: 'Engine oil',
+                    label: translate('Engine oil'),
                     value: oil,
                     unit: '°C',
                     decimals: 0,
@@ -506,7 +513,7 @@ mgu.run({
                     limit: 120
                 });
                 G.segBar(cv, t, 24, 311, 880, 200, {
-                    label: 'Coolant',
+                    label: translate('Coolant'),
                     value: G.isNum(d.coolant) ? d.coolant : null,
                     unit: '°C',
                     decimals: 0,
@@ -544,7 +551,7 @@ mgu.run({
                 // Match the Engine oil page layout; only the data source and
                 // transmission-specific temperature zones differ.
                 G.segBar(cv, t, 24, 44, 880, 225, {
-                    label: 'Oil',
+                    label: translate('Oil'),
                     value,
                     unit: '°C',
                     decimals: 0,
@@ -633,10 +640,12 @@ mgu.run({
                 cv.tabInfo = null;
                 G.frame(cv, t, tabs, page, []);
             }
+            notices.draw(cv, t, render);
             return ui.image('MAIN_GFX', cv);
         }
 
         ctx.onScroll(delta => {
+            if (notices.active()) return false;
             if (page === 3) return settingsCanvas.scroll(delta);
             if (page !== 4) return false;
             const next = Math.max(0, Math.min(maxAboutScroll, aboutScroll + delta));
@@ -646,12 +655,18 @@ mgu.run({
         });
 
         const switchPage = (next) => {
+            if (notices.active()) return;
             page = (next + 5) % 5;
 
             return render();
         };
 
         function pageBy(direction) {
+            if (notices.active()) {
+                if (direction > 0) notices.next();
+                else notices.previous();
+                return render();
+            }
             return switchPage(page + direction);
         }
         ui.onClick('BTN_PAGE', () => pageBy(1));
