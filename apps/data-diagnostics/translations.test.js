@@ -10,7 +10,7 @@ assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.63');
 assert.strictEqual(spec.mguInternet,true);
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
-assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool']"));
+assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test']"));
 for(const text of ['This application is still in development phase and not ready for public use.','We still working on it and will be available soon.','Thank you'])assert.ok(main.includes(text));
 for(const key of ['Data Tool','Background Tool','Notification Tool','Remaining time','Queue','Accepted','Submitted','Failed','Expired','Start / stop BT test','Test notification','Notification test','Slow','Fast','Queued'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
 assert.ok(main.includes("ui.onClick('BTN_NT',()=>{testNotification()"));
