@@ -75,7 +75,7 @@ mgu.run({start(ctx){
  ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
  ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
  ctx.onTap((x,y)=>{
-  if(page===4&&ccResult&&!ccBusy&&x>=1080&&x<=1510&&y>=55&&y<=110){ccDetailPage=(ccDetailPage+1)%3;return;}
+  if(page===4&&ccResult&&!ccBusy&&x>=1080&&x<=1510&&y>=55&&y<=110){ccDetailPage=(ccDetailPage+1)%(Math.ceil(ccTest.detailLines(ccResult).length/6)+1);return;}
   if(x>=520&&x<=1080&&y>=390&&y<=455){
    if(page===1)testCds();
    if(page===2)toggleBackgroundTest();
@@ -125,7 +125,7 @@ mgu.run({start(ctx){
   header(cv,theme,'CC Test',word(ccBusy?'Running':ccResult?'Completed':'Not tested'));
   if(ccResult){
    cv.roundRect(1100,58,265,50,8,theme.track);
-   label(cv,ccDetailPage?'Details '+ccDetailPage+'/2':'Details 0/2',1230,91,19,theme.text,{align:'center'});
+   label(cv,'Details '+ccDetailPage+'/'+Math.ceil(ccTest.detailLines(ccResult).length/6),1230,91,19,theme.text,{align:'center'});
   }
   if(ccResult&&ccDetailPage){
    const lines=ccTest.detailLines(ccResult);
