@@ -38,7 +38,7 @@ function detailLines(x){
   'Catalog: '+val(c.status)+' / VehicleInfo='+fmt(c.vehicleInformationMentioned),
   'Gear signals: Gearbox='+fmt(c.statusGearboxDriveMentioned)+' PowerTrain2='+fmt(c.dataPowerTrain2Mentioned),
   'Gear generator: '+val(gc.stage||'unknown')+' / '+val(gc.error||gc.note||'no detail'),
-  'Gear read (Tool): '+val(gear.stage)+' / '+val(gear.error||gear.selector||'no detail'),
+  'Gear read: Tool '+val(gear.stage)+' / '+val(gear.error||gear.selector||'no detail'),
   'Gear read (App Native): '+val(ng.stage)+' / '+val(ng.selector||ng.errors&&ng.errors.join('; ')||'no detail'),
   'Native gear feeds: '+val(JSON.stringify(ng.observations||{})),
   'TASU generator: '+val(tc.stage||'unknown')+' / '+val(tc.error||tc.note||'no detail'),
