@@ -2,6 +2,13 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "CC Test":"CC Test",
+    "Run CC diagnostics":"Run CC diagnostics",
+    "Gear selector":"Gear selector",
+    "frontLeft":"Front left belt",
+    "frontRight":"Front right belt",
+    "rearLeft":"Rear left belt",
+    "rearRight":"Rear right belt",
     "CDS configuration": "CDS configuration",
     "Motor-only test": "Motor-only test",
     "Public CDS signal test": "Public CDS signal test",

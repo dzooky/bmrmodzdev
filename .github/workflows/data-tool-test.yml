@@ -15,6 +15,8 @@ jobs:
       - name: Validate installed service syntax with legacy Node 12
         run: |
           node --check tools/data-tool/service.js
+          node --check tools/data-tool/cc-gear-worker.js
+          node --check tools/data-tool/cc-gear-runner.js
           node --check tools/data-tool/uds-demand-scheduler.js
           node --check tools/data-tool/scheduler-live-test.js
           node --check tools/data-tool/scheduler-profile-test.js
@@ -99,6 +101,7 @@ jobs:
           node tools/data-tool/native-process-boundary.test.js
           node tools/data-tool/package-boundary.test.js
           node tools/data-tool/transport-trace.test.js
+          node tools/data-tool/cc-front-contact.test.js
           node tools/data-tool/tasu21-recovery.test.js
           node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js
@@ -111,6 +114,7 @@ jobs:
           node tools/data-tool/signal-isolate.test.js
           node tools/data-tool/diagnostic-report.test.js
           node tools/data-tool/cc-feasibility.test.js
+          node apps/data-diagnostics/cc-test.test.js
           node tools/data-tool/gear-state.test.js
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js

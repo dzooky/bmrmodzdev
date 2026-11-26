@@ -2,8 +2,9 @@
 const mgu=require('./kit/mgu'),G=require('./kit/gauges'),client=require('./client');
 const {t}=require('./translations');
 const cdsProbe=require('./cds-probe');
+const ccTest=require('./cc-test');
 const W=1600,H=520;
-const pages=['Info','Data Tool','Background Tool','Notification Tool'];
+const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -13,7 +14,7 @@ mgu.run({start(ctx){
  const {ui,log}=ctx;
  let page=0,ntBusy=false,ntMessage='',ntError='',ntCooldown=0,ntHealth=null,ntPoll=false,lastNtPoll=0;
  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='',bgDeadline=0;
- let cdsBusy=false,cdsResult=null;
+ let cdsBusy=false,cdsResult=null,ccBusy=false,ccResult=null;
  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
@@ -56,6 +57,12 @@ mgu.run({start(ctx){
   if(cdsBusy)return;cdsBusy=true;cdsResult=null;
   try{cdsResult=await cdsProbe.run(client.request);}catch(e){cdsResult={rows:[],error:String(e.message||e)};}finally{cdsBusy=false;}
  }
+ async function testCC(){
+  if(ccBusy)return;ccBusy=true;ccResult=null;
+  try{ccResult=await ccTest.run(client.request);}
+  catch(e){ccResult={gear:{ok:false,stage:'error'},belts:{},errors:[String(e.message||e)]};}
+  finally{ccBusy=false;}
+ }
  async function pollNotification(){
   if(ntPoll)return;ntPoll=true;
   try{const h=await client.request({op:'status'},{socket:'/run/bmrmodz-notification/ctl.sock',timeoutMs:1500});ntHealth=h&&h.ok?h:null;}catch(_){ntHealth=null;}finally{ntPoll=false;}
@@ -68,6 +75,7 @@ mgu.run({start(ctx){
    if(page===1)testCds();
    if(page===2)toggleBackgroundTest();
    if(page===3)testNotification();
+   if(page===4)testCC();
   }
  });
  function label(cv,text,x,y,size,color,opts){cv.text(String(text==null?'':text).slice(0,105),x,y,size,color,Object.assign({literal:true},opts||{}));}
@@ -75,7 +83,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.75');
+  header(cv,theme,'Info','0.1.76');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -108,6 +116,17 @@ mgu.run({start(ctx){
   }
   button(cv,theme,word(h&&h.testActive?'Stop BT test':'Start BT test')+' '+bgMessage,bgCommandBusy);
  }
+ function drawCC(cv,theme){
+  header(cv,theme,'CC Test',word(ccBusy?'Running':ccResult?'Completed':'Not tested'));
+  const x=ccResult||{},g=x.gear||{},belts=x.belts||{};
+  row(cv,theme,'Gear selector',!ccResult?'—':g.ok&&g.selector?'PASS: '+g.selector+' / '+(g.source||'?'):'FAIL: '+(g.stage||'unknown'),150);
+  ['frontLeft','frontRight','rearLeft','rearRight'].forEach((k,i)=>{
+   const v=belts[k];row(cv,theme,k,v==='latched'||v==='unlatched'?v:word('Unknown'),190+i*35);
+  });
+  if(x.errors&&x.errors.length)label(cv,x.errors[0],800,355,17,theme.warn,{align:'center'});
+  button(cv,theme,word(ccBusy?'Running':'Run CC diagnostics'),ccBusy);
+  label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
+ }
  function drawNotification(cv,theme){
   const h=ntHealth;header(cv,theme,'Notification Tool',word(h?'Running':'Unavailable')+(h?' / '+(h.version||word('Unknown')):''));
   if(h){
@@ -131,6 +150,7 @@ mgu.run({start(ctx){
   if(page===1){if(now-lastHealthPoll>=2000){lastHealthPoll=now;pollReadHealth();}drawData(cv,theme);}
   if(page===2){if(now-lastBgPoll>=2000){lastBgPoll=now;pollBackground();}drawBackground(cv,theme);}
   if(page===3){if(now-lastNtPoll>=2000){lastNtPoll=now;pollNotification();}drawNotification(cv,theme);}
+  if(page===4)drawCC(cv,theme);
   G.frame(cv,theme,pages.map(word),page,[]);
   return ui.image('MAIN_GFX',cv);
  }

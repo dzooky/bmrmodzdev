@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.76 — CC parked diagnostic (2026-11-26)
+- **Implemented:** Fifth CC Test tab with manually triggered four belt-contact reads and selector P/R/N/D probe through Data Tool only. No actuation or automatic monitoring. Requires Data Tool 0.1.63.
+- **Automated-tested:** CI pending; orchestration regression included.
+- **In-car verified:** No. Test with ignition on, parked, engine off; P does not prove D. Existing tabs unchanged.
+
 ## v0.1.75 — EGS validation
 - 0.1.74 in-car 5/5 CDS, motor-only 3/3, configuration, DPF reference and release PASS in diagnostic mode with engine off. Engine-running validation remains pending.
 - Add EGS named demand and sixth sample to mixed test, verify all three sessions release. CI and vehicle validation pending.

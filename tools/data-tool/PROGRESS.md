@@ -1,3 +1,11 @@
+## 2026-11-26 — isolated CC selector P/R/N/D feasibility
+- **Implemented:** explicit-only short-lived SOME/IP VehicleInformation probe and separately generated staged config, both via Data Tool diagnostic socket. No boot-time subscription, no CDS/UDS read policy changes, no exposed BG selector field.
+- **Automated-tested:** CI pending. Gear signal schema, BMW generator availability, ACL and delivery require parked test. Do not claim D verified from observing P.
+
+## 2026-11-26 — 0.1.63 isolated front seatbelt diagnostic transport
+- **Implemented:** Only on explicit diagnostics request, fixed ACSM A0D2 contact 1/2 read-like routine via existing TASU transport and shared serialized queue. No general 0x31 API; original UDS read path is unchanged.
+- **Automated-tested:** CI pending. No vehicle verification; front routine TASU envelope must be validated while parked.
+- **Limitations:** This is a sensor-like 0x31 routine. Other clients cannot register it as a public field. Gear selector, rear belts and diagnostics UI are separate next steps. No vehicle actuation.
 ## 2026-11-26 — isolated gearbox selector source decoder (no runtime change)
 - **Implemented (source/test-only):** `gear-state.js` parses `VehicleInformation.statusGearboxDrive.statusActualStageDrive` and `DataPowerTrain2.statusGearSelectionDrive` with explicit P/R/N/D mappings, invalid/ambiguous NP suppression, independent bounded freshness, and conflict rejection. Numeric gear/RPM/speed guesses cannot produce a selector D. No polling, proxy, service, packaging or public field changes.
 - **Automated-tested:** PR #123 Data Tool CI 45800710322 PASS; new isolated parser test plus existing Data Tool regressions.
