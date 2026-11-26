@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## 2026-11-26 — observed v0.1.65 A0D2 helper rejection
+- **In-car observed:** Data Tool 0.1.65 returned `ACSM command rejected` for both front contacts, while both rear belt states remained accurate. Gear-config still failed, no selector confirmed.
+- **Fix in Tool 0.1.66:** restored v0.1.64 helper framing (the extra final zero) after v0.1.65 failed before a UDS response; front sensor remains unresolved at NRC 0x13. App 0.1.77 is unchanged.
+
 ## 2026-11-26 — confirmed rear belt transitions / pending front NRC verification
 - **In-car verified:** Data Tool Diagnostics 0.1.77 showed rear left `unlatched`, rear right `latched`; user confirmed real physical belt test. ACSM rear 4053 decodes both rear positions, with a confirmed state change on one seat. Front left and front right remain Unknown; each reports `ACSM NRC` and the gearbox shows `gear-config`.
 - **Next:** Data Tool 0.1.64 surfaces NRC code; run one explicit parked test to distinguish ECU refusal cause. Gear generator is a separate isolated problem; no changes to working rear belt reader or main CDS flows.

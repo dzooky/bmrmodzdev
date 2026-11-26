@@ -1,3 +1,10 @@
+## 2026-11-26 — 0.1.66 rollback of unsuccessful ACSM four-byte experiment
+- **In-car observation (0.1.65 / Diagnostics 0.1.77):** both front contacts `Unknown` with `ACSM command rejected` (TASU helper did not accept the truncated command). Rear left `unlatched` and rear right `latched` still correctly decoded; gear-config unchanged.
+- **Regression fix:** restore the final zero byte in the fixed A0D2 request, identically to v0.1.64. Existing DID 0x22 and other read paths remain untouched. No speculative retries or alternative ACSM routines.
+- **Automated-tested:** Pending CI; framing positive/negative and existing read regressions.
+- **In-car verified:** The restored format was previously ACK-accepted on the car in 0.1.64, but it produced UDS NRC 0x13. Front belt contact reads are **not** verified working. Next investigate the helper's exact on-wire encoding versus production CC's `sendTasuRequest`; do not repeat a vehicle test merely to rediscover NRC 0x13.
+- **Gear:** separately blocked at BMW generator `undefined:3130`; no changes in this rollback.
+
 ## 2026-11-26 — 0.1.65 isolated front ACSM NRC 0x13 framing candidate
 - **In-car evidence (Data Tool 0.1.64 / Diagnostics 0.1.77):** front left and right returned UDS `7F 31 13`, while ACSM 4053 rear belt states were correct and a physical rear buckle change confirmed; gearbox config generator remained unusable (`undefined:3130` error).
 - **Implemented:** ONLY remove the trailing zero byte from the fixed ACSM A0D2 `31 01 A0 D2 01/02` `hmictl` call. The declared four-byte payload length remains four. This isolates the possibility that the previous zero was delivered as an unintended fifth payload byte. All original UDS 0x22 reads, queues, retries, and other TASU requests are untouched.
