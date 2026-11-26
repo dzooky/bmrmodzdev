@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.72",
+  "version": "0.1.73",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
@@ -167,6 +167,11 @@
     {
       "path": "cc-catalog-shape.js",
       "from": "cc-catalog-shape.js",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-gear-candidates.js",
+      "from": "cc-gear-candidates.js",
       "mode": "0644"
     },
     {

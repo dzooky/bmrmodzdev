@@ -48,6 +48,8 @@ function detailLines(x){
   'Catalog: '+val(c.status)+' / VehicleInfo='+fmt(c.vehicleInformationMentioned),
   'Gear signals: Gearbox='+fmt(c.statusGearboxDriveMentioned)+' PowerTrain2='+fmt(c.dataPowerTrain2Mentioned),
   'Gear exact catalog: '+val(c.shape&&c.shape.status)+' / matches='+val(c.shape&&c.shape.exactInterfaceMatches),
+  'Gear other catalog candidates: '+val(c.alternativeCandidates&&c.alternativeCandidates.status)+' / count='+val(c.alternativeCandidates&&c.alternativeCandidates.candidateCount),
+  'Gear candidate fields/instances (NOT VERIFIED): '+val(JSON.stringify(c.alternativeCandidates&&c.alternativeCandidates.candidates||[]).slice(0,320)),
   'Gear field map: Gearbox='+fmt(c.shape&&c.shape.fields&&c.shape.fields.statusGearboxDrive)+' PowerTrain2='+fmt(c.shape&&c.shape.fields&&c.shape.fields.DataPowerTrain2)+' instance1='+fmt(c.shape&&c.shape.instance1),
   'BMW bundle execution verified: '+fmt(b.executionVerified),
   'Gear generator: '+val(gc.stage||'unknown')+' / '+val(gc.error||gc.note||'no detail'),

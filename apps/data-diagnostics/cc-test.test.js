@@ -25,6 +25,7 @@ const assert=require('assert'),cc=require('./cc-test');
  assert(lines.some(x=>x.includes('Service TASU: config-unauthorized')));
  assert(lines.some(x=>x.includes('frontLeft: not-received')));
  assert(lines.some(x=>x.includes('Gear read:')));
+ assert(lines.some(x=>x.includes('Gear other catalog candidates:')));
  assert(lines.some(x=>x.includes('ACL registered: NOT VERIFIED')));
  assert(lines.some(x=>x.includes('TASU staged: method=yes')));
  assert(lines.some(x=>x.includes('Catalog:')));

@@ -22,7 +22,7 @@ c.on('data',chunk=>{
  if(buffer.indexOf('\n')<0)return;
  const reply=JSON.parse(buffer.split('\n')[0]);
  assert.strictEqual(reply.ok,true);
- assert.strictEqual(reply.version,'0.1.72');
+ assert.strictEqual(reply.version,'0.1.73');
  assert.strictEqual(reply.stats.sent,0);
  c.end();service.close();
  try{fs.unlinkSync(socket)}catch(_){}
