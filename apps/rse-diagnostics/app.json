@@ -2,7 +2,7 @@
   "id": "rse-diagnostics",
   "title": "RSE Diagnostics",
   "description": "Experimental read-only RSE observations",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "vendor": "custom",
   "loggingId": "RSED",
   "iconGlyph": "temp",
@@ -15,6 +15,10 @@
       "kind": "canvas",
       "title": "RSE Diagnostics",
       "buttons": [
+        [
+          "BTN_CAPTURE",
+          "Capture"
+        ],
         [
           "BTN_EXPORT",
           "Export"
