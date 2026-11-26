@@ -35,8 +35,9 @@ function fail(stage,e){
 function capture(message){
  if(!pending)return;
  if(message&&message.errorCode!==undefined&&message.errorCode!=='NO_ERROR'&&message.errorCode!==0)
-  return pending.finish({state:'unknown',detail:'transport-error'});
+  return pending.finish({state:'unknown',detail:'transport-error:'+String(message.errorCode).slice(0,50)});
  const b=bytes(message&&message.udsResponse!==undefined?message.udsResponse:message);
+ if(b.length>=5&&b[2]===0x7f)return pending.finish({state:'unknown',detail:'tas-reject-'+('0'+b[4].toString(16)).slice(-2)});
  if(b.length<10||b[6]!==ADDRESS)return;
  const u=b.slice(9),contact=pending.contact;
  if(u[0]===0x7f&&u[1]===SERVICE&&u[2]===0x78)return;
@@ -49,7 +50,7 @@ function read(contact){
   const data=[1,0xA0,0xD2,contact];
   let closed=false;
   const complete=x=>{if(closed)return;closed=true;clearTimeout(timer);pending=null;resolve(x);};
-  const timer=setTimeout(()=>complete({state:'unknown',detail:'timeout'}),3300);
+  const timer=setTimeout(()=>complete({state:'unknown',detail:'timeout-no-matching-response'}),3300);
   pending={contact,finish:complete};
   const params={sourceAddress:0xF2,targetAddress:ADDRESS,serviceID:SERVICE,
     subroutineID:0,udsDataLength:4,udsData:Buffer.from(data),deadlockTime:0};
@@ -58,8 +59,8 @@ function read(contact){
    if(closed)return;
    const raw=verdict&&typeof verdict==='object'?(verdict.TasuErrorEnum||Object.keys(verdict).map(k=>verdict[k]).find(x=>typeof x==='string')):verdict;
    if(raw!==undefined&&!/^(NO_ERROR|REQUEST_PENDING|0|1)$/.test(String(raw)))
-    complete({state:'unknown',detail:'request-rejected'});
-  }).catch(()=>complete({state:'unknown',detail:'call-failed'}));
+    complete({state:'unknown',detail:'request-rejected:'+String(raw).slice(0,50)});
+  }).catch(e=>complete({state:'unknown',detail:'call-failed:'+String(e&&e.message||e).slice(0,50)}));
  });
 }
 async function main(){
