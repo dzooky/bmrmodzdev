@@ -134,7 +134,7 @@ mgu.run({start(ctx){
   const reads=service.readings||{};
   const serviceValue=service.ok?
    [reads.frontLeft&&reads.frontLeft.state,reads.frontRight&&reads.frontRight.state].join(' / '):
-   String(service.stage||'not-tested');
+   String(service.stage||'not-tested')+(service.error?' / '+String(service.error).slice(0,45):'');
   label(cv,word('Service TASU')+': '+serviceValue,800,316,16,service.ok?theme.ok:theme.warn,{align:'center'});
   // Surface both independent failure reasons instead of masking the
   // gearbox generator's actual stage and the right front contact status.

@@ -2,7 +2,7 @@
 
 ## v0.1.80 — Data Tool service-native TASU access test
 - **Implemented:** CC Test invokes explicit Tool-owned `ccTasuGenerate` (staging-only) then `ccTasuProbe` to check the native worker under Data Tool system service. Displays `Service TASU` stage or front left/right values. Keeps separate app-native proven comparison, old Tool hmictl reads, rear belts and failed gear generator unchanged.
-- **Automated-tested:** Pending CI. **In-car:** App-native 0.1.79 previously saw FL unlatched / FR latched; new Tool service permission and generated config remain unverified. Tool 0.1.68 is required.
+- **Automated-tested:** Data Tool test build run 45826740239 SUCCESS, including MGU preview. **In-car:** App-native 0.1.79 previously saw FL unlatched / FR latched; new Tool service permission and generated config remain unverified. Tool 0.1.68 is required.
 - **Safety:** No automatic UDS reads, no ACL activation and no production CC consumers. Config or permission refusal is a valid bounded result.
 
 ## v0.1.79 — native TASU versus Tool front-belt comparison (2026-11-26)
