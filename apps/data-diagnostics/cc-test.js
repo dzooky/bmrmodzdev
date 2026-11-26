@@ -19,8 +19,8 @@ async function run(request){
  const structure=sourceAudit&&sourceAudit.catalog&&sourceAudit.catalog.shape||{};
  let gearConfig={ok:false,stage:'not-tested'};
  let gear={ok:false,stage:'not-tested'};
- if(structure.status&&structure.status!=='candidate-confirmed'){
-  gearConfig={ok:false,stage:'catalog-unverified',error:structure.status};
+ if(structure.status!=='candidate-confirmed'){
+  gearConfig={ok:false,stage:'catalog-unverified',error:structure.status||'catalog-audit-unavailable'};
   gear={ok:false,stage:'catalog-unverified',error:structure.status};
  }else try{const g=await request({op:'ccGearGenerate'},{timeoutMs:16000});gearConfig=g||gearConfig;gear=g&&g.ok?await request({op:'ccGearProbe'},{timeoutMs:8500}):{ok:false,stage:'gear-config',error:g&&(g.error||g.stage)};}catch(e){gear={ok:false,stage:'gear-error',error:String(e.message||e).slice(0,100)};}
  for(const [contact,key] of [[1,'frontLeft'],[2,'frontRight']])try{
