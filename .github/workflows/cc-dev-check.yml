@@ -1,0 +1,24 @@
+name: CC DEV isolated regression checks
+on:
+  pull_request:
+    paths: ['apps/cc-dev/**', '.github/workflows/cc-dev-check.yml']
+  push:
+    branches: [main]
+    paths: ['apps/cc-dev/**', '.github/workflows/cc-dev-check.yml']
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: CC DEV managed temperature checks
+        run: |
+          node --check apps/cc-dev/main.js
+          node --check apps/cc-dev/managed-temperature.js
+          node --check apps/cc-dev/public-client.js
+          node apps/cc-dev/managed-temperature.test.js
+          node -e "const a=require('./apps/cc-dev/app.json'),assert=require('assert');assert.equal(a.id,'cc-dev');assert.equal(a.requires['bmrmodz-data-tool'],'0.1.61')"
+      - name: Offline CC DEV preview
+        run: python3 kit/tools/build.py --preview-only cc-dev

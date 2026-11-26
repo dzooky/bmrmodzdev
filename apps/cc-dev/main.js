@@ -6,7 +6,7 @@ const Car = require('./kit/car');
 const { ReadOnlyDiag } = require('./kit/readonly-diag');
 const CarEquipment = require('./kit/car-equipment');
 const { CODES: EQUIPMENT_CODES, fromResults: equipmentFromResults } = require('./equipment');
-const createSeatTemperatureReader = require('./seat-temperature');
+const managedTemperature = require('./managed-temperature');
 const { renderAbout, maxScroll: maxAboutScroll } = require('./about');
 const renderSeats = require('./seats');
 const createIhkaTest = require('./ihka-test');
@@ -71,41 +71,18 @@ mgu.run({
         let equipment = {};
         const enqueueDiagnostic = createDiagnosticQueue();
         const wheelTest = createWheelTest(ctx, enqueueDiagnostic);
-        const readFootwellTemperatures = link ? createSeatTemperatureReader(link, ctx.log) : null;
+        const temperatures = managedTemperature.create();
         const seatTemperatures = {};
-        let footwellReadAt = 0;
+        const temperatureSnapshot = () => temperatures.data();
         let footwellAvailable = false;
         const temperatureFor = position => {
-            const readings = Object.assign({}, seatTemperatures);
-            if (Date.now() - footwellReadAt > 15000) {
-                for (const key of ['frontLeft', 'frontRight', 'rearLeft', 'rearRight']) readings[key] = null;
-            }
-            return selectTemperature(ctx.settings, equipment, readings, position);
+            return selectTemperature(ctx.settings, equipment, temperatureSnapshot(), position);
         };
-        if (link) {
-            ctx.signals.watch('de.bmw.infrastructure.EnvironmentalInformation', '1', {
-                ExteriorTemperature: value => {
-                    const raw = value && value.temperatureExterior;
-                    seatTemperatures.outside = Number.isInteger(raw) && raw >= 0 && raw < 255
-                        ? raw * 0.5 - 40 : null;
-                },
-            }, ctx.log).then(sub => {
-                if (sub.error) {
-                    seatTemperatures.outside = null;
-                    ctx.log.warn('Climate Comfort outside temperature: ' + sub.error);
-                }
-            }).catch(error => {
-                seatTemperatures.outside = null;
-                ctx.log.warn('Climate Comfort outside temperature: ' + error.message);
-            });
-        }
-        let temperatureReading = false;
-        let nextTemperatureRead = 0;
         const car = link ? new Car(ctx, ['rpm']) : null;
         const allowEngineOffTest = ctx.spec.config.allowEngineOffTest === true;
         const activationState = () => ctx.settings.get('appEnabled') !== true ? false : car
             ? getActivationState(car.data(), allowEngineOffTest, car.lastCar, Date.now(),
-                footwellAvailable && Date.now() - footwellReadAt <= 15000) : null;
+                temperatures.hasValidFootwell()) : null;
         const activationReady = () => activationState() === true;
         const ihkaTest = createIhkaTest(ctx, activationReady, enqueueDiagnostic);
         const automation = createAutomation(ctx.settings, temperatureFor, activationState, ihkaTest, wheelTest, ctx.log);
@@ -113,7 +90,6 @@ mgu.run({
             if (key !== 'appEnabled') return;
             automation.stop();
             ihkaTest.resetBeltChecks();
-            nextTemperatureRead = 0;
             if (ctx.settings.get('appEnabled') === true && link) link.wake(0x78);
         });
         let tabs = [];
@@ -158,23 +134,6 @@ mgu.run({
             }
         }
 
-        async function refreshSeatTemperatures() {
-            if (ctx.settings.get('appEnabled') !== true || !readFootwellTemperatures || temperatureReading || Date.now() < nextTemperatureRead) return;
-            temperatureReading = true;
-            try {
-                await enqueueDiagnostic(async () => {
-                    if (ctx.settings.get('appEnabled') !== true) return;
-                    const temperatures = await readFootwellTemperatures();
-                    Object.assign(seatTemperatures, temperatures);
-                    footwellReadAt = Date.now();
-                    footwellAvailable = temperatures.available === true;
-                });
-            } finally {
-                temperatureReading = false;
-                nextTemperatureRead = Date.now() + 5000;
-            }
-        }
-
         function reloadEquipment() {
             if (ctx.isPreview || equipmentChecking) return;
             return detectEquipment(true);
@@ -205,15 +164,25 @@ mgu.run({
             if (tabs[index] && page !== tabs[index]) {
                 settingsPage.close();
                 page = tabs[index];
-                nextTemperatureRead = 0;
                 if (link && (page === 'Front' || page === 'Rear')) link.wake(0x78);
             }
         });
 
+        ctx.ui.onVisible((name, visible) => {
+            if (name === 'MAIN') {
+                temperatures.setVisible(visible);
+                if (!visible) automation.stop();
+            }
+        });
+        temperatures.setVisible(ctx.ui.isVisible('MAIN'));
+        const temperatureTimer = setInterval(() => temperatures.poll(), 250);
+        if (temperatureTimer.unref) temperatureTimer.unref();
+        temperatures.poll();
+
         ctx.loop('MAIN', 4, () => {
             wheelTest.tick();
             detectEquipment().catch(error => ctx.log.warn('Climate Comfort Car Equipment poll: ' + error));
-            refreshSeatTemperatures();
+            // The managed temperature client polls independently of UI rendering.
             if (ctx.isPreview) {
                 rows.forEach(({ key }) => { equipment[key] = ctx.settings.get(key) === true; });
             }
