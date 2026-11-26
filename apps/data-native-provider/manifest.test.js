@@ -4,7 +4,7 @@ const a=require('./app.json');
 assert.equal(a.id,'data-native-provider');assert.equal(a.version,'0.1.0');
 assert.equal(a.mguAppStartType,'autostart');
 assert.deepStrictEqual(a.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.equal(typeof a.signals['de.bmw.infrastructure.VehicleInformation']._optional,'string');
+assert.equal(a.signals['de.bmw.infrastructure.VehicleInformation'],undefined);
 assert.equal(a.requires['bmrmodz-data-tool'],'0.1.72');
 const build=fs.readFileSync(path.join(__dirname,'../../kit/tools/build.py'),'utf8');
 assert(build.includes("pkg['mguAppStartType'] = spec['mguAppStartType']"));
