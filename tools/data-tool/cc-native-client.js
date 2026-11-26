@@ -2,7 +2,7 @@
 // A single authorized OAP application's autostart Unix socket is a transport.
 // The Data Tool is the only requester; no third-party sample-push endpoint.
 const fs=require('fs'),net=require('net'),path=require('path');
-const ROOT='/var/opt/public/oap',REG=path.join(ROOT,'oap_12201/data/uids.txt');
+const ROOT='/var/opt/public/oap',REG=path.join(ROOT,'oap_12201/security/uids.txt');
 const ID='data-native-provider',SOCKET='bmrmodz-cc-native.sock';
 function verifiedFile(io,name,maxSize,owners){
  const st=io.lstatSync(name);
