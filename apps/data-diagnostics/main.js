@@ -87,7 +87,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.79');
+  header(cv,theme,'Info','0.1.80');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -130,6 +130,12 @@ mgu.run({start(ctx){
    const value=i<2?word('Tool')+': '+tool+' / '+word('Native')+': '+(n?(n.state==='unknown'?n.detail:n.state):word('Not tested')):tool;
    row(cv,theme,k,value,190+i*35);
   });
+  const service=x.toolNative||{};
+  const reads=service.readings||{};
+  const serviceValue=service.ok?
+   [reads.frontLeft&&reads.frontLeft.state,reads.frontRight&&reads.frontRight.state].join(' / '):
+   String(service.stage||'not-tested');
+  label(cv,word('Service TASU')+': '+serviceValue,800,316,16,service.ok?theme.ok:theme.warn,{align:'center'});
   // Surface both independent failure reasons instead of masking the
   // gearbox generator's actual stage and the right front contact status.
   const details=[];

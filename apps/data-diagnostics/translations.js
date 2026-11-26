@@ -4,6 +4,7 @@ const catalogs={
   "en": {
     "Native": "Native",
     "Tool": "Tool",
+    "Service TASU": "Service TASU",
     "BMW bundle": "BMW bundle",
     "CC Test":"CC Test",
     "Run CC diagnostics":"Run CC diagnostics",

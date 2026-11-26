@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.80 — Data Tool service-native TASU access test
+- **Implemented:** CC Test invokes explicit Tool-owned `ccTasuGenerate` (staging-only) then `ccTasuProbe` to check the native worker under Data Tool system service. Displays `Service TASU` stage or front left/right values. Keeps separate app-native proven comparison, old Tool hmictl reads, rear belts and failed gear generator unchanged.
+- **Automated-tested:** Pending CI. **In-car:** App-native 0.1.79 previously saw FL unlatched / FR latched; new Tool service permission and generated config remain unverified. Tool 0.1.68 is required.
+- **Safety:** No automatic UDS reads, no ACL activation and no production CC consumers. Config or permission refusal is a valid bounded result.
+
 ## v0.1.79 — native TASU versus Tool front-belt comparison (2026-11-26)
 - **Implemented:** One-shot, explicit-only `CC Test` native InternalTasu `sendTasuRequest` reading of ACSM contacts 1/2, alongside the unchanged Data Tool `hmictl` readings. Native signal and broadcast registered as optional app signals using the original CC API; test runs only on user click. Fixed `31 01 A0 D2 01/02` payload, `maxRetries:0`, bounded per-contact time and proxy shutdown. Rows report `Tool` / `Native` individually and retain the verified rear belt read.
 - **Automated-tested:** Data Tool / Diagnostics CI 45821486900 PASS, including simulated latched, unlatched, NRC 13, invalid frame, unavailable native proxy, other existing regressions and MGU preview build. Vehicle behavior still unverified.
