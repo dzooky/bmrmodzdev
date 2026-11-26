@@ -2,6 +2,9 @@
 function rear(r){const u=r&&r.ok&&r.uds;if(!Array.isArray(u)||u.length<8||u[0]!==98||u[1]!==64||u[2]!==83)return ['unknown','unknown'];return [5,7].map(i=>u[i]>=130&&u[i]<=150?'latched':u[i]>=20&&u[i]<=50?'unlatched':'unknown');}
 async function run(request){
  const belts={frontLeft:'unknown',frontRight:'unknown',rearLeft:'unknown',rearRight:'unknown'},errors=[];
+ let accessAudit=null;
+ try{accessAudit=await request({op:'ccAccessAudit'},{timeoutMs:5000});}
+ catch(e){accessAudit={ok:false,error:String(e.message||e).slice(0,70)};}
  let sourceAudit=null;
  try{sourceAudit=await request({op:'ccGearSourceAudit'},{timeoutMs:5000});}
  catch(e){sourceAudit={ok:false,bundle:{status:'audit-unavailable'}};}
@@ -22,14 +25,14 @@ async function run(request){
   else errors.push(key+': '+String(r&&r.error||'unknown').slice(0,70));
  }catch(e){errors.push(key+': '+String(e.message||e).slice(0,70));}
  try{const v=rear(await request({op:'read',ecu:1,did:0x4053},{timeoutMs:12000}));belts.rearLeft=v[0];belts.rearRight=v[1];}catch(e){errors.push('Rear: '+String(e.message||e).slice(0,70));}
- return {gear,gearConfig,belts,errors,sourceAudit,toolConfig,toolNative};
+ return {gear,gearConfig,belts,errors,sourceAudit,accessAudit,toolConfig,toolNative};
 }
 // All diagnostic facts are collected by the same one-click test. UI detail
 // pages only page cached results and never send another vehicle request.
 function detailLines(x){
  const a=x&&x.sourceAudit||{},b=a.bundle||{},c=a.catalog||{},modules=b.modules||{};
  const tool=x&&x.toolNative||{},tc=x&&x.toolConfig||{},reads=tool.readings||{};
- const gear=x&&x.gear||{},gc=x&&x.gearConfig||{},ng=x&&x.nativeGear||{};
+ const gear=x&&x.gear||{},gc=x&&x.gearConfig||{},ng=x&&x.nativeGear||{},aa=x&&x.accessAudit||{};
  const fmt=v=>v===true?'yes':v===false?'no':'?';
  const val=v=>String(v===undefined||v===null?'—':v).replace(/[\r\n\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
@@ -43,6 +46,10 @@ function detailLines(x){
   'Native gear feeds: '+val(JSON.stringify(ng.observations||{})),
   'TASU generator: '+val(tc.stage||'unknown')+' / '+val(tc.error||tc.note||'no detail'),
   'Service TASU: '+val(tool.stage)+' / '+val(tool.error||'no detail'),
+  'TASU availability: before='+fmt(tool.providerAvailableBefore)+' after='+fmt(tool.providerAvailableAfter),
+  'TASU staged: method='+fmt(aa.tasu&&aa.tasu.methodPresent)+' ACL='+fmt(aa.tasu&&aa.tasu.stagedAclValid)+' requests='+val(aa.tasu&&aa.tasu.aclRequests),
+  'Gear staged: fields='+fmt(aa.gear&&aa.gear.fieldsPresent)+' ACL='+fmt(aa.gear&&aa.gear.stagedAclValid),
+  'ACL registered: '+(aa.registrationVerified?'verified':'NOT VERIFIED')+' / Tool installs: '+fmt(aa.toolRegistersAcl),
   contact('frontLeft'),contact('frontRight'),
   'Native/Tool: '+val((x&&x.errors||[]).join('; ')||'no errors'),
   'Rear: '+val(x&&x.belts&&x.belts.rearLeft)+' / '+val(x&&x.belts&&x.belts.rearRight)
