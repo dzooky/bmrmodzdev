@@ -40,6 +40,10 @@ async function run(signals,log,options){
   const finish=()=>{if(done)return;done=true;closed=true;resolve();};
   const timer=setTimeout(finish,limit);
   Promise.resolve().then(()=>signals.watch(IFACE,'1',handlers,log)).then(s=>{
+   if(closed){
+    if(s&&typeof s.shutdown==='function')Promise.resolve().then(()=>s.shutdown()).catch(()=>{});
+    return;
+   }
    subscription=s;
    if(s&&s.error){errors.push(String(s.error).slice(0,100));clearTimeout(timer);finish();}
   }).catch(e=>{errors.push(String(e&&e.message||e).slice(0,100));clearTimeout(timer);finish();});

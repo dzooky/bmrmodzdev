@@ -17,6 +17,7 @@ jobs:
           node --check tools/data-tool/service.js
           node --check tools/data-tool/cc-gear-worker.js
           node --check tools/data-tool/cc-tasu-worker.js
+          node --check tools/data-tool/cc-access-audit.js
           node --check tools/data-tool/cc-tasu-runner.js
           node --check tools/data-tool/cc-generator-audit.js
           node --check tools/data-tool/cc-gear-runner.js
@@ -124,6 +125,7 @@ jobs:
           node apps/data-diagnostics/cc-native-gear.test.js
           node tools/data-tool/gear-state.test.js
           node tools/data-tool/cc-tasu-worker.test.js
+          node tools/data-tool/cc-access-audit.test.js
           node tools/data-tool/cc-tasu-runner.test.js
           node tools/data-tool/cc-generator-audit.test.js
           node tools/data-tool/signal-manifest.test.js
