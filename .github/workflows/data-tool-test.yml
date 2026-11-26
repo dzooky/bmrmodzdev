@@ -169,4 +169,6 @@ jobs:
           cc -Os -nostdlib -static -fno-stack-protector -fno-asynchronous-unwind-tables -Wl,--build-id=none -Wl,-z,noexecstack -s -o /tmp/bmrmodz-native-peer/process-boundary tools/data-tool/native/process-boundary-x86_64.c
           node tools/data-tool/native/process-boundary-source.test.js /tmp/bmrmodz-native-peer/process-boundary
       - name: Offline MGU preview build
-        run: python3 kit/tools/build.py --preview-only data-diagnostics
+        run: |
+          python3 kit/tools/build.py --preview-only data-diagnostics
+          python3 kit/tools/build.py --preview-only data-native-provider
