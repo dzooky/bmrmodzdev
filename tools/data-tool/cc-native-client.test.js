@@ -29,5 +29,5 @@ const {create,validate}=require('./cc-native-client');
   now=4000;assert.equal((await reader.snapshot()).ok,true);assert.equal(calls,2);
   assert.equal((await create({locate:()=>({ok:false,stage:'PROVIDER_NOT_INSTALLED'})}).snapshot()).stage,'PROVIDER_NOT_INSTALLED');
   console.log('CC native provider request, coalescing, TTL, invalid and missing stages PASS');
- }finally{await new Promise(resolve=>srv.close(resolve));fs.unlinkSync(socket);fs.rmdirSync(root);}
+ }finally{await new Promise(resolve=>srv.close(resolve));try{fs.unlinkSync(socket);}catch(e){if(e.code!=='ENOENT')throw e;}fs.rmdirSync(root);}
 })().catch(e=>{console.error(e);process.exitCode=1;});
