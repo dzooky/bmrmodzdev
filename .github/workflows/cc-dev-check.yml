@@ -32,3 +32,23 @@ jobs:
               assert len(data)>100000 and data[:8] == b'\x89PNG\r\n\x1a\n', name
           print('CC DEV artwork restored and valid')
           PY
+      - name: Reproduce MGU Store package build
+        run: |
+          mkdir -p dist/cc-dev-store
+          MGU_OUT="$PWD/dist/cc-dev-store" python3 kit/tools/build.py cc-dev
+          python3 - <<'PY'
+          import json, pathlib, tarfile
+          spec=json.loads(pathlib.Path('apps/cc-dev/app.json').read_text())
+          archive=pathlib.Path('dist/cc-dev-store')/('cc-dev@'+spec['version']+'.tgz')
+          assert archive.is_file(), 'Store archive missing'
+          with tarfile.open(archive, 'r:gz') as pkg:
+              files={member.name:member for member in pkg.getmembers()}
+              assert 'package/package.json' in files
+              for asset in spec['assets']:
+                  name='package/javascript/'+asset['file']
+                  assert name in files, name+' not packed'
+                  obj=pkg.extractfile(files[name])
+                  content=obj.read() if obj else b''
+                  assert len(content)>100000 and content[:8]==bytes((137,80,78,71,13,10,26,10)), name+' invalid'
+          print('CC DEV MGU Store archive includes valid artwork')
+          PY
