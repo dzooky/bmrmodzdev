@@ -52,6 +52,7 @@ jobs:
         run: |
           node --check apps/data-diagnostics/main.js
           node --check apps/data-native-provider/main.js
+          node --check apps/data-native-provider/headless.js
           node --check apps/data-native-provider/bridge.js
           node --check apps/data-native-provider/front.js
           node --check apps/data-native-provider/gear.js
@@ -134,6 +135,7 @@ jobs:
           node tools/data-tool/cc-access-audit.test.js
           node tools/data-tool/cc-native-client.test.js
           node tools/data-tool/cc-native-client-locate.test.js
+          node apps/data-native-provider/headless.test.js
           node apps/data-native-provider/bridge.test.js
           node apps/data-native-provider/front.test.js
           node apps/data-native-provider/manifest.test.js
