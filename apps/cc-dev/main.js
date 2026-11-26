@@ -235,7 +235,11 @@ mgu.run({
                 renderAbout(cv, theme, aboutScroll);
             }
 
-            G.frame(cv, theme, tabs, tabs.indexOf(page === 'BMW services' ? 'My Car' : page), []);
+            // The display's tab dispatcher needs the same page list as G.frame,
+            // including when the native header (cv.chrome) is not active.
+            const selectedTab = tabs.indexOf(page === 'BMW services' ? 'My Car' : page);
+            cv.tabInfo = { tabs: tabs.slice(), sel: selectedTab, badges: [] };
+            G.frame(cv, theme, tabs, selectedTab, []);
             return ctx.ui.image('MAIN_GFX', cv);
         });
     },

@@ -2,7 +2,7 @@
   "id": "cc-dev",
   "title": "Climate Comfort DEV",
   "description": "Isolated development copy of Climate Comfort for future Background Tool migration. Background operation not yet implemented.",
-  "version": "0.1.62",
+  "version": "0.1.63",
   "vendor": "custom",
   "loggingId": "CLCD",
   "settings": [
