@@ -1,5 +1,6 @@
 'use strict';
 const assert=require('assert');
+assert.strictEqual(typeof Object.fromEntries==='function'||Object.fromEntries===undefined,true);
 const {create,MINUTES}=require('./activation-plan');
 const job=(key,position,mode='Heating',sensor=position,threshold=15)=>({key,position,mode,level:key==='steeringHeating'?1:2,sensor,threshold});
 const left=job('frontLeftHeating','frontLeft');

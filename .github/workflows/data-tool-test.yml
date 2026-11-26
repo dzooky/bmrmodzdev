@@ -21,6 +21,7 @@ jobs:
           node --check tools/data-tool/scheduler-compare.js
           node --check tools/data-tool/data-broker.js
           node --check tools/data-tool/data-catalog.js
+          node --check tools/data-tool/gear-state.js
           node --check tools/data-tool/broker-gateway.js
           node --check tools/data-tool/broker-self-test.js
           node --check tools/data-tool/auth-feasibility.js
@@ -110,6 +111,7 @@ jobs:
           node tools/data-tool/signal-isolate.test.js
           node tools/data-tool/diagnostic-report.test.js
           node tools/data-tool/cc-feasibility.test.js
+          node tools/data-tool/gear-state.test.js
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
           node tools/data-tool/uds-demand-scheduler.test.js

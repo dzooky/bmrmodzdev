@@ -59,7 +59,7 @@ function create({waitMinutes=3}={}){
   return true;
  }
  function status(){return {active,startedAt,timerAt,deadline,
-  eligible:Object.fromEntries(Array.from(rows,([k,r])=>[k,r.eligible])),
+  eligible:Array.from(rows).reduce((result,entry)=>{result[entry[0]]=entry[1].eligible;return result;},{}),
   attempted:Array.from(attempted),completed:Array.from(completed)};}
  return {start,stop,tick,acknowledge,status};
 }
