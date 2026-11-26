@@ -8,7 +8,7 @@ function normalizeGear(sample){
 }
 function create(options){
  const opts=options||{},io=opts.fs||fs,network=opts.net||net,clock=opts.now||Date.now;
- const socket=opts.socket||path.resolve(process.cwd(),'../data',NAME);
+ const socket=opts.socket||path.resolve(__dirname,'../../data',NAME);
  let server=null,inflight=null,previous=null,closed=false;
  async function snapshot(){
   if(previous&&clock()-previous.at<2500)return previous.value;
