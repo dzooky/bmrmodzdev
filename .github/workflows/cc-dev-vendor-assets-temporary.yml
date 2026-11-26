@@ -1,0 +1,32 @@
+name: CC DEV restore binary artwork (temporary)
+on:
+  push:
+    branches: [fix/cc-dev-vendored-artwork]
+    paths: ['.github/workflows/cc-dev-vendor-assets-temporary.yml']
+permissions:
+  contents: write
+jobs:
+  restore:
+    if: github.repository == 'dzooky/bmrmodzdev'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Restore exact production artwork and commit to fix branch
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib,urllib.request
+          d=pathlib.Path('apps/cc-dev')
+          spec=json.loads((d/'app.json').read_text())
+          for a in spec['assets']:
+              data=urllib.request.urlopen(a['url'],timeout=120).read()
+              got=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+              assert got==a['gitSha'],a['file']
+              assert data[:8]==bytes((137,80,78,71,13,10,26,10))
+              (d/a['file']).write_bytes(data)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/cc-dev/*.png
+          git diff --cached --quiet || (git commit -m "Restore original CC DEV binary artwork" && git push origin HEAD:fix/cc-dev-vendored-artwork)
