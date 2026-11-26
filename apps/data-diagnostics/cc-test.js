@@ -33,7 +33,7 @@ function detailLines(x){
  const fmt=v=>v===true?'yes':v===false?'no':'?';
  const val=v=>String(v===undefined||v===null?'—':v).replace(/[\\r\\n\\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
- return [
+ const details=[
   'Bundle: '+val(b.status)+' / IF='+fmt(modules.IFConfigGenerator)+' ACL='+fmt(modules.AclGenerator)+(b.line?' @'+b.line:''),
   'Catalog: '+val(c.status)+' / VehicleInfo='+fmt(c.vehicleInformationMentioned),
   'Gear signals: Gearbox='+fmt(c.statusGearboxDriveMentioned)+' PowerTrain2='+fmt(c.dataPowerTrain2Mentioned),
@@ -45,5 +45,11 @@ function detailLines(x){
   'Native/Tool: '+val((x&&x.errors||[]).join('; ')||'no errors'),
   'Rear: '+val(x&&x.belts&&x.belts.rearLeft)+' / '+val(x&&x.belts&&x.belts.rearRight)
  ];
+ const wrapped=[];
+ details.forEach(line=>{
+  const text=String(line);
+  for(let i=0;i<text.length;i+=96)wrapped.push(text.slice(i,i+96));
+ });
+ return wrapped;
 }
 module.exports={run,rear,detailLines};
