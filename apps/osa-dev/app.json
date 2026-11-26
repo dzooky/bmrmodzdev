@@ -2,9 +2,24 @@
   "id": "osa-dev",
   "title": "Oil Service Assistant DEV",
   "description": "Engine, coolant and transmission oil temperature monitoring with live warm-up estimates and locally stored service history",
-  "version": "0.2.66",
+  "version": "0.2.70",
   "config": {
-    "customSettings": true
+    "customSettings": true,
+    "previewEquipment": [
+      {
+        "key": "previewNoticeScenario",
+        "label": "Pop-up scenario",
+        "hidden": true,
+        "type": "choice",
+        "default": "first",
+        "options": [
+          ["first", "First install"],
+          ["ordinary", "Routine update"],
+          ["one", "One important notice"],
+          ["multiple", "Skipped versions"]
+        ]
+      }
+    ]
   },
   "settingsBeforeLast": true,
   "settingsTabInStandard": false,
@@ -154,22 +169,6 @@
       ]
     },
     {
-      "key": "layout",
-      "label": "Screen layout",
-      "type": "choice",
-      "default": "full",
-      "options": [
-        [
-          "full",
-          "Full screen"
-        ],
-        [
-          "standard",
-          "Standard"
-        ]
-      ]
-    },
-    {
       "key": "renderer",
       "label": "Renderer",
       "type": "choice",
@@ -214,7 +213,8 @@
       "type": "choice",
       "default": "auto",
       "hidden": true,
-      "reset": 1
+      "reset": 1,
+      "options": [["auto", "Auto"], ["on", "On"]]
     },
     {
       "key": "warmOil",

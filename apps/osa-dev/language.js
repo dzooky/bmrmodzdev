@@ -21,9 +21,13 @@ function start(ctx) {
         const requested = preference === 'auto' ? detected : preference;
         const catalog = Object.prototype.hasOwnProperty.call(catalogs, requested) ? catalogs[requested] : null;
         language = catalog ? requested : 'en';
-        setRuntimeTranslations(catalog);
+        const version = ctx.spec.version;
+        const versionLabel = 'Version ' + version;
+        setRuntimeTranslations(catalog ? Object.assign({}, catalog, {
+            [versionLabel]: catalog.Version + ' ' + version,
+        }) : null);
         languageSetting.options = languages.map(([code, label]) =>
-            code === detected ? ['auto', label + ' (auto)'] : [code, label]);
+            code === detected ? ['auto', label + ' (' + t('Auto').toLowerCase() + ')'] : [code, label]);
         for (const [button, label] of Object.entries(nativeButtons)) ui.text(button, t(label));
         languageSetting.options.forEach(([, label], index) => {
             ui.text('SET_LANGUAGE', label, index, 'ItemText');
