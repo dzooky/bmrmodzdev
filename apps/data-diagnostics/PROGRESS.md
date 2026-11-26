@@ -1,3 +1,9 @@
+## v0.1.81 — combined CC diagnostics (2026-11-26)
+- **Implemented:** One CC Test invocation retains staged TASU/gear generator results and shows two read-only cached detail pages (bundle modules, catalog signal presence, gear config, native service per-contact errors, and rear reference). Details navigation never triggers another probe. Data Tool >=0.1.69 required.
+- **Automated-tested:** Pending CI; explicit result formatting and existing CC test orchestration regressions.
+- **In-car evidence from v0.1.80:** Native front left unlatched / right latched; rear left unlatched / right latched, user physically confirmed the observed positions. Service-native TASU returned native-read-unavailable; gear config failed; bundle syntax-valid. Front belt transitions, Tool-native service access, and selector P/D remain unverified.
+- **Next test:** One parked CC Test, tap Details twice for complete output, and capture all three cached views. Do not retry until evidence reviewed.
+
 # Data Tool Diagnostics progress
 
 ## v0.1.80 — Data Tool service-native TASU access test
