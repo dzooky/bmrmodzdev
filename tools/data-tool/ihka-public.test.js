@@ -8,7 +8,7 @@ const {createApi}=require('./public-api');
  indexes.forEach((idx,i)=>bytes[idx]=values[i]);
  const api=createApi({scope:'ihka',now:()=>now,read:async(ecu,did)=>{
   assert.strictEqual(ecu,0x78);assert.strictEqual(did,0xD8D7);reads++;
-  const uds=bytes.slice();if(invalid)uds[12]=0x7f;
+  const uds=bytes.slice();if(invalid)uds[11]=0x7f;
   return {ok:true,uds,at:new Date(now).toISOString()};
  }});
  const a=api.connect('cc-dev'),b=api.connect('other-app');
