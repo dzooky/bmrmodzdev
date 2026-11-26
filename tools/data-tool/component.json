@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.67",
+  "version": "0.1.68",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,
@@ -157,6 +157,21 @@
     {
       "path": "cc-generator-audit.js",
       "from": "cc-generator-audit.js",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-tasu-manifest.json",
+      "from": "cc-tasu-manifest.json",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-tasu-worker.js",
+      "from": "cc-tasu-worker.js",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-tasu-runner.js",
+      "from": "cc-tasu-runner.js",
       "mode": "0644"
     },
     {

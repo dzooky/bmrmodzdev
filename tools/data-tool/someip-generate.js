@@ -136,4 +136,21 @@ function createGearGenerator(){
    activeConfigChanged:false,error:clean(e)};}
  }});
 }
-module.exports={createGenerator,createOsaGenerator,createGearGenerator,inspect,STAGING,checkStaging};
+function createTasuGenerator(){
+ const root=path.join(ROOT,'generator-cc-tasu');
+ return createGenerator({paths:{root:ROOT,staging:root,catalog:CATALOG,
+  manifest:path.join(__dirname,'cc-tasu-manifest.json'),generator:GENERATOR},
+  check(dir,io){
+   try{
+    const config=readJson(path.join(dir,'com_harman_infotainment_systemfunctions_tasu_tasu_InternalTasu.json'),io);
+    const acl=readJson(path.join(dir,'acl.json'),io);
+    const methods=config&&config.methods;
+    const ok=!!(methods&&methods.sendTasuRequest&&
+      Array.isArray(acl.offers)&&Array.isArray(acl.requests));
+    return {ok,stage:ok?'staged':'incomplete',mode:'staging-only',
+      aclRegistered:false,accessVerified:false,activeConfigChanged:false};
+   }catch(e){return {ok:false,stage:'staging-check',mode:'staging-only',
+     error:clean(e),aclRegistered:false,accessVerified:false,activeConfigChanged:false};}
+  }});
+}
+module.exports={createGenerator,createOsaGenerator,createGearGenerator,createTasuGenerator,inspect,STAGING,checkStaging};

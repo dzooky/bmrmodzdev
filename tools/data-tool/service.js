@@ -29,6 +29,8 @@ function serve(factory,socketPath,options){
   const osaGenerator=require('./someip-generate').createOsaGenerator();
   const ccGearGenerator=require('./someip-generate').createGearGenerator();
   const ccGearRunner=require('./cc-gear-runner').createRunner();
+  const ccTasuGenerator=require('./someip-generate').createTasuGenerator();
+  const ccTasuRunner=options&&options.ccTasuRunner||require('./cc-tasu-runner').createRunner();
   const cdsEngine=options&&options.cdsEngine||createEngine();
   // Experimental secure listener must never be a prerequisite for legacy tool health.
   // It is disabled by default until MGU socket lifecycle/peer identity are verified.
@@ -142,6 +144,19 @@ function serve(factory,socketPath,options){
     queue=op.then(()=>{},()=>{});
     return op;
   }
+  // Manual-only native TASU experiment through the same service queue.
+  // Never register in the public data API before actual service permissions
+  // and both fixed contacts have been validated in a real vehicle.
+  function ccTasuProbe(){
+    const operation=queue.then(async()=>{
+      const ready=ccTasuGenerator.inspect();
+      if(!ready.ok)return {ok:false,stage:'config-not-generated',
+        accessVerified:false,config:ready.stage||'unavailable'};
+      return ccTasuRunner.run();
+    }).catch(()=>({ok:false,stage:'probe-error',accessVerified:false}));
+    queue=operation.then(()=>{},()=>{});
+    return operation;
+  }
   const publicRuntime=require('./public-runtime').createRuntime(read,cdsEngine);
   const capabilities=()=>({
     uds:{mode:'read-only-experimental',reads:READS,controls:'not implemented'},
@@ -167,7 +182,7 @@ function serve(factory,socketPath,options){
             if(!apiSession)apiSession=publicRuntime.attach(client);
             if(!apiSession){client.destroy();return;}
             apiBusy=true;try{reply=await apiSession.request(req);}finally{apiBusy=false;}
-          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.67',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
+          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.68',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='tasuIdleProbe')reply=await tasuIdleProbe(req.mode);
           else if(req.op==='schedulerLiveTest'){
@@ -234,11 +249,13 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
+          else if(req.op==='ccTasuGenerate'&&Object.keys(req).length===1)reply=await ccTasuGenerator.run();
+          else if(req.op==='ccTasuProbe'&&Object.keys(req).length===1)reply=await ccTasuProbe();
           else if(req.op==='ccGearSourceAudit'&&Object.keys(req).length===1)reply=require('./cc-generator-audit').inspect();
           else if(req.op==='ccGearGenerate'&&Object.keys(req).length===1)reply=await ccGearGenerator.run();
           else if(req.op==='ccGearProbe'&&Object.keys(req).length===1)reply=await ccGearRunner.run();
           else if(req.op==='ccFrontContact'&&Object.keys(req).length===2&&(req.contact===1||req.contact===2))reply=await ccFrontContact(req.contact);
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.67',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.68',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
