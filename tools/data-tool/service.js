@@ -234,6 +234,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
+          else if(req.op==='ccGearSourceAudit'&&Object.keys(req).length===1)reply=require('./cc-generator-audit').inspect();
           else if(req.op==='ccGearGenerate'&&Object.keys(req).length===1)reply=await ccGearGenerator.run();
           else if(req.op==='ccGearProbe'&&Object.keys(req).length===1)reply=await ccGearRunner.run();
           else if(req.op==='ccFrontContact'&&Object.keys(req).length===2&&(req.contact===1||req.contact===2))reply=await ccFrontContact(req.contact);
