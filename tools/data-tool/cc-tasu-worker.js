@@ -94,5 +94,5 @@ async function main(){
  result({ok,stage:ok?'verified-read':'native-read-unavailable',source:'service-native-InternalTasu',
   readings,aclRegistered:false,accessVerified:ok});
 }
-main().catch(e=>fail('unexpected',e));
+if(require.main===module)main().catch(e=>fail('unexpected',e));
 module.exports={bytes,state};

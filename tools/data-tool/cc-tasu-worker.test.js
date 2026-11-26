@@ -1,0 +1,9 @@
+'use strict';
+const assert=require('assert'),p=require('./cc-tasu-worker');
+assert.deepStrictEqual(p.bytes({data:[1,2,3]}),[1,2,3]);
+assert.deepStrictEqual(p.bytes(Buffer.from([1,2])),[1,2]);
+assert.equal(p.state([0x71,1,0xA0,0xD2,1],1).state,'latched');
+assert.equal(p.state([0x71,1,0xA0,0xD2,0],2).state,'unlatched');
+assert.equal(p.state([0x7f,0x31,0x13],1).detail,'NRC 13');
+assert.equal(p.state([0x71,1,0xA0,0xD3,1],1).state,'unknown');
+console.log('Tool-native TASU bounded ACSM decoding PASS');
