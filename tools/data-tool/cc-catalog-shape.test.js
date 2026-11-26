@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('assert'),check=require('./cc-catalog-shape').inspect;
+let v=check({names:['de.bmw.infrastructure.VehicleInformation','statusGearboxDrive','DataPowerTrain2']});
+assert.equal(v.exactInterfaceMatches,0);assert.equal(v.status,'interface-not-structurally-located');
+v=check({interfaces:{'de.bmw.infrastructure.VehicleInformation':{instances:{'1':{}},attributes:{statusGearboxDrive:{},DataPowerTrain2:{}}}}});
+assert.equal(v.status,'candidate-confirmed');assert.equal(v.instance1,true);
+v=check({interfaces:{'de.bmw.infrastructure.VehicleInformation':{instances:{'2':{}},fields:{statusGearboxDrive:{}}}}});
+assert.equal(v.status,'incomplete-or-schema-unknown');assert.equal(v.fields.DataPowerTrain2,false);
+v=check({entries:[{name:'de.bmw.infrastructure.VehicleInformation',instances:['1'],attributes:[{name:'statusGearboxDrive'},{name:'DataPowerTrain2'}]}]});
+assert.equal(v.status,'candidate-confirmed');
+console.log('CC catalog exact-interface, scoped field and instance inventory PASS');

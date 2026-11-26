@@ -20,6 +20,7 @@ jobs:
           node --check tools/data-tool/cc-access-audit.js
           node --check tools/data-tool/cc-tasu-runner.js
           node --check tools/data-tool/cc-generator-audit.js
+          node --check tools/data-tool/cc-catalog-shape.js
           node --check tools/data-tool/cc-gear-runner.js
           node --check tools/data-tool/uds-demand-scheduler.js
           node --check tools/data-tool/scheduler-live-test.js
@@ -128,6 +129,7 @@ jobs:
           node tools/data-tool/cc-access-audit.test.js
           node tools/data-tool/cc-tasu-runner.test.js
           node tools/data-tool/cc-generator-audit.test.js
+          node tools/data-tool/cc-catalog-shape.test.js
           node tools/data-tool/signal-manifest.test.js
           node tools/data-tool/signal-worker.test.js
           node tools/data-tool/uds-demand-scheduler.test.js

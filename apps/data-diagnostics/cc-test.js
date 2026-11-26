@@ -16,9 +16,13 @@ async function run(request){
   toolNative=config&&config.ok?await request({op:'ccTasuProbe'},{timeoutMs:12000}):
    {ok:false,stage:'config-not-generated',error:config&&(config.error||config.stage)};
  }catch(e){toolNative={ok:false,stage:'tool-native-error',error:String(e.message||e).slice(0,65)};}
+ const structure=sourceAudit&&sourceAudit.catalog&&sourceAudit.catalog.shape||{};
  let gearConfig={ok:false,stage:'not-tested'};
  let gear={ok:false,stage:'not-tested'};
- try{const g=await request({op:'ccGearGenerate'},{timeoutMs:16000});gearConfig=g||gearConfig;gear=g&&g.ok?await request({op:'ccGearProbe'},{timeoutMs:8500}):{ok:false,stage:'gear-config',error:g&&(g.error||g.stage)};}catch(e){gear={ok:false,stage:'gear-error',error:String(e.message||e).slice(0,100)};}
+ if(structure.status!=='candidate-confirmed'){
+  gearConfig={ok:false,stage:'catalog-unverified',error:structure.status||'catalog-audit-unavailable'};
+  gear={ok:false,stage:'catalog-unverified',error:structure.status};
+ }else try{const g=await request({op:'ccGearGenerate'},{timeoutMs:16000});gearConfig=g||gearConfig;gear=g&&g.ok?await request({op:'ccGearProbe'},{timeoutMs:8500}):{ok:false,stage:'gear-config',error:g&&(g.error||g.stage)};}catch(e){gear={ok:false,stage:'gear-error',error:String(e.message||e).slice(0,100)};}
  for(const [contact,key] of [[1,'frontLeft'],[2,'frontRight']])try{
   const r=await request({op:'ccFrontContact',contact},{timeoutMs:8500});
   if(r&&r.ok&&['latched','unlatched'].includes(r.state))belts[key]=r.state;
@@ -40,6 +44,9 @@ function detailLines(x){
   'Bundle: '+val(b.status)+' / IF='+fmt(modules.IFConfigGenerator)+' ACL='+fmt(modules.AclGenerator)+(b.line?' @'+b.line:''),
   'Catalog: '+val(c.status)+' / VehicleInfo='+fmt(c.vehicleInformationMentioned),
   'Gear signals: Gearbox='+fmt(c.statusGearboxDriveMentioned)+' PowerTrain2='+fmt(c.dataPowerTrain2Mentioned),
+  'Gear exact catalog: '+val(c.shape&&c.shape.status)+' / matches='+val(c.shape&&c.shape.exactInterfaceMatches),
+  'Gear field map: Gearbox='+fmt(c.shape&&c.shape.fields&&c.shape.fields.statusGearboxDrive)+' PowerTrain2='+fmt(c.shape&&c.shape.fields&&c.shape.fields.DataPowerTrain2)+' instance1='+fmt(c.shape&&c.shape.instance1),
+  'BMW bundle execution verified: '+fmt(b.executionVerified),
   'Gear generator: '+val(gc.stage||'unknown')+' / '+val(gc.error||gc.note||'no detail'),
   'Gear read: Tool '+val(gear.stage)+' / '+val(gear.error||gear.selector||'no detail'),
   'Gear read (App Native): '+val(ng.stage)+' / '+val(ng.selector||ng.errors&&ng.errors.join('; ')||'no detail'),

@@ -17,7 +17,11 @@ try{
   assert.strictEqual(v.carRequests,0);
   assert.strictEqual(v.aclChanged,false);
   assert.strictEqual(v.helperWireEncodingVerified,false);
-  if(status==='syntax-valid')assert.strictEqual(v.ok,true);
+  if(status==='syntax-valid'){
+   assert.strictEqual(v.ok,true);
+   assert.strictEqual(v.catalog.shape.status,'interface-not-structurally-located');
+   assert.strictEqual(v.bundle.executionVerified,false);
+  }
  }
  fs.writeFileSync(catalog,'broken json');
  assert.strictEqual(inspect({catalogPath:catalog,bundlePath:bundle}).catalog.status,'error');

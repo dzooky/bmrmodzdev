@@ -2,6 +2,7 @@
 // Explicit, local-only CC generator preflight. Does not execute BMW code,
 // register ACL, open SOME/IP, or make vehicle requests.
 const fs=require('fs'),vm=require('vm');
+const catalogShape=require('./cc-catalog-shape');
 const DEFAULT_BUNDLE='/usr/lib/oap-mainapp/src/AppManagement/AppManagement.js';
 const DEFAULT_CATALOG='/etc/oap/someip/someip-interfaces.json';
 const MAX=16*1024*1024;
@@ -16,11 +17,12 @@ function inspect(options){
   helperWireEncodingVerified:false,bundle:{status:'unavailable'},catalog:{status:'unavailable'}};
  try{
   const raw=bounded(io,opts.catalogPath||DEFAULT_CATALOG);
-  JSON.parse(raw);
+  const db=JSON.parse(raw);
   result.catalog={status:'readable',
    vehicleInformationMentioned:raw.indexOf('de.bmw.infrastructure.VehicleInformation')>=0,
    statusGearboxDriveMentioned:raw.indexOf('statusGearboxDrive')>=0,
-   dataPowerTrain2Mentioned:raw.indexOf('DataPowerTrain2')>=0};
+   dataPowerTrain2Mentioned:raw.indexOf('DataPowerTrain2')>=0,
+   shape:catalogShape.inspect(db)};
  }catch(e){result.catalog={status:'error',reason:String(e.message||e).slice(0,60)};}
  try{
   const raw=bounded(io,opts.bundlePath||DEFAULT_BUNDLE);
@@ -36,7 +38,7 @@ function inspect(options){
    try{
     new vm.Script('(function(require){return '+expression+'})',
      {filename:'BMW-bundle-parse-only'});
-    result.bundle={status:'syntax-valid',modules};
+    result.bundle={status:'syntax-valid',modules,executionVerified:false};
    }catch(e){
     const m=/BMW-bundle-parse-only:(\d+)/.exec(String(e.stack||''));
     result.bundle={status:'syntax-error',modules,error:String(e.message||e).slice(0,75),
