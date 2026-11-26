@@ -14,6 +14,6 @@ const assert=require('assert'),cc=require('./cc-test');
  assert.deepStrictEqual(res.belts,{frontLeft:'latched',frontRight:'unlatched',rearLeft:'latched',rearRight:'unlatched'});
  assert.strictEqual(res.gear.selector,'P');
  assert.strictEqual(res.toolNative.stage,'config-unauthorized');
- assert.deepStrictEqual(calls,['ccTasuGenerate','ccTasuProbe','ccGearSourceAudit','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
+ assert.deepStrictEqual(calls,['ccGearSourceAudit','ccTasuGenerate','ccTasuProbe','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
  console.log('CC parked test PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
