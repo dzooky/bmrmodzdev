@@ -6,6 +6,10 @@ const {NODE_CANDIDATES}=require('./signal-environment');
 const FILE='/var/opt/bmrmodz-data-tool/generator-cc-tasu/com_harman_infotainment_systemfunctions_tasu_tasu_InternalTasu.json';
 const INSTANCE='SystemFunctionsInternalTasuInst1';
 const ADDRESS=1,SERVICE=0x31;
+function providerAvailability(p){
+ try{return p&&typeof p.isAvailable==='function'?!!p.isAvailable():null;}
+ catch(_){return null;}
+}
 let proxy=null,done=false,activeTimer=null,pending=null;
 function bytes(value){
  if(Buffer.isBuffer(value)||Array.isArray(value))return Array.prototype.slice.call(value);
@@ -88,12 +92,14 @@ async function main(){
  try{
   await Promise.resolve(proxy.subscribe({name:'sendTasuResponse',onReceive:capture}));
  }catch(e){return fail('subscribe',e);}
+ const availableBefore=providerAvailability(proxy);
  const readings={};
  readings.frontLeft=await read(1);
  readings.frontRight=await read(2);
  const ok=['frontLeft','frontRight'].every(key=>readings[key].state==='latched'||readings[key].state==='unlatched');
  result({ok,stage:ok?'verified-read':'native-read-unavailable',source:'service-native-InternalTasu',
-  readings,aclRegistered:false,accessVerified:ok});
+  readings,providerAvailableBefore:availableBefore,providerAvailableAfter:providerAvailability(proxy),
+  aclRegistered:false,accessVerified:ok});
 }
 if(require.main===module)main().catch(e=>fail('unexpected',e));
-module.exports={bytes,state};
+module.exports={bytes,state,providerAvailability};
