@@ -3,7 +3,7 @@
 ## 2026-11-26 — Store build failure investigation
 - **In-car/Store report:** User reports `build failed exit 1` for CC DEV with no diagnostic log available. The exact failing command and root cause are **unknown**.
 - **Implemented (CI only):** Add a Store-mode (`MGU_OUT`) archive build and packaged PNG validation to the CC DEV workflow, in addition to existing preview tests, to detect builder-only failures. No change to CC DEV runtime, app version, or production.
-- **Automated-tested:** Pending GitHub Actions run. A passing CI cannot guarantee the MGU Store environment behaves the same.
+- **Automated-tested:** PASS in PR #116: preview and MGU_OUT Store .tgz packaging with six valid images. A passing CI cannot guarantee the vehicle MGU Store environment behaves the same.
 - **In-car verified:** No new verification; do not claim this check fixes the installation.
 
 ## 2026-11-26 — 0.1.64 restore missing seat and steering artwork
