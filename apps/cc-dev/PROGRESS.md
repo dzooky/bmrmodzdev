@@ -1,5 +1,11 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — Background Tool shared IHKA and gearbox source review
+- **Implemented in BG Tool 0.1.6 / PR #121:** managed, opt-in shared IHKA temperature inputs with independent demand session and decoded Celsius values; BG CI and Data Tool reference CI passed. No CC activation, seat-belt or vehicle actuation enabled.
+- **Identified potential gearbox signal:** existing kit/runtime/car.js parses `de.bmw.infrastructure.VehicleInformation.statusGearboxDrive.statusActualStageDrive` and `DataPowerTrain2.statusGearSelectionDrive` into selector state D/P/R/N. This is a **code-level source candidate**, not a currently cataloged Data Tool field or in-car verified BG input. Never derive Drive from guessed numerical gear.
+- **Seat-belt source:** CC DEV currently reads ACSM front contact via 0x31 A0D2 routine and rear via 0x22 DID 4053. These are NOT supported by Data Tool's public read-only API; a dedicated safe acquisition validation is required before background operation.
+- **Remaining blockers:** validated shared D and belt inputs, engine cycle reset, authorized bounded climate action adapter, and explicit vehicle verification. Installed CC DEV 0.1.65 remains unchanged.
+
 ## 2026-11-26 — activation policy staged for Background Tool integration
 - **Implemented (offline policy only, no release bump):** `activation-plan.js` provides deterministic per-seat / heating / ventilation / steering activation decisions after an explicit engine-start event, immutable per-function startup temperature checks, belt latch gate, D plus RPM >1000 timer arming, configurable 1/2/3/5-minute policy (default 3), strict expiry, and at-most-once intent. Stop/start reset must be signaled explicitly by a verified driving-cycle source.
 - **Automated-tested:** CI pending; deterministic no-engine/no-belt/false-temperature/D/RPM/timer/expiry/retry/start-stop cases added.

@@ -2,7 +2,7 @@
 
 ## v0.1.6 — opt-in shared IHKA temperatures for CC DEV preparation (2026-11-26)
 - **Implemented:** Route precisely named `climate.{frontLeft,frontRight,rearLeft,rearRight}Footwell` inputs to the existing Data Tool IHKA public scope; consume its decoded Celsius `value`, never the packed UDS `raw`. Independent IHKA demand session; no subscription/read without active registration; release on unregister. Preserve unchanged CDS/DPF scopes and notification-only execution. Require Data Tool 0.1.61.
-- **Automated-tested:** Background Tool CI 45799502059 PASS (engine, runtime, service). Added three-scope opt-in, decoded-value, invalid-sample and release regression; existing engine and service checks retained. Data Tool cross-check pending.
+- **Automated-tested:** Background Tool CI 45799502059 PASS (engine, runtime, service), Data Tool reference regression CI 45799502023 PASS. Added three-scope opt-in, decoded-value, invalid-sample and release regression; existing engine and service checks retained.
 - **In-car verified:** No BG IHKA subscription or car actuation test yet. CC DEV 0.1.65 untouched; gear, seat-belt, engine-cycle signals and actuator adapter still unavailable in BG. No direct ECU reads in Background Tool.
 
 ## v0.1.0 foundation — 2026-11-25
