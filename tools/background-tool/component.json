@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-background-tool",
   "kind": "tool",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "title": "Background Tool",
   "description": "Experimental BMRMODZ background rule evaluation service",
   "optional": true,
@@ -10,7 +10,7 @@
     "ID7"
   ],
   "requires": {
-    "bmrmodz-data-tool": "0.1.60",
+    "bmrmodz-data-tool": "0.1.61",
     "mgu-deploy": "0.7.11",
     "bmrmodz-notification": "0.2.1"
   },
