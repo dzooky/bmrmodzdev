@@ -173,7 +173,10 @@ class HmiTransport {
     if(contact!==1&&contact!==2)throw Error('Unsupported ACSM contact');
     if(!this.ready)await this.init();
     if(this.pendingRead)throw Error('read in flight');
-    const request=Buffer.from([0xF2,1,0x31,0,0,2,0,0,0,4,1,0xA0,0xD2,contact,0]);
+    // Unlike the earlier fixed DID 0x22 helper, RoutineControl has exactly four
+    // data bytes. The extra trailing zero in v0.1.64 was a candidate fifth
+    // payload byte (both contacts returned NRC 0x13 on the car).
+    const request=Buffer.from([0xF2,1,0x31,0,0,2,0,0,0,4,1,0xA0,0xD2,contact]);
     let pending;
     const result=new Promise((resolve,reject)=>{
       let timeout,finished=false;

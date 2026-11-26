@@ -1,3 +1,10 @@
+## 2026-11-26 — 0.1.65 isolated front ACSM NRC 0x13 framing candidate
+- **In-car evidence (Data Tool 0.1.64 / Diagnostics 0.1.77):** front left and right returned UDS `7F 31 13`, while ACSM 4053 rear belt states were correct and a physical rear buckle change confirmed; gearbox config generator remained unusable (`undefined:3130` error).
+- **Implemented:** ONLY remove the trailing zero byte from the fixed ACSM A0D2 `31 01 A0 D2 01/02` `hmictl` call. The declared four-byte payload length remains four. This isolates the possibility that the previous zero was delivered as an unintended fifth payload byte. All original UDS 0x22 reads, queues, retries, and other TASU requests are untouched.
+- **Automated-tested:** Pending CI; updated exact transmitted-byte assertions and preserved negative/positive reply regression tests.
+- **In-car verified:** NO, correction remains a hypothesis until vehicle retest. If NRC 13 persists, revert this isolated experiment and inspect helper serialization rather than attempting alternate ACSM commands.
+- **Gear selector:** unchanged, pending separate generator investigation. No climate actuation.
+
 ## 2026-11-26 — 0.1.64 CC front-contact NRC visibility (no command changes)
 - **Vehicle evidence:** Data Diagnostics 0.1.77 observed both front seats Unknown with ACSM NRC; rear left unlatched / rear right latched correctly reflected a buckled rear contact. Gear generator failed before sample (`undefined:3130` excerpt), so P/D remains unverified.
 - **Implemented:** Preserve the exact UDS negative response code `7F 31 xx` in the existing explicit-only front contact error. Request bytes, ordering, TASU transport lifecycle, timeout policy and shared UDS reader unchanged. The original production CC's `kit/runtime/diag.js` preserves NRC similarly.
