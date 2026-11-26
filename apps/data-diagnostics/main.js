@@ -3,6 +3,7 @@ const mgu=require('./kit/mgu'),G=require('./kit/gauges'),client=require('./clien
 const {t}=require('./translations');
 const cdsProbe=require('./cds-probe');
 const ccTest=require('./cc-test');
+const nativeFront=require('./cc-native-front');
 const W=1600,H=520;
 const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test'];
 const DEV_NOTICE=[
@@ -59,7 +60,10 @@ mgu.run({start(ctx){
  }
  async function testCC(){
   if(ccBusy)return;ccBusy=true;ccResult=null;
-  try{ccResult=await ccTest.run(client.request);}
+  try{
+   ccResult=await ccTest.run(client.request);
+   ccResult.nativeFront=await nativeFront.run(ctx.signals,ctx.log);
+  }
   catch(e){ccResult={gear:{ok:false,stage:'error'},belts:{},errors:[String(e.message||e)]};}
   finally{ccBusy=false;}
  }
@@ -83,7 +87,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.78');
+  header(cv,theme,'Info','0.1.79');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -121,7 +125,10 @@ mgu.run({start(ctx){
   const x=ccResult||{},g=x.gear||{},belts=x.belts||{};
   row(cv,theme,'Gear selector',!ccResult?'—':g.ok&&g.selector?'PASS: '+g.selector+' / '+(g.source||'?'):'FAIL: '+(g.stage||'unknown'),150);
   ['frontLeft','frontRight','rearLeft','rearRight'].forEach((k,i)=>{
-   const v=belts[k];row(cv,theme,k,v==='latched'||v==='unlatched'?v:word('Unknown'),190+i*35);
+   const v=belts[k],tool=v==='latched'||v==='unlatched'?v:word('Unknown');
+   const n=x.nativeFront&&x.nativeFront[k];
+   const value=i<2?word('Tool')+': '+tool+' / '+word('Native')+': '+(n?(n.state==='unknown'?n.detail:n.state):word('Not tested')):tool;
+   row(cv,theme,k,value,190+i*35);
   });
   // Surface both independent failure reasons instead of masking the
   // gearbox generator's actual stage and the right front contact status.

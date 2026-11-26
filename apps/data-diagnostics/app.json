@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.78",
+  "version": "0.1.79",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -64,7 +64,18 @@
       ]
     }
   ],
-  "signals": {},
+  "signals": {
+    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
+      "_instances": "SystemFunctionsInternalTasuInst1",
+      "_methods": [
+        "sendTasuRequest"
+      ],
+      "_broadcasts": [
+        "sendTasuResponse"
+      ],
+      "_optional": "Read-only native front seat-belt comparison"
+    }
+  },
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1",
