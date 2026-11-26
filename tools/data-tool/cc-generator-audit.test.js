@@ -20,6 +20,8 @@ try{
   if(status==='syntax-valid'){
    assert.strictEqual(v.ok,true);
    assert.strictEqual(v.catalog.shape.status,'interface-not-structurally-located');
+   assert.strictEqual(v.catalog.alternativeCandidates.availabilityVerified,false);
+   assert.strictEqual(v.catalog.alternativeCandidates.vehicleRequests,0);
    assert.strictEqual(v.bundle.executionVerified,false);
   }
  }
