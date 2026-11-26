@@ -3,8 +3,8 @@ const assert=require('assert'),{create,desired}=require('./background-registrati
 (async()=>{const settings={enabled:false,target:80,language:'sk'},calls=[];let fail=false;
  const c=create({info(){},warn(){}},()=>settings,async msg=>{calls.push(msg);return {ok:!fail};});
  await c.sync();assert.equal(calls[0].op,'unregister');await c.sync();assert.equal(calls.length,1);
- settings.enabled=true;await c.sync();const rule=calls[1].rule;assert.equal(rule.fields.length,1);assert.equal(rule.fields[0].name,'engine.oilTemperature');assert.equal(rule.condition.value,80);assert.equal(rule.rearm.value,78);assert.equal(rule.actions[0].payload.segments[0].text,'Olej zohriaty ');
- await c.sync();assert.equal(calls.length,2);settings.target=85;fail=true;await c.sync();fail=false;await c.sync();assert.equal(calls.length,4);assert.equal(calls[3].rule.rearm.value,83);
+ settings.enabled=true;await c.sync();const rule=calls[1].rule;assert.equal(rule.fields.length,2);assert.equal(rule.fields[1].name,'engine.rpm');assert.equal(rule.fields[0].name,'engine.oilTemperature');assert.deepStrictEqual(rule.condition.all,[{field:'engine.rpm',op:'gte',value:300},{field:'engine.oilTemperature',op:'gte',value:80}]);assert.deepStrictEqual(rule.rearm,{field:'engine.rpm',op:'eq',value:0});assert.equal(rule.actions[0].payload.segments[0].text,'Olej zohriaty ');
+ await c.sync();assert.equal(calls.length,2);settings.target=85;fail=true;await c.sync();fail=false;await c.sync();assert.equal(calls.length,4);assert.equal(calls[3].rule.condition.all[1].value,85);
  settings.language='en';await c.sync();assert.equal(calls[4].rule.actions[0].payload.segments[0].text,'Oil warmed up ');
  settings.enabled=false;await c.sync();assert.equal(calls[5].op,'unregister');assert.equal(calls[5].ruleId,'oil-warm');
  assert.throws(()=>desired({enabled:true,target:NaN}));console.log('Background registration lifecycle passed');
