@@ -1,0 +1,37 @@
+'use strict';
+const assert=require('assert');
+const {createApi}=require('./public-api');
+(async()=>{
+ let now=100000,reads=0,invalid=false;
+ const bytes=[0x62,0xD8,0xD7,...Array(16).fill(0)];
+ const indexes=[6,7,11,12],values=[18,22,0xFB,31];
+ indexes.forEach((idx,i)=>bytes[idx]=values[i]);
+ const api=createApi({scope:'ihka',now:()=>now,read:async(ecu,did)=>{
+  assert.strictEqual(ecu,0x78);assert.strictEqual(did,0xD8D7);reads++;
+  const uds=bytes.slice();if(invalid)uds[11]=0x7f;
+  return {ok:true,uds,at:new Date(now).toISOString()};
+ }});
+ const a=api.connect('cc-dev'),b=api.connect('other-app');
+ const fields=['climate.frontLeftFootwell','climate.frontRightFootwell','climate.rearLeftFootwell','climate.rearRightFootwell'];
+ assert.deepStrictEqual(a.request({op:'catalog'}).fields.map(f=>f.name),fields);
+ assert.strictEqual(await api.tick(),false);assert.strictEqual(reads,0);
+ assert.strictEqual(a.request({op:'demand',fields,freshnessMs:Object.fromEntries(fields.map(f=>[f,1000]))}).ok,false);
+ const demand={op:'demand',fields,freshnessMs:Object.fromEntries(fields.map(f=>[f,5000]))};
+ assert.ok(a.request(demand).ok);assert.ok(b.request(demand).ok);
+ assert.ok(await api.tick());assert.strictEqual(reads,1);
+ const snapshot=a.request({op:'snapshot'}).fields;
+ assert.deepStrictEqual(fields.map(f=>snapshot[f].value),[18,22,-5,31]);
+ assert.ok(fields.every(f=>snapshot[f].valid&&snapshot[f].unit==='C'&&snapshot[f].validityMs===15000));
+ assert.strictEqual(b.request({op:'snapshot'}).fields[fields[0]].value,18);
+ now+=5001;assert.ok(a.request(demand).ok);assert.ok(b.request(demand).ok);
+ invalid=true;assert.ok(await api.tick());
+ const changed=a.request({op:'snapshot'}).fields;
+ assert.strictEqual(changed[fields[2]].valid,false);
+ assert.strictEqual(changed[fields[2]].value,null);
+ assert.ok(changed[fields[0]].valid);
+ assert.strictEqual(reads,2);
+ a.request({op:'release'});b.request({op:'release'});
+ now+=6000;assert.strictEqual(await api.tick(),false);assert.strictEqual(reads,2);
+ a.close();b.close();api.close();
+ console.log('IHKA public API: four signed footwell fields, one shared DID, invalid sensor, idle/release PASS');
+})().catch(e=>{console.error(e);process.exitCode=1;});
