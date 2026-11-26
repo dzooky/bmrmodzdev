@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.83",
+  "version": "0.1.84",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -65,10 +65,6 @@
     }
   ],
   "signals": {
-    "de.bmw.infrastructure.VehicleInformation": {
-      "statusGearboxDrive": "rs",
-      "DataPowerTrain2": "rs"
-    },
     "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
       "_instances": "SystemFunctionsInternalTasuInst1",
       "_methods": [
