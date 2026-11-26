@@ -3,7 +3,7 @@ const mgu=require('./kit/mgu'),G=require('./kit/gauges'),path=require('path');
 const bridge=require('./bridge');
 mgu.run({start(ctx){
  const server=bridge.create({signals:ctx.signals,log:ctx.log,
-  socket:path.resolve(process.cwd(),'../data/bmrmodz-cc-native.sock')});
+  socket:path.resolve(__dirname,'../../data/bmrmodz-cc-native.sock')});
  try{server.start();ctx.log.info('Data Native Provider ready: on-demand only');}
  catch(e){ctx.log.warn('Data Native Provider: '+String(e&&e.message||e));}
  ctx.loop('MAIN',1,()=>{
