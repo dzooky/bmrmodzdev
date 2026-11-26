@@ -135,12 +135,21 @@ def setting_options(s):
 
 
 def fetch_assets(adir, assets):
-    """Large files an app needs but git doesn't keep (app.json "assets"): downloaded once, checked by SHA-256."""
+    """Fetch omitted binary assets with content-addressed SHA-256 or Git blob SHA-1 checks."""
     import hashlib, io, urllib.request, zipfile
     sha = lambda b: hashlib.sha256(b).hexdigest()
+
+    def valid(data, asset):
+        if 'sha256' in asset:
+            return sha(data) == asset['sha256']
+        if 'gitSha' in asset:
+            git_blob = b'blob ' + str(len(data)).encode('ascii') + b'\0' + data
+            return hashlib.sha1(git_blob).hexdigest() == asset['gitSha']
+        raise ValueError('Asset needs sha256 or gitSha: ' + asset['file'])
+
     for a in assets:
         dst = os.path.join(adir, a['file'])
-        if os.path.exists(dst) and sha(open(dst, 'rb').read()) == a['sha256']:
+        if os.path.isfile(dst) and valid(open(dst, 'rb').read(), a):
             continue
         print('  fetching %s from %s' % (a['file'], a['url']))
         data = urllib.request.urlopen(a['url'], timeout=300).read()
@@ -148,8 +157,8 @@ def fetch_assets(adir, assets):
             sys.exit('%s: download does not match its SHA-256' % a['url'])
         if a.get('zipMember'):
             data = zipfile.ZipFile(io.BytesIO(data)).read(a['zipMember'])
-        if sha(data) != a['sha256']:
-            sys.exit('%s: file does not match its SHA-256' % a['file'])
+        if not valid(data, a):
+            sys.exit('%s: downloaded asset does not match its pinned hash' % a['file'])
         open(dst, 'wb').write(data)
 
 

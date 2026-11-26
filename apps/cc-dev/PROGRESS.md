@@ -1,5 +1,13 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — 0.1.64 restore missing seat and steering artwork
+- **Root cause:** During initial production-to-DEV copying six PNGs (front/rear seats and steering wheels) became zero-byte Git blobs; opening Front/Rear/Steering triggers lazy PNG decoding and the render loop fails. Info/My Car/Settings/About do not use these image files and continue working.
+- **Implemented:** Pin six original production PNG files to immutable production commit 02081e0 and verify their original Git blob SHA-1 at build time before staging into the app. Invalid or missing assets cause a failed build rather than a broken install. Other app behavior and data collection are unchanged.
+- **Automated-tested:** CI pending, with packaging guard checking valid PNG signatures/sizes.
+- **In-car verified:** Not yet; user needs to install 0.1.64 and try Front/Rear/Steering.
+- **Regression:** CC DEV 0.1.63 did not fix missing pages; prior tabInfo change is not the root cause.
+
+
 ## 2026-11-26 — 0.1.63 tab navigation regression fix
 - **In-car report:** CC DEV 0.1.62 opens after MGU restart, correct DEV name, VO configuration detected and Front/Rear/Steering tab labels visible, but touch on those tabs does not switch pages.
 - **Implemented:** Always attach the ordered application tab list and selected index to the display recorder (`cv.tabInfo`), so the shared display tab dispatcher resolves page taps when the header is not using `cv.chrome`. Preserve existing equipment gating, temperature reading, controls and rendered tab layout.

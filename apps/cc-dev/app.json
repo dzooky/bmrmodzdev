@@ -2,7 +2,7 @@
   "id": "cc-dev",
   "title": "Climate Comfort DEV",
   "description": "Isolated development copy of Climate Comfort for future Background Tool migration. Background operation not yet implemented.",
-  "version": "0.1.63",
+  "version": "0.1.64",
   "vendor": "custom",
   "loggingId": "CLCD",
   "settings": [
@@ -319,5 +319,37 @@
     "mgu-inputgate": "1.2.1",
     "bmrmodz-car-equipment": "0.1.5",
     "bmrmodz-data-tool": "0.1.61"
-  }
+  },
+  "assets": [
+    {
+      "file": "front-seat-quilted.png",
+      "url": "https://raw.githubusercontent.com/dzooky/bmrmodz/02081e0039c389e9cbaaee531c73e0bb3702f823/apps/climate-comfort/front-seat-quilted.png",
+      "gitSha": "e565360622c7d8aec450efc5ab576030366dc521"
+    },
+    {
+      "file": "front-seat.png",
+      "url": "https://raw.githubusercontent.com/dzooky/bmrmodz/02081e0039c389e9cbaaee531c73e0bb3702f823/apps/climate-comfort/front-seat.png",
+      "gitSha": "8955b8143642ac9e7c442671832a694d3f977480"
+    },
+    {
+      "file": "rear-seat-isofix.png",
+      "url": "https://raw.githubusercontent.com/dzooky/bmrmodz/02081e0039c389e9cbaaee531c73e0bb3702f823/apps/climate-comfort/rear-seat-isofix.png",
+      "gitSha": "ae8413dc90c1d0ef98df4c146a82d9048dcfa2a6"
+    },
+    {
+      "file": "rear-seat-quilted.png",
+      "url": "https://raw.githubusercontent.com/dzooky/bmrmodz/02081e0039c389e9cbaaee531c73e0bb3702f823/apps/climate-comfort/rear-seat-quilted.png",
+      "gitSha": "e997200ae99328cef9fb79f06e1abe81ea0cdff1"
+    },
+    {
+      "file": "steering-m-sport.png",
+      "url": "https://raw.githubusercontent.com/dzooky/bmrmodz/02081e0039c389e9cbaaee531c73e0bb3702f823/apps/climate-comfort/steering-m-sport.png",
+      "gitSha": "ff0f7e45b92a914c0db41d59e0b9f85416e6d7a3"
+    },
+    {
+      "file": "steering-standard.png",
+      "url": "https://raw.githubusercontent.com/dzooky/bmrmodz/02081e0039c389e9cbaaee531c73e0bb3702f823/apps/climate-comfort/steering-standard.png",
+      "gitSha": "ec1a4ee6678d96db881b9c1e64be9c84c82d14d7"
+    }
+  ]
 }
