@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),path=require('path');
 const a=require('./app.json');
-assert.equal(a.id,'data-native-provider');assert.equal(a.version,'0.1.0');
+assert.equal(a.id,'data-native-provider');assert.equal(a.version,'0.1.1');
 assert.equal(a.mguAppStartType,'autostart');
 assert.deepStrictEqual(a.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
 assert.equal(a.signals['de.bmw.infrastructure.VehicleInformation'],undefined);
@@ -9,5 +9,6 @@ assert.equal(a.requires['bmrmodz-data-tool'],'0.1.72');
 const build=fs.readFileSync(path.join(__dirname,'../../kit/tools/build.py'),'utf8');
 assert(build.includes("pkg['mguAppStartType'] = spec['mguAppStartType']"));
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
+assert(main.indexOf('headless.start(')<main.indexOf('mgu.run('));
 for(const t of ['This application is still in development phase and not ready for public use.','We still working on it and will be available soon.','Thank you'])assert(main.includes(t));
 console.log('Native provider autostart manifest and supported OAP package metadata PASS');
