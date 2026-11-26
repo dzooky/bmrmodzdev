@@ -83,7 +83,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.76');
+  header(cv,theme,'Info','0.1.77');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -123,7 +123,12 @@ mgu.run({start(ctx){
   ['frontLeft','frontRight','rearLeft','rearRight'].forEach((k,i)=>{
    const v=belts[k];row(cv,theme,k,v==='latched'||v==='unlatched'?v:word('Unknown'),190+i*35);
   });
-  if(x.errors&&x.errors.length)label(cv,x.errors[0],800,355,17,theme.warn,{align:'center'});
+  // Surface both independent failure reasons instead of masking the
+  // gearbox generator's actual stage and the right front contact status.
+  const details=[];
+  if(ccResult&&g.ok!==true&&g.error)details.push('Gear: '+String(g.error).slice(0,90));
+  (x.errors||[]).forEach(e=>{if(details.length<3)details.push(String(e).slice(0,90));});
+  details.slice(0,3).forEach((message,i)=>label(cv,message,800,335+i*19,15,theme.warn,{align:'center'}));
   button(cv,theme,word(ccBusy?'Running':'Run CC diagnostics'),ccBusy);
   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
  }

@@ -1,3 +1,7 @@
+## 2026-11-26 — vehicle check of CC gear and belt diagnostics 0.1.63
+- **In-car observed:** Data Diagnostics 0.1.76 gear-config FAIL before selector probe; both front contacts Unknown, visible `frontLeft: ACSM NRC`; rear ACSM 4053 decoded both belt contacts as `unlatched`. Gear P/D, front contacts and rear latched transitions unverified.
+- **No Data Tool changes:** exact gear generator error/NRC subtype not captured by 0.1.76 UI; preserve working rear ACSM read and shared Data Tool transport, collect isolated failure details first.
+
 ## 2026-11-26 — isolated CC selector P/R/N/D feasibility
 - **Implemented:** explicit-only short-lived SOME/IP VehicleInformation probe and separately generated staged config, both via Data Tool diagnostic socket. No boot-time subscription, no CDS/UDS read policy changes, no exposed BG selector field.
 - **Automated-tested:** CI pending. Gear signal schema, BMW generator availability, ACL and delivery require parked test. Do not claim D verified from observing P.

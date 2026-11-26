@@ -1,5 +1,11 @@
 # Data Tool Diagnostics progress
 
+## v0.1.77 — CC parked first in-car test follow-up (2026-11-26)
+- **In-car observed using 0.1.76 / Data Tool 0.1.63:** engine off, selector expected P: `gear-config` FAIL (configuration/generator stage, no selector value); front left and front right Unknown, at least front left returned `ACSM NRC` (routine rejected); rear left and rear right `unlatched` decoded from ACSM 4053. Rear unlatched read is vehicle-observed; latched transition, gear P/D and front contacts remain unverified.
+- **Implemented:** show actual gear generation error as a separate diagnostic line, and report both front contact error messages. No new ECU requests, generator behavior, transport, backend versions or controls changed. Tool 0.1.63 remains installed requirement.
+- **Automated-tested:** Pending CI; diagnostic UI and existing regression reference.
+- **Next parked test:** engine still off, request one CC diagnostic snapshot and capture Gear/Front-left/Front-right details. Do not speculate on root cause until explicit error available.
+
 ## v0.1.76 — CC parked diagnostic (2026-11-26)
 - **Implemented:** Fifth CC Test tab with manually triggered four belt-contact reads and selector P/R/N/D probe through Data Tool only. No actuation or automatic monitoring. Requires Data Tool 0.1.63.
 - **Automated-tested:** CI pending; orchestration regression included.
