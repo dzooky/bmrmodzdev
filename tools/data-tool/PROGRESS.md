@@ -1,3 +1,9 @@
+## 2026-11-26 — 0.1.62 IHKA startup compatibility repair
+- **Reported in car:** Data Tool 0.1.61 upgrade failed with installer message `not healthy`. No detailed service journal or exception trace received; exact on-device cause remains unconfirmed.
+- **Implemented:** Remove `Object.fromEntries` during unconditional IHKA API construction; older MGU Node runtimes may not implement this API. Preserve IHKA decoding, reads, scheduling, API and existing consumers unchanged. Add Node-without-fromEntries startup regression.
+- **Automated-tested:** Pending CI at authoring.
+- **In-car verified:** Not yet. Install 0.1.62 to confirm whether this fixes the health failure.
+
 ## 2026-11-26 — 0.1.61 IHKA footwell demand (DEV)
 - **Implemented:** Separate public `ihka` API scope exposing four validated footwell temperatures (°C) via one shared 0x78/D8D7 UDS acquisition and existing shared queue, with 5 s minimum demand, lease expiry, three-times-requested freshness, and passive snapshots. Only reads when explicitly demanded; no automatic CC control, app migration or modifications to existing DPF/EGS/CDS scopes.
 - **Automated-tested:** Data Tool CI 45772694136 PASS, Background Tool CI 45772694170 PASS. Regression test covers four fields, shared ECU read, signed decoding, invalid sensor, no-demand and release. Cache expiry uses existing scheduler regression coverage.

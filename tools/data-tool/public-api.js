@@ -7,9 +7,15 @@ function createApi(options){
  if(options.cdsEngine&&!options.identity)return createCdsApi(options);
  const egs=options.scope==='egs',ihka=options.scope==='ihka',field='transmission.oilTemperature';
  const ihkaFields=['climate.frontLeftFootwell','climate.frontRightFootwell','climate.rearLeftFootwell','climate.rearRightFootwell'];
+ // The MGU system Node runtime may lack Object.fromEntries. Build the
+ // static allowlist using only primitives supported by older Node releases.
+ const ihkaDefinitions={},ihkaFreshness={};
+ if(ihka)for(const name of ihkaFields){
+  ihkaDefinitions[name]={ecu:0x78,did:0xD8D7,length:16};
+  ihkaFreshness[name]=5000;
+ }
  const profile=ihka?{engine:'IHKA',fields:ihkaFields,
-   definitions:Object.fromEntries(ihkaFields.map(name=>[name,{ecu:0x78,did:0xD8D7,length:16}])),
-   freshnessMs:Object.fromEntries(ihkaFields.map(name=>[name,5000]))}:
+   definitions:ihkaDefinitions,freshnessMs:ihkaFreshness}:
    egs?{engine:'EGS',fields:[field],definitions:{[field]:{ecu:0x18,did:0x6000,length:1}},freshnessMs:{[field]:5000}}:
    build(options.identity),now=options.now||Date.now;
  if(!profile)throw Error('Unsupported DDE');
