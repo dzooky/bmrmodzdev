@@ -1,7 +1,7 @@
 ## v0.1.87 — OAP package security compatibility and passive gearbox candidate inventory (2026-11-26)
 - **Implemented:** Requires Data Tool 0.1.73 and retains Provider 0.1.1 as companion. CC Test displays structured alternative gear field/instance candidates from locally installed catalog without activating an unsupported VehicleInformation manifest. The same test exposes distinct OAP registry/package security stages and existing front/rear values. No additional vehicle reads, CC automation, or uncontrolled gear source.
 - **Vehicle evidence:** Diagnostics 0.1.86 last installed parked test returned `UNTRUSTED_PACKAGE`, both Tool OAP belts invalid, rear belts valid, gear `catalog-unverified`; direct native contact ended with NRC 13. The earlier native belt success does not prove that the new OAP provider works.
-- **Automated-tested:** CI pending. **In-car verified:** No for 0.1.87; new code must be tested in the vehicle.
+- **Automated-tested:** Data Tool CI run 45893036484 SUCCESS (Node 12, full regressions, gear candidate test, security tests, MGU preview); Background Tool run 45893036481 SUCCESS. **In-car verified:** No for 0.1.87; new code must be tested in the vehicle.
 - **Test:** Upgrade only Tool and Diagnostics (Provider stays 0.1.1). Reboot HU once, one parked CC Test, provide all Details pages. Do not select P/R/N/D while driving or use gear as a CC control until verified.
 
 ## v0.1.86 — Tool-owned requests through OAP native source (2026-11-26)
