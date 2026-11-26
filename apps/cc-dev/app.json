@@ -2,7 +2,7 @@
   "id": "cc-dev",
   "title": "Climate Comfort DEV",
   "description": "Isolated development copy of Climate Comfort for future Background Tool migration. Background operation not yet implemented.",
-  "version": "0.1.61",
+  "version": "0.1.62",
   "vendor": "custom",
   "loggingId": "CLCD",
   "settings": [
@@ -312,14 +312,12 @@
         "sendTasuResponse"
       ],
       "_optional": "Automatic Vehicle Order detection"
-    },
-    "de.bmw.infrastructure.EnvironmentalInformation": {
-      "ExteriorTemperature": "s"
     }
   },
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1",
-    "bmrmodz-car-equipment": "0.1.5"
+    "bmrmodz-car-equipment": "0.1.5",
+    "bmrmodz-data-tool": "0.1.61"
   }
 }
