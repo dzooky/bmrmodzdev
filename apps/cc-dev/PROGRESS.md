@@ -1,5 +1,11 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — 0.1.65 in-car installation and display confirmation
+- **In-car verified (user report):** MGU Store installation succeeds and CC DEV display now works on 0.1.65. This confirms the previously reported installation/display regression is resolved in this vehicle.
+- **Automated-tested:** PR #117 passed preview, local immutable artwork hash checks, and Store-mode MGU_OUT package generation.
+- **Not yet verified:** Data Tool temperature consumption, control behavior, and individual Front/Rear/Steering interaction are not specifically confirmed by this report. Do not extrapolate from successful display.
+- **Production:** Stable Climate Comfort unchanged.
+
 ## 2026-11-26 — 0.1.65 vendor verified artwork for offline Store builds
 - **Store report:** CC DEV 0.1.64 repeatedly failed with `build failed exit 1` despite passing GitHub MGU_OUT build. Exact Store failure log is unavailable; outbound asset download is the leading suspected discrepancy, **not a proven root cause**.
 - **Implemented:** Restore six missing PNGs as real version-controlled files in `apps/cc-dev`, each byte-identical to production commit `02081e0` and matching the manifest's pinned Git SHA-1. The builder now uses those local files without contacting raw.githubusercontent.com. No UI redesign or automation/diagnostic logic changes. Remove temporary asset-vendoring workflow.
