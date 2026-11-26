@@ -6,7 +6,7 @@ assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(spec.signals,{});
 assert.strictEqual(spec.version,'0.1.76');
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.60');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.63');
 assert.strictEqual(spec.mguInternet,true);
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
