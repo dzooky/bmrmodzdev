@@ -3,6 +3,7 @@ const assert=require('assert'),cc=require('./cc-test');
 (async()=>{
  const calls=[];const res=await cc.run(async q=>{
  calls.push(q.op);
+ if(q.op==='ccAccessAudit')return {ok:true,registrationVerified:false,tasu:{methodPresent:true,stagedAclValid:true,aclRequests:1},gear:{fieldsPresent:false,stagedAclValid:false}};
  if(q.op==='ccTasuGenerate')return {ok:true,stage:'generated'};
  if(q.op==='ccTasuProbe')return {ok:false,stage:'config-unauthorized'};
  if(q.op==='ccGearSourceAudit')return {ok:false,bundle:{status:'syntax-error',line:3130}};
@@ -21,10 +22,12 @@ const assert=require('assert'),cc=require('./cc-test');
  assert(lines.some(x=>x.includes('Service TASU: config-unauthorized')));
  assert(lines.some(x=>x.includes('frontLeft: not-received')));
  assert(lines.some(x=>x.includes('Gear read:')));
+ assert(lines.some(x=>x.includes('ACL registered: NOT VERIFIED')));
+ assert(lines.some(x=>x.includes('TASU staged: method=yes')));
  assert(lines.some(x=>x.includes('Catalog:')));
  assert(cc.detailLines({gearConfig:{stage:'generator',error:'X'.repeat(140)}}).some(x=>x.length===96));
  assert(cc.detailLines({gearConfig:{stage:'generator',error:'X'.repeat(140)}}).every(x=>x.length<=96));
  assert.strictEqual(cc.detailLines({toolNative:{readings:{frontLeft:{state:'unknown',detail:'request-rejected:BUSY'},frontRight:{state:'latched'}}}}).some(line=>line.includes('BUSY')),true);
- assert.deepStrictEqual(calls,['ccGearSourceAudit','ccTasuGenerate','ccTasuProbe','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
+ assert.deepStrictEqual(calls,['ccAccessAudit','ccGearSourceAudit','ccTasuGenerate','ccTasuProbe','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
  console.log('CC parked test PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
