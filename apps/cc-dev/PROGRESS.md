@@ -1,5 +1,10 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — CC activation policy legacy Node compatibility
+- **Implemented (source-only):** Replace `Object.fromEntries` in activation-plan status reporting with Node 12-compatible iteration. No change to activation policy, existing UI or car operations.
+- **Automated-tested:** Pending CC DEV CI including Node 12 policy regression.
+- **In-car verified:** No change; 0.1.65 remains the last installed and observed CC DEV build.
+
 ## 2026-11-26 — Background Tool shared IHKA and gearbox source review
 - **Implemented in BG Tool 0.1.6 / PR #121:** managed, opt-in shared IHKA temperature inputs with independent demand session and decoded Celsius values; BG CI and Data Tool reference CI passed. No CC activation, seat-belt or vehicle actuation enabled.
 - **Identified potential gearbox signal:** existing kit/runtime/car.js parses `de.bmw.infrastructure.VehicleInformation.statusGearboxDrive.statusActualStageDrive` and `DataPowerTrain2.statusGearSelectionDrive` into selector state D/P/R/N. This is a **code-level source candidate**, not a currently cataloged Data Tool field or in-car verified BG input. Never derive Drive from guessed numerical gear.

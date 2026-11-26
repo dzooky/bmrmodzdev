@@ -1,3 +1,9 @@
+## 2026-11-26 — isolated gearbox selector source decoder (no runtime change)
+- **Implemented (source/test-only):** `gear-state.js` parses `VehicleInformation.statusGearboxDrive.statusActualStageDrive` and `DataPowerTrain2.statusGearSelectionDrive` with explicit P/R/N/D mappings, invalid/ambiguous NP suppression, independent bounded freshness, and conflict rejection. Numeric gear/RPM/speed guesses cannot produce a selector D. No polling, proxy, service, packaging or public field changes.
+- **Automated-tested:** Pending CI; new isolated parser test plus existing Data Tool regressions.
+- **In-car verified:** Not tested. BMW interface availability, raw enum schema, generation/ACL, and event delivery remain unknown; do not expose selector D to BG or enable CC actuation without in-car evidence.
+- **Next stage:** Validate an isolated opt-in SOME/IP source under vehicle conditions, then add a shared Data Tool field only if reliable. Preserve established CDS/UDS baseline.
+
 ## 2026-11-26 — 0.1.62 IHKA startup compatibility repair
 - **Reported in car:** Data Tool 0.1.61 upgrade failed with installer message `not healthy`. No detailed service journal or exception trace received; exact on-device cause remains unconfirmed.
 - **Implemented:** Remove `Object.fromEntries` during unconditional IHKA API construction; older MGU Node runtimes may not implement this API. Preserve IHKA decoding, reads, scheduling, API and existing consumers unchanged. Add Node-without-fromEntries startup regression.
