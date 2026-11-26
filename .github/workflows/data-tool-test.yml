@@ -46,6 +46,7 @@ jobs:
       - name: Validate JavaScript and JSON
         run: |
           node --check apps/data-diagnostics/main.js
+          node --check apps/data-diagnostics/cc-native-front.js
           node --check apps/data-diagnostics/cache-probe.js
           node --check apps/data-diagnostics/cache-probe.test.js
           node --check apps/data-diagnostics/dpf-values.js
@@ -116,6 +117,7 @@ jobs:
           node tools/data-tool/diagnostic-report.test.js
           node tools/data-tool/cc-feasibility.test.js
           node apps/data-diagnostics/cc-test.test.js
+          node apps/data-diagnostics/cc-native-front.test.js
           node tools/data-tool/gear-state.test.js
           node tools/data-tool/cc-generator-audit.test.js
           node tools/data-tool/signal-manifest.test.js
