@@ -1,6 +1,6 @@
 ## v0.1.83 — consolidated CC selector, TASU and Tool ACL readiness (2026-11-26)
 - **Implemented:** One parked CC Test gathers previous native front/rear contacts and app-native VehicleInformation gearbox reference plus passive Tool-owned TASU/gear staged config + ACL inspection and native provider availability before/after existing service calls. Cached detail pages show each failure without new ECU calls. Added cleanup for late native gear subscription. Requires Data Tool >=0.1.70.
-- **Automated-tested:** CI pending; targeted passive audit and delayed subscription tests added; all regression and preview jobs required before merge. **In-car verified:** No for this revision.
+- **Automated-tested:** Data Tool test build run 45843189130 SUCCESS (including passive audit, delayed subscription, legacy runtime and MGU preview); Background Tool run 45843188914 SUCCESS. **In-car verified:** No for this revision.
 - **Last car evidence (0.1.81):** both native front and both rear states obtained; Tool native TASU sendTasuRequest reported Service unavailable on both contacts; BMW bundle syntax-valid, gear generator failed. Actual reason for service registration not confirmed; Tool ACL remains staging-only. Selector P/D not vehicle-confirmed.
 - **Next:** Install Tool 0.1.70 + Diagnostics 0.1.83 together; one parked CC Test with P and motor off, then capture cached Details pages. No ACL registration, new UDS commands, background demand, or production CC changes.
 
