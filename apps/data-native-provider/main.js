@@ -3,7 +3,7 @@ const mgu=require('./kit/mgu'),G=require('./kit/gauges'),path=require('path');
 const signals=require('./kit/signals'),headless=require('./headless');
 // Bootstrap the fixed read-only socket independently of the RHMI start(ctx)
 // callback. BMW autostart CONFIG_STATE may provide no rhmiApplication.
-headless.start({signals,log:mgu.log,dataDir:path.resolve(__dirname,'../../data')});
+headless.start({signals,log:mgu.log,dataDir:path.resolve(__dirname,'../../data'),processRef:process});
 mgu.run({start(ctx){
  ctx.loop('MAIN',1,()=>{
   const theme=ctx.theme(),cv=ctx.canvas(1600,520).clear(theme.bg);
