@@ -10,8 +10,10 @@ mgu.run({start(ctx){
   const theme=ctx.theme(),cv=ctx.canvas(1600,520).clear(theme.bg);
   G.panel(cv,theme,24,110,1552,370,null);
   cv.text('Data Native Provider',75,100,34,theme.text,{literal:true,font:'bold'});
-  cv.text('Read-only. Data Tool requests are processed on demand.',75,200,25,theme.text,{literal:true});
-  cv.text('No background vehicle polling or vehicle controls.',75,250,24,theme.dim,{literal:true});
+  ['This application is still in development phase and not ready for public use.',
+   'We still working on it and will be available soon.',
+   'Thank you'].forEach((line,i)=>cv.text(line,75,180+i*48,22,theme.text,{literal:true}));
+  cv.text('Read-only, on-demand source. No vehicle controls.',75,365,22,theme.dim,{literal:true});
   return ctx.ui.image('MAIN_GFX',cv);
  });
 }});
