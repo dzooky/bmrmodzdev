@@ -1,5 +1,11 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — 0.1.65 vendor verified artwork for offline Store builds
+- **Store report:** CC DEV 0.1.64 repeatedly failed with `build failed exit 1` despite passing GitHub MGU_OUT build. Exact Store failure log is unavailable; outbound asset download is the leading suspected discrepancy, **not a proven root cause**.
+- **Implemented:** Restore six missing PNGs as real version-controlled files in `apps/cc-dev`, each byte-identical to production commit `02081e0` and matching the manifest's pinned Git SHA-1. The builder now uses those local files without contacting raw.githubusercontent.com. No UI redesign or automation/diagnostic logic changes. Remove temporary asset-vendoring workflow.
+- **Automated-tested:** Pending final PR checks (preview + MGU_OUT archive validation).
+- **In-car verified:** Pending reinstall and opening Front/Rear/Steering in CC DEV 0.1.65. Stable Climate Comfort unchanged.
+
 ## 2026-11-26 — Store build failure investigation
 - **In-car/Store report:** User reports `build failed exit 1` for CC DEV with no diagnostic log available. The exact failing command and root cause are **unknown**.
 - **Implemented (CI only):** Add a Store-mode (`MGU_OUT`) archive build and packaged PNG validation to the CC DEV workflow, in addition to existing preview tests, to detect builder-only failures. No change to CC DEV runtime, app version, or production.
