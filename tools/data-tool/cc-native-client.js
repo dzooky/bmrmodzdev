@@ -51,7 +51,7 @@ function validate(reply,at){
 }
 function create(options){
  const opts=options||{},io=opts.fs||fs,network=opts.net||net,clock=opts.now||Date.now;
- const locateProvider=opts.locate||(()=>locate(io)),timeoutMs=opts.timeoutMs||12000;
+ const locateProvider=opts.locate||(()=>locate(io)),timeoutMs=opts.timeoutMs||18000;
  let inflight=null,last=null;
  function snapshot(){
   if(last&&clock()-last.at<=2500)return Promise.resolve(Object.assign({cached:true},last.value));
