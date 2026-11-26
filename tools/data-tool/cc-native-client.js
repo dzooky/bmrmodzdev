@@ -4,16 +4,16 @@
 const fs=require('fs'),net=require('net'),path=require('path');
 const ROOT='/var/opt/public/oap',REG=path.join(ROOT,'oap_12201/security/uids.txt');
 const ID='data-native-provider',SOCKET='bmrmodz-cc-native.sock';
-function verifiedFile(io,name,maxSize,owners){
+function verifiedFile(io,name,maxSize,owners,stage){
  const st=io.lstatSync(name);
  if(!st.isFile()||st.isSymbolicLink()||st.size<2||st.size>maxSize||
-    (st.mode&0o007)!==0||owners.indexOf(st.uid)<0)throw Error('UNTRUSTED_PACKAGE');
+    (st.mode&0o002)!==0||owners.indexOf(st.uid)<0)throw Error(stage||'UNTRUSTED_PACKAGE');
  return st;
 }
 function locate(io){
  const file=io||fs;
  try{
-  verifiedFile(file,REG,65536,[0,12201]);
+  verifiedFile(file,REG,65536,[0,12201],'UNTRUSTED_REGISTRY');
   const lines=String(file.readFileSync(REG,'utf8')).split('\n');
   const matches=lines.map(s=>/^(\d+)=data-native-provider$/.exec(s)).filter(Boolean);
   if(matches.length!==1)throw Error('PROVIDER_NOT_INSTALLED');
@@ -23,7 +23,7 @@ function locate(io){
   const st=file.lstatSync(dir);
   if(st.isSymbolicLink()||!st.isDirectory()||st.uid!==12201||st.gid!==uid||(st.mode&0o007)!==0)throw Error('UNTRUSTED_PROVIDER_DIR');
   const manifest=path.join(source,'package.json');
-  verifiedFile(file,manifest,16384,[0,12201]);
+  verifiedFile(file,manifest,16384,[0,12201],'UNTRUSTED_PACKAGE');
   const pkg=JSON.parse(file.readFileSync(manifest,'utf8'));
   if(!pkg||pkg.name!==ID||pkg.mguAppStartType!=='autostart')throw Error('WRONG_PROVIDER_PACKAGE');
   const socket=path.join(dir,SOCKET),sock=file.lstatSync(socket);
