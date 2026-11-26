@@ -1,6 +1,6 @@
 'use strict';
 const {Engine,validate}=require('./engine');
-const scopeFor=k=>/^(engine\.|vehicle\.speed$|environment\.outsideTemperature$)/.test(k)?'cds':'dpf';
+const scopeFor=k=>/^climate\.(frontLeft|frontRight|rearLeft|rearRight)Footwell$/.test(k)?'ihka':/^(engine\.|vehicle\.speed$|environment\.outsideTemperature$)/.test(k)?'cds':'dpf';
 function createRuntime({store,connect,dispatch,now=Date.now}){
  let busy=false,closed=false,timer=null,error=null,revision=0,attempts=0,failures=0,unsupported=[],ticks=0,lastTick=null;
  const groups=['dpf','cds','ihka'].map(scope=>({scope,client:null,lastDemand:'',renewed:0}));
