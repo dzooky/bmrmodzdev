@@ -27,12 +27,6 @@
       "_broadcasts": [
         "sendTasuResponse"
       ]
-    },
-    "de.bmw.infrastructure.VehicleInformation": {
-      "_optional": "Gear selector source only when supplied by this unit",
-      "_instances": "1",
-      "statusGearboxDrive": "rs",
-      "DataPowerTrain2": "rs"
     }
   },
   "requires": {
