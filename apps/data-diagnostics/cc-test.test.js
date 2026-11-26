@@ -31,6 +31,8 @@ const assert=require('assert'),cc=require('./cc-test');
  assert.equal(no.gear.stage,'catalog-unverified');
  assert(!calls2.includes('ccGearGenerate'));
  assert(!calls2.includes('ccGearProbe'));
+ const unknown=await cc.run(async q=>q.op==='ccGearSourceAudit'?{catalog:{}}:{ok:false});
+ assert.equal(unknown.gear.stage,'catalog-unverified');
  assert(cc.detailLines({gearConfig:{stage:'generator',error:'X'.repeat(140)}}).some(x=>x.length===96));
  assert(cc.detailLines({gearConfig:{stage:'generator',error:'X'.repeat(140)}}).every(x=>x.length<=96));
  assert.strictEqual(cc.detailLines({toolNative:{readings:{frontLeft:{state:'unknown',detail:'request-rejected:BUSY'},frontRight:{state:'latched'}}}}).some(line=>line.includes('BUSY')),true);
