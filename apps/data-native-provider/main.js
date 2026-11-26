@@ -1,11 +1,10 @@
 'use strict';
 const mgu=require('./kit/mgu'),G=require('./kit/gauges'),path=require('path');
-const bridge=require('./bridge');
+const signals=require('./kit/signals'),headless=require('./headless');
+// Bootstrap the fixed read-only socket independently of the RHMI start(ctx)
+// callback. BMW autostart CONFIG_STATE may provide no rhmiApplication.
+headless.start({signals,log:mgu.log,dataDir:path.resolve(__dirname,'../../data')});
 mgu.run({start(ctx){
- const server=bridge.create({signals:ctx.signals,log:ctx.log,
-  socket:path.resolve(__dirname,'../../data/bmrmodz-cc-native.sock')});
- try{server.start();ctx.log.info('Data Native Provider ready: on-demand only');}
- catch(e){ctx.log.warn('Data Native Provider: '+String(e&&e.message||e));}
  ctx.loop('MAIN',1,()=>{
   const theme=ctx.theme(),cv=ctx.canvas(1600,520).clear(theme.bg);
   G.panel(cv,theme,24,110,1552,370,null);
