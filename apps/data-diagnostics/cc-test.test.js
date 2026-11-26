@@ -3,6 +3,8 @@ const assert=require('assert'),cc=require('./cc-test');
 (async()=>{
  const calls=[];const res=await cc.run(async q=>{
  calls.push(q.op);
+ if(q.op==='ccTasuGenerate')return {ok:true,stage:'generated'};
+ if(q.op==='ccTasuProbe')return {ok:false,stage:'config-unauthorized'};
  if(q.op==='ccGearSourceAudit')return {ok:false,bundle:{status:'syntax-error',line:3130}};
  if(q.op==='ccGearGenerate')return {ok:true};
  if(q.op==='ccGearProbe')return {ok:true,selector:'P'};
@@ -11,6 +13,7 @@ const assert=require('assert'),cc=require('./cc-test');
  });
  assert.deepStrictEqual(res.belts,{frontLeft:'latched',frontRight:'unlatched',rearLeft:'latched',rearRight:'unlatched'});
  assert.strictEqual(res.gear.selector,'P');
- assert.deepStrictEqual(calls,['ccGearSourceAudit','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
+ assert.strictEqual(res.toolNative.stage,'config-unauthorized');
+ assert.deepStrictEqual(calls,['ccGearSourceAudit','ccTasuGenerate','ccTasuProbe','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
  console.log('CC parked test PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});

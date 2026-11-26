@@ -6,8 +6,8 @@ assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(Object.keys(spec.signals),['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']);
 assert.deepStrictEqual(spec.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.strictEqual(spec.version,'0.1.79');
-assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.67');
+assert.strictEqual(spec.version,'0.1.80');
+assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.68');
 assert.strictEqual(spec.mguInternet,true);
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
@@ -19,6 +19,7 @@ assert.ok(main.includes("ui.onClick('BTN_BT',()=>{toggleBackgroundTest()"));
 assert.ok(main.includes('if(page===3)testNotification();'));
 assert.ok(main.includes('ccResult.nativeFront=await nativeFront.run(ctx.signals,ctx.log);'));
 assert.ok(main.includes("const nativeFront=require('./cc-native-front');"));
+assert.ok(main.includes("word('Service TASU')"));
 assert.ok(main.includes('if(page===2)toggleBackgroundTest();'));
 assert.ok(main.includes("op:'showText'"));
 assert.ok(main.includes('/run/bmrmodz-background-tool/ctl.sock'));
