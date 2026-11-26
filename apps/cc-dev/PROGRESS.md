@@ -1,5 +1,10 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — 0.1.65 temperature display in-car confirmation
+- **In-car verified (user report):** CC DEV 0.1.65 displays temperature readings in the vehicle, in addition to previously confirmed successful installation and UI display.
+- **Scope:** This is observed UI temperature display; no individual raw CDS/IHKA values, freshness diagnostics, or actuator behavior were provided. Data Tool source and automation behavior are not independently verified by this observation.
+- **Remaining:** Verify actual heating/ventilation commands and automation separately. Production Climate Comfort unchanged.
+
 ## 2026-11-26 — 0.1.65 in-car installation and display confirmation
 - **In-car verified (user report):** MGU Store installation succeeds and CC DEV display now works on 0.1.65. This confirms the previously reported installation/display regression is resolved in this vehicle.
 - **Automated-tested:** PR #117 passed preview, local immutable artwork hash checks, and Store-mode MGU_OUT package generation.
