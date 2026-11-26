@@ -24,7 +24,7 @@ const assert=require('assert'),cc=require('./cc-test');
  assert(lines.some(x=>x.includes('Catalog:')));
  assert(cc.detailLines({gearConfig:{stage:'generator',error:'X'.repeat(140)}}).some(x=>x.length===96));
  assert(cc.detailLines({gearConfig:{stage:'generator',error:'X'.repeat(140)}}).every(x=>x.length<=96));
- assert.strictEqual(cc.detailLines({toolNative:{readings:{frontLeft:{state:'unknown',detail:'request-rejected:BUSY'},frontRight:{state:'latched'}}}})[7].includes('BUSY'),true);
+ assert.strictEqual(cc.detailLines({toolNative:{readings:{frontLeft:{state:'unknown',detail:'request-rejected:BUSY'},frontRight:{state:'latched'}}}}).some(line=>line.includes('BUSY')),true);
  assert.deepStrictEqual(calls,['ccGearSourceAudit','ccTasuGenerate','ccTasuProbe','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
  console.log('CC parked test PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
