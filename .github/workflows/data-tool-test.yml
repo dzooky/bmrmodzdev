@@ -18,6 +18,7 @@ jobs:
           node --check tools/data-tool/cc-gear-worker.js
           node --check tools/data-tool/cc-tasu-worker.js
           node --check tools/data-tool/cc-access-audit.js
+          node --check tools/data-tool/cc-native-client.js
           node --check tools/data-tool/cc-tasu-runner.js
           node --check tools/data-tool/cc-generator-audit.js
           node --check tools/data-tool/cc-catalog-shape.js
@@ -50,6 +51,10 @@ jobs:
       - name: Validate JavaScript and JSON
         run: |
           node --check apps/data-diagnostics/main.js
+          node --check apps/data-native-provider/main.js
+          node --check apps/data-native-provider/bridge.js
+          node --check apps/data-native-provider/front.js
+          node --check apps/data-native-provider/gear.js
           node --check apps/data-diagnostics/cc-native-front.js
           node --check apps/data-diagnostics/cc-native-gear.js
           node --check apps/data-diagnostics/cache-probe.js
@@ -127,6 +132,10 @@ jobs:
           node tools/data-tool/gear-state.test.js
           node tools/data-tool/cc-tasu-worker.test.js
           node tools/data-tool/cc-access-audit.test.js
+          node tools/data-tool/cc-native-client.test.js
+          node apps/data-native-provider/bridge.test.js
+          node apps/data-native-provider/front.test.js
+          node apps/data-native-provider/manifest.test.js
           node tools/data-tool/cc-tasu-runner.test.js
           node tools/data-tool/cc-generator-audit.test.js
           node tools/data-tool/cc-catalog-shape.test.js
