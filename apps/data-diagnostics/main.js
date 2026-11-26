@@ -89,7 +89,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.85');
+  header(cv,theme,'Info','0.1.86');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -137,13 +137,15 @@ mgu.run({start(ctx){
    return;
   }
   const x=ccResult||{},g=x.gear||{},belts=x.belts||{};
-  const native=x.nativeGear||{};
-  const gearText=!ccResult?'—':native.ok?'Native: '+native.selector+' / Tool: '+(g.ok?g.selector:'unavailable'):
+  const native=x.nativeGear||{},shared=x.sharedNative&&x.sharedNative.fields||{};
+  const sharedGear=shared.gear&&shared.gear.valid===true?shared.gear.value:null;
+  const gearText=!ccResult?'—':sharedGear?'Tool OAP: '+sharedGear+' / Tool Gen: '+(g.ok?g.selector:'unavailable'):native.ok?'Native: '+native.selector+' / Tool: '+(g.ok?g.selector:'unavailable'):
     g.ok?'Tool: '+g.selector+' / Native: '+(native.stage||'unknown'):
     'Tool: '+(g.stage||'unknown')+' / Native: '+(native.stage||'not-tested');
   row(cv,theme,'Gear selector',gearText,150);
   ['frontLeft','frontRight','rearLeft','rearRight'].forEach((k,i)=>{
-   const v=belts[k],tool=v==='latched'||v==='unlatched'?v:word('Unknown');
+   const v=belts[k],sharedValue=shared[k]&&shared[k].valid===true?shared[k].value:null;
+   const tool=sharedValue|| (v==='latched'||v==='unlatched'?v:word('Unknown'));
    const n=x.nativeFront&&x.nativeFront[k];
    const value=i<2?word('Tool')+': '+tool+' / '+word('Native')+': '+(n?(n.state==='unknown'?n.detail:n.state):word('Not tested')):tool;
    row(cv,theme,k,value,190+i*35);
