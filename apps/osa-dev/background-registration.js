@@ -1,7 +1,7 @@
 'use strict';
 const net=require('net');
 const {warmupLabel}=require('./cluster-locales');
-const appId='osa-dev',ruleId='oil-warm',field='engine.oilTemperature';
+const appId='osa-dev',ruleId='oil-warm',field='engine.oilTemperature',rpm='engine.rpm';
 function request(msg){return new Promise((resolve,reject)=>{
  const s=net.createConnection('/run/bmrmodz-background-tool/ctl.sock');let data='',done=false;
  function finish(e,v){if(done)return;done=true;s.destroy();if(e)reject(e);else resolve(v);}
@@ -11,7 +11,7 @@ function request(msg){return new Promise((resolve,reject)=>{
 function desired(s){
  if(!s.enabled)return {api:1,op:'unregister',appId,ruleId};
  if(!Number.isFinite(s.target)||s.target<60||s.target>100)throw Error('Invalid oil target');
- return {api:1,op:'register',appId,rule:{api:1,appId,ruleId,fields:[{name:field,freshnessMs:5000}],condition:{field,op:'gte',value:s.target},rearm:{field,op:'lte',value:s.target-2},trigger:'rising',actions:[{type:'notification',name:'kombi',payload:{durationMs:4000,ttlMs:10000,segments:[{text:warmupLabel(s.language)+' ',color:'#ffffff',blinkMs:0},{text:String(s.target)+' °C',color:'#ffb547',blinkMs:0}]}}]}};
+ return {api:1,op:'register',appId,rule:{api:1,appId,ruleId,fields:[{name:field,freshnessMs:5000},{name:rpm,freshnessMs:5000}],condition:{all:[{field:rpm,op:'gte',value:300},{field,op:'gte',value:s.target}]},rearm:{field:rpm,op:'eq',value:0},trigger:'rising',actions:[{type:'notification',name:'kombi',payload:{durationMs:4000,ttlMs:10000,segments:[{text:warmupLabel(s.language)+' ',color:'#ffffff',blinkMs:0},{text:String(s.target)+' °C',color:'#ffb547',blinkMs:0}]}}]}};
 }
 function create(log,get,send=request){let busy=false,accepted='';
  async function sync(){if(busy)return;busy=true;try{const msg=desired(get()),key=JSON.stringify(msg);if(key===accepted)return;const reply=await send(msg);if(!reply||!reply.ok)throw Error(reply&&reply.error||'Registration rejected');accepted=key;log.info('OSA BG '+msg.op+' accepted');}catch(e){log.warn('OSA BG registration: '+e.message);}finally{busy=false;}}
