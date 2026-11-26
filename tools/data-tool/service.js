@@ -182,7 +182,7 @@ function serve(factory,socketPath,options){
             if(!apiSession)apiSession=publicRuntime.attach(client);
             if(!apiSession){client.destroy();return;}
             apiBusy=true;try{reply=await apiSession.request(req);}finally{apiBusy=false;}
-          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.68',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
+          }else if(req.op==='status')reply={ok:true,tool:'bmrmodz-data-tool',version:'0.1.70',transportReady:!!(transport&&transport.ready),stats,readHealth:healthSnapshot(),capabilities:capabilities()};
           else if(req.op==='capabilities')reply={ok:true,capabilities:capabilities()};
           else if(req.op==='tasuIdleProbe')reply=await tasuIdleProbe(req.mode);
           else if(req.op==='schedulerLiveTest'){
@@ -252,6 +252,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='ccTasuGenerate'&&Object.keys(req).length===1)reply=await ccTasuGenerator.run();
           else if(req.op==='ccTasuProbe'&&Object.keys(req).length===1)reply=await ccTasuProbe();
           else if(req.op==='ccGearSourceAudit'&&Object.keys(req).length===1)reply=require('./cc-generator-audit').inspect();
+           else if(req.op==='ccAccessAudit'&&Object.keys(req).length===1)reply=require('./cc-access-audit').inspect();
           else if(req.op==='ccGearGenerate'&&Object.keys(req).length===1)reply=await ccGearGenerator.run();
           else if(req.op==='ccGearProbe'&&Object.keys(req).length===1)reply=await ccGearRunner.run();
           else if(req.op==='ccFrontContact'&&Object.keys(req).length===2&&(req.contact===1||req.contact===2))reply=await ccFrontContact(req.contact);
