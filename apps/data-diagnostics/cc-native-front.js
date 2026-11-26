@@ -1,7 +1,8 @@
 'use strict';
 // Diagnostic-only comparison with the original Climate Comfort TASU path.
 // The app declares InternalTasu explicitly. No background polling or Tool writes.
-const {Diag,replyTo}=require('./kit/diag');
+// Load bundled kit only when a vehicle test is requested; offline mocks do
+// not have the generated app's ./kit/ folder.
 const SID=0x31,ACSM=0x01;
 function resultFor(reply){
  if(!reply)return {state:'unknown',detail:'timeout'};
@@ -19,7 +20,7 @@ async function run(signals,log,DiagType){
  const output={frontLeft:{state:'unknown',detail:'not-tested'},
   frontRight:{state:'unknown',detail:'not-tested'},transport:'native-InternalTasu'};
  if(!signals)return Object.assign(output,{error:'signals-unavailable'});
- const Diagnostic=DiagType||Diag;
+ const Diagnostic=DiagType||require('./kit/diag').Diag;
  let diag;
  try{
   diag=new Diagnostic(signals,log);
@@ -29,7 +30,9 @@ async function run(signals,log,DiagType){
   for(const [contact,key] of [[1,'frontLeft'],[2,'frontRight']]){
    const bytes=[0x01,0xA0,0xD2,contact];
    try{
-    const reply=await diag.physical(ACSM,SID,bytes,1500,replyTo(SID,bytes),
+    const accept=u=>(u[0]===0x71&&u[1]===bytes[0]&&u[2]===bytes[1]&&u[3]===bytes[2])||
+     (u[0]===0x7F&&u[1]===SID);
+    const reply=await diag.physical(ACSM,SID,bytes,1500,accept,
      {maxRetries:0,hardTimeoutMs:3500});
     output[key]=resultFor(reply);
    }catch(e){output[key]={state:'unknown',detail:String(e.message||e).slice(0,60)};}
