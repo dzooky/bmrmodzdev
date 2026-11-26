@@ -1,5 +1,11 @@
 # Climate Comfort DEV progress
 
+## 2026-11-26 — activation policy staged for Background Tool integration
+- **Implemented (offline policy only, no release bump):** `activation-plan.js` provides deterministic per-seat / heating / ventilation / steering activation decisions after an explicit engine-start event, immutable per-function startup temperature checks, belt latch gate, D plus RPM >1000 timer arming, configurable 1/2/3/5-minute policy (default 3), strict expiry, and at-most-once intent. Stop/start reset must be signaled explicitly by a verified driving-cycle source.
+- **Automated-tested:** CI pending; deterministic no-engine/no-belt/false-temperature/D/RPM/timer/expiry/retry/start-stop cases added.
+- **Not implemented in car:** CC DEV does NOT yet run this state machine or send actuation via BG. Current BG Tool 0.1.5 is notification-only and handles only CDS/DPF; Data Tool API 0.1.62 does not yet expose validated gear D or seat-belt fields. Do not bypass shared Data Tool or execute vehicle commands from the new policy. The new algorithm is **not vehicle-verified**.
+- **Next required stage:** Validate read-only gear and per-seat belt signals, extend managed Data Tool catalog and BG scopes, define authenticated/bounded actuator adapter and cycle-lifetime semantics, then wire settings and registration with a controlled car test. Stable CC unchanged.
+
 ## 2026-11-26 — 0.1.65 temperature display in-car confirmation
 - **In-car verified (user report):** CC DEV 0.1.65 displays temperature readings in the vehicle, in addition to previously confirmed successful installation and UI display.
 - **Scope:** This is observed UI temperature display; no individual raw CDS/IHKA values, freshness diagnostics, or actuator behavior were provided. Data Tool source and automation behavior are not independently verified by this observation.
