@@ -1,3 +1,9 @@
+## 2026-11-26 — 0.1.64 CC front-contact NRC visibility (no command changes)
+- **Vehicle evidence:** Data Diagnostics 0.1.77 observed both front seats Unknown with ACSM NRC; rear left unlatched / rear right latched correctly reflected a buckled rear contact. Gear generator failed before sample (`undefined:3130` excerpt), so P/D remains unverified.
+- **Implemented:** Preserve the exact UDS negative response code `7F 31 xx` in the existing explicit-only front contact error. Request bytes, ordering, TASU transport lifecycle, timeout policy and shared UDS reader unchanged. The original production CC's `kit/runtime/diag.js` preserves NRC similarly.
+- **Automated-tested:** Pending CI; synthetic negative replies 0x22/0x33 and original positive read regression.
+- **In-car verified:** Code not yet tested. No claim of working front contacts; diagnostic evidence only. No additional unsafe routines or actuator commands.
+
 ## 2026-11-26 — vehicle check of CC gear and belt diagnostics 0.1.63
 - **In-car observed:** Data Diagnostics 0.1.76 gear-config FAIL before selector probe; both front contacts Unknown, visible `frontLeft: ACSM NRC`; rear ACSM 4053 decoded both belt contacts as `unlatched`. Gear P/D, front contacts and rear latched transitions unverified.
 - **No Data Tool changes:** exact gear generator error/NRC subtype not captured by 0.1.76 UI; preserve working rear ACSM read and shared Data Tool transport, collect isolated failure details first.

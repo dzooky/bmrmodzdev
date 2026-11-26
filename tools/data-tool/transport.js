@@ -182,7 +182,7 @@ class HmiTransport {
         if(frame.error)return done(reject,Error(frame.error));
         if(frame.ecu!==1)return;
         const uds=frame.uds;
-        if(uds[0]===0x7f&&uds[1]===0x31)return done(reject,Error('ACSM NRC'));
+        if(uds[0]===0x7f&&uds[1]===0x31)return done(reject,Error('ACSM NRC '+(uds.length>=3&&Number.isInteger(uds[2])?uds[2].toString(16).toUpperCase().padStart(2,'0'):'unknown')));
         if(uds.length===5&&uds[0]===0x71&&uds[1]===1&&uds[2]===0xA0&&uds[3]===0xD2)
           return done(resolve,uds[4]===0||uds[4]===1?uds[4]:null);
       }};
