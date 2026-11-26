@@ -24,3 +24,7 @@ v0.1.4: optional `rearm` condition for rising triggers. Once fired, the rule rem
 
 
 v0.1.5: `trigger: state` with up to eight ordered states `{id,condition,actions,from?,repeat?}`. First matching state wins; `from` restricts entry actions to listed previous state IDs. `repeat:{delayMs,intervalMs,actions}` runs only while matching that state; missed intervals are not replayed. State ID and next repeat are persisted. All declared samples must be valid. `bitSet`/`bitClear` compare unsigned 32-bit masks. Existing rising/once rules unchanged. All state and repeat actions remain notification-only on the public API.
+
+## IHKA temperature inputs (v0.1.6)
+
+Background Tool accepts the following Data Tool public-scope fields **only when an application registers a rule using them**: `climate.frontLeftFootwell`, `climate.frontRightFootwell`, `climate.rearLeftFootwell`, `climate.rearRightFootwell`. Specify `freshnessMs >= 5000`. Each uses the decoded °C `value`, never the UDS raw integer, and fails closed on missing/invalid/stale data. Scope `ihka` is independent of existing CDS and DPF demand. **Notification-only actions remain enforced; no climate control commands are enabled.**

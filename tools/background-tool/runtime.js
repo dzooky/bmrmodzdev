@@ -1,9 +1,9 @@
 'use strict';
 const {Engine,validate}=require('./engine');
-const scopeFor=k=>/^(engine\.|vehicle\.speed$|environment\.outsideTemperature$)/.test(k)?'cds':'dpf';
+const scopeFor=k=>/^climate\.(frontLeft|frontRight|rearLeft|rearRight)Footwell$/.test(k)?'ihka':/^(engine\.|vehicle\.speed$|environment\.outsideTemperature$)/.test(k)?'cds':'dpf';
 function createRuntime({store,connect,dispatch,now=Date.now}){
  let busy=false,closed=false,timer=null,error=null,revision=0,attempts=0,failures=0,unsupported=[],ticks=0,lastTick=null;
- const groups=['dpf','cds'].map(scope=>({scope,client:null,lastDemand:'',renewed:0}));
+ const groups=['dpf','cds','ihka'].map(scope=>({scope,client:null,lastDemand:'',renewed:0}));
  const engine=new Engine(store.save,async(a,k)=>{attempts++;try{await dispatch(a,k);}catch(e){failures++;throw e;}});
  engine.rules=store.load();
  function request(req,owner){if(closed)throw Error('Closed');if(!req||req.api!==1||typeof owner!=='string'||!/^[a-zA-Z0-9_.-]{1,96}$/.test(owner))throw Error('Unauthorized request');
@@ -17,7 +17,7 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
   const result={samples:Object.create(null),unsupported:[],error:null};
   if(!requested.length){disconnect(g);return result;}
   try{
-   if(!g.client)g.client=await connect('background-tool',undefined,g.scope==='cds'?'cds':undefined);
+   if(!g.client)g.client=await connect('background-tool',undefined,g.scope==='dpf'?undefined:g.scope);
    if(closed){disconnect(g);return result;}
    const cat=await g.client.request({op:'catalog'});if(!cat.ok)throw Error('Catalog unavailable');
    const supported=new Map(cat.fields.map(x=>[x.name,x.minFreshnessMs])),demand=Object.create(null);
@@ -27,7 +27,7 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
    const key=JSON.stringify(fields.map(k=>[k,demand[k]]));
    if(key!==g.lastDemand||now()-g.renewed>=5000){const reply=await g.client.request({op:'demand',fields,freshnessMs:demand});if(!reply.ok)throw Error('Demand rejected');g.lastDemand=key;g.renewed=now();}
    const reply=await g.client.request({op:'snapshot'});if(!reply.ok||!reply.active)throw Error('Snapshot unavailable');
-   for(const k of fields){const s=reply.fields[k];if(s)result.samples[k]={valid:s.valid===true,value:g.scope==='cds'?s.value:s.raw,sampledAt:Date.parse(s.sampledAt)};}
+   for(const k of fields){const s=reply.fields[k];if(s)result.samples[k]={valid:s.valid===true,value:g.scope==='dpf'?s.raw:s.value,sampledAt:Date.parse(s.sampledAt)};}
   }catch(e){result.error='DATA_UNAVAILABLE';disconnect(g);}
   return result;
  }
@@ -37,6 +37,6 @@ function createRuntime({store,connect,dispatch,now=Date.now}){
  unsupported=[].concat(...results.map(x=>x.unsupported));const failed=results.find(x=>x.error);error=failed?failed.error:null;
  if(!closed&&rev===revision)await engine.tick(samples,now());
  }catch(e){error='DATA_UNAVAILABLE';}finally{busy=false;}}
- return {request,tick,health(){return {ok:true,api:1,version:'0.1.5',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:groups.some(g=>!!g.client),dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);groups.forEach(disconnect);}};
+ return {request,tick,health(){return {ok:true,api:1,version:'0.1.6',rules:engine.rules.size,fields:Object.keys(engine.demand()).length,connected:groups.some(g=>!!g.client),dataError:error,unsupported:unsupported.length,ticks,lastTick,attempts,failures};},start(){if(!timer&&!closed)timer=setInterval(()=>{tick();},1000);},close(){closed=true;if(timer)clearInterval(timer);groups.forEach(disconnect);}};
 }
 module.exports={createRuntime};

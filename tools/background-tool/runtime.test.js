@@ -22,3 +22,36 @@ rt.request({api:1,op:'unregister',ruleId:'r'},'a');await rt.tick();rt.close();as
  rt.request({api:1,op:'unregister',ruleId:'r'},'osa');await rt.tick();assert.equal(rt.health().fields,1);
  rt.close();assert(closed.includes('dpf.test'));console.log('Mixed CDS/DPF runtime tests passed');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+
+(async()=>{
+ const assert=require('assert'),{createRuntime}=require('./runtime');
+ let now=100000,temperature=12,valid=true,connects=[],closed=[],events=[];
+ const store={load:()=>new Map(),save:()=>{}};
+ const connect=async(app,path,scope)=>{
+  connects.push(scope||'dpf');
+  assert.equal(scope,'ihka');
+  return {close(){closed.push(scope);},async request(req){
+   if(req.op==='catalog')return {ok:true,fields:[{name:'climate.frontLeftFootwell',minFreshnessMs:5000}]};
+   if(req.op==='demand'){assert.deepStrictEqual(req.fields,['climate.frontLeftFootwell']);return {ok:true};}
+   if(req.op==='snapshot')return {ok:true,active:true,fields:{'climate.frontLeftFootwell':{
+    valid,raw:255,value:temperature,sampledAt:new Date(now).toISOString()}}};
+   throw Error('Unknown request');
+  }};
+ };
+ const rt=createRuntime({store,connect,dispatch:async(a,k)=>events.push(k),now:()=>now});
+ try{
+  assert.deepStrictEqual(connects,[]); // idle must not probe IHKA
+  const rule={api:1,appId:'cc-dev',ruleId:'footwell',fields:[{name:'climate.frontLeftFootwell',freshnessMs:5000}],
+   condition:{field:'climate.frontLeftFootwell',op:'lte',value:15},trigger:'rising',
+   actions:[{type:'notification',name:'kombi',payload:{}}]};
+  rt.request({api:1,op:'register',rule},'cc-dev');
+  await rt.tick();assert.deepStrictEqual(connects,['ihka']);
+  assert.deepStrictEqual(events,['cc-dev:footwell']); // 12 Celsius, NOT raw byte 255
+  temperature=25;now+=1000;await rt.tick();assert.equal(events.length,1);
+  valid=false;temperature=12;now+=1000;await rt.tick();assert.equal(events.length,1); // invalid sample cannot trigger
+  valid=true;now+=1000;await rt.tick();assert.equal(events.length,2);
+  rt.request({api:1,op:'unregister',ruleId:'footwell'},'cc-dev');
+  now+=1000;await rt.tick();assert(closed.includes('ihka'));assert.equal(rt.health().fields,0);
+  console.log('IHKA opt-in scope and decoded temperature integration passed');
+ }finally{rt.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
