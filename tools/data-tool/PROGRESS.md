@@ -1,3 +1,7 @@
+## 2026-11-26 — 0.1.70 passive CC access readiness and provider status
+- **Implemented:** Manual-only read-only `ccAccessAudit` inspects bounded Tool-owned staged TASU and gear configuration/ACL structure. No registry modification, ACL activation, external application access, or ECU read. Existing TASU manual worker now reports proxy provider availability before/after the existing calls. Default scheduler and transport unchanged.
+- **Automated-tested:** CI pending. **In-car verified:** No for 0.1.70. Last observation: Tool native method call unavailable; app native TASU succeeded. The cause of service restriction remains open and no front-belt API is enabled.
+
 ## 2026-11-26 — 0.1.69 bounded TASU failure diagnostics
 - **Implemented:** Preserve detailed per-contact native TASU failures in existing explicit-only probe: transport error value, TASU envelope rejection, method rejection verdict, call exception, and no-matching-response timeout. No new requests, ACL changes, retries, public fields, or transport changes. Diagnostics 0.1.81 displays these per-contact details and both generator outcomes from one run.
 - **Automated-tested:** Pending CI. **In-car verified:** No. v0.1.68 Tool-native service returned native-read-unavailable while the app-native front references succeeded. Continue to treat Tool service access as unverified.
