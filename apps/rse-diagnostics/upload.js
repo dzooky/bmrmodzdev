@@ -27,7 +27,7 @@ function uplinkLookup(dataDir){
 const {envelope}=require('./report');
 function upload(report,dataDir,options){
   const opts=options||{};
-  const safe=report.version==='0.1.2'?{schema:1,application:'bmrmodz-data-diagnostics',runMode:'rse-diagnostics-0.1.2',results:[],notes:{rseReport:report}}:envelope(report);
+  const safe=['0.1.2','0.1.3'].includes(report.version)?{schema:1,application:'bmrmodz-data-diagnostics',runMode:'rse-diagnostics-'+report.version,results:[],notes:{rseReport:report}}:envelope(report);
   const body=JSON.stringify(safe);
   if(Buffer.byteLength(body)>32768)return Promise.reject(new Error('Diagnostic report exceeds 32 KB'));
   return new Promise((resolve,reject)=>{
