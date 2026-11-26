@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),net=require('net'),path=require('path');
-const front=require('./front'),gear=require('./gear');
+const front=require('./front');
 const NAME='bmrmodz-cc-native.sock';
 function normalizeGear(sample){
  const stage=sample&&sample.ok===true?sample.selector:null;
@@ -15,7 +15,8 @@ function create(options){
   if(inflight)return inflight;
   inflight=Promise.resolve().then(async()=>{
    const belt=await (opts.front||front.run)(opts.signals,opts.log);
-   const selector=await (opts.gear||gear.run)(opts.signals,opts.log);
+   // Optional gearbox source must never add unsupported manifest permissions.
+   const selector=opts.gear?await opts.gear(opts.signals,opts.log):{ok:false};
    const fields={
     frontLeft:belt&&belt.frontLeft||{valid:false,value:null},
     frontRight:belt&&belt.frontRight||{valid:false,value:null},
