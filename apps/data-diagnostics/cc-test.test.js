@@ -3,6 +3,7 @@ const assert=require('assert'),cc=require('./cc-test');
 (async()=>{
  const calls=[];const res=await cc.run(async q=>{
  calls.push(q.op);
+ if(q.op==='ccGearSourceAudit')return {ok:false,bundle:{status:'syntax-error',line:3130}};
  if(q.op==='ccGearGenerate')return {ok:true};
  if(q.op==='ccGearProbe')return {ok:true,selector:'P'};
  if(q.op==='ccFrontContact')return {ok:true,state:q.contact===1?'latched':'unlatched'};
@@ -10,6 +11,6 @@ const assert=require('assert'),cc=require('./cc-test');
  });
  assert.deepStrictEqual(res.belts,{frontLeft:'latched',frontRight:'unlatched',rearLeft:'latched',rearRight:'unlatched'});
  assert.strictEqual(res.gear.selector,'P');
- assert.deepStrictEqual(calls,['ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
+ assert.deepStrictEqual(calls,['ccGearSourceAudit','ccGearGenerate','ccGearProbe','ccFrontContact','ccFrontContact','read']);
  console.log('CC parked test PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});

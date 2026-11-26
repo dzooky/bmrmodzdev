@@ -2,6 +2,7 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "BMW bundle": "BMW bundle",
     "CC Test":"CC Test",
     "Run CC diagnostics":"Run CC diagnostics",
     "Gear selector":"Gear selector",
