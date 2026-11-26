@@ -1,7 +1,7 @@
 {
   "id": "bmrmodz-data-tool",
   "kind": "tool",
-  "version": "0.1.62",
+  "version": "0.1.63",
   "title": "Data Tool",
   "description": "Experimental read-only BMRMODZ vehicle data service (restored v0.1.35 UDS baseline)",
   "optional": true,

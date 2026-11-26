@@ -168,6 +168,33 @@ class HmiTransport {
       return await received;
     }catch(e){if(this.pendingRead===pending)pending.reject(e);received.catch(()=>{});throw e;}
   }
+  // Explicit, fixed ACSM sensor routine. Never accepts arbitrary routine data.
+  async readFrontContact(contact){
+    if(contact!==1&&contact!==2)throw Error('Unsupported ACSM contact');
+    if(!this.ready)await this.init();
+    if(this.pendingRead)throw Error('read in flight');
+    const request=Buffer.from([0xF2,1,0x31,0,0,2,0,0,0,4,1,0xA0,0xD2,contact,0]);
+    let pending;
+    const result=new Promise((resolve,reject)=>{
+      let timeout,finished=false;
+      const done=(fn,value)=>{if(finished)return;finished=true;clearTimeout(timeout);this.pendingRead=null;fn(value);};
+      pending={reject:e=>done(reject,e),consume:frame=>{
+        if(frame.error)return done(reject,Error(frame.error));
+        if(frame.ecu!==1)return;
+        const uds=frame.uds;
+        if(uds[0]===0x7f&&uds[1]===0x31)return done(reject,Error('ACSM NRC'));
+        if(uds.length===5&&uds[0]===0x71&&uds[1]===1&&uds[2]===0xA0&&uds[3]===0xD2)
+          return done(resolve,uds[4]===0||uds[4]===1?uds[4]:null);
+      }};
+      this.pendingRead=pending;timeout=setTimeout(()=>done(resolve,null),3500);
+    });
+    result.catch(()=>{});
+    try{
+      const ack=await this.line('call 0xf8a6 128 1 1 '+request.toString('hex'),5000);
+      if(!/^ok\b/.test(ack))throw Error('ACSM command rejected');
+      return await result;
+    }catch(e){if(this.pendingRead===pending)pending.reject(e);result.catch(()=>{});throw e;}
+  }
   close(){if(this.child)this.child.kill();this.child=null;this.ready=false;}
 }
 function createTransport(){
