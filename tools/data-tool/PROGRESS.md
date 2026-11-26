@@ -1,3 +1,8 @@
+## 2026-11-26 — 0.1.61 IHKA footwell demand (DEV)
+- **Implemented:** Separate public `ihka` API scope exposing four validated footwell temperatures (°C) via one shared 0x78/D8D7 UDS acquisition and existing shared queue, with 5 s minimum demand, lease expiry, three-times-requested freshness, and passive snapshots. Only reads when explicitly demanded; no automatic CC control, app migration or modifications to existing DPF/EGS/CDS scopes.
+- **Automated-tested:** Pending CI at implementation; regression tests cover four fields, shared ECU read, signed decoding, invalid values, no-demand/release and cache expiry.
+- **In-car verified:** No, real IHKA responses and interaction with ongoing DPF/OSA sessions require vehicle validation.
+
 # Data Tool progress
 
 ## 2026-11-25 — 0.1.60 EGS demand

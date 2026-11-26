@@ -7,6 +7,7 @@ function createRuntime(read,cdsEngine){
  const scheduledRead=(ecu,did)=>{lastScheduled=Date.now();return read(ecu,did);};
  const cdsApi=cdsEngine?createApi({cdsEngine}):null;
  const egsApi=createApi({scope:'egs',read:scheduledRead});
+ const ihkaApi=createApi({scope:'ihka',read:scheduledRead});
  let api=null,initializing=null,closed=false,attempt=0,clients=new Set(),busy=false;
  const fail=error=>({ok:false,error});
  async function init(){
@@ -21,7 +22,7 @@ function createRuntime(read,cdsEngine){
   }
   return initializing||null;
  }
- const timer=setInterval(()=>{if(cdsApi&&!closed)cdsApi.tick().catch(()=>{});if(!busy&&!closed){busy=true;Promise.resolve().then(async()=>{if(Date.now()-lastScheduled<1000)return;if(api)await api.tick();if(Date.now()-lastScheduled>=1000)await egsApi.tick();}).catch(()=>{}).then(()=>{busy=false;});}},250);
+ const timer=setInterval(()=>{if(cdsApi&&!closed)cdsApi.tick().catch(()=>{});if(!busy&&!closed){busy=true;Promise.resolve().then(async()=>{if(Date.now()-lastScheduled<1000)return;if(api)await api.tick();if(Date.now()-lastScheduled>=1000)await egsApi.tick();if(Date.now()-lastScheduled>=1000)await ihkaApi.tick();}).catch(()=>{}).then(()=>{busy=false;});}},250);
  if(timer.unref)timer.unref();
  function attach(client){
   if(closed||clients.size>=8)return null;
@@ -33,9 +34,9 @@ function createRuntime(read,cdsEngine){
   return {async request(req){
    if(ended)return fail('SESSION_EXPIRED');
    if(!session){
-    if(opening||req.op!=='apiHello'||(Object.keys(req).length!==3&&!(Object.keys(req).length===4&&['cds','egs'].includes(req.scope)))||req.api!==1||
+    if(opening||req.op!=='apiHello'||(Object.keys(req).length!==3&&!(Object.keys(req).length===4&&['cds','egs','ihka'].includes(req.scope)))||req.api!==1||
      typeof req.appId!=='string'||!/^[a-zA-Z0-9._-]{1,64}$/.test(req.appId))return fail('INVALID_HELLO');
-    opening=true;const target=req.scope==='cds'?cdsApi:req.scope==='egs'?egsApi:await init();opening=false;
+    opening=true;const target=req.scope==='cds'?cdsApi:req.scope==='egs'?egsApi:req.scope==='ihka'?ihkaApi:await init();opening=false;
     if(ended||closed)return fail('SESSION_EXPIRED');
     if(!target)return fail('PROFILE_UNAVAILABLE');
     session=target.connect(req.appId);
@@ -45,6 +46,6 @@ function createRuntime(read,cdsEngine){
    return session.request(req.request);
   }};
  }
- return {attach,status:()=>({connections:clients.size,ready:!!api,scheduler:api?api.status():null}),close(){closed=true;clearInterval(timer);for(const c of clients)c.close();if(api)api.close();if(cdsApi)cdsApi.close();egsApi.close();}};
+ return {attach,status:()=>({connections:clients.size,ready:!!api,scheduler:api?api.status():null}),close(){closed=true;clearInterval(timer);for(const c of clients)c.close();if(api)api.close();if(cdsApi)cdsApi.close();egsApi.close();ihkaApi.close();}};
 }
 module.exports={createRuntime};

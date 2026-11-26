@@ -19,3 +19,7 @@ Send hello with an additional `scope: "cds"` property (client connect third argu
 
 ## 0.1.58 additions
 CDS scope adds `vehicle.speed` (km/h) and `environment.outsideTemperature` (C). Demand selects physical signal groups; group changes restart the worker. Engine oil and coolant share one signal. Additional configuration must be staged explicitly via `osaSignalGenerate`; no ACL changes. New signals and restart behavior require in-car verification.
+
+## 0.1.61 — IHKA footwell temperatures (DEV)
+
+Opt-in `scope: "ihka"` over the existing public API socket. Four named fields: `climate.frontLeftFootwell`, `climate.frontRightFootwell`, `climate.rearLeftFootwell`, `climate.rearRightFootwell`. Each has a 5000 ms minimum requested freshness, with existing 3x cache validity. One shared read of ECU `0x78`, DID `0xD8D7` yields the 19-byte UDS response (3-byte header + 16 payload bytes). Decoded signed one-byte temperatures (°C), with endpoint values outside [-40,126] rejected independently. A session has to demand at least one field, then renew every 15 s; no reads at rest. The scheduler uses the same serialized allowlisted Tool transport and global minimum 1-second read-start spacing. Existing DPF/EGS/CDS scopes and requests are unchanged. Consumer selects third connect argument `'ihka'`. This is a DEV capability awaiting actual ECU verification. No vehicle control or Background Tool registration is added.

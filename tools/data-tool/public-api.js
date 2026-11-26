@@ -5,8 +5,13 @@ const {build}=require('./dpf-demand-profile');
 const LIMITS=Object.freeze({sessions:8,fields:12,leaseMs:15000,minFastMs:5000,minSlowMs:60000,maxFreshnessMs:300000,requestsPerSecond:10,aggregateReadsPerSecond:1});
 function createApi(options){
  if(options.cdsEngine&&!options.identity)return createCdsApi(options);
- const egs=options.scope==='egs', field='transmission.oilTemperature';
- const profile=egs?{engine:'EGS',fields:[field],definitions:{[field]:{ecu:0x18,did:0x6000,length:1}},freshnessMs:{[field]:5000}}:build(options.identity),now=options.now||Date.now;
+ const egs=options.scope==='egs',ihka=options.scope==='ihka',field='transmission.oilTemperature';
+ const ihkaFields=['climate.frontLeftFootwell','climate.frontRightFootwell','climate.rearLeftFootwell','climate.rearRightFootwell'];
+ const profile=ihka?{engine:'IHKA',fields:ihkaFields,
+   definitions:Object.fromEntries(ihkaFields.map(name=>[name,{ecu:0x78,did:0xD8D7,length:16}])),
+   freshnessMs:Object.fromEntries(ihkaFields.map(name=>[name,5000]))}:
+   egs?{engine:'EGS',fields:[field],definitions:{[field]:{ecu:0x18,did:0x6000,length:1}},freshnessMs:{[field]:5000}}:
+   build(options.identity),now=options.now||Date.now;
  if(!profile)throw Error('Unsupported DDE');
  const grants=new Map(),sessions=new Map();
  // Scheduler requires a nonempty grant map at construction.
@@ -39,6 +44,14 @@ function createApi(options){
     let raw=null;if(row.valid){raw=0;for(const byte of row.uds.slice(3))raw=raw*256+byte;}
     fields[name]={valid:row.valid,raw,validityMs:row.validityMs,sampledAt:row.sampledAt,ageMs:row.ageMs};
     if(egs){fields[name].value=row.valid?raw-40:null;fields[name].unit='C';}
+    if(ihka){
+     const spec=require('./data-catalog').DEFINITIONS[name];
+     const decoded=row.valid?require('./data-catalog').decodeFootwell({ok:true,uds:row.uds},spec):null;
+     fields[name].valid=!!decoded;
+     fields[name].raw=decoded?row.uds[spec.index]:null;
+     fields[name].value=decoded?decoded.value:null;
+     fields[name].unit='C';
+    }
    }
    return {ok:true,active:x.active,fields};
   }

@@ -13,7 +13,7 @@ function createScheduler(options){
  const fields=new Map();
  for(const [key,spec] of Object.entries(definitions)){
   if(!spec||!Number.isInteger(spec.ecu)||!Number.isInteger(spec.did)||
-     !Number.isInteger(spec.length)||spec.length<1||spec.length>4||
+     !Number.isInteger(spec.length)||spec.length<1||(spec.length>4&&(spec.ecu!==0x78||spec.did!==0xD8D7||spec.length!==16))||
      !getRead(spec.ecu,spec.did))throw Error('Non-allowlisted signal: '+key);
   fields.set(key,Object.freeze({ecu:spec.ecu,did:spec.did,length:spec.length}));
  }
