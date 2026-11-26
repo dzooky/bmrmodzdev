@@ -10,8 +10,8 @@ const assert=require('assert'),{HmiTransport}=require('./transport');
  };
  assert.equal(await t.readFrontContact(1),1);
  assert.equal(await t.readFrontContact(2),0);
- assert(sent[0].endsWith('f201310000020000000401a0d20100'));
- assert(sent[1].endsWith('f201310000020000000401a0d20200'));
+ assert(sent[0].endsWith('f201310000020000000401a0d201'));
+ assert(sent[1].endsWith('f201310000020000000401a0d202'));
  assert.equal(t.pendingRead,null);
  await assert.rejects(t.readFrontContact(3),/Unsupported/);
  // Match original CC behavior: preserve actual NRC byte in the error.
