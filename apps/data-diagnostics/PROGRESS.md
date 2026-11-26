@@ -1,3 +1,9 @@
+## v0.1.82 — isolated native gearbox selector reference (2026-11-26)
+- **Implemented:** App-owned, manifest-declared read-only `VehicleInformation` one-shot watch on explicit CC Test only. Decode `statusGearboxDrive` and `DataPowerTrain2` to P/R/N/D, reject invalid/conflicting values and release subscription. Show Tool and Native gear separately, with cached feed details. Existing front/rear belt, Data Tool request/order, and stable CC remain unchanged. No public gear API and no climate action enabled.
+- **Automated-tested:** Pending GitHub CI; positive P, contradictory fields, unavailable provider, timeout and cleanup simulated. Real MGU preview required.
+- **Vehicle evidence:** Diagnostics 0.1.81 native TASU front positions and Data Tool rear positions matched user's observed four belts; Tool-native TASU `sendTasuRequest()` reports `Service unavailable` for both front contacts. The service uses a staged but not registered ACL; whether registration alone resolves access is unproven. Gear `ccGearGenerate` failed in firmware module evaluation (`undefined:3130`); catalog and BMW bundle syntax were present. Neither Data Tool service access nor selector P/D is car-verified.
+- **Next parked test:** One CC Test with engine off and P selected; compare app-native gear with current Tool error and four seat belts. Do not start a separate tool service ACL registration or change ECU commands without verified supported mechanism.
+
 ## v0.1.81 — combined CC diagnostics (2026-11-26)
 - **Implemented:** One CC Test invocation retains staged TASU/gear generator results and shows two read-only cached detail pages (bundle modules, catalog signal presence, gear config, native service per-contact errors, and rear reference). Details navigation never triggers another probe. Data Tool >=0.1.69 required.
 - **Automated-tested:** Pending CI; explicit result formatting and existing CC test orchestration regressions.

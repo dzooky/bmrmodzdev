@@ -49,6 +49,7 @@ jobs:
         run: |
           node --check apps/data-diagnostics/main.js
           node --check apps/data-diagnostics/cc-native-front.js
+          node --check apps/data-diagnostics/cc-native-gear.js
           node --check apps/data-diagnostics/cache-probe.js
           node --check apps/data-diagnostics/cache-probe.test.js
           node --check apps/data-diagnostics/dpf-values.js
@@ -120,6 +121,7 @@ jobs:
           node tools/data-tool/cc-feasibility.test.js
           node apps/data-diagnostics/cc-test.test.js
           node apps/data-diagnostics/cc-native-front.test.js
+          node apps/data-diagnostics/cc-native-gear.test.js
           node tools/data-tool/gear-state.test.js
           node tools/data-tool/cc-tasu-worker.test.js
           node tools/data-tool/cc-tasu-runner.test.js
