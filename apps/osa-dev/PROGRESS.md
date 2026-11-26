@@ -14,3 +14,6 @@
 
 ## 2026-11-25 — 0.2.65 Background Registration
 - Persistent oil-temperature-only rule while notification enabled; update target/language; unregister when disabled. BG owns automatic trigger, 2 C rearm and notification delivery. Foreground Data Tool sessions and manual preview unchanged. BG 0.1.4 and NT 0.2.1 required for this test package; conditional Store dependencies not implemented. Registration retries while app runs; uninstall cleanup not implemented. CI and in-car verification pending.
+
+## 2026-11-26 — 0.2.66 engine-start notification candidate
+- User did not observe automatic notification after an apparent cool-down to 77 C and subsequent warm-up; exact samples and dispatch status unavailable. Root cause unconfirmed. Approved one notification per engine start, including already-warm oil. Existing rising/rearm API now uses RPM >=300 and oil target to fire, RPM=0 to rearm; temperature fluctuations alone no longer rearm. Adds existing CDS RPM demand at 5 s; no acquisition or DPF changes. Persistent latch survives app/BG restart. A stop missed during sleep or between samples cannot be detected by this rule alone; start/stop and sleep behavior require validation. CI pending.

@@ -3,6 +3,7 @@
 // English display labels map to their localized equivalents.
 module.exports = {
   "de": {
+    "Oil temperature notification at every engine start": "Öltemperaturmeldung bei jedem Motorstart",
     "Background oil temperature notifications": "Öltemperaturmeldungen im Hintergrund",
     "Data Tool integration": "Data-Tool-Integration",
     "Data Tool": "Data Tool",
@@ -157,6 +158,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zuverlässige Benachrichtigung bei erreichter Öltemperatur"
   },
   "es": {
+    "Oil temperature notification at every engine start": "Aviso de temperatura del aceite en cada arranque",
     "Background oil temperature notifications": "Avisos de temperatura del aceite en segundo plano",
     "Data Tool integration": "Integración de Data Tool",
     "Data Tool": "Data Tool",
@@ -311,6 +313,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificación fiable al alcanzar la temperatura del aceite"
   },
   "fr": {
+    "Oil temperature notification at every engine start": "Notification de température d’huile à chaque démarrage",
     "Background oil temperature notifications": "Notifications de température d’huile en arrière-plan",
     "Data Tool integration": "Intégration de Data Tool",
     "Data Tool": "Data Tool",
@@ -465,6 +468,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notification fiable lorsque l’huile atteint sa température"
   },
   "hu": {
+    "Oil temperature notification at every engine start": "Olajhőmérséklet-jelzés minden motorindításkor",
     "Background oil temperature notifications": "Olajhőmérséklet-értesítések a háttérben",
     "Data Tool integration": "Data Tool integráció",
     "Data Tool": "Data Tool",
@@ -619,6 +623,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Megbízható értesítés az olaj célhőmérsékletének elérésekor"
   },
   "pl": {
+    "Oil temperature notification at every engine start": "Powiadomienie o temperaturze oleju przy każdym uruchomieniu",
     "Background oil temperature notifications": "Powiadomienia o temperaturze oleju w tle",
     "Data Tool integration": "Integracja Data Tool",
     "Data Tool": "Data Tool",
@@ -773,6 +778,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Niezawodne powiadomienie po osiągnięciu temperatury oleju"
   },
   "sk": {
+    "Oil temperature notification at every engine start": "Upozornenie na teplotu oleja pri každom štarte",
     "Background oil temperature notifications": "Upozornenia na teplotu oleja na pozadí",
     "Data Tool integration": "Integrácia Data Tool",
     "Data Tool": "Data Tool",
@@ -927,6 +933,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spoľahlivé upozornenie pri dosiahnutí teploty oleja"
   },
   "cs": {
+    "Oil temperature notification at every engine start": "Upozornění na teplotu oleje při každém startu",
     "Background oil temperature notifications": "Upozornění na teplotu oleje na pozadí",
     "Data Tool integration": "Integrace Data Tool",
     "Data Tool": "Data Tool",
@@ -1081,6 +1088,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spolehlivé upozornění při dosažení teploty oleje"
   },
   "it": {
+    "Oil temperature notification at every engine start": "Avviso temperatura olio a ogni avviamento",
     "Background oil temperature notifications": "Notifiche della temperatura dell’olio in background",
     "Data Tool integration": "Integrazione di Data Tool",
     "Data Tool": "Data Tool",
@@ -1235,6 +1243,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notifica affidabile al raggiungimento della temperatura dell’olio"
   },
   "ru": {
+    "Oil temperature notification at every engine start": "Уведомление о температуре масла при каждом запуске",
     "Background oil temperature notifications": "Фоновые уведомления о температуре масла",
     "Data Tool integration": "Интеграция Data Tool",
     "Data Tool": "Data Tool",
@@ -1389,6 +1398,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Надёжное уведомление при достижении температуры масла"
   },
   "da": {
+    "Oil temperature notification at every engine start": "Olietemperaturbesked ved hver motorstart",
     "Background oil temperature notifications": "Beskeder om olietemperatur i baggrunden",
     "Data Tool integration": "Integration af Data Tool",
     "Data Tool": "Data Tool",
@@ -1543,6 +1553,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålidelig besked, når olietemperaturen er nået"
   },
   "el": {
+    "Oil temperature notification at every engine start": "Ειδοποίηση θερμοκρασίας λαδιού σε κάθε εκκίνηση",
     "Background oil temperature notifications": "Ειδοποιήσεις θερμοκρασίας λαδιού στο παρασκήνιο",
     "Data Tool integration": "Ενσωμάτωση Data Tool",
     "Data Tool": "Data Tool",
@@ -1697,6 +1708,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Αξιόπιστη ειδοποίηση όταν το λάδι φτάσει στη θερμοκρασία στόχο"
   },
   "zh-CN": {
+    "Oil temperature notification at every engine start": "每次发动机启动时提醒机油温度",
     "Background oil temperature notifications": "后台机油温度通知",
     "Data Tool integration": "集成 Data Tool",
     "Data Tool": "Data Tool",
@@ -1851,6 +1863,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "可靠的机油温度达标通知"
   },
   "nl": {
+    "Oil temperature notification at every engine start": "Olietemperatuurmelding bij elke motorstart",
     "Background oil temperature notifications": "Olietemperatuurmeldingen op de achtergrond",
     "Data Tool integration": "Integratie van Data Tool",
     "Data Tool": "Data Tool",
@@ -2005,6 +2018,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Betrouwbare melding bij het bereiken van de olietemperatuur"
   },
   "nb": {
+    "Oil temperature notification at every engine start": "Oljetemperaturvarsel ved hver motorstart",
     "Background oil temperature notifications": "Oljetemperaturvarsler i bakgrunnen",
     "Data Tool integration": "Integrasjon av Data Tool",
     "Data Tool": "Data Tool",
@@ -2159,6 +2173,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålitelig varsel når oljen når måltemperaturen"
   },
   "pt": {
+    "Oil temperature notification at every engine start": "Aviso de temperatura do óleo a cada arranque",
     "Background oil temperature notifications": "Notificações de temperatura do óleo em segundo plano",
     "Data Tool integration": "Integração do Data Tool",
     "Data Tool": "Data Tool",
@@ -2313,6 +2328,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificação fiável ao atingir a temperatura do óleo"
   },
   "ro": {
+    "Oil temperature notification at every engine start": "Notificare temperatură ulei la fiecare pornire",
     "Background oil temperature notifications": "Notificări de temperatură a uleiului în fundal",
     "Data Tool integration": "Integrare Data Tool",
     "Data Tool": "Data Tool",
@@ -2467,6 +2483,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificare fiabilă la atingerea temperaturii uleiului"
   },
   "sl": {
+    "Oil temperature notification at every engine start": "Obvestilo o temperaturi olja ob vsakem zagonu",
     "Background oil temperature notifications": "Obvestila o temperaturi olja v ozadju",
     "Data Tool integration": "Integracija Data Tool",
     "Data Tool": "Data Tool",
@@ -2621,6 +2638,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zanesljivo obvestilo ob doseženi temperaturi olja"
   },
   "fi": {
+    "Oil temperature notification at every engine start": "Öljyn lämpötilailmoitus jokaisella käynnistyksellä",
     "Background oil temperature notifications": "Öljyn lämpötilailmoitukset taustalla",
     "Data Tool integration": "Data Tool -integraatio",
     "Data Tool": "Data Tool",
@@ -2775,6 +2793,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Luotettava ilmoitus öljyn tavoitelämpötilan saavuttamisesta"
   },
   "sv": {
+    "Oil temperature notification at every engine start": "Oljetemperaturmeddelande vid varje motorstart",
     "Background oil temperature notifications": "Oljetemperaturaviseringar i bakgrunden",
     "Data Tool integration": "Integration av Data Tool",
     "Data Tool": "Data Tool",
@@ -2929,6 +2948,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Tillförlitligt meddelande när oljan når måltemperaturen"
   },
   "tr": {
+    "Oil temperature notification at every engine start": "Her motor çalıştırmada yağ sıcaklığı bildirimi",
     "Background oil temperature notifications": "Arka planda yağ sıcaklığı bildirimleri",
     "Data Tool integration": "Data Tool entegrasyonu",
     "Data Tool": "Data Tool",
@@ -3083,6 +3103,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Yağ hedef sıcaklığına ulaştığında güvenilir bildirim"
   },
   "uk": {
+    "Oil temperature notification at every engine start": "Сповіщення про температуру оливи при кожному запуску",
     "Background oil temperature notifications": "Фонові сповіщення про температуру оливи",
     "Data Tool integration": "Інтеграція Data Tool",
     "Data Tool": "Data Tool",

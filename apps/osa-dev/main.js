@@ -191,6 +191,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.2.66', 'Oil temperature notification at every engine start'],
                 ['0.2.65', 'Background oil temperature notifications'],
                 ['0.2.64', 'Data Tool integration'],
                 ['0.2.63', 'Reliable oil temperature reached notification'],
