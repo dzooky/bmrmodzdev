@@ -74,7 +74,7 @@ async function run() {
     assert.strictEqual(calls.length,3,'Manual preview does not require live temperature data');
     const app=JSON.parse(fs.readFileSync(__dirname + '/app.json','utf8'));
     const main=fs.readFileSync(__dirname + '/main.js','utf8');
-    assert.strictEqual(app.version,'0.2.65');
+    assert.strictEqual(app.version,'0.2.66');
     assert.strictEqual(app.requires['bmrmodz-data-tool'],'0.1.60');
     assert(!main.includes("require('./kit/car')"));
     assert(!main.includes("require('./transmission')"));
@@ -97,6 +97,7 @@ async function run() {
         .map(([key])=>key).filter(key=>key!=='en'&&key!=='auto');
     assert(!main.includes('oilNotification.start('));
     const labels = [
+        'Oil temperature notification at every engine start',
         'Background oil temperature notifications',
         'Data Tool integration',
         'Show notification message',
