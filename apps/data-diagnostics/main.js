@@ -15,7 +15,7 @@ mgu.run({start(ctx){
  const {ui,log}=ctx;
  let page=0,ntBusy=false,ntMessage='',ntError='',ntCooldown=0,ntHealth=null,ntPoll=false,lastNtPoll=0;
  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='',bgDeadline=0;
- let cdsBusy=false,cdsResult=null,ccBusy=false,ccResult=null;
+ let cdsBusy=false,cdsResult=null,ccBusy=false,ccResult=null,ccDetailPage=0;
  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
@@ -59,7 +59,7 @@ mgu.run({start(ctx){
   try{cdsResult=await cdsProbe.run(client.request);}catch(e){cdsResult={rows:[],error:String(e.message||e)};}finally{cdsBusy=false;}
  }
  async function testCC(){
-  if(ccBusy)return;ccBusy=true;ccResult=null;
+  if(ccBusy)return;ccBusy=true;ccResult=null;ccDetailPage=0;
   try{
    ccResult=await ccTest.run(client.request);
    ccResult.nativeFront=await nativeFront.run(ctx.signals,ctx.log);
@@ -75,6 +75,7 @@ mgu.run({start(ctx){
  ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
  ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
  ctx.onTap((x,y)=>{
+  if(page===4&&ccResult&&!ccBusy&&x>=1080&&x<=1510&&y>=55&&y<=110){ccDetailPage=(ccDetailPage+1)%3;return;}
   if(x>=520&&x<=1080&&y>=390&&y<=455){
    if(page===1)testCds();
    if(page===2)toggleBackgroundTest();
@@ -122,6 +123,18 @@ mgu.run({start(ctx){
  }
  function drawCC(cv,theme){
   header(cv,theme,'CC Test',word(ccBusy?'Running':ccResult?'Completed':'Not tested'));
+  if(ccResult){
+   cv.roundRect(1100,58,265,50,8,theme.track);
+   label(cv,ccDetailPage?'Details '+ccDetailPage+'/2':'Details 0/2',1230,91,19,theme.text,{align:'center'});
+  }
+  if(ccResult&&ccDetailPage){
+   const lines=ccTest.detailLines(ccResult);
+   const start=(ccDetailPage-1)*6;
+   lines.slice(start,start+6).forEach((line,i)=>label(cv,line,68,153+i*37,16,theme.text));
+   button(cv,theme,word(ccBusy?'Running':'Run CC diagnostics'),ccBusy);
+   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
+   return;
+  }
   const x=ccResult||{},g=x.gear||{},belts=x.belts||{};
   row(cv,theme,'Gear selector',!ccResult?'—':g.ok&&g.selector?'PASS: '+g.selector+' / '+(g.source||'?'):'FAIL: '+(g.stage||'unknown'),150);
   ['frontLeft','frontRight','rearLeft','rearRight'].forEach((k,i)=>{
