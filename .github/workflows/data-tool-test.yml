@@ -101,6 +101,7 @@ jobs:
           node tools/data-tool/native-process-boundary.test.js
           node tools/data-tool/package-boundary.test.js
           node tools/data-tool/transport-trace.test.js
+          node tools/data-tool/cc-front-contact.test.js
           node tools/data-tool/tasu21-recovery.test.js
           node tools/data-tool/health-startup.test.js
           node tools/data-tool/secure-ipc.test.js
