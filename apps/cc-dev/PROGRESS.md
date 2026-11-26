@@ -2,7 +2,7 @@
 
 ## 2026-11-26 — CC activation policy legacy Node compatibility
 - **Implemented (source-only):** Replace `Object.fromEntries` in activation-plan status reporting with Node 12-compatible iteration. No change to activation policy, existing UI or car operations.
-- **Automated-tested:** Pending CC DEV CI including Node 12 policy regression.
+- **Automated-tested:** PR #123 CC DEV CI 45800710173 PASS; activation policy regression and Store-mode build. Actual Node 12-specific execution of this CC file was not separately run.
 - **In-car verified:** No change; 0.1.65 remains the last installed and observed CC DEV build.
 
 ## 2026-11-26 — Background Tool shared IHKA and gearbox source review
