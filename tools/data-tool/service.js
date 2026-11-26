@@ -256,7 +256,7 @@ function serve(factory,socketPath,options){
           else if(req.op==='ccGearGenerate'&&Object.keys(req).length===1)reply=await ccGearGenerator.run();
           else if(req.op==='ccGearProbe'&&Object.keys(req).length===1)reply=await ccGearRunner.run();
           else if(req.op==='ccFrontContact'&&Object.keys(req).length===2&&(req.contact===1||req.contact===2))reply=await ccFrontContact(req.contact);
-          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.68',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
+          else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.70',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);
           else if(req.op==='signalNative' && req.mode==='load')reply=await signalRunner.run('load');
           else if(req.op==='signalNative' && req.mode==='sample')reply=await signalRunner.run('sample',req.field);
