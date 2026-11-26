@@ -22,4 +22,13 @@ jobs:
           node apps/cc-dev/tab-navigation.test.js
           node -e "const a=require('./apps/cc-dev/app.json'),assert=require('assert');assert.equal(a.id,'cc-dev');assert.equal(a.requires['bmrmodz-data-tool'],'0.1.61')"
       - name: Offline CC DEV preview
-        run: python3 kit/tools/build.py --preview-only cc-dev
+        run: |
+          python3 kit/tools/build.py --preview-only cc-dev
+          python3 - <<'PY'
+          import pathlib
+          src = pathlib.Path('apps/cc-dev')
+          for name in ('front-seat-quilted.png','front-seat.png','rear-seat-isofix.png','rear-seat-quilted.png','steering-m-sport.png','steering-standard.png'):
+              data = (src/name).read_bytes()
+              assert len(data)>100000 and data[:8] == b'\x89PNG\r\n\x1a\n', name
+          print('CC DEV artwork restored and valid')
+          PY
