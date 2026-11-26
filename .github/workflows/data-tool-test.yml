@@ -133,6 +133,7 @@ jobs:
           node tools/data-tool/cc-tasu-worker.test.js
           node tools/data-tool/cc-access-audit.test.js
           node tools/data-tool/cc-native-client.test.js
+          node tools/data-tool/cc-native-client-locate.test.js
           node apps/data-native-provider/bridge.test.js
           node apps/data-native-provider/front.test.js
           node apps/data-native-provider/manifest.test.js
