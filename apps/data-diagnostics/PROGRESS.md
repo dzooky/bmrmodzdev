@@ -1,3 +1,9 @@
+## v0.1.84 — fix unsupported mandatory VehicleInformation SOME/IP installation manifest (2026-11-26)
+- **Vehicle evidence:** Installation of Data Diagnostics 0.1.83 failed with unit-level message "some IPM manifest ask for what the unit does not have." New mandatory VehicleInformation requests introduced in 0.1.82 are the isolated suspect; exact unsupported field is not identified from the installer error.
+- **Implemented:** Remove the new mandatory VehicleInformation attribute requests and disable its app-native gearbox watch; label result unsupported-manifest-removed rather than implying P/R/N/D works. Restore the already car-installed InternalTasu-only manifest from 0.1.81 while retaining all combined Tool-side 0.1.70 diagnostics, passive staged ACL audit and front/rear belt reference. Data Tool unchanged.
+- **Automated-tested:** CI pending. **In-car verified:** Installation not yet retested.
+- **Next:** Install Data Diagnostics 0.1.84 with Data Tool 0.1.70; one parked CC Test. Gear remains Tool generator failure until a catalog-verified field/instance and supported manifest can be shown.
+
 ## v0.1.83 — consolidated CC selector, TASU and Tool ACL readiness (2026-11-26)
 - **Implemented:** One parked CC Test gathers previous native front/rear contacts and app-native VehicleInformation gearbox reference plus passive Tool-owned TASU/gear staged config + ACL inspection and native provider availability before/after existing service calls. Cached detail pages show each failure without new ECU calls. Added cleanup for late native gear subscription. Requires Data Tool >=0.1.70.
 - **Automated-tested:** Data Tool test build run 45843189130 SUCCESS (including passive audit, delayed subscription, legacy runtime and MGU preview); Background Tool run 45843188914 SUCCESS. **In-car verified:** No for this revision.
