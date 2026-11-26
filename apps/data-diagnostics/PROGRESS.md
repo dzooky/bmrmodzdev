@@ -1,5 +1,10 @@
 # Data Tool Diagnostics progress
 
+## v0.1.78 — CC BMW gearbox source preflight
+- **Implemented:** CC Test calls tool `ccGearSourceAudit` for explicit local bundle/catalog classification before the existing one-shot selector and belt test. UI displays bundle status / syntax line; no new ECU requests. Requires Data Tool >= 0.1.67.
+- **Automated-tested:** Pending CI. **In-car verified:** No. Rear seat contacts already confirmed working, front contacts NRC 13 and selector gear-config unverified.
+- **Next:** One parked CC Test; use reported BMW bundle class to decide whether generator can be repaired without changing shared CDS/DPF acquisition.
+
 ## 2026-11-26 — observed v0.1.65 A0D2 helper rejection
 - **In-car observed:** Data Tool 0.1.65 returned `ACSM command rejected` for both front contacts, while both rear belt states remained accurate. Gear-config still failed, no selector confirmed.
 - **Fix in Tool 0.1.66:** restored v0.1.64 helper framing (the extra final zero) after v0.1.65 failed before a UDS response; front sensor remains unresolved at NRC 0x13. App 0.1.77 is unchanged.
