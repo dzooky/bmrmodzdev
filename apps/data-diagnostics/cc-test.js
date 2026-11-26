@@ -31,7 +31,7 @@ function detailLines(x){
  const tool=x&&x.toolNative||{},tc=x&&x.toolConfig||{},reads=tool.readings||{};
  const gear=x&&x.gear||{},gc=x&&x.gearConfig||{};
  const fmt=v=>v===true?'yes':v===false?'no':'?';
- const val=v=>String(v===undefined||v===null?'—':v).replace(/[\\r\\n\\t]/g,' ').slice(0,160);
+ const val=v=>String(v===undefined||v===null?'—':v).replace(/[\r\n\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
  const details=[
   'Bundle: '+val(b.status)+' / IF='+fmt(modules.IFConfigGenerator)+' ACL='+fmt(modules.AclGenerator)+(b.line?' @'+b.line:''),
