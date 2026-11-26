@@ -27,6 +27,8 @@ function serve(factory,socketPath,options){
   const signalRunner=options&&options.signalRunner||createRunner();
   const generator=options&&options.generator||createGenerator();
   const osaGenerator=require('./someip-generate').createOsaGenerator();
+  const ccGearGenerator=require('./someip-generate').createGearGenerator();
+  const ccGearRunner=require('./cc-gear-runner').createRunner();
   const cdsEngine=options&&options.cdsEngine||createEngine();
   // Experimental secure listener must never be a prerequisite for legacy tool health.
   // It is disabled by default until MGU socket lifecycle/peer identity are verified.
@@ -232,6 +234,8 @@ function serve(factory,socketPath,options){
           else if(req.op==='someipGenerate')reply=await generator.run();
           else if(req.op==='someipGenerated')reply=generator.inspect();
           else if(req.op==='ccPlan')reply=ccFeasibility.plan();
+          else if(req.op==='ccGearGenerate'&&Object.keys(req).length===1)reply=await ccGearGenerator.run();
+          else if(req.op==='ccGearProbe'&&Object.keys(req).length===1)reply=await ccGearRunner.run();
           else if(req.op==='ccFrontContact'&&Object.keys(req).length===2&&(req.contact===1||req.contact===2))reply=await ccFrontContact(req.contact);
           else if(req.op==='report')reply=diagnosticReport.create({version:'0.1.63',transportReady:!!(transport&&transport.ready),stats,capabilities:capabilities()});
           else if(req.op==='signalStaging' && req.mode==='sample')reply=await signalRunner.run('staging',req.field);

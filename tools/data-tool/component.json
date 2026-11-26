@@ -145,6 +145,26 @@
       "mode": "0644"
     },
     {
+      "path": "gear-state.js",
+      "from": "gear-state.js",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-gear-manifest.json",
+      "from": "cc-gear-manifest.json",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-gear-worker.js",
+      "from": "cc-gear-worker.js",
+      "mode": "0644"
+    },
+    {
+      "path": "cc-gear-runner.js",
+      "from": "cc-gear-runner.js",
+      "mode": "0644"
+    },
+    {
       "path": "cc-feasibility.js",
       "from": "cc-feasibility.js",
       "mode": "0644"

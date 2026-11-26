@@ -1,3 +1,7 @@
+## 2026-11-26 — isolated CC selector P/R/N/D feasibility
+- **Implemented:** explicit-only short-lived SOME/IP VehicleInformation probe and separately generated staged config, both via Data Tool diagnostic socket. No boot-time subscription, no CDS/UDS read policy changes, no exposed BG selector field.
+- **Automated-tested:** CI pending. Gear signal schema, BMW generator availability, ACL and delivery require parked test. Do not claim D verified from observing P.
+
 ## 2026-11-26 — 0.1.63 isolated front seatbelt diagnostic transport
 - **Implemented:** Only on explicit diagnostics request, fixed ACSM A0D2 contact 1/2 read-like routine via existing TASU transport and shared serialized queue. No general 0x31 API; original UDS read path is unchanged.
 - **Automated-tested:** CI pending. No vehicle verification; front routine TASU envelope must be validated while parked.

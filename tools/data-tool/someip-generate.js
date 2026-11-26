@@ -120,4 +120,20 @@ function createOsaGenerator(){
   }catch(e){return {ok:false,mode:'staging-only',error:clean(e),aclRegistered:false,activeConfigChanged:false};}
  }});
 }
-module.exports={createGenerator,createOsaGenerator,inspect,STAGING,checkStaging};
+function createGearGenerator(){
+ const directory=path.join(ROOT,'generator-cc-gear');
+ const paths={root:ROOT,staging:directory,catalog:CATALOG,
+  manifest:path.join(__dirname,'cc-gear-manifest.json'),generator:GENERATOR};
+ return createGenerator({paths,check(dir,io){
+  try{
+   const config=readJson(path.join(dir,'de_bmw_infrastructure_VehicleInformation.json'),io);
+   const acl=readJson(path.join(dir,'acl.json'),io);
+   const fields=config&&config.fields;
+   const ok=!!(fields&&fields.statusGearboxDrive&&fields.DataPowerTrain2&&
+    Array.isArray(acl.offers)&&Array.isArray(acl.requests));
+   return {ok,mode:'staging-only',aclRegistered:false,activeConfigChanged:false};
+  }catch(e){return {ok:false,mode:'staging-only',aclRegistered:false,
+   activeConfigChanged:false,error:clean(e)};}
+ }});
+}
+module.exports={createGenerator,createOsaGenerator,createGearGenerator,inspect,STAGING,checkStaging};
