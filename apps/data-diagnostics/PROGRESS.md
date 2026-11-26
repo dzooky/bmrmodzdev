@@ -1,5 +1,9 @@
 # Data Tool Diagnostics progress
 
+## 2026-11-26 — confirmed rear belt transitions / pending front NRC verification
+- **In-car verified:** Data Tool Diagnostics 0.1.77 showed rear left `unlatched`, rear right `latched`; user confirmed real physical belt test. ACSM rear 4053 decodes both rear positions, with a confirmed state change on one seat. Front left and front right remain Unknown; each reports `ACSM NRC` and the gearbox shows `gear-config`.
+- **Next:** Data Tool 0.1.64 surfaces NRC code; run one explicit parked test to distinguish ECU refusal cause. Gear generator is a separate isolated problem; no changes to working rear belt reader or main CDS flows.
+
 ## v0.1.77 — CC parked first in-car test follow-up (2026-11-26)
 - **In-car observed using 0.1.76 / Data Tool 0.1.63:** engine off, selector expected P: `gear-config` FAIL (configuration/generator stage, no selector value); front left and front right Unknown, at least front left returned `ACSM NRC` (routine rejected); rear left and rear right `unlatched` decoded from ACSM 4053. Rear unlatched read is vehicle-observed; latched transition, gear P/D and front contacts remain unverified.
 - **Implemented:** show actual gear generation error as a separate diagnostic line, and report both front contact error messages. No new ECU requests, generator behavior, transport, backend versions or controls changed. Tool 0.1.63 remains installed requirement.
