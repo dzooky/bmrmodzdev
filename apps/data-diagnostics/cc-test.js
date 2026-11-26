@@ -5,6 +5,9 @@ async function run(request){
  let accessAudit=null;
  try{accessAudit=await request({op:'ccAccessAudit'},{timeoutMs:5000});}
  catch(e){accessAudit={ok:false,error:String(e.message||e).slice(0,70)};}
+ let sharedNative=null;
+ try{sharedNative=await request({op:'ccNativeSnapshot'},{timeoutMs:21000});}
+ catch(e){sharedNative={ok:false,stage:String(e.message||e).slice(0,70)};}
  let sourceAudit=null;
  try{sourceAudit=await request({op:'ccGearSourceAudit'},{timeoutMs:5000});}
  catch(e){sourceAudit={ok:false,bundle:{status:'audit-unavailable'}};}
@@ -29,14 +32,14 @@ async function run(request){
   else errors.push(key+': '+String(r&&r.error||'unknown').slice(0,70));
  }catch(e){errors.push(key+': '+String(e.message||e).slice(0,70));}
  try{const v=rear(await request({op:'read',ecu:1,did:0x4053},{timeoutMs:12000}));belts.rearLeft=v[0];belts.rearRight=v[1];}catch(e){errors.push('Rear: '+String(e.message||e).slice(0,70));}
- return {gear,gearConfig,belts,errors,sourceAudit,accessAudit,toolConfig,toolNative};
+ return {gear,gearConfig,belts,errors,sourceAudit,accessAudit,toolConfig,toolNative,sharedNative};
 }
 // All diagnostic facts are collected by the same one-click test. UI detail
 // pages only page cached results and never send another vehicle request.
 function detailLines(x){
  const a=x&&x.sourceAudit||{},b=a.bundle||{},c=a.catalog||{},modules=b.modules||{};
  const tool=x&&x.toolNative||{},tc=x&&x.toolConfig||{},reads=tool.readings||{};
- const gear=x&&x.gear||{},gc=x&&x.gearConfig||{},ng=x&&x.nativeGear||{},aa=x&&x.accessAudit||{};
+ const gear=x&&x.gear||{},gc=x&&x.gearConfig||{},ng=x&&x.nativeGear||{},aa=x&&x.accessAudit||{},shared=x&&x.sharedNative||{},rows=shared.fields||{};
  const fmt=v=>v===true?'yes':v===false?'no':'?';
  const val=v=>String(v===undefined||v===null?'—':v).replace(/[\r\n\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
@@ -51,6 +54,9 @@ function detailLines(x){
   'Gear read: Tool '+val(gear.stage)+' / '+val(gear.error||gear.selector||'no detail'),
   'Gear read (App Native): '+val(ng.stage)+' / '+val(ng.selector||ng.errors&&ng.errors.join('; ')||'no detail'),
   'Native gear feeds: '+val(JSON.stringify(ng.observations||{})),
+  'Tool OAP source: '+val(shared.ok?'sample':shared.stage||'unavailable')+' / sampledAt='+val(shared.sampledAt),
+  'Tool OAP left: '+val(rows.frontLeft&&rows.frontLeft.valid?rows.frontLeft.value:'invalid')+' / right: '+val(rows.frontRight&&rows.frontRight.valid?rows.frontRight.value:'invalid'),
+  'Tool OAP gear: '+val(rows.gear&&rows.gear.valid?rows.gear.value:'invalid'),
   'TASU generator: '+val(tc.stage||'unknown')+' / '+val(tc.error||tc.note||'no detail'),
   'Service TASU: '+val(tool.stage)+' / '+val(tool.error||'no detail'),
   'TASU availability: before='+fmt(tool.providerAvailableBefore)+' after='+fmt(tool.providerAvailableAfter),

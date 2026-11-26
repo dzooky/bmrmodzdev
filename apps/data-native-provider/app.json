@@ -1,0 +1,36 @@
+{
+  "id": "data-native-provider",
+  "title": "Data Native Provider",
+  "description": "Autostart read-only BMW TASU vehicle source for BMRMODZ Data Tool",
+  "version": "0.1.0",
+  "vendor": "custom",
+  "loggingId": "DNP1",
+  "iconGlyph": "temp",
+  "mguAppStartType": "autostart",
+  "config": {
+    "customSettings": false
+  },
+  "screens": [
+    {
+      "name": "MAIN",
+      "kind": "canvas",
+      "title": "Data Native Provider"
+    }
+  ],
+  "settings": [],
+  "signals": {
+    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
+      "_instances": "SystemFunctionsInternalTasuInst1",
+      "_methods": [
+        "sendTasuRequest"
+      ],
+      "_broadcasts": [
+        "sendTasuResponse"
+      ]
+    }
+  },
+  "requires": {
+    "bmrmodz-data-tool": "0.1.72"
+  },
+  "mguInternet": false
+}
