@@ -23,8 +23,20 @@ mgu.run({
     async start(ctx) {
         const { ui, log } = ctx;
         ctx.hideButton('BTN_SETTINGS');
+        ctx.hideButton('BTN_NOTICE_OK');
         const settingsCanvas = createSettingsCanvas(ctx.settings, ctx.spec.version, () => openPage('overview'));
         const distanceHistory = distanceRecord.create(ctx.dataDir, log);
+        const release = ctx.isPreview ? null : {
+            version: ctx.spec.version,
+            existing: fs.existsSync(ctx.settings.file) || fs.existsSync(path.join(ctx.dataDir, 'dpf-distance-record.json')),
+        };
+        const notices = require('./welcome-preview').start(ctx.settings, release);
+        const syncNoticeButtons = () => {
+            ctx.setButtonVisible('BTN_NOTICE_OK', notices.active());
+            ctx.setButtonVisible('BTN_SETTINGS', !notices.active());
+        };
+        syncNoticeButtons();
+        let nativeNoticeLabel;
         // Enable cluster messages only when VO confirms 6WB or Live Cockpit Professional (6U3).
         // An unresolved VO is a temporary state, not a reason to overwrite user preferences.
         ctx.settings.values.cluster6wbAvailable = false;
@@ -234,6 +246,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.90', 'Welcome on first launch and notices after important updates'],
                 ['0.1.82', 'Background regeneration notifications'],
                 ['0.1.79', 'Manual comparison using scheduler cache'],
                 ['0.1.78', 'Complete missing reference data during manual comparison'],
@@ -440,6 +453,18 @@ mgu.run({
             }
 
             G.frame(cv, t, TABS.map(label => translate(label)), 0, []);
+            if (notices.active()) {
+                const label = translate('OK');
+                if (label !== nativeNoticeLabel) {
+                    nativeNoticeLabel = label;
+                    ui.text('BTN_NOTICE_OK', label);
+                }
+                delete cv.text;
+                notices.draw(cv, t, () => {
+                    syncNoticeButtons();
+                    return render();
+                });
+            }
             return ui.image('MAIN_GFX', cv);
         }
 
@@ -448,7 +473,20 @@ mgu.run({
             return render();
         }
         ctx.onScroll(delta => page === 'settings' ? settingsCanvas.scroll(delta) : false);
+        ui.onClick('BTN_NOTICE_OK', () => {
+            if (!notices.active()) return;
+            notices.next();
+            syncNoticeButtons();
+            return render();
+        });
+        if (ctx.isPreview) ctx.settings.onChange(key => {
+            if (key === 'previewWelcome') {
+                syncNoticeButtons();
+                if (notices.active()) return openPage('overview');
+            }
+        });
         ctx.onTab(index => {
+            if (notices.active()) return;
             const next = ['overview', 'detail', 'settings', 'about'][index];
             if (next && next !== page) return openPage(next);
         });
