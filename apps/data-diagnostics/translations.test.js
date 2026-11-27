@@ -6,9 +6,12 @@ assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(Object.keys(spec.signals),['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']);
 assert.deepStrictEqual(spec.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.strictEqual(spec.version,'0.1.87');
+assert.strictEqual(spec.version,'0.1.88');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.73');
 assert.strictEqual(spec.mguInternet,true);
+assert.strictEqual(spec.requires['data-native-provider'],'0.1.1');
+for(const key of ['Retest belts','Belt retest'])assert.ok(catalogs.en[key]);
+assert.ok(require('fs').readFileSync(require('path').join(__dirname,'main.js'),'utf8').includes('beltRetest.run(client.request,ccResult.sharedNative)'));
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test']"));
