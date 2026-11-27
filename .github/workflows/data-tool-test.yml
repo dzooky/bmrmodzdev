@@ -145,6 +145,7 @@ jobs:
           node apps/data-diagnostics/cc-actuation-gate.test.js
           node apps/data-diagnostics/cc-compare.test.js
           node apps/data-diagnostics/cc-source-probe-094.test.js
+          node apps/data-diagnostics/cc-guided-wheel-095.test.js
           node apps/data-diagnostics/cc-test.test.js
           node apps/data-diagnostics/cc-native-front.test.js
           node apps/data-diagnostics/cc-native-gear.test.js

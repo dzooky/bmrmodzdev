@@ -27,8 +27,8 @@ mgu.run({start(ctx){
  const actuatorReport=ccActuationReport.create(require('path').join(ctx.dataDir,'cc-wheel-test-092.json'));
  const comparison=ccCompareReport.create(require('path').join(ctx.dataDir,'cc-compare-093.json'));
  let compareBusy=false,compareUploadBusy=false,compareMessage='',compareDetails=0;
- const sourceReport=sourceProbeReport.create(require('path').join(ctx.dataDir,'cc-probe-094.json'));
- let sourceBusy=false,sourceUploadBusy=false,sourceMessage='',sourceDetails=0,sourceProgress='';
+ const sourceReport=sourceProbeReport.create(require('path').join(ctx.dataDir,'cc-probe-095.json'));
+ let sourceBusy=false,sourceUploadBusy=false,sourceMessage='',sourceDetails=0,sourceProgress='',sourceStage='';
  let actuatorBusy=false,actuatorArmed=null,actuatorArmUntil=0,actuatorDetails=0,actuatorStage='';
  let actuatorUploadBusy=false,actuatorUploadMessage='';
  const word=key=>t(ctx.settings.get('language')||'en',key);
@@ -133,15 +133,15 @@ mgu.run({start(ctx){
  }
  async function captureSources(kind){
   if(sourceBusy||sourceUploadBusy||!['wheelTrace','gearP','gearD'].includes(kind))return;
-  sourceBusy=true;sourceMessage=word('Capturing');sourceProgress=kind;
+  sourceBusy=true;sourceMessage=word('Capturing');sourceProgress=kind;sourceStage='';
   try{
    const r=kind==='wheelTrace'?
-    await sourceProbe.captureWheel(ctx.signals):
+    await sourceProbe.captureGuidedWheel(ctx.signals,{log:ctx.log,onStage:(stage,detail)=>{sourceStage=stage;sourceProgress=detail;}}):
     await sourceProbe.captureGear(kind==='gearD'?'D':'P',ctx.signals,{log:ctx.log});
    sourceReport.save(r);sourceMessage=kind+': '+r.stage;
    sourceDetails=0;
   }catch(e){sourceMessage=word('FAIL')+': '+String(e.message||e).slice(0,65);}
-  finally{sourceBusy=false;sourceProgress='';}
+  finally{sourceBusy=false;sourceProgress='';sourceStage='';}
  }
  async function uploadSources(){
   if(sourceBusy||sourceUploadBusy||!sourceReport.snapshot().captures.length)return;
@@ -417,7 +417,7 @@ mgu.run({start(ctx){
    const lines=sourceReport.lines(),start=(sourceDetails-1)*6;
    lines.slice(start,start+6).forEach((line,i)=>label(cv,line,68,153+i*38,16,theme.text));
   }else{
-   const items=[['wheelTrace','Wheel OEM 45s trace',90,150,650],
+   const items=[['wheelTrace','Guided OEM wheel ON/OFF',90,150,650],
     ['gearP','Observe gear P',850,150,650],['gearD','Observe gear D',850,260,650]];
    items.forEach(item=>{
     const r=summary.captures.find(v=>v.kind===item[0]);
@@ -425,13 +425,14 @@ mgu.run({start(ctx){
     label(cv,word(item[1]),item[2]+item[4]/2,item[3]+30,21,theme.text,{align:'center',font:'bold'});
     label(cv,r?r.stage:word('Not captured'),item[2]+item[4]/2,item[3]+58,15,theme.text,{align:'center'});
    });
-   label(cv,word('Wheel: start OFF, OEM ON at 5s, OFF at 35s'),418,255,16,theme.warn,{align:'center'});
+   label(cv,word('Start with wheel OFF; follow the live prompts'),418,255,16,theme.warn,{align:'center'});
    label(cv,word('Gear: keep brake pressed; observe only'),420,318,17,theme.warn,{align:'center'});
    label(cv,word('No ECU writes or automatic gear actuation'),800,366,16,theme.dim,{align:'center'});
   }
   cv.roundRect(520,390,560,65,10,busy?theme.track:theme.accent2);
   label(cv,word('Send source report'),800,430,23,theme.text,{align:'center',font:'bold'});
-  if(sourceMessage)label(cv,sourceMessage,800,483,17,theme.dim,{align:'center'});
+  if(sourceBusy&&sourceStage)label(cv,sourceStage.toUpperCase()+': '+sourceProgress,800,465,18,theme.warn,{align:'center'});
+  if(sourceMessage)label(cv,sourceMessage,800,497,16,theme.dim,{align:'center'});
  }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
