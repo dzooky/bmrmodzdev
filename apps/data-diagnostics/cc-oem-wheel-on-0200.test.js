@@ -79,6 +79,7 @@ const origin=Date.parse('2026-11-27T18:00:00Z');
  assert.equal(silentButton.afterButton,null);
  assert.equal(silentButton.status,'CAPTURED');
  heating=false;
+ const afterManual=commandCount;
 
  // A subscription without an immediate field value must wait for passive
  // notification; unsupported get:heatingState must never be attempted.
