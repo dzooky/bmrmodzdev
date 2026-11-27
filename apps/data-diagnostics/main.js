@@ -100,7 +100,7 @@ mgu.run({start(ctx){
   finally{ccBusy=false;ccDetailPage=0;}
  }
  async function runCcActuator(id){
-  if(actuatorBusy||actuatorUploadBusy||id!=='wheelHeat')return;
+  if(actuatorBusy||actuatorUploadBusy||wheelBusy||id!=='wheelHeat')return;
   const now=Date.now();
   if(actuatorArmed!==id||now>=actuatorArmUntil){
    actuatorArmed=id;actuatorArmUntil=now+12000;return;
@@ -176,7 +176,7 @@ mgu.run({start(ctx){
   finally{wheelUploadBusy=false;}
  }
  async function captureSources(kind){
-  if(sourceBusy||sourceUploadBusy||!['wheelTrace','gearP','gearR','gearD'].includes(kind))return;
+  if(sourceBusy||sourceUploadBusy||wheelBusy||!['wheelTrace','gearP','gearR','gearD'].includes(kind))return;
   sourceBusy=true;sourceMessage=word('Capturing');sourceProgress=kind;sourceStage='';
   try{
    const r=kind==='wheelTrace'?
@@ -196,7 +196,7 @@ mgu.run({start(ctx){
   finally{sourceUploadBusy=false;}
  }
  async function captureComparison(kind){
-  if(compareBusy||compareUploadBusy||!ccCompare.FIELDS.includes(kind))return;
+  if(compareBusy||compareUploadBusy||wheelBusy||!ccCompare.FIELDS.includes(kind))return;
   compareBusy=true;compareMessage=word('Capturing');
   try{
    const result=kind.startsWith('wheel')?
