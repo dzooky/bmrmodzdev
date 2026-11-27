@@ -105,6 +105,8 @@ mgu.run({start(ctx){
      before:null,after:null,error:gate.error||null,steps:[{at:new Date().toISOString(),stage:'belt-gate',error:gate.stage}]};
    }else{
     record=await ccActuation.run(id,{confirmed:true,signals:ctx.signals,log:ctx.log,onStep:stage=>{actuatorStage=stage;}});
+    record.gearObservation=gate.gearObservation||null;
+    record.gearSourceVerified=gate.gearSourceVerified===true;
     record.steps.unshift({at:startedAt,stage:'belt-gate-'+gate.stage});
    }
   }catch(e){record={id,startedAt,finishedAt:new Date().toISOString(),status:'FAIL',
@@ -293,7 +295,7 @@ mgu.run({start(ctx){
    cv.roundRect(560,330,380,58,8,actuatorBusy||!test?theme.track:theme.accent2);
    label(cv,word('No heating felt'),750,368,21,theme.text,{align:'center'});
    if(test)label(cv,word('Physical feedback')+': '+word(test.physicalFeedback||'not-checked'),1030,368,18,theme.dim);
-   label(cv,word('D signal')+': '+word('not verified; not a test gate'),90,415,17,theme.warn);
+   label(cv,word('D signal')+': '+(test&&test.gearSourceVerified?test.gearObservation:word('not verified; not a test gate')),90,415,17,theme.warn);
   }
   cv.roundRect(520,440,560,55,9,actuatorBusy||actuatorUploadBusy?theme.track:theme.accent2);
   label(cv,word('Send detailed report'),800,475,20,theme.text,{align:'center',font:'bold'});
