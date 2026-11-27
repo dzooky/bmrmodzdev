@@ -2,7 +2,7 @@
   "id": "osa-dev",
   "title": "Oil Service Assistant DEV",
   "description": "Engine, coolant and transmission oil temperature monitoring with live warm-up estimates and locally stored service history",
-  "version": "0.2.70",
+  "version": "0.2.71",
   "config": {
     "customSettings": true,
     "previewEquipment": [
