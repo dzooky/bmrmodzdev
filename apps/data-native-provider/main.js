@@ -1,5 +1,5 @@
 'use strict';
-const mgu=require('./kit/mgu'),path=require('path');
+const mgu=require('./kit/mgu'),G=require('./kit/gauges'),path=require('path');
 const signals=require('./kit/signals'),headless=require('./headless');
 // Bootstrap the fixed read-only socket independently of the RHMI start(ctx)
 // callback. BMW autostart CONFIG_STATE may provide no rhmiApplication.
@@ -28,9 +28,7 @@ mgu.run({start(ctx){
   line(words[3],315,33,theme.dim);
   line(words[4]+' '+ctx.spec.version,365,23,theme.dim);
   if(ctx.display.own()){
-   cv.roundRect(600,400,400,76,12,theme.accent);
-   line(words[5],448,32,theme.text,'bold');
-   cv.target(600,400,400,76,closeScreen,'close',12);
+   G.button(cv,theme,600,400,400,76,words[5],closeScreen,{key:'close'});
   }
   return ctx.ui.image('MAIN_GFX',cv);
  });

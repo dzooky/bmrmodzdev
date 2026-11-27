@@ -1,4 +1,10 @@
 # Data Native Provider (OAP app)
+## 0.1.4 — standard Close button
+- Implemented: replace custom filled Close target with the shared KIT G.button default non-primary style, preserving centered placement, automatic 22-language label, native fallback and RHMI close callback. No changes to acquisition, permissions or service lifecycle.
+- 0.1.3 CI: 3/3 PASS. Vehicle screenshot confirms title overlap fixed; custom button appeared white with unreadable label. Close action and background continuity remain unverified.
+- CI pending; vehicle test: check standard button appearance, press Close and verify provider remains reachable.
+
+# Data Native Provider (OAP app)
 ## 0.1.3 — close screen and title overlap
 - Implemented: opt-in native title masking up to the status region; centered Close target in full renderer mode with native bar fallback, translated across all 22 locales. Close calls RHMI closeState only; no process or bridge shutdown. Existing acquisition and manifest unchanged.
 - 0.1.2 vehicle evidence: information screen displayed in English (vehicle set to English); residual native title fragment visible. CI 5/5 PASS; other languages and bridge continuity unverified.
