@@ -9,7 +9,7 @@ assert.strictEqual(b47.regeneration,false,'B47 unverified regen state must not g
 assert.strictEqual(b57.regeneration,true,'B57 existing regeneration must stay enabled');
 assert.deepStrictEqual(b47.overview.map(row=>row[0]),['SOOT','ASH','SINCE','AVERAGE']);
 assert.deepStrictEqual(b57.overview.map(row=>row[0]),['SOOT','ASH','SINCE','AVERAGE','REQUEST','MODE']);
-assert.strictEqual(b47.detail.length,0,'B47 must not use B57 detail DIDs');
+assert.deepStrictEqual(b47.detail.map(r=>r[1]),[0x44F8,0x434A,0x44B7,0x44C2,0x44C1]);
 assert.ok(b57.detail.some(row=>row[0]==='TEMP'));
 assert.ok(b57.detail.some(row=>row[0]==='PRESSURE'));
 const raw={SOOT:0x067e,ASH:0x073b,SINCE:0x0006e078,AVERAGE:0x0241};
