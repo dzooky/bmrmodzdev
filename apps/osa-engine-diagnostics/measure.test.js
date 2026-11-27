@@ -20,7 +20,7 @@ const assert=require('assert'),m=require('./measure');
    'engine.oilTemperature':{valid:true,value:80,raw:128,ageMs:0,validityMs:3000},
    'engine.coolantTemperature':{valid:false},
    'engine.rpm':{valid:true,value:800,raw:3200,ageMs:100,validityMs:3000}
-  }};},close(){closed=true;}}),delay:async()=>{}});
+  }};},close(){closed=true;}}),delay:async()=>{},durationMs:0});
  assert(demand&&released&&closed);assert.equal(tool.status,'partial');assert.deepStrictEqual(tool.invalid,['coolant']);
  const diff=m.compare(native,tool);assert.equal(diff.oil.delta,0);assert.equal(diff.coolant.state,'native-only');
  const broken=await m.tool({connect:async()=>({request:async req=>({ok:false,error:'test-rejection'}),close(){}})});
