@@ -119,7 +119,10 @@ async function proxyDiagnostic(iface, instance, trace) {
             trace.getValueType = typeof p.getValue;
             trace.shutdownType = typeof p.shutdown;
             trace.stage = 'ready';
-            return p;
+            // Never resolve a Promise with the native proxy directly.
+            const handle = Object.create(null);
+            handle.proxy = p;
+            return handle;
         } catch (e) {
             if (p && typeof p.shutdown === 'function') {
                 try { await Promise.resolve(p.shutdown()); } catch (_) {}
