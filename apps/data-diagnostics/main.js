@@ -7,8 +7,10 @@ const beltRetest=require('./cc-belt-retest');
 const gearRetest=require('./cc-gear-retest');
 const rpmRetest=require('./cc-rpm-retest');
 const nativeFront=require('./cc-native-front');
+const ccActuation=require('./cc-actuation'),ccActuationGate=require('./cc-actuation-gate');
+const ccActuationReport=require('./cc-actuation-report'),upload=require('./upload').upload;
 const W=1600,H=520;
-const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test'];
+const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -20,6 +22,9 @@ mgu.run({start(ctx){
  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='',bgDeadline=0;
  let cdsBusy=false,cdsResult=null,ccBusy=false,ccResult=null,ccDetailPage=0;
  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
+ const actuatorReport=ccActuationReport.create(require('path').join(ctx.dataDir,'cc-actuator-test-091.json'));
+ let actuatorBusy=false,actuatorArmed=null,actuatorArmUntil=0,actuatorDetails=0;
+ let actuatorUploadBusy=false,actuatorUploadMessage='';
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
    if(ntBusy||Date.now()<ntCooldown)return;
@@ -83,6 +88,41 @@ mgu.run({start(ctx){
   catch(e){ccResult.beltRetest={ok:false,stage:'unexpected',error:String(e.message||e).slice(0,70)};}
   finally{ccBusy=false;ccDetailPage=0;}
  }
+ async function runCcActuator(id){
+  if(actuatorBusy||actuatorUploadBusy||!ccActuation.CASES[id])return;
+  const now=Date.now();
+  if(actuatorArmed!==id||now>=actuatorArmUntil){
+   actuatorArmed=id;actuatorArmUntil=now+12000;return;
+  }
+  actuatorArmed=null;actuatorArmUntil=0;actuatorBusy=true;
+  const startedAt=new Date().toISOString();
+  let record;
+  try{
+   const gate=await ccActuationGate.check(id,client.request);
+   if(!gate.ok){
+    record={id,source:'diagnostics-oap-native',toolActuationVerified:false,
+     startedAt,finishedAt:new Date().toISOString(),status:'SKIP',stage:'belt-gate-'+gate.stage,
+     before:null,after:null,error:gate.error||null,steps:[{at:new Date().toISOString(),stage:'belt-gate',error:gate.stage}]};
+   }else{
+    record=await ccActuation.run(id,{confirmed:true,signals:ctx.signals,log:ctx.log});
+    record.steps.unshift({at:startedAt,stage:'belt-gate-'+gate.stage});
+   }
+  }catch(e){record={id,startedAt,finishedAt:new Date().toISOString(),status:'FAIL',
+   stage:'test-exception',error:String(e.message||e).slice(0,120),steps:[]};}
+  finally{
+   if(record)try{actuatorReport.save(record);}
+    catch(e){ctx.log.warn('CC actuator log persistence: '+String(e.message||e));}
+   actuatorBusy=false;actuatorDetails=0;actuatorUploadMessage='';
+  }
+ }
+ async function uploadCcActuators(){
+  if(actuatorBusy||actuatorUploadBusy||!actuatorReport.snapshot().cases.length)return;
+  actuatorUploadBusy=true;actuatorUploadMessage=word('Sending');
+  try{const r=await upload(actuatorReport.envelope(),ctx.dataDir);
+   actuatorUploadMessage=word('Report sent')+': '+r.id;
+  }catch(e){actuatorUploadMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
+  finally{actuatorUploadBusy=false;}
+ }
  async function pollNotification(){
   if(ntPoll)return;ntPoll=true;
   try{const h=await client.request({op:'status'},{socket:'/run/bmrmodz-notification/ctl.sock',timeoutMs:1500});ntHealth=h&&h.ok?h:null;}catch(_){ntHealth=null;}finally{ntPoll=false;}
@@ -91,6 +131,19 @@ mgu.run({start(ctx){
  ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
  ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
  ctx.onTap((x,y)=>{
+  if(page===5&&x>=1100&&x<=1510&&y>=55&&y<=110){
+   actuatorDetails=(actuatorDetails+1)%(Math.ceil(actuatorReport.lines().length/6)+1);return;
+  }
+  if(page===5&&!actuatorBusy&&!actuatorUploadBusy){
+   if(x>=830&&x<=1500){
+    for(let i=0;i<4;i++){const y0=130+i*62;
+     if(y>=y0&&y<=y0+51){runCcActuator(Object.keys(ccActuation.CASES)[i]).catch(e=>ctx.log.warn(String(e)));return;}
+    }
+   }
+   if(x>=520&&x<=1080&&y>=440&&y<=495){
+    uploadCcActuators().catch(e=>ctx.log.warn(String(e)));return;
+   }
+  }
   if(page===4&&ccResult&&!ccBusy&&x>=1080&&x<=1510&&y>=55&&y<=110){ccDetailPage=(ccDetailPage+1)%(Math.ceil(ccTest.detailLines(ccResult).length/6)+1);return;}
   if(page===4&&ccResult&&!ccBusy&&x>=90&&x<=465&&y>=390&&y<=455){
    testBeltTransition().catch(e=>log.warn('Combined CC retest: '+e));return;
@@ -107,7 +160,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.90');
+  header(cv,theme,'Info','0.1.91');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -214,6 +267,32 @@ mgu.run({start(ctx){
   button(cv,theme,word('Test notification')+' '+ntMessage,ntBusy||Date.now()<ntCooldown);
   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
  }
+ function drawCcControls(cv,theme){
+  const report=actuatorReport.snapshot();
+  header(cv,theme,'CC Controls',word(actuatorBusy?'Running':actuatorUploadBusy?'Sending':'Manual test only'));
+  cv.roundRect(1100,58,265,50,8,theme.track);
+  label(cv,'Details '+actuatorDetails+'/'+Math.ceil(actuatorReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
+  if(actuatorDetails){
+   const lines=actuatorReport.lines(),start=(actuatorDetails-1)*6;
+   lines.slice(start,start+6).forEach((line,i)=>label(cv,line,68,153+i*37,16,theme.text));
+  }else{
+   label(cv,word('Confirm parked, engine running, belt latched'),90,145,19,theme.warn);
+   const cases=ccActuation.CASES;
+   Object.keys(cases).forEach((id,i)=>{
+    const y=170+i*58,caseResult=report.cases.find(x=>x.id===id);
+    label(cv,word(cases[id].label),90,y+32,22,theme.text);
+    cv.roundRect(830,y,670,51,9,actuatorBusy||actuatorUploadBusy?theme.track:theme.accent2);
+    const armed=actuatorArmed===id&&Date.now()<actuatorArmUntil;
+    const caption=armed?word('Confirm action'):caseResult?
+      caseResult.status+' / '+String(caseResult.stage||'').slice(0,35):word('Arm test');
+    label(cv,caption,1165,y+32,19,theme.text,{align:'center'});
+   });
+   label(cv,word('Direct OAP test; Data Tool actuation not enabled'),90,415,16,theme.warn);
+  }
+  cv.roundRect(520,440,560,55,9,actuatorBusy||actuatorUploadBusy?theme.track:theme.accent2);
+  label(cv,word('Send detailed report'),800,475,20,theme.text,{align:'center',font:'bold'});
+  if(actuatorUploadMessage)label(cv,actuatorUploadMessage,1150,480,15,theme.dim,{align:'center'});
+ }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
   if(page===0)drawInfo(cv,theme);
@@ -221,6 +300,7 @@ mgu.run({start(ctx){
   if(page===2){if(now-lastBgPoll>=2000){lastBgPoll=now;pollBackground();}drawBackground(cv,theme);}
   if(page===3){if(now-lastNtPoll>=2000){lastNtPoll=now;pollNotification();}drawNotification(cv,theme);}
   if(page===4)drawCC(cv,theme);
+  if(page===5)drawCcControls(cv,theme);
   G.frame(cv,theme,pages.map(word),page,[]);
   return ui.image('MAIN_GFX',cv);
  }
