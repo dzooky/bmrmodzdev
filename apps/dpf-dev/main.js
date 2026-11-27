@@ -246,6 +246,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.91', 'Experimental B47 Detail measurements'],
                 ['0.1.90', 'Welcome on first launch and notices after important updates'],
                 ['0.1.82', 'Background regeneration notifications'],
                 ['0.1.79', 'Manual comparison using scheduler cache'],
@@ -317,7 +318,14 @@ mgu.run({
             ].map(part => String(part).padStart(2, '0')).join(':');
             const release = hasReading('LOCK') && !stale('LOCK')
                 ? (readings.LOCK.raw === 0 ? 'ALLOWED' : 'BLOCKED') : 'UNKNOWN';
-            const rows = [
+            const rows = profile && profile.engine === 'B47' ? [
+                ['PRESSURE BEFORE DPF', measurement('PRESSURE', 1, 'hPa'), 'PRESSURE'],
+                ['TEMPERATURE BEFORE DPF', measurement('TEMP', 1, '°C'), 'TEMP'],
+                ['ENGINE TIME SINCE REGEN', duration, 'RUNTIME'],
+                ['REGENERATION PERMISSION', 'UNKNOWN'],
+                ['Soot mass (measured)', measurement('SOOT', 1, 'g'), 'SOOT'],
+                ['Soot mass (calculated)', measurement('SOOT CALCULATED', 1, 'g'), 'SOOT CALCULATED']
+            ] : [
                 ['PRESSURE BEFORE DPF', measurement('PRESSURE', 1, 'hPa'), 'PRESSURE'],
                 ['TEMPERATURE BEFORE DPF', measurement('TEMP', 1, '°C'), 'TEMP'],
                 ['ENGINE TIME SINCE REGEN', duration, 'RUNTIME'],
