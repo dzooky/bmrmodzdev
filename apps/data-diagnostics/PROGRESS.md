@@ -1,3 +1,8 @@
+## v0.2.11 — Emergency passive rollback (2026-11-27)
+- User reports whole MGU Store crashed during 0.2.10 testing. Exact crash phase and root cause unknown; no further active getter testing authorized until investigated. Do not retry 0.2.10.
+- Restore exact 0.2.8 passive runtime and empty application signals manifest, bump version and report identifier only. No proxy calls, subscriptions, getters or setters. Restore passive tests; assert no diagnostic manifest entries at build time. Other apps/tools unchanged.
+- CI pending; recovery of Store and installation require vehicle confirmation. No claim that rollback alone can recover a crashed Store.
+
 ## v0.2.10 — Explicit getter declarations from MGU report (2026-11-27)
 - In-car evidence 0.2.9: installed, all three sample statuses not-declared, no read attempted. Catalog confirms getter and instance 1 for both climate fields and piaProfileId. CI 46074474400, 46074474487, 46074474451, 46074474397 passed; PR #174 merged.
 - Implemented: explicit instance 1 and read-only r permissions for three fields, matching runtime declarations. Remove ineffective diagnostics build-time discovery; retain passive catalog validation and check installed config getter before proxy creation. No subscription/setter, local profile ID only, report sample count shown. Actual read/installation unverified; rule mapping still UNKNOWN.
