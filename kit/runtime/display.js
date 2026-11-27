@@ -883,7 +883,7 @@ class Display {
         // the HMI's own title is in the strip under the header: a narrower header (a sheet: no tabs) stays
         // as wide as the app's widest, so none of that title shows beside it
         if (!this.sheet) this.headMax = Math.max(this.headMax || 0, end);
-        const sx = this.headEnd = Math.min(HMI.status.x - pl.x, Math.ceil(Math.max(end, this.headMax || 0)));
+        const sx = this.headEnd = Math.min(HMI.status.x - pl.x, this.screen.coverNativeTitle ? HMI.status.x - pl.x : Math.ceil(Math.max(end, this.headMax || 0)));
         if (sx > end) { c.fillRect(end, 0, sx - end, FULL.headH - 2, HMI.headBg); c.fillRect(end, FULL.headH - 2, sx - end, 2, G.withAlpha('#ffffff', 0.22)); }
         // the tab the controller is on (the kit holds it: Display._ccu)
         const ft = this.focusTab != null && (!this.sheet || this.sheetHead) && (c.tabRects || []).find((q) => q.i === this.focusTab);
