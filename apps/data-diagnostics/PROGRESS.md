@@ -1,3 +1,7 @@
+## v0.2.14 — Isolated staged proxy initialization (2026-11-27)
+- In-car evidence 0.2.13 report: native module present, config instance 1 present, proxy failed in 3 ms with is not a function. Exact missing method unknown. CI 46077593788, 46077593801, 46077593827 passed, PR #181 merged.
+- Add opt-in diagnostic helper in kit runtime; existing proxy/watch unchanged. Record buildProxy and init stages, return/then types, getter/shutdown types; normalize synchronous and promise returns with Promise.resolve. No retry, additional manifest permission or climate request. Same nativeTick serialization. CI and in-car results pending.
+
 ## v0.2.13 — Profile proxy failure diagnostics (2026-11-27)
 - In-car evidence 0.2.12 installed, read and report succeeded, piaProfileId proxy-failed before getter; profile and climate rules UNKNOWN. CI 46076889302, 46076889266, 46076889295 passed, PR #179 merged.
 - Compared existing kit signals.proxy/watch initialization: both use serialized nativeTick, native buildProxy then init; retain same transport and instance. No evidence yet to change them. Add bounded redacted technical proxy error, known error code, native module presence, config schema keys and elapsed time. No getter payload/error text exported, no new permissions, no retry. CI and in-car diagnosis pending.

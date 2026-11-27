@@ -87,7 +87,7 @@ const PROFILE='de.bmw.infrastructure.DriverSelectionModule',FIELD='piaProfileId'
 // Restrict output to known technical words and redact every other token.
 function proxyError(e){
  const msg=String(e&&e.message||e||'').slice(0,512);
- const known=/^(?:error|failed|failure|cannot|could|not|unable|to|build|building|create|initialize|initialization|init|proxy|someip|native|module|available|unavailable|instance|id|invalid|unknown|missing|interface|config|configuration|permission|denied|access|rejected|timeout|timed|out|service|provider|connection|connect|socket|address|already|exists|in|use|undefined|null|object|is|a|the|of|for|with|no|such|file|method|function|unsupported|argument|type|expected|internal|exception|eacces|eperm|enoent|einval|eaddrinuse|econnrefused|etimedout|enotconn|eagain|ebusy|de\.bmw\.infrastructure\.DriverSelectionModule|piaProfileId)$/i;
+ const known=/^(?:error|failed|failure|cannot|could|not|unable|to|build|building|buildProxy|then|px.init|p.init|someip.buildProxy|create|initialize|initialization|init|proxy|someip|native|module|available|unavailable|instance|id|invalid|unknown|missing|interface|config|configuration|permission|denied|access|rejected|timeout|timed|out|service|provider|connection|connect|socket|address|already|exists|in|use|undefined|null|object|is|a|the|of|for|with|no|such|file|method|function|unsupported|argument|type|expected|internal|exception|eacces|eperm|enoent|einval|eaddrinuse|econnrefused|etimedout|enotconn|eagain|ebusy|de\.bmw\.infrastructure\.DriverSelectionModule|piaProfileId)$/i;
  const detail=msg.replace(/[A-Za-z0-9_.@:/-]+/g,w=>known.test(w)?w:'[redacted]').replace(/[^A-Za-z0-9_.\[\] ,:;()'-]/g,' ').slice(0,240);
  const code=String(e&&e.code||'');
  return {detail,code:/^(EACCES|EPERM|ENOENT|EINVAL|EADDRINUSE|ECONNREFUSED|ETIMEDOUT|ENOTCONN|EAGAIN|EBUSY)$/.test(code)?code:null};
@@ -100,7 +100,7 @@ async function readProfile(signals,opts={}){
   const catalog=JSON.parse((opts.io||fs).readFileSync(CATALOG,'utf8'));
   const entry=catalog.interfaces&&catalog.interfaces[PROFILE],f=entry&&entry.fields&&entry.fields[FIELD];
   if(!f||f.getter==null||!Object.prototype.hasOwnProperty.call((catalog.instanceIDs||{})[PROFILE]||{},'1')){item.status='catalog-mismatch';return {report,localProfile};}
-  if(!signals||typeof signals.loadConfig!=='function'||typeof signals.proxy!=='function'){item.status='runtime-unavailable';return {report,localProfile};}
+  if(!signals||typeof signals.loadConfig!=='function'||typeof signals.proxyDiagnostic!=='function'){item.status='runtime-unavailable';return {report,localProfile};}
   let cfg;try{cfg=signals.loadConfig(PROFILE);}catch(e){item.configError=proxyError(e);item.status='config-unavailable';return {report,localProfile};}
   if(!cfg.fields||!cfg.fields[FIELD]||cfg.fields[FIELD].getter==null){item.status='config-no-getter';return {report,localProfile};}
   item.status='proxy-failed';
@@ -109,7 +109,7 @@ async function readProfile(signals,opts={}){
   item.configKeys=Object.keys(cfg).filter(k=>/^[A-Za-z_][A-Za-z0-9_]{0,40}$/.test(k)).slice(0,24);
   item.configInstanceKeys=Object.keys(cfg.instanceIDs||cfg.instances||{}).filter(k=>k==='1').slice(0,1);
   const started=Date.now();
-  const pending=Promise.resolve().then(()=>signals.proxy(PROFILE,'1'));
+  const pending=Promise.resolve().then(()=>signals.proxyDiagnostic(PROFILE,'1',item.proxyStages={}));
   try{p=await bound(pending,4000);}catch(e){item.proxyError=proxyError(e);pending.then(x=>x&&x.shutdown&&x.shutdown()).catch(()=>{});throw e;}finally{item.proxyElapsedMs=Date.now()-started;}
   item.status='getter-failed';
   const value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);
