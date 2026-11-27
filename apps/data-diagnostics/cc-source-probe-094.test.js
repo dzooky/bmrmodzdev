@@ -45,7 +45,7 @@ const signals={async watch(iface,instance,handlers){
   log.save(gear);log.save(empty);log.save(wheel);
   assert.equal(log.snapshot().gearStageVerified,false);
   assert.equal(log.snapshot().captures.length,3);
-  assert.equal(log.snapshot().captures[2].transitions.length,2);
+  assert.equal(log.snapshot().captures[0].transitions.length,2);
   assert.equal(create(path.join(dir,'report.json')).snapshot().captures.length,3);
   assert.equal(log.envelope().runMode,'cc-oem-wheel-gear-sources-0.1.94');
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
