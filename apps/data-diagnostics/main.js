@@ -190,7 +190,7 @@ mgu.run({start(ctx){
   if(now>=oemOnArmedUntil){
    oemOnArmedUntil=now+12000;oemOnMessage=word('Confirm OEM activation');return;
   }
-  oemOnArmedUntil=0;oemOnBusy=true;oemOnStage='belt-gate';oemOnMessage='';oemOnPrompt='';
+  oemOnArmedUntil=0;oemOnBusy=true;oemOnStage='belt-gate';oemOnMessage='';oemOnPrompt='';oemOnDetails=0;
   let record;
   try{
    const gate=await ccActuationGate.check('wheelHeat',client.request);
@@ -308,18 +308,17 @@ mgu.run({start(ctx){
     }
     if(value){oemOnResponder(value);return;}
    }
-   if(x>=1100&&x<=1510&&y>=55&&y<=110){
+   if(!oemOnBusy&&x>=1100&&x<=1510&&y>=55&&y<=110){
     oemOnDetails=(oemOnDetails+1)%(Math.ceil(oemOnReport.lines().length/6)+1);return;
    }
    if(oemBusy||oemUploadBusy||oemOnBusy||oemOnUploadBusy)return;
    if(x>=520&&x<=1080&&y>=240&&y<=320){
     runOemWheelOn().catch(e=>log.warn(String(e)));return;
    }
-   if(x>=100&&x<=700&&y>=390&&y<=465){
-    captureOemServices().catch(e=>log.warn(String(e)));return;
-   }
-   if(x>=800&&x<=1500&&y>=390&&y<=465){
-    uploadOemWheelOn().catch(e=>log.warn(String(e)));return;
+   if(y>=390&&y<=465){
+    if(x>=90&&x<=510){captureOemServices().catch(e=>log.warn(String(e)));return;}
+    if(x>=580&&x<=1020){uploadOemServices().catch(e=>log.warn(String(e)));return;}
+    if(x>=1090&&x<=1510){uploadOemWheelOn().catch(e=>log.warn(String(e)));return;}
    }
    return;
   }
@@ -677,10 +676,11 @@ mgu.run({start(ctx){
     label(cv,word('Recorded attempts')+': '+list.length+'/4',800,373,16,theme.dim,{align:'center'});
    }
   }
-  cv.roundRect(100,390,600,75,10,busy?theme.track:theme.accent2);
-  label(cv,word('Read-only OEM source test'),400,435,20,theme.text,{align:'center',font:'bold'});
-  cv.roundRect(800,390,700,75,10,busy?theme.track:theme.accent2);
-  label(cv,word('Send OEM ON report'),1150,435,20,theme.text,{align:'center',font:'bold'});
+  const footer=[['Read-only OEM source test',90],['Send OEM source report',580],['Send OEM ON report',1070]];
+  for(const item of footer){
+   cv.roundRect(item[1],390,440,75,10,busy?theme.track:theme.accent2);
+   label(cv,word(item[0]),item[1]+220,435,17,theme.text,{align:'center',font:'bold'});
+  }
   if(oemOnMessage||oemStage)label(cv,oemOnMessage||oemStage,800,487,15,theme.dim,{align:'center'});
  }
  async function render(){
