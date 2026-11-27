@@ -11,6 +11,8 @@ const catalogs={
     "Retest belts":"Retest belts",
     "Retest belts + gear":"Retest belts + gear",
     "Gear test":"Gear test",
+    "RPM test":"RPM test",
+    "Retest belts + gear + RPM":"Retest belts + gear + RPM",
     "Belt retest":"Belt retest",
     "Gear selector":"Gear selector",
     "frontLeft":"Front left belt",
