@@ -15,6 +15,8 @@ const catalogs={
     "Guided OEM wheel ON/OFF":"Guided OEM wheel ON/OFF",
     "VehicleInfo gear P":"VehicleInfo gear P",
     "VehicleInfo gear D":"VehicleInfo gear D",
+    "VehicleInfo gear R":"VehicleInfo gear R",
+    "Gear: stationary, brake held; test P / R / D":"Gear: stationary, brake held; test P / R / D",
     "Gear: brake held; stationary P then D; no movement":"Gear: brake held; stationary P then D; no movement",
     "KOMBI message seen":"KOMBI message seen",
     "No KOMBI message":"No KOMBI message",

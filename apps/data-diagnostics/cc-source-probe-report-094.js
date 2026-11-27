@@ -1,8 +1,8 @@
 'use strict';
 const fs=require('fs'),path=require('path'),logic=require('./cc-source-probe-094');
-const FILE='cc-probe-096.json',VERSION='0.1.96';
+const FILE='cc-probe-097.json',VERSION='0.1.97';
 function safe(r){
- if(!r||!['wheelTrace','gearP','gearD'].includes(r.kind))return null;
+ if(!r||!['wheelTrace','gearP','gearR','gearD'].includes(r.kind))return null;
  const x={kind:r.kind,at:String(r.at||'').slice(0,30),
   stage:String(r.stage||'unavailable').slice(0,60),
   errors:Array.isArray(r.errors)?r.errors.slice(0,8).map(t=>String(t).slice(0,95)):[]};
@@ -18,7 +18,7 @@ function safe(r){
   }));
   x.transitions=logic.wheelTransitions(x.samples);
  }else{
-  x.expected=r.kind==='gearD'?'D':'P';x.mode=r.mode==='vehicle-information'?'vehicle-information':'legacy';x.liveStageVerified=false;
+  x.expected=r.kind==='gearD'?'D':r.kind==='gearR'?'R':'P';x.mode=r.mode==='vehicle-information'?'vehicle-information':'legacy';x.liveStageVerified=false;
   x.matchingObservation=r.matchingObservation===true;x.conflictingObservation=r.conflictingObservation===true;
   x.leverDObserved=r.leverDObserved===true;
   const source=r.sources||{};
@@ -43,14 +43,14 @@ function create(file,io){
  try{const x=JSON.parse(disk.readFileSync(f,'utf8'));if(x.version===VERSION&&Array.isArray(x.captures))
   x.captures.forEach(t=>{const s=safe(t);if(s)rows[s.kind]=s;});}catch(_){}
  const snapshot=()=>({version:VERSION,readOnly:true,gearStageVerified:false,
-  captures:['wheelTrace','gearP','gearD'].filter(k=>rows[k]).map(k=>rows[k])});
+  captures:['wheelTrace','gearP','gearR','gearD'].filter(k=>rows[k]).map(k=>rows[k])});
  function save(r){const x=safe(r);if(!x)throw Error('Invalid source capture');
   rows[x.kind]=x;const body=JSON.stringify(snapshot());
   if(Buffer.byteLength(body)>35000)throw Error('Source report too large');
   const tmp=f+'.tmp';disk.writeFileSync(tmp,body,{mode:0o600});disk.renameSync(tmp,f);return snapshot();
  }
  const envelope=()=>({schema:1,application:'bmrmodz-data-diagnostics',
-  runMode:'cc-wheel-vehicleinformation-0.1.96',results:[],notes:{ccSourceProbe:snapshot()}});
+  runMode:'cc-wheel-vehicleinformation-reverse-0.1.97',results:[],notes:{ccSourceProbe:snapshot()}});
  function lines(){
   const out=[];for(const x of snapshot().captures){
    out.push(x.kind+': '+x.stage+' / '+x.errors.join(' '));if(x.kind==='wheelTrace')out.push('OEM ON='+x.onDetected+' OFF='+x.offDetected+' / '+x.mode);

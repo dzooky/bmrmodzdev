@@ -22,11 +22,11 @@ async function capture(expected,signals,options){
  const opts=options||{},now=opts.now||Date.now;
  const delay=opts.delay||((ms)=>new Promise(resolve=>setTimeout(resolve,ms)));
  const durationMs=Number.isInteger(opts.durationMs)?Math.max(500,Math.min(opts.durationMs,15000)):12000;
- const report={kind:expected==='D'?'gearD':'gearP',at:new Date(now()).toISOString(),
+ const report={kind:'gear'+expected,at:new Date(now()).toISOString(),
   mode:'vehicle-information',expected,stage:'no-live-sample',liveStageVerified:false,
   sources:{statusGearboxDrive:'unavailable',DataPowerTrain2:'unavailable'},
   events:[],errors:[],matchingObservation:false,conflictingObservation:false};
- if(expected!=='D'&&expected!=='P'||!signals||typeof signals.watch!=='function'){
+ if(!['P','R','D'].includes(expected)||!signals||typeof signals.watch!=='function'){
   report.stage='invalid-request';return report;
  }
  let done=false;const subs=[];
