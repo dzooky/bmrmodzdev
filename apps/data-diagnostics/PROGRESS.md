@@ -1,7 +1,7 @@
 ## v0.1.89 — combined front-belt dynamic retest + passive gear feasibility (2026-11-27)
 - **Implemented:** One `Retest belts + gear` action after initial CC Test. Reuses one Tool-owned `ccNativeSnapshot` request for belt transitions and the gear placeholder; uses existing explicit `ccGearSourceAudit` and `ccAccessAudit` operations for structural candidate/instance/ACL evidence, error reasons, and no-sample outcome. Shows combined results in existing Details. Existing original CC Test, Data Tool 0.1.73, Native Provider 0.1.1 and functioning UDS/CDS are unchanged.
 - **Safety:** No unsupported VehicleInformation manifest, no guessed DID, no new SOME/IP proxy, no additional ECU request for gear, no gear control, no background polling. Catalog inclusion is NOT a live signal. P/R/N/D remains unavailable until a verified signal is captured.
-- **Automated-tested:** CI pending. **In-car verified:** Single front belt Tool sample verified in Diagnostics 0.1.87; new combined test not yet verified.
+- **Automated-tested:** Data Tool CI run 45978313453 SUCCESS (Node 12, full regressions, combined gear test, MGU preview) and Background Tool run 45978313447 SUCCESS. **In-car verified:** Single front belt Tool sample verified in Diagnostics 0.1.87; new combined test not yet verified.
 - **One parked session:** Install only Diagnostics 0.1.89, run CC Test with front left latched/right unlatched, switch front belt states, wait over 3 s, tap Retest belts + gear, and photograph main CC page plus Details showing both gear audit and belt transition; no gear shifting required.
 
 ## v0.1.88 — One-shot front-belt transition retest (2026-11-27)
