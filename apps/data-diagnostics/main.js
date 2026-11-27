@@ -243,8 +243,6 @@ mgu.run({start(ctx){
   if(ntPoll)return;ntPoll=true;
   try{const h=await client.request({op:'status'},{socket:'/run/bmrmodz-notification/ctl.sock',timeoutMs:1500});ntHealth=h&&h.ok?h:null;}catch(_){ntHealth=null;}finally{ntPoll=false;}
  }
- ui.onClick('BTN_BT',()=>{toggleBackgroundTest().catch(e=>log.warn(String(e)));});
- ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
  ctx.onTab(i=>{if(i>=0&&i<pageIds.length)page=pageIds[i];});
  ctx.onTap((x,y)=>{
   if(page===9){
