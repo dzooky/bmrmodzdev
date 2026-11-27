@@ -4,12 +4,13 @@ const {connect}=require('./public-client');
 const GROUPS={cds:{oil:'engine.oilTemperature',coolant:'engine.coolantTemperature',rpm:'engine.rpm',speed:'vehicle.speed',outside:'environment.outsideTemperature'},egs:{atf:'transmission.oilTemperature'}};
 function create(options){
  const open=options&&options.connect||connect, now=options&&options.now||Date.now;
- let visible=false,generation=0,listener=()=>{},reset=()=>{};
- const groups=Object.keys(GROUPS).map(scope=>({scope,client:null,busy:false,renew:0,next:0,values:{},stamp:''}));
+ let visible=false,generation=0,listener=()=>{},reset=()=>{},onStatus=options&&options.onStatus||(()=>{});
+ const groups=Object.keys(GROUPS).map(scope=>({scope,client:null,busy:false,renew:0,next:0,values:{},stamp:'',status:''}));
  function clear(g){g.values={};g.stamp='';g.renew=0;}
+ function report(g,state){if(g.status===state)return;g.status=state;onStatus(g.scope,state);}
  function setVisible(on){
   on=!!on;if(on===visible)return;visible=on;generation++;
-  for(const g of groups){clear(g);g.next=0;if(g.client){g.client.close();g.client=null;}}
+  for(const g of groups){clear(g);g.status='';g.next=0;if(g.client){g.client.close();g.client=null;}}
   reset();
  }
  function data(){
@@ -38,10 +39,16 @@ function create(options){
      stamps.push(key+':'+String(row.sampledAt));
     }
    }
-   g.values=values;const stamp=stamps.join('|');
+   g.values=values;
+   const missing=Object.keys(GROUPS[g.scope]).filter(key=>!Object.prototype.hasOwnProperty.call(values,key));
+   report(g,missing.length?'missing:'+missing.join(','):'ready');
+   const stamp=stamps.join('|');
    if(g.scope==='cds'&&stamp!==g.stamp){g.stamp=stamp;listener(data());}
    g.next=now()+500;
-  }catch(e){if(client)client.close();if(current()){g.client=null;clear(g);g.next=now()+2000;}}
+  }catch(e){if(client)client.close();if(current()){
+    const reason=String(e&&e.message||e).replace(/[^a-zA-Z0-9_ -]/g,'').slice(0,100);
+    report(g,'error:'+reason);g.client=null;clear(g);g.next=now()+2000;
+   }}
   finally{g.busy=false;}
  }
  return {data,setVisible,onSample(fn,onReset){listener=fn;reset=onReset||(()=>{});},poll(){return Promise.all(groups.map(pollGroup));}};
