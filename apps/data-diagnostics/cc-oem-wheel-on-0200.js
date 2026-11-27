@@ -24,7 +24,7 @@ async function run(options){
  const out={kind:'oemWheelOn',startedAt:new Date(now()).toISOString(),finishedAt:'',
   status:'SKIP',stage:'not-confirmed',requestAttempted:false,requestAccepted:false,
   reply:'',before:null,after:null,afterButton:null,kombi:'unknown',physical:'unknown',
-  oemButton:'unknown',samples:[],bdc:null,errors:[],note:'Method may be fire-and-forget; request completion does not prove heating. OEM button and KOMBI are manually reported.'};
+  oemButton:'unknown',finishConfirmed:false,offConfirmed:false,cancelled:false,samples:[],bdc:null,errors:[],note:'Method may be fire-and-forget; request completion does not prove heating. OEM button and KOMBI are manually reported.'};
  const mark=(v)=>{out.stage=v;if(typeof o.onStage==='function')try{o.onStage(v);}catch(_){}};
  if(o.confirmed!==true||o.beltGate!==true||!o.signals||typeof o.signals.watch!=='function'||typeof o.signals.call!=='function'||typeof o.ask!=='function')return out;
  let sub=null,live=null,liveAt=0,ended=false;
@@ -47,11 +47,22 @@ async function run(options){
   return !!(live&&now()-liveAt>=0&&now()-liveAt<=3000);
  }
  const snapshot=()=>live?{...live,at:new Date(liveAt).toISOString()}:null;
- async function ask(phase,timeout,values){
+ async function ask(phase,values){
   mark(phase);
   let result;
-  try{result=await o.ask(phase,timeout);}catch(e){out.errors.push(phase+':'+err(e));}
+  // Manual phases have no elapsed-time cutoff. Only a user tap advances.
+  try{result=await o.ask(phase);}catch(e){out.errors.push(phase+':'+err(e));}
+  if(result==='cancelled')return 'cancelled';
   return values.includes(result)?result:'unknown';
+ }
+ function cancelled(){out.cancelled=true;out.status='PARTIAL';mark('cancelled');}
+ async function observeOff(){
+  // After hardware-button OFF, only passive heatingState callbacks may prove OFF.
+  for(let i=0;i<5;i++){
+   if(live&&live.heating===false&&liveAt>=out.buttonAt)return snapshot();
+   await delay(600);
+  }
+  return live&&liveAt>=out.buttonAt?snapshot():null;
  }
  async function bdc(){
   if(o.Diag===false)return null;
@@ -93,20 +104,27 @@ async function run(options){
   for(let i=0;i<5;i++)await delay(1000);
   out.after=snapshot();
   // User feedback is captured even if no state update was delivered.
-  out.kombi=await ask('kombi-on',12000,['activated','deactivated','none']);
-  out.physical=await ask('physical-heat',12000,['warm','cold','not-checked']);
-  const press=await ask('press-oem-button',15000,['pressed']);
+  out.kombi=await ask('kombi-on',['activated','deactivated','none']);
+  if(out.kombi==='cancelled'){cancelled();return out;}
+  out.physical=await ask('physical-heat',['warm','cold','not-checked']);
+  if(out.physical==='cancelled'){cancelled();return out;}
+  const press=await ask('press-oem-button',['pressed']);
+  if(press==='cancelled'){cancelled();return out;}
   if(press==='pressed'){
-   out.oemButton=await ask('kombi-after-button',12000,['activated','deactivated','none']);
-   for(let i=0;i<3;i++)await delay(1000);
-   out.afterButton=snapshot();
+   out.buttonAt=now();
+   out.oemButton=await ask('kombi-after-button',['activated','deactivated','none']);
+   if(out.oemButton==='cancelled'){cancelled();return out;}
+   out.afterButton=await observeOff();
+   out.offConfirmed=!!(out.afterButton&&out.afterButton.heating===false);
    out.bdc=await bdc();
   }else{
-   out.oemButton='not-pressed';
-   out.errors.push('OEM-button-not-confirmed');
-   // Do not request OFF: only the physical BMW button is authorized as test stop.
+   out.oemButton='not-pressed';out.errors.push('OEM-button-not-confirmed');
+   // No automatic OFF: original BMW button is the only test stop.
    out.bdc=await bdc();
   }
+  const done=await ask('finish-test',['finish']);
+  if(done==='cancelled'){cancelled();return out;}
+  out.finishConfirmed=done==='finish';
   out.status='CAPTURED';mark('captured');
  }catch(e){out.status=out.requestAttempted?'PARTIAL':'FAIL';mark('failed');out.errors.push(err(e));}
  finally{
