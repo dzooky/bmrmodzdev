@@ -12,6 +12,8 @@ const catalogs={
     "CC Sources":"CC Sources",
     "Read-only source tests":"Read-only source tests",
     "Wheel OEM 45s trace":"Wheel OEM 45s trace",
+    "Guided OEM wheel ON/OFF":"Guided OEM wheel ON/OFF",
+    "Start with wheel OFF; follow the live prompts":"Start with wheel OFF; follow the live prompts",
     "Observe gear P":"Observe gear P",
     "Observe gear D":"Observe gear D",
     "Wheel: start OFF, OEM ON at 5s, OFF at 35s":"Wheel: start OFF, OEM ON at 5s, OFF at 35s",
