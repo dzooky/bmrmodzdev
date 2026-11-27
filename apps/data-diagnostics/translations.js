@@ -9,6 +9,8 @@ const catalogs={
     "CC Test":"CC Test",
     "Run CC diagnostics":"Run CC diagnostics",
     "Retest belts":"Retest belts",
+    "Retest belts + gear":"Retest belts + gear",
+    "Gear test":"Gear test",
     "Belt retest":"Belt retest",
     "Gear selector":"Gear selector",
     "frontLeft":"Front left belt",

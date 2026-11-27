@@ -4,6 +4,7 @@ const {t}=require('./translations');
 const cdsProbe=require('./cds-probe');
 const ccTest=require('./cc-test');
 const beltRetest=require('./cc-belt-retest');
+const gearRetest=require('./cc-gear-retest');
 const nativeFront=require('./cc-native-front');
 const W=1600,H=520;
 const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test'];
@@ -72,7 +73,11 @@ mgu.run({start(ctx){
  async function testBeltTransition(){
   if(ccBusy||!ccResult||!ccResult.sharedNative)return;
   ccBusy=true;
-  try{ccResult.beltRetest=await beltRetest.run(client.request,ccResult.sharedNative);}
+  try{
+   const belt=await beltRetest.run(client.request,ccResult.sharedNative);
+   ccResult.beltRetest=belt;
+   ccResult.gearRetest=await gearRetest.run(client.request,belt.sample||null);
+  }
   catch(e){ccResult.beltRetest={ok:false,stage:'unexpected',error:String(e.message||e).slice(0,70)};}
   finally{ccBusy=false;ccDetailPage=0;}
  }
@@ -86,7 +91,7 @@ mgu.run({start(ctx){
  ctx.onTap((x,y)=>{
   if(page===4&&ccResult&&!ccBusy&&x>=1080&&x<=1510&&y>=55&&y<=110){ccDetailPage=(ccDetailPage+1)%(Math.ceil(ccTest.detailLines(ccResult).length/6)+1);return;}
   if(page===4&&ccResult&&!ccBusy&&x>=90&&x<=465&&y>=390&&y<=455){
-   testBeltTransition().catch(e=>log.warn('Belt retest: '+e));return;
+   testBeltTransition().catch(e=>log.warn('Combined CC retest: '+e));return;
   }
   if(x>=520&&x<=1080&&y>=390&&y<=455){
    if(page===1)testCds();
@@ -100,7 +105,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.88');
+  header(cv,theme,'Info','0.1.89');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -136,7 +141,7 @@ mgu.run({start(ctx){
  function beltRetestButton(cv,theme){
   if(!ccResult)return;
   cv.roundRect(90,390,375,65,10,ccBusy?theme.track:theme.accent2);
-  label(cv,word('Retest belts'),277,430,23,theme.text,{align:'center',font:'bold'});
+  label(cv,word('Retest belts + gear'),277,430,21,theme.text,{align:'center',font:'bold'});
  }
  function drawCC(cv,theme){
   header(cv,theme,'CC Test',word(ccBusy?'Running':ccResult?'Completed':'Not tested'));
@@ -185,7 +190,8 @@ mgu.run({start(ctx){
   details.slice(0,3).forEach((message,i)=>label(cv,message,800,335+i*19,15,theme.warn,{align:'center'}));
   button(cv,theme,word(ccBusy?'Running':'Run CC diagnostics'),ccBusy);
   beltRetestButton(cv,theme);
-  if(x.beltRetest)label(cv,word('Belt retest')+': '+x.beltRetest.stage,330,375,16,theme.dim);
+  if(x.beltRetest)label(cv,word('Belt retest')+': '+x.beltRetest.stage,330,355,16,theme.dim);
+  if(x.gearRetest)label(cv,word('Gear test')+': '+x.gearRetest.stage,330,376,16,theme.dim);
   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
  }
  function drawNotification(cv,theme){
