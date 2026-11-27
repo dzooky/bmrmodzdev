@@ -68,6 +68,8 @@ class FakeDiag{
   log.save(sustained);
   assert.equal(log.snapshot().cases.length,1);
   log.feedback('heat-felt');
+  log.kombi('no-message');
+  assert.equal(log.snapshot().cases[0].kombiFeedback,'no-message');
   assert.equal(log.snapshot().cases[0].physicalFeedback,'heat-felt');
   assert.equal(log.envelope().results.length,0);
   assert.equal(log.envelope().notes.ccActuatorTest.toolActuationVerified,false);
