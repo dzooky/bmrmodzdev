@@ -24,6 +24,11 @@ const assert=require('assert'),cc=require('./cc-test');
  const after=cc.detailLines(Object.assign({},res,{beltRetest:{stage:'changed',sampledAt:'2026-11-27T09:00:05.000Z',
   before:{frontLeft:'latched',frontRight:'unlatched'},after:{frontLeft:'unlatched',frontRight:'latched'}}}));
  assert(after.some(x=>x.includes('Belt retest: changed')));
+ const combined=cc.detailLines(Object.assign({},res,{gearRetest:{stage:'instance-or-schema-unverified',exactStatus:'incomplete-or-schema-unknown',
+  exactMatches:2,fields:{statusGearboxDrive:true,DataPowerTrain2:true},instance1:false,
+  aclRegistered:false,aclStaged:false,availabilityVerified:false,selector:null,alternatives:[],errors:[]}}));
+ assert(combined.some(x=>x.includes('Gear test: instance-or-schema-unverified')));
+ assert(combined.some(x=>x.includes('Gear ACL: registered=no')));
  assert(after.some(x=>x.includes('Belt L: latched -> unlatched')));
  assert(lines.some(x=>x.includes('Tool OAP left: latched')));
  assert(lines.some(x=>x.includes('Service TASU: config-unauthorized')));
