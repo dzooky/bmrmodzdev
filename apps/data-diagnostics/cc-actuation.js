@@ -104,8 +104,10 @@ async function run(id,options){
    // original state. Do not send an unverified second command on failure.
    try{if(diag.p.shutdown)await Promise.resolve(diag.p.shutdown());}catch(e){add('shutdown-error',{error:stageError(e)});}
   }
-  out.finishedAt=new Date(now()).toISOString();
   if(wheelAttempt)add('wheel-auto-expiry',{seconds:30});
+  if(out.status==='PASS')out.stage=spec.kind==='wheel'?'verified-on-30s':'verified-on';
+  if(out.status==='FAIL')out.stage='failed';
+  out.finishedAt=new Date(now()).toISOString();
  }
  return out;
 }
