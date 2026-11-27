@@ -514,7 +514,7 @@ def build(app_id, language='en', preview_only=False):
         'oapAppSettings': {
             'maxDiskUsage': spec.get('maxDiskUsage', 20971520), 'cpuLimit': spec.get('cpuLimit', 60),
             'memoryThresholdKB': spec.get('memoryKB', 196608), 'priority': 'PRIO_LOW',
-            'visibility': 'FOREGROUND', 'latencyClass': 'FOREGROUND', 'loggingId': spec['loggingId'],
+            'visibility': spec.get('oapVisibility', 'FOREGROUND'), 'latencyClass': 'FOREGROUND', 'loggingId': spec['loggingId'],
             'userLoginRequired': False, 'backgroundPriority': 200, 'someipManifest': 'manifest.json',
         },
     }

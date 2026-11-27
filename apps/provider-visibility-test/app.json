@@ -1,0 +1,35 @@
+{
+  "id": "provider-visibility-test",
+  "title": "Data Provider Visibility Test",
+  "description": "Passive experimental OAP background visibility probe",
+  "version": "0.1.0",
+  "vendor": "custom",
+  "loggingId": "DVT1",
+  "iconGlyph": "temp",
+  "mguAppStartType": "autostart",
+  "config": {
+    "customSettings": false
+  },
+  "screens": [
+    {
+      "name": "MAIN",
+      "kind": "canvas",
+      "title": "Data Provider Visibility Test"
+    }
+  ],
+  "settings": [],
+  "signals": {
+    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
+      "_instances": "SystemFunctionsInternalTasuInst1",
+      "_methods": [
+        "sendTasuRequest"
+      ],
+      "_broadcasts": [
+        "sendTasuResponse"
+      ]
+    }
+  },
+  "requires": {},
+  "mguInternet": false,
+  "oapVisibility": "BACKGROUND"
+}
