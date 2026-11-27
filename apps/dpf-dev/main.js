@@ -319,10 +319,10 @@ mgu.run({
             const release = hasReading('LOCK') && !stale('LOCK')
                 ? (readings.LOCK.raw === 0 ? 'ALLOWED' : 'BLOCKED') : 'UNKNOWN';
             const rows = profile && profile.engine === 'B47' ? [
-                ['PRESSURE BEFORE DPF', measurement('PRESSURE', 1, 'hPa'), 'PRESSURE'],
+                ['Differential pressure (raw)', hasReading('PRESSURE') ? '0x' + readings.PRESSURE.raw.toString(16).toUpperCase().padStart(4, '0') : '--', 'PRESSURE'],
                 ['TEMPERATURE BEFORE DPF', measurement('TEMP', 1, '°C'), 'TEMP'],
                 ['ENGINE TIME SINCE REGEN', duration, 'RUNTIME'],
-                ['REGENERATION PERMISSION', 'UNKNOWN'],
+                ['REGENERATION PERMISSION', 'UNKNOWN', 'LOCK'],
                 ['Soot mass (measured)', measurement('SOOT', 1, 'g'), 'SOOT'],
                 ['Soot mass (calculated)', measurement('SOOT CALCULATED', 1, 'g'), 'SOOT CALCULATED']
             ] : [
