@@ -8,6 +8,8 @@ const catalogs={
     "BMW bundle": "BMW bundle",
     "CC Test":"CC Test",
     "Run CC diagnostics":"Run CC diagnostics",
+    "Retest belts":"Retest belts",
+    "Belt retest":"Belt retest",
     "Gear selector":"Gear selector",
     "frontLeft":"Front left belt",
     "frontRight":"Front right belt",
