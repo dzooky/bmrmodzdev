@@ -196,6 +196,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.2.71', 'Engine data connection diagnostics'],
                 ['0.2.70', 'Welcome on first launch and notices after important updates'],
                 ['0.2.70', 'Gauge titles follow the selected language'],
                 ['0.2.66', 'Oil temperature notification at every engine start'],
@@ -387,7 +388,11 @@ mgu.run({
             }
         };
         const mono = () => { const h = process.hrtime(); return h[0] * 1000 + h[1] / 1e6; };
-        const car = managedData.create();
+        const car = managedData.create({onStatus: (scope, status) => {
+            const message = 'OSA Data Tool ' + scope + ': ' + status;
+            if (status === 'ready') log.info(message);
+            else log.warn(message);
+        }});
         const oilWarmTarget = () => Number(ctx.settings.get('warmOil')) || 80;
         // Preview is a user-requested display sample; no oil temperature or DDE is needed.
         ctx.settings.onAction('clusterBcTest', () => {

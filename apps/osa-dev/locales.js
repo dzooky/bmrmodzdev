@@ -3,6 +3,7 @@
 // English display labels map to their localized equivalents.
 module.exports = {
   "de": {
+    "Engine data connection diagnostics": "Diagnose der Motordatenverbindung",
     "Welcome on first launch and notices after important updates": "Begrüßung beim ersten Start und Hinweise nach wichtigen Updates",
     "See About for full details.": "Alle Informationen finden Sie unter Über die App.",
     "Automatic vehicle equipment check": "Automatische Prüfung der Fahrzeugausstattung",
@@ -180,6 +181,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zuverlässige Benachrichtigung bei erreichter Öltemperatur"
   },
   "es": {
+    "Engine data connection diagnostics": "Diagnóstico de conexión de datos del motor",
     "Welcome on first launch and notices after important updates": "Bienvenida al primer inicio y avisos tras actualizaciones importantes",
     "See About for full details.": "Encontrarás toda la información en Acerca de la app.",
     "Automatic vehicle equipment check": "Comprobación automática del equipamiento del vehículo",
@@ -357,6 +359,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificación fiable al alcanzar la temperatura del aceite"
   },
   "fr": {
+    "Engine data connection diagnostics": "Diagnostic de connexion des données moteur",
     "Welcome on first launch and notices after important updates": "Accueil au premier démarrage et avis après les mises à jour importantes",
     "See About for full details.": "Retrouvez toutes les informations dans la section À propos .",
     "Automatic vehicle equipment check": "Vérification automatique de l’équipement du véhicule",
@@ -534,6 +537,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notification fiable lorsque l’huile atteint sa température"
   },
   "hu": {
+    "Engine data connection diagnostics": "Motordadat-kapcsolat diagnosztikája",
     "Welcome on first launch and notices after important updates": "Üdvözlés az első indításkor és értesítések fontos frissítések után",
     "See About for full details.": "A teljes tájékoztatás a Névjegy résznél található.",
     "Automatic vehicle equipment check": "A jármű felszereltségének automatikus ellenőrzése",
@@ -711,6 +715,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Megbízható értesítés az olaj célhőmérsékletének elérésekor"
   },
   "pl": {
+    "Engine data connection diagnostics": "Diagnostyka połączenia danych silnika",
     "Welcome on first launch and notices after important updates": "Powitanie przy pierwszym uruchomieniu i komunikaty po ważnych aktualizacjach",
     "See About for full details.": "Pełne informacje znajdziesz w sekcji O aplikacji.",
     "Automatic vehicle equipment check": "Automatyczne sprawdzanie wyposażenia pojazdu",
@@ -888,6 +893,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Niezawodne powiadomienie po osiągnięciu temperatury oleju"
   },
   "sk": {
+    "Engine data connection diagnostics": "Diagnostika pripojenia údajov motora",
     "Welcome on first launch and notices after important updates": "Uvítanie pri prvom spustení a oznámenia po významných aktualizáciách",
     "See About for full details.": "Kompletné informácie nájdete v sekcii O aplikácii.",
     "Automatic vehicle equipment check": "Automatická kontrola výbavy vozidla",
@@ -1065,6 +1071,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spoľahlivé upozornenie pri dosiahnutí teploty oleja"
   },
   "cs": {
+    "Engine data connection diagnostics": "Diagnostika připojení dat motoru",
     "Welcome on first launch and notices after important updates": "Uvítání při prvním spuštění a oznámení po důležitých aktualizacích",
     "See About for full details.": "Úplné informace najdete v části O aplikaci.",
     "Automatic vehicle equipment check": "Automatická kontrola výbavy vozidla",
@@ -1242,6 +1249,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Spolehlivé upozornění při dosažení teploty oleje"
   },
   "it": {
+    "Engine data connection diagnostics": "Diagnostica connessione dati motore",
     "Welcome on first launch and notices after important updates": "Benvenuto al primo avvio e avvisi dopo gli aggiornamenti importanti",
     "See About for full details.": "Tutte le informazioni sono disponibili nella sezione Informazioni.",
     "Automatic vehicle equipment check": "Controllo automatico dell’equipaggiamento del veicolo",
@@ -1419,6 +1427,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notifica affidabile al raggiungimento della temperatura dell’olio"
   },
   "ru": {
+    "Engine data connection diagnostics": "Диагностика подключения данных двигателя",
     "Welcome on first launch and notices after important updates": "Приветствие при первом запуске и уведомления после важных обновлений",
     "See About for full details.": "Подробная информация доступна в разделе О приложении.",
     "Automatic vehicle equipment check": "Автоматическая проверка комплектации автомобиля",
@@ -1596,6 +1605,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Надёжное уведомление при достижении температуры масла"
   },
   "da": {
+    "Engine data connection diagnostics": "Diagnose af forbindelse til motordata",
     "Welcome on first launch and notices after important updates": "Velkomst ved første start og beskeder efter vigtige opdateringer",
     "See About for full details.": "Se alle oplysninger under Om.",
     "Automatic vehicle equipment check": "Automatisk kontrol af bilens udstyr",
@@ -1773,6 +1783,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålidelig besked, når olietemperaturen er nået"
   },
   "el": {
+    "Engine data connection diagnostics": "Διάγνωση σύνδεσης δεδομένων κινητήρα",
     "Welcome on first launch and notices after important updates": "Καλωσόρισμα στην πρώτη εκκίνηση και ειδοποιήσεις μετά από σημαντικές ενημερώσεις",
     "See About for full details.": "Θα βρείτε όλες τις πληροφορίες στην ενότητα Σχετικά.",
     "Automatic vehicle equipment check": "Αυτόματος έλεγχος εξοπλισμού οχήματος",
@@ -1950,6 +1961,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Αξιόπιστη ειδοποίηση όταν το λάδι φτάσει στη θερμοκρασία στόχο"
   },
   "zh-CN": {
+    "Engine data connection diagnostics": "发动机数据连接诊断",
     "Welcome on first launch and notices after important updates": "首次启动时显示欢迎消息，重要更新后显示通知",
     "See About for full details.": "完整信息请参阅关于应用。",
     "Automatic vehicle equipment check": "自动检查车辆配置",
@@ -2127,6 +2139,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "可靠的机油温度达标通知"
   },
   "nl": {
+    "Engine data connection diagnostics": "Diagnose van de motorgegevensverbinding",
     "Welcome on first launch and notices after important updates": "Welkomstbericht bij de eerste start en meldingen na belangrijke updates",
     "See About for full details.": "Alle informatie staat in het gedeelte Over de app.",
     "Automatic vehicle equipment check": "Automatische controle van de voertuiguitrusting",
@@ -2304,6 +2317,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Betrouwbare melding bij het bereiken van de olietemperatuur"
   },
   "nb": {
+    "Engine data connection diagnostics": "Diagnostikk av motordatatilkobling",
     "Welcome on first launch and notices after important updates": "Velkomst ved første oppstart og meldinger etter viktige oppdateringer",
     "See About for full details.": "Du finner all informasjon under Om.",
     "Automatic vehicle equipment check": "Automatisk kontroll av bilens utstyr",
@@ -2481,6 +2495,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Pålitelig varsel når oljen når måltemperaturen"
   },
   "pt": {
+    "Engine data connection diagnostics": "Diagnóstico da ligação de dados do motor",
     "Welcome on first launch and notices after important updates": "Boas-vindas no primeiro arranque e avisos após atualizações importantes",
     "See About for full details.": "Consulte a secção Sobre para obter todas as informações.",
     "Automatic vehicle equipment check": "Verificação automática do equipamento do veículo",
@@ -2658,6 +2673,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificação fiável ao atingir a temperatura do óleo"
   },
   "ro": {
+    "Engine data connection diagnostics": "Diagnosticarea conexiunii de date a motorului",
     "Welcome on first launch and notices after important updates": "Mesaj de bun venit la prima pornire și notificări după actualizările importante",
     "See About for full details.": "Toate informațiile se găsesc în secțiunea Despre.",
     "Automatic vehicle equipment check": "Verificarea automată a echipării vehiculului",
@@ -2835,6 +2851,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Notificare fiabilă la atingerea temperaturii uleiului"
   },
   "sl": {
+    "Engine data connection diagnostics": "Diagnostika povezave s podatki motorja",
     "Welcome on first launch and notices after important updates": "Pozdrav ob prvem zagonu in obvestila po pomembnih posodobitvah",
     "See About for full details.": "Vse informacije najdete v razdelku O aplikaciji.",
     "Automatic vehicle equipment check": "Samodejno preverjanje opreme vozila",
@@ -3012,6 +3029,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Zanesljivo obvestilo ob doseženi temperaturi olja"
   },
   "fi": {
+    "Engine data connection diagnostics": "Moottoritietojen yhteyden diagnostiikka",
     "Welcome on first launch and notices after important updates": "Tervetuloviesti ensimmäisellä käynnistyksellä ja ilmoitukset merkittävien päivitysten jälkeen",
     "See About for full details.": "Kaikki tiedot löytyvät Tietoja-osiosta.",
     "Automatic vehicle equipment check": "Ajoneuvon varusteiden automaattinen tarkistus",
@@ -3189,6 +3207,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Luotettava ilmoitus öljyn tavoitelämpötilan saavuttamisesta"
   },
   "sv": {
+    "Engine data connection diagnostics": "Diagnostik av motordataanslutning",
     "Welcome on first launch and notices after important updates": "Välkomstmeddelande vid första start och aviseringar efter viktiga uppdateringar",
     "See About for full details.": "All information finns i avsnittet Om.",
     "Automatic vehicle equipment check": "Automatisk kontroll av bilens utrustning",
@@ -3366,6 +3385,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Tillförlitligt meddelande när oljan når måltemperaturen"
   },
   "tr": {
+    "Engine data connection diagnostics": "Motor verisi bağlantı tanılaması",
     "Welcome on first launch and notices after important updates": "İlk açılışta karşılama ve önemli güncellemelerden sonra bildirimler",
     "See About for full details.": "Tüm bilgileri Hakkında bölümünde bulabilirsiniz.",
     "Automatic vehicle equipment check": "Araç donanımının otomatik kontrolü",
@@ -3543,6 +3563,7 @@ module.exports = {
     "Reliable oil temperature reached notification": "Yağ hedef sıcaklığına ulaştığında güvenilir bildirim"
   },
   "uk": {
+    "Engine data connection diagnostics": "Діагностика підключення даних двигуна",
     "Welcome on first launch and notices after important updates": "Привітання під час першого запуску та сповіщення після важливих оновлень",
     "See About for full details.": "Повну інформацію наведено в розділі Про застосунок.",
     "Automatic vehicle equipment check": "Автоматична перевірка комплектації автомобіля",
