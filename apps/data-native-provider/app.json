@@ -2,7 +2,7 @@
   "id": "data-native-provider",
   "title": "Data Provider",
   "description": "Autostart read-only BMW TASU vehicle source for BMRMODZ Data Tool",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "vendor": "custom",
   "loggingId": "DNP1",
   "iconGlyph": "temp",
