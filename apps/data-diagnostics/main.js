@@ -12,9 +12,12 @@ const ccActuationReport=require('./cc-actuation-report'),upload=require('./uploa
 const ccCompare=require('./cc-compare'),ccCompareReport=require('./cc-compare-report');
 const sourceProbe=require('./cc-source-probe-094'),sourceProbeReport=require('./cc-source-probe-report-094');
 const vehicleGear=require('./cc-vehicle-gear-096');
+const oemServices=require('./cc-oem-services-099'),oemServicesReport=require('./cc-oem-services-report-099');
 const wheelOem=require('./cc-wheel-oem-098'),wheelOemReport=require('./cc-wheel-oem-report-098');
 const W=1600,H=520;
-const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare','CC Sources','CC Wheel OEM'];
+// Visible navigation only: legacy diagnostic functions stay intact but inaccessible from tabs.
+const pages=['Info','CC Controls','CC Wheel OEM','CC OEM Services'];
+const pageIds=[0,5,8,9];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -36,6 +39,8 @@ mgu.run({start(ctx){
  const wheelReport=wheelOemReport.create(require('path').join(ctx.dataDir,'cc-wheel-oem-098.json'));
  let wheelBusy=false,wheelUploadBusy=false,wheelArmedUntil=0,wheelPrompt='',wheelStage='',wheelInfo='',wheelMessage='',wheelDetails=0;
  let wheelResponder=null;
+ const oemReport=oemServicesReport.create(require('path').join(ctx.dataDir,'cc-oem-services-099.json'));
+ let oemBusy=false,oemUploadBusy=false,oemMessage='',oemStage='',oemDetails=0;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
    if(ntBusy||Date.now()<ntCooldown)return;
@@ -175,6 +180,24 @@ mgu.run({start(ctx){
   catch(e){wheelMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
   finally{wheelUploadBusy=false;}
  }
+ async function captureOemServices(){
+  if(oemBusy||oemUploadBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
+  oemBusy=true;oemMessage='';oemStage=word('Capturing');
+  try{
+   const result=await oemServices.capture(ctx.signals,{log:ctx.log,
+    onStage:stage=>{oemStage=stage;}});
+   oemReport.save(result);oemMessage=result.stage;oemDetails=0;
+  }catch(e){oemMessage=word('FAIL')+': '+String(e.message||e).slice(0,80);}
+  finally{oemBusy=false;oemStage='';}
+ }
+ async function uploadOemServices(){
+  if(oemBusy||oemUploadBusy||!oemReport.snapshot().captures.length)return;
+  oemUploadBusy=true;oemMessage=word('Sending');
+  try{const r=await upload(oemReport.envelope(),ctx.dataDir);
+   oemMessage=word('Report sent')+': '+r.id;
+  }catch(e){oemMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
+  finally{oemUploadBusy=false;}
+ }
  async function captureSources(kind){
   if(sourceBusy||sourceUploadBusy||wheelBusy||!['wheelTrace','gearP','gearR','gearD'].includes(kind))return;
   sourceBusy=true;sourceMessage=word('Capturing');sourceProgress=kind;sourceStage='';
@@ -222,8 +245,21 @@ mgu.run({start(ctx){
  }
  ui.onClick('BTN_BT',()=>{toggleBackgroundTest().catch(e=>log.warn(String(e)));});
  ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
- ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
+ ctx.onTab(i=>{if(i>=0&&i<pageIds.length)page=pageIds[i];});
  ctx.onTap((x,y)=>{
+  if(page===9){
+   if(x>=1100&&x<=1510&&y>=55&&y<=110){
+    oemDetails=(oemDetails+1)%(Math.ceil(oemReport.lines().length/6)+1);return;
+   }
+   if(oemBusy||oemUploadBusy)return;
+   if(x>=520&&x<=1080&&y>=240&&y<=320){
+    captureOemServices().catch(e=>log.warn(String(e)));return;
+   }
+   if(x>=520&&x<=1080&&y>=390&&y<=465){
+    uploadOemServices().catch(e=>log.warn(String(e)));return;
+   }
+   return;
+  }
   if(page===8){
    if(x>=1100&&x<=1510&&y>=55&&y<=110){
     wheelDetails=(wheelDetails+1)%(Math.ceil(wheelReport.lines().length/6)+1);return;
@@ -319,7 +355,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.98');
+  header(cv,theme,'Info','0.1.99');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -544,6 +580,29 @@ mgu.run({start(ctx){
   label(cv,word('Send OEM sequence report'),800,453,21,theme.text,{align:'center',font:'bold'});
   if(wheelMessage)label(cv,wheelMessage,1210,485,15,theme.dim,{align:'center'});
  }
+ function drawOemServices(cv,theme){
+  const captures=oemReport.snapshot().captures,busy=oemBusy||oemUploadBusy,latest=captures[captures.length-1];
+  header(cv,theme,'CC OEM Services',busy?word('Running'):latest?latest.stage:word('Not tested'));
+  cv.roundRect(1100,58,265,50,8,theme.track);
+  label(cv,'Details '+oemDetails+'/'+Math.ceil(oemReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
+  if(oemDetails){
+   oemReport.lines().slice((oemDetails-1)*6,oemDetails*6).forEach((line,i)=>
+    label(cv,line,68,155+i*38,16,theme.text));
+  }else{
+   label(cv,word('Read-only OEM service discovery'),800,157,25,theme.text,{align:'center',font:'bold'});
+   label(cv,word('ClimateMaster + SteeringWheelClimate + BDC'),800,204,21,theme.dim,{align:'center'});
+   cv.roundRect(520,240,560,80,10,busy?theme.track:theme.accent2);
+   label(cv,word(oemBusy?'Capturing':'Run OEM source test'),800,290,24,theme.text,{align:'center',font:'bold'});
+   if(latest){
+    const c=latest.services.climate,b=latest.services.body;
+    label(cv,'ClimateMaster: '+c.status+' / SteeringWheelClimate: '+b.status,800,355,20,theme.text,{align:'center'});
+    label(cv,'BDC: '+latest.bdc.status+' / '+captures.length+' '+word('Recorded attempts'),800,377,16,theme.dim,{align:'center'});
+   }else label(cv,word('No heating commands or vehicle controls'),800,365,19,theme.warn,{align:'center'});
+  }
+  cv.roundRect(520,390,560,75,10,busy?theme.track:theme.accent2);
+  label(cv,word('Send OEM source report'),800,435,22,theme.text,{align:'center',font:'bold'});
+  if(oemMessage||oemStage)label(cv,oemMessage||oemStage,800,489,16,theme.dim,{align:'center'});
+ }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
   if(page===0)drawInfo(cv,theme);
@@ -555,7 +614,8 @@ mgu.run({start(ctx){
   if(page===6)drawCcCompare(cv,theme);
   if(page===7)drawCcSources(cv,theme);
   if(page===8)drawWheelOem(cv,theme);
-  G.frame(cv,theme,pages.map(word),page,[]);
+  if(page===9)drawOemServices(cv,theme);
+  G.frame(cv,theme,pages.map(word),pageIds.indexOf(page),[]);
   return ui.image('MAIN_GFX',cv);
  }
  ctx.loop('MAIN',3,render);render().catch(e=>log.warn(String(e)));
