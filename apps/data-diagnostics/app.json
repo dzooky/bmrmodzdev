@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -55,7 +55,16 @@
       ]
     }
   ],
-  "signals": {},
+  "signals": {
+    "de.bmw.infotainment.climate.Climate": {
+      "_optional": "Read-only rule candidate",
+      "operationAutomaticSwitchDriverSeat": "s"
+    },
+    "de.bmw.infotainment.climate.climatemaster.ClimateMaster": {
+      "_optional": "Read-only rule candidate",
+      "statusClimateUpdateAutomatic": "s"
+    }
+  },
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1"

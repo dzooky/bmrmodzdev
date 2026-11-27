@@ -1,3 +1,8 @@
+## v0.2.7 — OEM rule candidate reads and BMW profile discovery (2026-11-27)
+- Vehicle evidence 0.2.6: catalog returned Climate.operationAutomaticSwitchDriverSeat and ClimateMaster.statusClimateUpdateAutomatic; no values or rule mapping yet. CI 46072224182 passed, merged PR #170.
+- Implemented: one read-only watch per candidate, bounded numeric/boolean payload capture, profile-related catalog metadata discovery, active profile row UNKNOWN pending verified source. No profile identity is read or exported in this version. No ECU or write calls. Eight captures with values retained. No shared tool changes. CI pending; no in-car verification.
+- Goal: profile-specific CC settings keyed by stable verified local profile identifier; no cross-profile fallback. Next: decode candidates and locate profile getter from report.
+
 ## v0.2.6 — OEM Climate Comfort Rules metadata discovery (2026-11-27)
 - Implemented: one read-only diagnostic screen, three UNKNOWN rule states, manual catalog inventory capture and explicit report upload. No verified rule-value source yet; this is discovery only, not a working rule-state reader. Retain up to eight snapshots and latest candidate names. No ECU calls, SOME/IP writes, profile reads or shared Tool changes. Legacy tests retained in source but removed from runtime navigation.
 - Automated-tested: first CI passed new discovery test but failed legacy manifest/UI assertions; update those assertions to enforce the intentionally read-only single screen. Full CI rerun pending. In-car verified: no. Next: inspect candidate metadata from one parked MGU capture and identify authorized rule getters before any state decoding. No engine start needed.

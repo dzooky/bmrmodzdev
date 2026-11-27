@@ -2,6 +2,10 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Active BMW profile": "Active BMW profile",
+    "Reading status": "Reading status",
+    "Read failed": "Read failed",
+    "Candidate values recorded in report": "Candidate values recorded in report",
     "Climate Comfort Rules": "Climate Comfort Rules",
     "Driver seat heating": "Driver seat heating",
     "Driver seat ventilation": "Driver seat ventilation",
