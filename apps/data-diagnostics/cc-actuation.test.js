@@ -24,7 +24,7 @@ class FakeDiag{
  assert.strictEqual(decodeSeat([0x62,0xd8,0xdb,1],19),null);
  assert.deepStrictEqual(decodeWheel([0x62,0xd0,0x74,1,0,0,0,1]),{on:true,fitted:true});
  assert.equal(decodeWheel([0x62,0xd0,0x74,2,0,0,0,1]),null);
- const rejected=await run('frontHeat',{confirmed:false});
+ const rejected=await run('wheelHeat',{confirmed:false});
  assert.equal(rejected.status,'SKIP');
  for(const id of Object.keys(CASES)){
   calls.length=0;
@@ -51,16 +51,29 @@ class FakeDiag{
  assert(calls.includes('press-failure'));
  assert(calls.some(x=>Array.isArray(x)&&x[1]===0x31&&x[2][4]===0));
  assert(calls.some(x=>Array.isArray(x)&&x[1]===0x31&&x[2][0]===2));
+ const wheelRequests=calls.filter(x=>Array.isArray(x)&&x[1]===0x2e);
+ // The final operation in the loop is a failed seat; validate the wheel
+ // separately with a simulated monotonic clock and real checkpoints.
+ let clock=0;calls.length=0;
+ const sustained=await run('wheelHeat',{confirmed:true,Diag:FakeDiag,signals:{},
+  now:()=>Date.parse('2026-11-27T11:00:00Z')+clock,
+  pause:async ms=>{clock+=ms;}});
+ assert.equal(sustained.status,'PASS');
+ assert.deepStrictEqual(sustained.checks.map(x=>x.seconds),[5,15,30,45]);
+ assert(sustained.checks.every(x=>x.on===true));
+ assert(calls.some(x=>Array.isArray(x)&&x[1]===0x2e&&x[2][2]===60));
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cc-act-'));
  try{
   const log=create(path.join(dir,'report.json'));
-  for(const id of Object.keys(CASES))log.save({id,startedAt:new Date().toISOString(),
-   finishedAt:new Date().toISOString(),status:'PASS',stage:'verified-on',before:0,after:1,steps:[]});
-  assert.equal(log.snapshot().cases.length,4);
+  log.save(sustained);
+  assert.equal(log.snapshot().cases.length,1);
+  log.feedback('heat-felt');
+  assert.equal(log.snapshot().cases[0].physicalFeedback,'heat-felt');
   assert.equal(log.envelope().results.length,0);
   assert.equal(log.envelope().notes.ccActuatorTest.toolActuationVerified,false);
-  assert.equal(create(path.join(dir,'report.json')).snapshot().cases.length,4);
-  assert(log.lines().some(x=>x.includes('frontHeat PASS')));
+  assert.equal(create(path.join(dir,'report.json')).snapshot().cases.length,1);
+  assert(log.lines().some(x=>x.includes('wheelHeat PASS')));
+  assert(log.lines().some(x=>x.includes('check-45s=true')));
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
- console.log('CC manual seat/wheel controls: UDS echo, read-back, failure cleanup, bounded log PASS');
+ console.log('CC manual wheel 60s/4 checkpoints, prior seat cleanup, physical feedback and log PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});

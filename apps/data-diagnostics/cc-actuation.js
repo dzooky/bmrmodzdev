@@ -33,7 +33,7 @@ async function run(id,options){
  const out={id,source:'diagnostics-oap-native',toolActuationVerified:false,
   startedAt:new Date(now()).toISOString(),finishedAt:null,status:'FAIL',stage:'unstarted',
   before:null,after:null,restored:null,steps:[],error:null};
- function add(stage,fields){out.stage=stage;out.steps.push(Object.assign({at:new Date(now()).toISOString(),stage},fields||{}));}
+ function add(stage,fields){out.stage=stage;out.steps.push(Object.assign({at:new Date(now()).toISOString(),stage},fields||{}));if(typeof opts.onStep==='function')try{opts.onStep(stage);}catch(_){}}
  if(!spec){out.error='unknown-test-id';return out;}
  // Caller must confirm parking, equipment and a latched occupant belt on screen.
  // This is operator confirmation, NOT a verified transmission/speed read.
@@ -83,13 +83,23 @@ async function run(id,options){
    if(!before.fitted){out.status='SKIP';add('not-fitted');return out;}
    if(before.on){out.status='SKIP';add('already-on');return out;}
    wheelAttempt=true;
-   await req(0x40,0x2e,[0xd0,0x74,30],'wheel-on-30s');
-   for(const delay of [350,500,800]){
-    await sleep(delay);out.after=await wheel('read-after');
-    if(out.after&&out.after.on)break;
+   // The car previously accepted 30 seconds; 60 seconds is a new bounded
+   // manual test value and MUST be verified on the vehicle.
+   const seconds=60,commandAt=now();
+   await req(0x40,0x2e,[0xd0,0x74,seconds],'wheel-on-60s');
+   out.checks=[];
+   // Each checkpoint is relative to the original request, not the previous
+   // checkpoint. A missing or contradictory state never counts as PASS.
+   for(const secondsSince of [5,15,30,45]){
+    const remaining=secondsSince*1000-(now()-commandAt);
+    if(remaining>0)await sleep(remaining);
+    const state=await wheel('wheel-check-'+secondsSince+'s');
+    out.checks.push({seconds:secondsSince,on:state&&state.on===true,fitted:state&&state.fitted===true});
+    out.after=state;
+    add('wheel-state-'+secondsSince+'s',{on:!!(state&&state.on),fitted:!!(state&&state.fitted)});
+    if(!state||!state.on||!state.fitted)throw Error('wheel-state-lost-at-'+secondsSince+'s');
    }
-   if(!out.after||!out.after.on)throw Error('wheel-did-not-activate');
-   out.status='PASS';add('verified-on-30s');
+   out.status='PASS';add('verified-45s');
   }
  }catch(e){out.status='FAIL';out.error=stageError(e);add('failed',{error:out.error});}
  finally{
@@ -107,12 +117,12 @@ async function run(id,options){
     const stopped=await cleanup(0x78,0x31,[2,0xa1,0x26],'cleanup-stop');
     if(!released||!stopped){out.status='FAIL';out.error='IHKA cleanup not confirmed';add('cleanup-unverified',{error:out.error});}
    }
-   // Wheel command uses the OEM 30-second auto-expiry; no replay of unknown
+   // Wheel command uses a bounded 60-second auto-expiry request; no replay of unknown
    // original state. Do not send an unverified second command on failure.
    try{if(diag.p.shutdown)await Promise.resolve(diag.p.shutdown());}catch(e){add('shutdown-error',{error:stageError(e)});}
   }
-  if(wheelAttempt)add('wheel-auto-expiry',{seconds:30});
-  if(out.status==='PASS')out.stage=spec.kind==='wheel'?'verified-on-30s':'verified-on';
+  if(wheelAttempt)add('wheel-auto-expiry-not-observed',{seconds:60});
+  if(out.status==='PASS')out.stage=spec.kind==='wheel'?'verified-45s':'verified-on';
   if(out.status==='FAIL')out.stage='failed';
   out.finishedAt=new Date(now()).toISOString();
  }

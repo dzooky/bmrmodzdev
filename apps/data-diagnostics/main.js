@@ -22,8 +22,8 @@ mgu.run({start(ctx){
  let bgHealth=null,bgBusy=false,lastBgPoll=0,bgCommandBusy=false,bgMessage='',bgDeadline=0;
  let cdsBusy=false,cdsResult=null,ccBusy=false,ccResult=null,ccDetailPage=0;
  let udsHealth=null,healthError=false,lastHealthPoll=0,healthBusy=false;
- const actuatorReport=ccActuationReport.create(require('path').join(ctx.dataDir,'cc-actuator-test-091.json'));
- let actuatorBusy=false,actuatorArmed=null,actuatorArmUntil=0,actuatorDetails=0;
+ const actuatorReport=ccActuationReport.create(require('path').join(ctx.dataDir,'cc-wheel-test-092.json'));
+ let actuatorBusy=false,actuatorArmed=null,actuatorArmUntil=0,actuatorDetails=0,actuatorStage='';
  let actuatorUploadBusy=false,actuatorUploadMessage='';
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
@@ -89,12 +89,12 @@ mgu.run({start(ctx){
   finally{ccBusy=false;ccDetailPage=0;}
  }
  async function runCcActuator(id){
-  if(actuatorBusy||actuatorUploadBusy||!ccActuation.CASES[id])return;
+  if(actuatorBusy||actuatorUploadBusy||id!=='wheelHeat')return;
   const now=Date.now();
   if(actuatorArmed!==id||now>=actuatorArmUntil){
    actuatorArmed=id;actuatorArmUntil=now+12000;return;
   }
-  actuatorArmed=null;actuatorArmUntil=0;actuatorBusy=true;
+  actuatorArmed=null;actuatorArmUntil=0;actuatorBusy=true;actuatorStage='belt-gate';
   const startedAt=new Date().toISOString();
   let record;
   try{
@@ -104,7 +104,9 @@ mgu.run({start(ctx){
      startedAt,finishedAt:new Date().toISOString(),status:'SKIP',stage:'belt-gate-'+gate.stage,
      before:null,after:null,error:gate.error||null,steps:[{at:new Date().toISOString(),stage:'belt-gate',error:gate.stage}]};
    }else{
-    record=await ccActuation.run(id,{confirmed:true,signals:ctx.signals,log:ctx.log});
+    record=await ccActuation.run(id,{confirmed:true,signals:ctx.signals,log:ctx.log,onStep:stage=>{actuatorStage=stage;}});
+    record.gearObservation=gate.gearObservation||null;
+    record.gearSourceVerified=gate.gearSourceVerified===true;
     record.steps.unshift({at:startedAt,stage:'belt-gate-'+gate.stage});
    }
   }catch(e){record={id,startedAt,finishedAt:new Date().toISOString(),status:'FAIL',
@@ -112,7 +114,7 @@ mgu.run({start(ctx){
   finally{
    if(record)try{actuatorReport.save(record);}
     catch(e){ctx.log.warn('CC actuator log persistence: '+String(e.message||e));}
-   actuatorBusy=false;actuatorDetails=0;actuatorUploadMessage='';
+   actuatorBusy=false;actuatorDetails=0;actuatorUploadMessage='';actuatorStage='';
   }
  }
  async function uploadCcActuators(){
@@ -135,10 +137,14 @@ mgu.run({start(ctx){
    actuatorDetails=(actuatorDetails+1)%(Math.ceil(actuatorReport.lines().length/6)+1);return;
   }
   if(page===5&&!actuatorBusy&&!actuatorUploadBusy){
-   if(x>=830&&x<=1500){
-    for(let i=0;i<4;i++){const y0=170+i*58;
-     if(y>=y0&&y<=y0+51){runCcActuator(Object.keys(ccActuation.CASES)[i]).catch(e=>ctx.log.warn(String(e)));return;}
-    }
+   if(x>=830&&x<=1500&&y>=195&&y<=266){
+    runCcActuator('wheelHeat').catch(e=>ctx.log.warn(String(e)));return;
+   }
+   if(actuatorReport.snapshot().cases.length&&y>=330&&y<=388){
+    try{
+     if(x>=150&&x<=520){actuatorReport.feedback('heat-felt');actuatorUploadMessage='';return;}
+     if(x>=560&&x<=940){actuatorReport.feedback('no-heat');actuatorUploadMessage='';return;}
+    }catch(e){ctx.log.warn('CC physical feedback: '+String(e));}
    }
    if(x>=520&&x<=1080&&y>=440&&y<=495){
     uploadCcActuators().catch(e=>ctx.log.warn(String(e)));return;
@@ -160,7 +166,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.91');
+  header(cv,theme,'Info','0.1.92');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -268,7 +274,7 @@ mgu.run({start(ctx){
   label(cv,word('Stay parked during the test'),800,480,18,theme.warn,{align:'center'});
  }
  function drawCcControls(cv,theme){
-  const report=actuatorReport.snapshot();
+  const report=actuatorReport.snapshot(),test=report.cases.find(x=>x.id==='wheelHeat');
   header(cv,theme,'CC Controls',word(actuatorBusy?'Running':actuatorUploadBusy?'Sending':'Manual test only'));
   cv.roundRect(1100,58,265,50,8,theme.track);
   label(cv,'Details '+actuatorDetails+'/'+Math.ceil(actuatorReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
@@ -276,18 +282,20 @@ mgu.run({start(ctx){
    const lines=actuatorReport.lines(),start=(actuatorDetails-1)*6;
    lines.slice(start,start+6).forEach((line,i)=>label(cv,line,68,153+i*37,16,theme.text));
   }else{
-   label(cv,word('Confirm parked, engine running, belt latched'),90,145,19,theme.warn);
-   const cases=ccActuation.CASES;
-   Object.keys(cases).forEach((id,i)=>{
-    const y=170+i*58,caseResult=report.cases.find(x=>x.id===id);
-    label(cv,word(cases[id].label),90,y+32,22,theme.text);
-    cv.roundRect(830,y,670,51,9,actuatorBusy||actuatorUploadBusy?theme.track:theme.accent2);
-    const armed=actuatorArmed===id&&Date.now()<actuatorArmUntil;
-    const caption=armed?word('Confirm action'):caseResult?
-      caseResult.status+' / '+String(caseResult.stage||'').slice(0,35):word('Arm test');
-    label(cv,caption,1165,y+32,19,theme.text,{align:'center'});
-   });
-   label(cv,word('Direct OAP test; Data Tool actuation not enabled'),90,415,16,theme.warn);
+   label(cv,word('Confirm parked, engine running, belt latched'),90,158,20,theme.warn);
+   label(cv,word('Steering wheel heating')+' (60 s)',90,240,26,theme.text);
+   cv.roundRect(830,195,670,71,9,actuatorBusy||actuatorUploadBusy?theme.track:theme.accent2);
+   const armed=actuatorArmed==='wheelHeat'&&Date.now()<actuatorArmUntil;
+   const caption=actuatorBusy?(actuatorStage||word('Running')):armed?word('Confirm action'):
+    test?test.status+' / '+String(test.stage||'').slice(0,35):word('Arm test');
+   label(cv,caption,1165,239,21,theme.text,{align:'center'});
+   label(cv,word('Feel the wheel during the test, then record result'),90,305,19,theme.dim);
+   cv.roundRect(150,330,370,58,8,actuatorBusy||!test?theme.track:theme.accent2);
+   label(cv,word('Wheel is warm'),335,368,21,theme.text,{align:'center'});
+   cv.roundRect(560,330,380,58,8,actuatorBusy||!test?theme.track:theme.accent2);
+   label(cv,word('No heating felt'),750,368,21,theme.text,{align:'center'});
+   if(test)label(cv,word('Physical feedback')+': '+word(test.physicalFeedback||'not-checked'),1030,368,18,theme.dim);
+   label(cv,word('D signal')+': '+(test&&test.gearSourceVerified?test.gearObservation:word('not verified; not a test gate')),90,415,17,theme.warn);
   }
   cv.roundRect(520,440,560,55,9,actuatorBusy||actuatorUploadBusy?theme.track:theme.accent2);
   label(cv,word('Send detailed report'),800,475,20,theme.text,{align:'center',font:'bold'});

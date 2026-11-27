@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.91",
+  "version": "0.1.92",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
