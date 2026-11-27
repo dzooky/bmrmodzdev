@@ -24,8 +24,13 @@ async function check(id,request,now){
   if(!Number.isFinite(age)||age<0||age>5000)return {ok:false,stage:'front-sample-stale'};
   const row=reply.fields&&reply.fields[spec.belt];
   const state=row&&row.valid===true?row.value:null;
+  const gear=reply.fields&&reply.fields.gear;
+  const selector=gear&&gear.valid===true&&['P','R','N','D'].includes(gear.value)?gear.value:null;
+  // Passive data only. Do not infer D from RPM and do not gate wheel actuation
+  // on a not-yet-verified gear source.
   return {ok:state==='latched',stage:state==='latched'?'fresh-front-latched':state||'front-read-unavailable',
-   source:'tool-oap-front',ageMs:age};
+   source:'tool-oap-front',ageMs:age,gearObservation:selector,
+   gearSourceVerified:selector!==null};
  }catch(e){return {ok:false,stage:'belt-request-error',error:String(e&&e.message||e).slice(0,100)};}
 }
 module.exports={check,decodeRear};
