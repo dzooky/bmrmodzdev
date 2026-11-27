@@ -142,4 +142,91 @@ function wheelTransitions(samples){
  }
  return out;
 }
-module.exports={BASIC,MDRIVE,LEVER,MODE,code,captureGear,captureWheel,wheelTransitions};
+
+/**
+ * Operator-guided OEM wheel switch observation.
+ * Reads BDC DID D074 only: never sends an actuator command.
+ * The UI prompts are driven by observed state, not the operator's stopwatch.
+ */
+async function captureGuidedWheel(signals,options){
+ const opts=options||{},now=opts.now||Date.now;
+ const delay=opts.delay||((ms)=>new Promise(resolve=>setTimeout(resolve,ms)));
+ const pollMs=Number.isInteger(opts.pollMs)?Math.max(500,Math.min(opts.pollMs,5000)):2000;
+ const onLimitMs=Number.isInteger(opts.onLimitMs)?Math.max(2000,Math.min(opts.onLimitMs,120000)):60000;
+ const offLimitMs=Number.isInteger(opts.offLimitMs)?Math.max(2000,Math.min(opts.offLimitMs,120000)):60000;
+ const warmthMs=Number.isInteger(opts.warmthMs)?Math.max(0,Math.min(opts.warmthMs,90000)):60000;
+ const notify=(phase,detail)=>{if(typeof opts.onStage==='function')opts.onStage(phase,detail||'');};
+ const report={kind:'wheelTrace',at:new Date(now()).toISOString(),stage:'unavailable',
+  ok:false,mode:'guided-oem',sequence:'Observe OFF; prompt OEM ON; hold for warmth; prompt OEM OFF; detect OFF',
+  samples:[],errors:[],onDetected:false,offDetected:false,warmthHoldMs:warmthMs};
+ const begin=now();
+ let diag=null;
+ const make=()=>{const Diag=opts.Diag||require('./kit/diag').Diag;
+  const d=new Diag(signals,opts.log||{info(){},warn(){}});d.quiet=true;d.busyLog=false;return d;};
+ async function read(phase){
+  const sample={elapsedSec:Math.round((now()-begin)/1000),at:new Date(now()).toISOString(),
+   phase,bytes:null,on:null,fitted:null,error:null};
+  // Recover once from a transient OAP/TASU failure.
+  for(let attempt=0;attempt<2;attempt++){
+   try{
+    if(!diag||!diag.p){diag=make();await diag.init();if(!diag.p)throw Error('tasu-proxy-unavailable');}
+    const accept=u=>Array.isArray(u)&&((u[0]===0x62&&u[1]===0xd0&&u[2]===0x74)||
+     (u[0]===0x7f&&u[1]===0x22));
+    const u=await diag.physical(0x40,0x22,[0xd0,0x74],1500,accept,
+     {maxRetries:0,callTimeoutMs:2000,hardTimeoutMs:3500});
+    if(!u)throw Error('timeout');
+    if(u[0]===0x7f)throw Error('NRC-'+(u[2]===undefined?'unknown':u[2]));
+    sample.bytes=wheelBytes(u);if(!sample.bytes)throw Error('invalid-D074');
+    sample.on=u[3]===1?true:u[3]===0?false:null;
+    sample.fitted=u[7]===1?true:u[7]===0?false:null;
+    sample.error=null;break;
+   }catch(e){
+    sample.error=String(e&&e.message||e).slice(0,85);
+    if(attempt===0){if(diag&&diag.p&&diag.p.shutdown)try{await Promise.resolve(diag.p.shutdown());}catch(_){}
+     diag=null;await delay(350);}
+   }
+  }
+  if(report.samples.length<85)report.samples.push(sample);
+  return sample;
+ }
+ async function waitFor(target,phase,limitMs){
+  const deadline=now()+limitMs;
+  while(now()<=deadline){
+   const s=await read(phase);
+   if(s.on===target)return s;
+   if(now()>=deadline)break;
+   notify(phase,'Waiting for BDC '+(target?'ON':'OFF'));
+   await delay(Math.min(pollMs,Math.max(1,deadline-now())));
+  }
+  return null;
+ }
+ try{
+  notify('baseline','Leave OEM wheel heating OFF');
+  const first=await read('baseline');
+  if(first.on!==false){report.stage=first.on===true?'start-wheel-must-be-off':'baseline-unavailable';
+   notify('failed',report.stage);return report;}
+  if(first.fitted!==true){report.stage='wheel-not-confirmed-fitted';notify('failed',report.stage);return report;}
+  notify('turn-on','Press the original BMW wheel heating button NOW');
+  const on=await waitFor(true,'turn-on',onLimitMs);
+  if(!on){report.stage='on-timeout';notify('failed','ON state not detected');return report;}
+  report.onDetected=true;
+  notify('warmth','OEM ON detected. Feel the wheel; keep heating ON');
+  const holdUntil=now()+warmthMs;
+  while(now()<holdUntil){
+   await delay(Math.min(5000,Math.max(1,holdUntil-now())));
+   const s=await read('warmth');
+   if(s.on===false){report.stage='early-off';notify('failed','Heating turned OFF before requested');return report;}
+   notify('warmth','Heating ON. Time left '+Math.ceil(Math.max(0,holdUntil-now())/1000)+'s');
+  }
+  notify('turn-off','Press the original BMW wheel heating button OFF NOW');
+  const off=await waitFor(false,'turn-off',offLimitMs);
+  if(!off){report.stage='off-timeout';notify('failed','OFF state not detected');return report;}
+  report.offDetected=true;report.ok=true;report.stage='on-off-confirmed';
+  notify('completed','OEM ON and OFF both detected');
+ }catch(e){report.stage='trace-error';report.errors.push(String(e&&e.message||e).slice(0,100));
+  notify('failed',report.stage);}
+ finally{if(diag&&diag.p&&diag.p.shutdown)try{await Promise.resolve(diag.p.shutdown());}catch(_){}}
+ return report;
+}
+
+module.exports={BASIC,MDRIVE,LEVER,MODE,code,captureGear,captureWheel,captureGuidedWheel,wheelTransitions};
