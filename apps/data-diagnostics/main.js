@@ -225,13 +225,17 @@ mgu.run({start(ctx){
   }catch(e){oemOnMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
   finally{oemOnUploadBusy=false;}
  }
- async function captureOemServices(){
+ async function captureOemServices(engineOff){
   if(oemBusy||oemUploadBusy||oemOnBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
   oemBusy=true;oemMessage='';oemStage=word('Capturing');
   try{
    const result=await oemServices.capture(ctx.signals,{log:ctx.log,
+    Diag:engineOff===true?false:undefined,engineOffProbe:engineOff===true,
     onStage:stage=>{oemStage=stage;}});
-   oemReport.save(result);oemMessage=result.stage;oemDetails=0;
+   oemReport.save(result);
+   oemMessage=(engineOff===true?'Engine OFF / ':'')+result.stage+
+    ' / body: '+result.services.body.status;
+   oemDetails=0;
   }catch(e){oemMessage=word('FAIL')+': '+String(e.message||e).slice(0,80);}
   finally{oemBusy=false;oemStage='';}
  }
@@ -314,8 +318,13 @@ mgu.run({start(ctx){
     oemOnDetails=(oemOnDetails+1)%(Math.ceil(oemOnReport.lines().length/6)+1);return;
    }
    if(oemBusy||oemUploadBusy||oemOnBusy||oemOnUploadBusy)return;
-   if(x>=520&&x<=1080&&y>=240&&y<=320){
-    runOemWheelOn().catch(e=>log.warn(String(e)));return;
+   if(y>=240&&y<=320){
+    if(x>=90&&x<=770){
+     captureOemServices(true).catch(e=>log.warn(String(e)));return;
+    }
+    if(x>=830&&x<=1510){
+     runOemWheelOn().catch(e=>log.warn(String(e)));return;
+    }
    }
    if(y>=390&&y<=465){
     if(x>=90&&x<=510){captureOemServices().catch(e=>log.warn(String(e)));return;}
@@ -646,7 +655,7 @@ mgu.run({start(ctx){
  }
  function drawOemServices(cv,theme){
   const list=oemOnReport.snapshot().attempts,latest=list[list.length-1];
-  const busy=oemOnBusy||oemOnUploadBusy||oemBusy;
+  const busy=oemOnBusy||oemOnUploadBusy||oemBusy||oemUploadBusy;
   header(cv,theme,'CC OEM Services',busy?word('Running'):latest?latest.status:word('Not tested'));
   cv.roundRect(1100,58,265,50,8,theme.track);
   label(cv,'Details '+oemOnDetails+'/'+Math.ceil(oemOnReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
@@ -654,8 +663,8 @@ mgu.run({start(ctx){
    oemOnReport.lines().slice((oemOnDetails-1)*6,oemOnDetails*6).forEach((line,i)=>
     label(cv,line,68,155+i*38,16,theme.text));
   }else{
-   label(cv,word('Parked, engine running, belt latched, wheel OFF'),800,148,19,theme.warn,{align:'center'});
-   label(cv,word('One OEM ON request; use BMW button to switch OFF'),800,189,19,theme.dim,{align:'center'});
+   label(cv,word('Engine OFF: read-only test, no belt or start needed'),800,148,20,theme.text,{align:'center'});
+   label(cv,word('OEM ON: engine running, P, belt latched, wheel OFF'),800,187,19,theme.warn,{align:'center'});
    if(oemOnBusy){
     label(cv,word(oemOnStage),800,222,21,theme.warn,{align:'center'});
     if(oemOnPrompt){
@@ -672,8 +681,10 @@ mgu.run({start(ctx){
      }
     }
    }else{
-    cv.roundRect(520,240,560,80,10,busy?theme.track:theme.accent2);
-    label(cv,Date.now()<oemOnArmedUntil?word('Confirm action'):word('Start OEM ON test'),800,290,21,theme.text,{align:'center',font:'bold'});
+    cv.roundRect(90,240,680,80,10,busy?theme.track:theme.accent2);
+    label(cv,word('Check OEM (engine OFF)'),430,289,20,theme.text,{align:'center',font:'bold'});
+    cv.roundRect(830,240,680,80,10,busy?theme.track:theme.accent2);
+    label(cv,Date.now()<oemOnArmedUntil?word('Confirm action'):word('Start OEM ON test'),1170,289,20,theme.text,{align:'center',font:'bold'});
     if(latest){
      const failed=latest.status==='SKIP'||latest.status==='FAIL'||latest.status==='PARTIAL';
      label(cv,word(failed?'Test stopped – no confirmed activation':'Last OEM test result'),800,344,20,
@@ -687,8 +698,8 @@ mgu.run({start(ctx){
    cv.roundRect(item[1],390,440,75,10,busy?theme.track:theme.accent2);
    label(cv,word(item[0]),item[1]+220,435,17,theme.text,{align:'center',font:'bold'});
   }
-  if(oemOnMessage||oemOnStage)
-   label(cv,String(oemOnMessage||oemOnStage).slice(0,90),800,486,16,theme.text,{align:'center'});
+  if(oemOnMessage||oemStage||oemOnStage)
+   label(cv,String(oemOnMessage||oemStage||oemOnStage).slice(0,95),800,486,16,theme.text,{align:'center'});
  }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
