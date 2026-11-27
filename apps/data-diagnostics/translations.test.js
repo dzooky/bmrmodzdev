@@ -6,7 +6,7 @@ assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(Object.keys(spec.signals),['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']);
 assert.deepStrictEqual(spec.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.strictEqual(spec.version,'0.1.90');
+assert.strictEqual(spec.version,'0.1.91');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.73');
 assert.strictEqual(spec.mguInternet,true);
 assert.strictEqual(spec.requires['data-native-provider'],'0.1.1');
@@ -16,7 +16,11 @@ assert.ok(require('fs').readFileSync(require('path').join(__dirname,'main.js'),'
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 assert.ok(main.includes('rpmRetest.run(client.request)'));
-assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test']"));
+assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls']"));
+for(const key of ['CC Controls','Manual test only','Front left heating','Front right ventilation','Rear left heating','Steering wheel heating','Arm test','Confirm action','Send detailed report','Report sent'])assert.ok(catalogs.en[key],key);
+assert.ok(main.includes('ccActuationGate.check(id,client.request)'));
+assert.ok(main.includes('ccActuation.run(id,{confirmed:true'));
+assert.ok(main.includes('actuatorReport.envelope()'));
 for(const text of ['This application is still in development phase and not ready for public use.','We still working on it and will be available soon.','Thank you'])assert.ok(main.includes(text));
 for(const key of ['Data Tool','Background Tool','Notification Tool','Remaining time','Queue','Accepted','Submitted','Failed','Expired','Start / stop BT test','Test notification','Notification test','Slow','Fast','Queued'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
 assert.ok(main.includes("ui.onClick('BTN_NT',()=>{testNotification()"));
