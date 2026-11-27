@@ -65,6 +65,8 @@ jobs:
           node --check apps/data-diagnostics/cc-actuation-report.js
           node --check apps/data-diagnostics/cc-compare.js
           node --check apps/data-diagnostics/cc-compare-report.js
+          node --check apps/data-diagnostics/cc-source-probe-094.js
+          node --check apps/data-diagnostics/cc-source-probe-report-094.js
           node --check apps/data-diagnostics/cc-native-front.js
           node --check apps/data-diagnostics/cc-native-gear.js
           node --check apps/data-diagnostics/cache-probe.js
@@ -142,6 +144,7 @@ jobs:
           node apps/data-diagnostics/cc-actuation.test.js
           node apps/data-diagnostics/cc-actuation-gate.test.js
           node apps/data-diagnostics/cc-compare.test.js
+          node apps/data-diagnostics/cc-source-probe-094.test.js
           node apps/data-diagnostics/cc-test.test.js
           node apps/data-diagnostics/cc-native-front.test.js
           node apps/data-diagnostics/cc-native-gear.test.js
