@@ -6,11 +6,12 @@ assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
 assert.deepStrictEqual(Object.keys(spec.signals),[
  'com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu',
- 'de.bmw.infrastructure.VehicleInformation','de.bmw.infrastructure.analytics.BasicDataSet','de.bmw.infotainment.misc.MDrive']);
+ 'de.bmw.infrastructure.VehicleInformation','de.bmw.infrastructure.analytics.BasicDataSet','de.bmw.infotainment.misc.MDrive',
+ 'de.bmw.infotainment.climate.climatemaster.ClimateMaster','de.bmw.body.steeringwheelcomfort.SteeringWheelClimate']);
 assert.strictEqual(spec.signals['de.bmw.infrastructure.analytics.BasicDataSet'].basicDataSet,'s');
 assert.strictEqual(spec.signals['de.bmw.infotainment.misc.MDrive'].dataDisplayGearbox,'s');
 assert.deepStrictEqual(spec.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.strictEqual(spec.version,'0.1.98');
+assert.strictEqual(spec.version,'0.1.99');
 assert.strictEqual(spec.signals['de.bmw.infrastructure.VehicleInformation'].statusGearboxDrive,'s');
 assert.strictEqual(spec.signals['de.bmw.infrastructure.VehicleInformation'].DataPowerTrain2,'s');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.73');
@@ -19,11 +20,11 @@ assert.strictEqual(spec.requires['data-native-provider'],'0.1.1');
 for(const key of ['Retest belts','Retest belts + gear','Retest belts + gear + RPM','Belt retest','Gear test','RPM test'])assert.ok(catalogs.en[key]);
 assert.ok(require('fs').readFileSync(require('path').join(__dirname,'main.js'),'utf8').includes('beltRetest.run(client.request,ccResult.sharedNative)'));
 assert.ok(require('fs').readFileSync(require('path').join(__dirname,'main.js'),'utf8').includes('gearRetest.run(client.request,belt.sample||null)'));
-assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
+assert.deepStrictEqual(spec.screens[0].buttons,[]);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 assert.ok(main.includes('rpmRetest.run(client.request)'));
-assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare','CC Sources','CC Wheel OEM']"));
-for(const key of ['CC Sources','CC Wheel OEM','Start OEM sequence','I pressed OEM button #1','I pressed OEM button #2','KOMBI activated','KOMBI deactivated','Send OEM sequence report','Read-only source tests','Guided OEM wheel ON/OFF','VehicleInfo gear P','VehicleInfo gear R','VehicleInfo gear D','Start with wheel OFF; follow the live prompts','Gear: brake held; stationary P then D; no movement','No ECU writes or automatic gear actuation','Send source report','CC Compare','Manual captures','Capturing','Wheel OFF: capture','OEM wheel ON: capture','Gear P: capture','Gear D: capture','Not captured','Send comparison report','CC Controls','Manual test only','Steering wheel heating','Arm test','Confirm action','Send detailed report','Report sent','Wheel is warm','No heating felt','Physical feedback','D signal','not verified; not a test gate'])assert.ok(catalogs.en[key],key);
+assert.ok(main.includes("const pages=['Info','CC Controls','CC Wheel OEM','CC OEM Services']"));
+for(const key of ['CC OEM Services','Read-only OEM service discovery','Run OEM source test','Send OEM source report','No heating commands or vehicle controls','CC Sources','CC Wheel OEM','Start OEM sequence','I pressed OEM button #1','I pressed OEM button #2','KOMBI activated','KOMBI deactivated','Send OEM sequence report','Read-only source tests','Guided OEM wheel ON/OFF','VehicleInfo gear P','VehicleInfo gear R','VehicleInfo gear D','Start with wheel OFF; follow the live prompts','Gear: brake held; stationary P then D; no movement','No ECU writes or automatic gear actuation','Send source report','CC Compare','Manual captures','Capturing','Wheel OFF: capture','OEM wheel ON: capture','Gear P: capture','Gear D: capture','Not captured','Send comparison report','CC Controls','Manual test only','Steering wheel heating','Arm test','Confirm action','Send detailed report','Report sent','Wheel is warm','No heating felt','Physical feedback','D signal','not verified; not a test gate'])assert.ok(catalogs.en[key],key);
 assert.ok(main.includes('ccActuationGate.check(id,client.request)'));
 assert.ok(main.includes('ccActuation.run(id,{confirmed:true'));
 assert.ok(main.includes('actuatorReport.envelope()'));
@@ -34,6 +35,9 @@ assert.ok(main.includes('sourceProbe.captureGuidedWheel(ctx.signals'));
 assert.ok(main.includes("vehicleGear.capture(kind==='gearD'?'D':kind==='gearR'?'R':'P',ctx.signals"));
 assert.ok(main.includes('actuatorReport.kombi(v)'));
 assert.ok(main.includes('wheelOem.run({confirmed:true'));
+assert.ok(main.includes('oemServices.capture(ctx.signals'));
+assert.ok(main.includes('oemReport.envelope()'));
+assert.ok(main.includes('pageIds.indexOf(page)'));
 assert.ok(main.includes("ccActuationGate.check('wheelHeat',client.request)"));
 assert.ok(main.includes('wheelReport.envelope()'));
 assert.ok(main.includes('sourceReport.envelope()'));
@@ -43,9 +47,9 @@ assert.ok(main.includes("actuatorReport.feedback('heat-felt')"));
 assert.ok(main.includes("actuatorReport.feedback('no-heat')"));
 for(const text of ['This application is still in development phase and not ready for public use.','We still working on it and will be available soon.','Thank you'])assert.ok(main.includes(text));
 for(const key of ['Data Tool','Background Tool','Notification Tool','Remaining time','Queue','Accepted','Submitted','Failed','Expired','Start / stop BT test','Test notification','Notification test','Slow','Fast','Queued'])assert.ok(Object.prototype.hasOwnProperty.call(catalogs.en,key),key);
-assert.ok(main.includes("ui.onClick('BTN_NT',()=>{testNotification()"));
-assert.ok(main.includes("ui.onClick('BTN_BT',()=>{toggleBackgroundTest()"));
-assert.ok(main.includes('if(page===3)testNotification();'));
+assert.ok(!main.includes("ui.onClick('BTN_NT'"));
+assert.ok(!main.includes("ui.onClick('BTN_BT'"));
+assert.ok(main.includes('if(page===3)testNotification();')); // legacy code remains
 assert.ok(main.includes('ccResult.nativeFront=await nativeFront.run(ctx.signals,ctx.log);'));
 assert.ok(main.includes("const nativeFront=require('./cc-native-front');"));
 assert.ok(!main.includes("const nativeGear=require('./cc-native-gear');"));
