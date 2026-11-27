@@ -13,6 +13,8 @@ const catalogs={
     "CC Wheel OEM":"CC Wheel OEM",
     "CC OEM Services":"CC OEM Services",
     "Confirm OEM activation":"Confirm OEM activation",
+    "Test stopped – no confirmed activation":"Test stopped – no confirmed activation",
+    "Last OEM test result":"Last OEM test result",
     "One OEM ON request; use BMW button to switch OFF":"One OEM ON request; use BMW button to switch OFF",
     "Start OEM ON test":"Start OEM ON test",
     "Read-only OEM source test":"Read-only OEM source test",
