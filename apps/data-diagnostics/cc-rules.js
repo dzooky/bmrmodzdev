@@ -1,5 +1,5 @@
 'use strict';
-// Catalog metadata only. Never read private profiles or infer rule state from actuator state.
+// Read-only candidate getters. Never export profile ID or infer rule state from actuator state.
 const fs=require('fs');
 const CATALOG='/etc/oap/someip/someip-interfaces.json';
 const keys=['driverHeat','driverVent','wheelHeat'];
@@ -90,9 +90,15 @@ async function sample(signals,declared,opts={}){
   const item=out.samples[field]={status:'not-declared',value:null};
   const d=(Array.isArray(declared)?declared:[]).find(x=>x&&x.interface===iface&&x.field===field);
   if(!d||typeof d.instance!=='string'||!d.instance)continue;
+  const capability=out.capabilities[field];
+  if(!capability||!capability.getter||!capability.instances.includes(d.instance)){item.status='catalog-mismatch';continue;}
   let proxy,timer;
   const bound=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('timeout')),ms);})]).finally(()=>clearTimeout(timer));
   try{
+   if(typeof signals.loadConfig==='function'){
+    const cfg=signals.loadConfig(iface);
+    if(!cfg.fields||!cfg.fields[field]||cfg.fields[field].getter==null){item.status='config-no-getter';continue;}
+   }
    const pending=Promise.resolve().then(()=>signals.proxy(iface,d.instance));
    try{proxy=await bound(pending,4000);}catch(e){pending.then(p=>p&&p.shutdown&&p.shutdown()).catch(()=>{});throw e;}
    const value=await bound(Promise.resolve().then(()=>proxy.getValue(field,2500)),3500);

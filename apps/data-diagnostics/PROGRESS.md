@@ -1,3 +1,8 @@
+## v0.2.10 — Explicit getter declarations from MGU report (2026-11-27)
+- In-car evidence 0.2.9: installed, all three sample statuses not-declared, no read attempted. Catalog confirms getter and instance 1 for both climate fields and piaProfileId. CI 46074474400, 46074474487, 46074474451, 46074474397 passed; PR #174 merged.
+- Implemented: explicit instance 1 and read-only r permissions for three fields, matching runtime declarations. Remove ineffective diagnostics build-time discovery; retain passive catalog validation and check installed config getter before proxy creation. No subscription/setter, local profile ID only, report sample count shown. Actual read/installation unverified; rule mapping still UNKNOWN.
+- CI pending. No changes to shared acquisition or production apps.
+
 ## v0.2.9 — Catalog-driven getter-only diagnostics (2026-11-27)
 - In-car verified 0.2.8: installed and report received; both climate fields have getters, Climate operation has setter but no notifier; ClimateMaster status has notifier. Profile candidates SessionManager.currentUserAccountReference and DriverSelectionModule.piaProfileId. Actual values unknown. CI 46073727615 and 46073727609 passed; PR #172 merged.
 - Implemented: scoped build-time manifest discovery using catalog.instanceIDs and exact getter metadata, only single unambiguous instance, read flag only. No catalog means no extra permissions. Runtime uses own declared proxy/getValue, no subscriptions or writes. Profile ID shown locally only if scalar recognized; report contains status, not ID. Account reference not read. Rule values remain UNKNOWN until mapped. CI pending, in-car unverified; build environment catalog availability and getter access remain open.
