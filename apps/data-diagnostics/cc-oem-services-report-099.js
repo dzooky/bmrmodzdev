@@ -6,7 +6,7 @@ const clip=(v,n)=>String(v==null?'':v).slice(0,n);
 const atom=v=>v===null||typeof v==='boolean'||typeof v==='number'||typeof v==='string'?(typeof v==='string'?clip(v,60):v):null;
 function safe(v){
  if(!v||v.kind!=='oemServices')return null;
- const x={kind:'oemServices',at:clip(v.at,30),readOnly:true,stage:clip(v.stage,50),services:{},errors:[],
+ const x={kind:'oemServices',at:clip(v.at,30),readOnly:true,engineOffProbe:v.engineOffProbe===true,stage:clip(v.stage,50),services:{},errors:[],
   writeCount:0,bdc:{status:clip(v.bdc&&v.bdc.status,35),bytes:null,on:null,led:null,currentAmps:null,actuator:null,coded:null}};
  for(const id of ['climate','body']){
   const s=v.services&&v.services[id]||{},samples={};
