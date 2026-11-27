@@ -47,7 +47,7 @@ const signals={async watch(iface,instance,handlers){
   assert.equal(log.snapshot().captures.length,3);
   assert.equal(log.snapshot().captures[0].transitions.length,2);
   assert.equal(create(path.join(dir,'report.json')).snapshot().captures.length,3);
-  assert.equal(log.envelope().runMode,'cc-oem-wheel-gear-sources-0.1.94');
+  assert.equal(log.envelope().runMode,'cc-guided-oem-wheel-gear-sources-0.1.95');
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
  console.log('Read-only BasicDataSet/MDrive source + 45s wheel state timeline and bounded report PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
