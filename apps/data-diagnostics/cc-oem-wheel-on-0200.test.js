@@ -96,7 +96,7 @@ const origin=Date.parse('2026-11-27T18:00:00Z');
  assert.equal(late.stage,'not-ready-off');
  assert.equal(late.requestAttempted,false);
  assert.equal(readAttempts,0);
- assert.equal(commandCount,1);
+ assert.equal(commandCount,afterManual);
  let noNotifyReads=0;
  const silent=await run({...options,signals:{
   watch:async()=>({available:true,proxy:{getValue(){noNotifyReads++;throw Error('bad getter');}},
@@ -104,7 +104,7 @@ const origin=Date.parse('2026-11-27T18:00:00Z');
  assert.equal(silent.stage,'no-fresh-oem-state');
  assert.equal(silent.requestAttempted,false);
  assert.equal(noNotifyReads,0);
- assert.equal(commandCount,1);
+ assert.equal(commandCount,afterManual);
  assert.deepStrictEqual(state({heatingState:{heating:false,functionalityCoded:true,availability:true}}),
   {heating:false,coded:true,available:true});
  console.log('OEM manual ON: single request, fresh OFF, gate, BMW button, safe skip and history PASS');
