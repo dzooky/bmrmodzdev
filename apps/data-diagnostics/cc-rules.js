@@ -102,7 +102,7 @@ function waitForProvider(signals,p,item,timeoutMs){
   timer=setTimeout(()=>finish(false,'deadline'),timeoutMs);
   item.availabilityCallback=typeof signals.onAvailable==='function'?'requested':'unsupported';
   if(typeof signals.onAvailable==='function'){
-   Promise.resolve().then(()=>signals.onAvailable(p,a=>{if(done||typeof a!=='boolean')return;if(item.availabilityEvents.length<20)item.availabilityEvents.push({available:a,ms:Date.now()-started});if(a)finish(true,'callback');})).then(()=>{if(!done)item.availabilityCallback='registered';},e=>{if(!done){item.availabilityCallback='failed';item.availabilityError=proxyError(e);}});
+   Promise.resolve().then(()=>done?null:signals.onAvailable(p,a=>{if(done||typeof a!=='boolean')return;if(item.availabilityEvents.length<20)item.availabilityEvents.push({available:a,ms:Date.now()-started});if(a)finish(true,'callback');})).then(()=>{if(!done)item.availabilityCallback='registered';},e=>{if(!done){item.availabilityCallback='failed';item.availabilityError=proxyError(e);}});
   }
   check();if(!done)poll=setInterval(check,250);
  });
@@ -129,11 +129,10 @@ async function readProfile(signals,opts={}){
   const started=Date.now();
   const pending=Promise.resolve().then(()=>signals.proxyDiagnostic(PROFILE,'1',item.proxyStages={}));
   try{const handle=await bound(pending,4000);p=handle.proxy;item.proxyHandoff='received';}catch(e){item.proxyError=proxyError(e);pending.then(x=>x&&x.proxy&&x.proxy.shutdown&&x.proxy.shutdown()).catch(()=>{});throw e;}finally{item.proxyElapsedMs=Date.now()-started;}
-  item.providerAvailableBefore=null;
-  item.availabilityMethod=typeof p.isAvailable;
-  if(typeof p.isAvailable==='function'){
-   try{const a=await bound(Promise.resolve().then(()=>p.isAvailable()),1000);if(typeof a==='boolean')item.providerAvailableBefore=a;}catch(e){item.availabilityError=proxyError(e);}
-  }
+  item.getterAttempted=false;
+  item.status='provider-unavailable';
+  const available=await waitForProvider(signals,p,item,opts.availabilityTimeoutMs===undefined?10000:Math.max(1,Math.min(10000,opts.availabilityTimeoutMs)));
+  if(!available)return {report,localProfile};
   item.status='getter-failed';
   item.getterAttempted=true;
   const getterStarted=Date.now();
