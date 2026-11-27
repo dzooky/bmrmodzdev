@@ -136,7 +136,7 @@ mgu.run({start(ctx){
   }
   if(page===5&&!actuatorBusy&&!actuatorUploadBusy){
    if(x>=830&&x<=1500){
-    for(let i=0;i<4;i++){const y0=130+i*62;
+    for(let i=0;i<4;i++){const y0=170+i*58;
      if(y>=y0&&y<=y0+51){runCcActuator(Object.keys(ccActuation.CASES)[i]).catch(e=>ctx.log.warn(String(e)));return;}
     }
    }
