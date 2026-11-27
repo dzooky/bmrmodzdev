@@ -47,7 +47,7 @@ assert.ok(main.includes('ccResult.nativeFront=await nativeFront.run(ctx.signals,
 assert.ok(main.includes("const nativeFront=require('./cc-native-front');"));
 assert.ok(!main.includes("const nativeGear=require('./cc-native-gear');"));
 assert.ok(main.includes("stage:'unsupported-manifest-removed'"));
-assert.ok(!spec.signals['de.bmw.infrastructure.VehicleInformation']);
+assert.ok(spec.signals['de.bmw.infrastructure.VehicleInformation']);
 assert.ok(main.includes("word('Service TASU')"));
 assert.ok(main.includes('if(page===2)toggleBackgroundTest();'));
 assert.ok(main.includes("op:'showText'"));
