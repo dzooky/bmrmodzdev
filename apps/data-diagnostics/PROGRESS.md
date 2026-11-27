@@ -1,3 +1,7 @@
+## v0.2.13 — Profile proxy failure diagnostics (2026-11-27)
+- In-car evidence 0.2.12 installed, read and report succeeded, piaProfileId proxy-failed before getter; profile and climate rules UNKNOWN. CI 46076889302, 46076889266, 46076889295 passed, PR #179 merged.
+- Compared existing kit signals.proxy/watch initialization: both use serialized nativeTick, native buildProxy then init; retain same transport and instance. No evidence yet to change them. Add bounded redacted technical proxy error, known error code, native module presence, config schema keys and elapsed time. No getter payload/error text exported, no new permissions, no retry. CI and in-car diagnosis pending.
+
 ## v0.2.12 — Isolated BMW profile getter (2026-11-27)
 - In-car evidence 0.2.11 installed and report received; passive rollback works. 0.2.10 user reported UPDATE_FAILED, exact installer cause unknown. CI 46075688550, 46075688548, 46075688567 passed; PR #177 merged.
 - Authorized isolated test: only DriverSelectionModule.piaProfileId, instance 1, read permission. Explicit manual getter, catalog/config checks, stage status and bounded wait; no climate getters or setters. Display recognized scalar profile ID locally, never upload ID. Climate rule state remains UNKNOWN. CI pending; installation and actual profile access unverified. If update fails, restore passive manifest and do not retry.

@@ -83,6 +83,15 @@ function read(opts={}){
 }
 // Isolated, manually triggered profile getter. Never export the profile identifier.
 const PROFILE='de.bmw.infrastructure.DriverSelectionModule',FIELD='piaProfileId';
+// Error messages are only collected before the getter can return profile data.
+// Restrict output to known technical words and redact every other token.
+function proxyError(e){
+ const msg=String(e&&e.message||e||'').slice(0,512);
+ const known=/^(?:error|failed|failure|cannot|could|not|unable|to|build|building|create|initialize|initialization|init|proxy|someip|native|module|available|unavailable|instance|id|invalid|unknown|missing|interface|config|configuration|permission|denied|access|rejected|timeout|timed|out|service|provider|connection|connect|socket|address|already|exists|in|use|undefined|null|object|is|a|the|of|for|with|no|such|file|method|function|unsupported|argument|type|expected|internal|exception|eacces|eperm|enoent|einval|eaddrinuse|econnrefused|etimedout|enotconn|eagain|ebusy|de\.bmw\.infrastructure\.DriverSelectionModule|piaProfileId)$/i;
+ const detail=msg.replace(/[A-Za-z0-9_.@:/-]+/g,w=>known.test(w)?w:'[redacted]').replace(/[^A-Za-z0-9_.\[\] ,:;()'-]/g,' ').slice(0,240);
+ const code=String(e&&e.code||'');
+ return {detail,code:/^(EACCES|EPERM|ENOENT|EINVAL|EADDRINUSE|ECONNREFUSED|ETIMEDOUT|ENOTCONN|EAGAIN|EBUSY)$/.test(code)?code:null};
+}
 async function readProfile(signals,opts={}){
  const report=read(opts),item=report.samples[FIELD]={status:'not-started'};
  let localProfile=null,p,timer;
@@ -92,11 +101,16 @@ async function readProfile(signals,opts={}){
   const entry=catalog.interfaces&&catalog.interfaces[PROFILE],f=entry&&entry.fields&&entry.fields[FIELD];
   if(!f||f.getter==null||!Object.prototype.hasOwnProperty.call((catalog.instanceIDs||{})[PROFILE]||{},'1')){item.status='catalog-mismatch';return {report,localProfile};}
   if(!signals||typeof signals.loadConfig!=='function'||typeof signals.proxy!=='function'){item.status='runtime-unavailable';return {report,localProfile};}
-  let cfg;try{cfg=signals.loadConfig(PROFILE);}catch(_){item.status='config-unavailable';return {report,localProfile};}
+  let cfg;try{cfg=signals.loadConfig(PROFILE);}catch(e){item.configError=proxyError(e);item.status='config-unavailable';return {report,localProfile};}
   if(!cfg.fields||!cfg.fields[FIELD]||cfg.fields[FIELD].getter==null){item.status='config-no-getter';return {report,localProfile};}
   item.status='proxy-failed';
+  item.nativeAvailable=typeof signals.hasNative==='function'?signals.hasNative():null;
+  item.instance='1';
+  item.configKeys=Object.keys(cfg).filter(k=>/^[A-Za-z_][A-Za-z0-9_]{0,40}$/.test(k)).slice(0,24);
+  item.configInstanceKeys=Object.keys(cfg.instanceIDs||cfg.instances||{}).filter(k=>k==='1').slice(0,1);
+  const started=Date.now();
   const pending=Promise.resolve().then(()=>signals.proxy(PROFILE,'1'));
-  try{p=await bound(pending,4000);}catch(e){pending.then(x=>x&&x.shutdown&&x.shutdown()).catch(()=>{});throw e;}
+  try{p=await bound(pending,4000);}catch(e){item.proxyError=proxyError(e);pending.then(x=>x&&x.shutdown&&x.shutdown()).catch(()=>{});throw e;}finally{item.proxyElapsedMs=Date.now()-started;}
   item.status='getter-failed';
   const value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);
   const raw=value&&typeof value==='object'?value[FIELD]:value;
