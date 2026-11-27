@@ -38,7 +38,17 @@ async function captureGear(expected,signals,options){
  async function subscribe(iface,name,field,member){
   try{
    const handler={};handler[field]=v=>add(name,member,v);
-   const p=await signals.watch(iface,'1',handler,opts.log||{info(){},warn(){}});
+   // A missing BMW SOME/IP interface must not stall this bounded foreground test.
+   let timedOut=false;
+   const pending=Promise.resolve().then(()=>signals.watch(iface,'1',handler,opts.log||{info(){},warn(){}}));
+   const p=await Promise.race([pending,new Promise(resolve=>setTimeout(()=>{
+    timedOut=true;resolve(null);
+   },3000))]);
+   if(timedOut){
+    report.sources[name]='watch-timeout';report.errors.push(name+':subscription-timeout');
+    pending.then(late=>{if(late&&late.shutdown)return Promise.resolve(late.shutdown());}).catch(()=>{});
+    return;
+   }
    if(p&&p.error){report.sources[name]='watch-error';report.errors.push(name+':'+String(p.error).slice(0,65));
     if(p.shutdown)try{await Promise.resolve(p.shutdown());}catch(_){};return;}
    if(ended){if(p&&p.shutdown)try{await Promise.resolve(p.shutdown());}catch(_){};return;}
