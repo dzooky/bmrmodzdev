@@ -33,7 +33,7 @@ async function run(id,options){
  const out={id,source:'diagnostics-oap-native',toolActuationVerified:false,
   startedAt:new Date(now()).toISOString(),finishedAt:null,status:'FAIL',stage:'unstarted',
   before:null,after:null,restored:null,steps:[],error:null};
- function add(stage,fields){out.stage=stage;out.steps.push(Object.assign({at:new Date(now()).toISOString(),stage},fields||{}));}
+ function add(stage,fields){out.stage=stage;out.steps.push(Object.assign({at:new Date(now()).toISOString(),stage},fields||{}));if(typeof opts.onStep==='function')try{opts.onStep(stage);}catch(_){}}
  if(!spec){out.error='unknown-test-id';return out;}
  // Caller must confirm parking, equipment and a latched occupant belt on screen.
  // This is operator confirmation, NOT a verified transmission/speed read.
