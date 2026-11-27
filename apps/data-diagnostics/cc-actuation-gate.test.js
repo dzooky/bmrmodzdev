@@ -5,6 +5,12 @@ const assert=require('assert'),{check,decodeRear}=require('./cc-actuation-gate')
  const sample={ok:true,sampledAt:'2026-11-27T10:00:00.000Z',fields:{
   frontLeft:{valid:true,value:'latched'},frontRight:{valid:true,value:'unlatched'}}};
  assert.equal((await check('frontHeat',async()=>sample,at)).ok,true);
+ assert.equal((await check('wheelHeat',async()=>sample,at)).gearSourceVerified,false);
+ const withGear=Object.assign({},sample,{fields:Object.assign({},sample.fields,{gear:{valid:true,value:'D'}})});
+ assert.equal((await check('wheelHeat',async()=>withGear,at)).gearObservation,'D');
+ assert.equal((await check('wheelHeat',async()=>withGear,at)).gearSourceVerified,true);
+ const invalid=Object.assign({},sample,{fields:Object.assign({},sample.fields,{gear:{valid:true,value:'7'}})});
+ assert.equal((await check('wheelHeat',async()=>invalid,at)).gearSourceVerified,false);
  assert.equal((await check('frontVent',async()=>sample,at)).stage,'unlatched');
  assert.equal((await check('frontHeat',async()=>sample,()=>at()+10000)).stage,'front-sample-stale');
  const rear={ok:true,uds:[0x62,0x40,0x53,0,0,135,0,35]};
