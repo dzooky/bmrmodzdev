@@ -30,7 +30,7 @@ const errorText=e=>String(e&&e.message||e).replace(/[\r\n\t]/g,' ').slice(0,95);
 async function capture(signals,options){
  const opts=options||{},now=opts.now||Date.now,sleep=opts.pause||pause;
  const duration=Number.isInteger(opts.durationMs)?Math.max(500,Math.min(opts.durationMs,12000)):6000;
- const report={kind:'oemServices',at:new Date(now()).toISOString(),readOnly:true,stage:'unavailable',
+ const report={kind:'oemServices',at:new Date(now()).toISOString(),readOnly:true,engineOffProbe:opts.engineOffProbe===true,stage:'unavailable',
   services:{climate:{status:'unavailable',samples:{}},body:{status:'unavailable',samples:{}}},
   bdc:{status:'not-read',bytes:null,on:null,led:null,currentAmps:null,actuator:null,coded:null},
   errors:[],writeCount:0};

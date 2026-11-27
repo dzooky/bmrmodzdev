@@ -46,5 +46,18 @@ class Diag{
  assert.equal(missing.stage,'no-oem-sample');
  assert.equal(missing.bdc.status,'not-read');
  assert.equal(missing.services.body.status,'unavailable');
+ const noEngine=await probe.capture(signals,{Diag:false,engineOffProbe:true,now:()=>clock,
+  pause:async()=>{},durationMs:500});
+ assert.equal(noEngine.engineOffProbe,true);
+ assert.equal(noEngine.bdc.status,'not-read');
+ assert.equal(noEngine.services.body.status,'sample');
+ assert.equal(noEngine.services.body.samples.heatingState.value.heating,false);
+ const engineLog=create(path.join(os.tmpdir(),'cc-engine-off-'+process.pid+'.json'),{
+  readFileSync(){throw Error('missing');},
+  writeFileSync(_f,body){assert(JSON.parse(body).captures[0].engineOffProbe);},
+  renameSync(){}
+ });
+ engineLog.save(noEngine);
+ assert.equal(engineLog.snapshot().captures[0].engineOffProbe,true);
  console.log('OEM read-only service status, BDC reference, no writes and bounded report PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
