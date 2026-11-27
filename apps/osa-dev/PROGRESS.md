@@ -1,5 +1,11 @@
 # Oil Service Assistant DEV progress
 
+## 2026-11-27 — OSA DEV 0.2.71 B47 Engine diagnostic candidate
+- B47 tester reports an empty Engine screen; no B47 CDS diagnostics or ECU samples supplied yet. Root cause remains UNCONFIRMED. CDS engine and its public API have no B57-only identity gate for oil/coolant/RPM; Tool and B57 behavior are unchanged.
+- Added transition-only OSA-managed Data Tool log states per CDS/EGS scope: `ready`, named missing fields, or sanitized connection/demand/snapshot errors. No extra reads, changes to cache validity/lease timing, transport, DDE profiles, notifications, or production app.
+- Regression tests cover invalid CDS values, recovery and rejected demand. CI and B47 in-car verification pending. Tester should capture OSA logs for `OSA Data Tool cds:` and Data Diagnostics motor CDS results (oil, coolant, RPM) with engine running; determine actual failure before attempting a source/decoder change.
+
+
 ## 2026-11-25 — 0.2.64 foreground managed data
 - Data Tool 0.1.60 / Diagnostics 0.1.75 vehicle test: all six fields valid, including EGS 28 C; DPF reference and release PASS. RPM 0; dynamic engine-running values unverified.
 - Approved foreground-only migration, superseding background oil demand proposal. Two scoped sessions, renew every 5 s, cache snapshots, expiry handling, disconnect on hide, bounded reconnect. No native fallback, Background Tool integration or production OSA changes. Existing UI, notification preview/threshold and history retained; hidden demo path no longer provides simulated vehicle values. CI and vehicle retest pending.
