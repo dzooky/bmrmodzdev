@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.99",
+  "version": "0.2.00",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -85,8 +85,11 @@
       "statusAvailableSteeringWheelHeating": "s"
     },
     "de.bmw.body.steeringwheelcomfort.SteeringWheelClimate": {
-      "_optional": "Diagnostic-only read-only steering wheel body state. No methods.",
-      "heatingState": "s"
+      "_optional": "Manual double-confirm-only OEM wheel ON test; single requestHeating(true) after fresh OFF state and front seat belt gate",
+      "heatingState": "s",
+      "_methods": [
+        "requestHeating"
+      ]
     }
   },
   "requires": {
