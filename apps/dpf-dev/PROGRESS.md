@@ -75,3 +75,17 @@
 
 ## 2026-11-25 — 0.1.82 Background Registration
 - Move automatic B57 regeneration notifications to persistent BG state rule (REQUEST/MODE only). Requested, Started, In Progress every 60 s and Finished on active-to-idle; preserve colors and blink durations. All state samples must be valid; B47 remains unsupported for regeneration. Foreground Data Tool demand releases when hidden, manual preview retained. Unknown equipment does not erase an existing registration; confirmed unsupported or disabled unregisters. BG 0.1.5, Data 0.1.60, NT 0.2.1 required for this test package. Conditional dependencies and uninstall cleanup pending. CI and vehicle verification pending.
+
+## 2026-11-26 — local DPF welcome draft
+- First-launch simulator preview follows the OSA modal layout. Draft describes soot, ash, distance since regeneration and optional KOMBI alerts on supported B57 vehicles. Available in all 22 app languages.
+- Start with `bash preview/dpf-dev/run.sh` and open `http://127.0.0.1:8079/`. Select First install in the simulator sidebar to replay. Verified OK and replay in Edge, text fit and glyphs in all languages, and managed-data and localization tests with the isolated DEV kit.  No vehicle verification for this draft.
+
+## 2026-11-26 — local DPF update notice
+- Added the approved What's New layout from OSA to the DPF DEV preview. Lists automatic equipment check, background DPF regeneration monitoring and KOMBI alerts on supported B57 vehicles. Links readers to About for full details.
+- The emulator sidebar What's New scenario replays the notice. Verified all 22 languages with the MGU renderer, confirmed dismiss/replay in Edge, and passed DPF managed-data and translation tests with the isolated kit. Next is release version and install/upgrade persistence.
+- Added the translated pop-up preview milestone to About under 0.1.82. Verified on the Slovak About screen in Edge.
+
+## 2026-11-26 — DPF DEV 0.1.90
+- First launch shows the localized welcome. A legacy installation with saved settings or distance history can show the versioned What's New notice. Confirmations are stored in app settings. A legacy installation without retained app data is treated as fresh.
+- Added a native OK fallback for displays without app touch targets. Preview choices stay in the simulator sidebar. The DPF CJK translations fit the existing packaged atlas, so this release changes no shared build input or other app version.
+- Existing DPF data acquisition, regeneration and KOMBI behavior is unchanged. Real-MGU first launch, upgrade and hardware input remain unverified.

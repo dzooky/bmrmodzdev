@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert'),fs=require('fs');
 const app=require('./app.json'),source=fs.readFileSync(__dirname+'/main.js','utf8');
-assert.strictEqual(app.version,'0.1.82');
+assert.strictEqual(app.version,'0.1.90');
 assert.strictEqual(app.requires['bmrmodz-data-tool'],'0.1.60');
 assert.ok(!app.settings.some(s=>['experimentalDataTool','compareSoot'].includes(s.key)));
 assert.ok(!Object.keys(app.signals).some(k=>k.includes('InternalTasu')));

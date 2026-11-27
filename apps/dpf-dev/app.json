@@ -2,9 +2,23 @@
   "id": "dpf-dev",
   "title": "DPF Status DEV",
   "description": "Isolated development copy of BMW DPF Status. Not verified for simultaneous operation with stable DPF.",
-  "version": "0.1.82",
+  "version": "0.1.90",
   "config": {
-    "customSettings": true
+    "customSettings": true,
+    "previewEquipment": [
+      {
+        "key": "previewWelcome",
+        "label": "Pop-up scenario",
+        "type": "choice",
+        "hidden": true,
+        "default": "welcome",
+        "options": [
+          ["welcome", "First install"],
+          ["dashboard", "Dashboard"],
+          ["update", "What's New"]
+        ]
+      }
+    ]
   },
   "vendor": "custom",
   "loggingId": "DPFD",
@@ -18,6 +32,10 @@
         [
           "BTN_SETTINGS",
           "Settings"
+        ],
+        [
+          "BTN_NOTICE_OK",
+          "OK"
         ]
       ]
     }
