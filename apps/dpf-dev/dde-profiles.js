@@ -36,7 +36,7 @@ const profiles={
     averageFactor:1,
     regeneration:false,
     detail:[
-      ['PRESSURE',0x44F8,2,0.03051804,-664.397],
+      ['PRESSURE',0x44F8,2,1],
       ['TEMP',0x434A,2,0.1,-3276.7],
       ['RUNTIME',0x44B7,4,1],
       ['LOCK',0x44C2,1,1],
