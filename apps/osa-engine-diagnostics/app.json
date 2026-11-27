@@ -2,7 +2,7 @@
   "id": "osa-engine-diagnostics",
   "title": "OSA Engine Diagnostics",
   "description": "Read-only comparison of native BMW CDS and shared Data Tool engine signals",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "vendor": "custom",
   "loggingId": "OED1",
   "iconGlyph": "temp",
@@ -18,6 +18,10 @@
         [
           "BTN_TEST",
           "Run engine test"
+        ],
+        [
+          "BTN_SEND",
+          "Send report"
         ],
         [
           "BTN_PAGE",
@@ -54,5 +58,6 @@
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1",
     "bmrmodz-data-tool": "0.1.60"
-  }
+  },
+  "mguInternet": true
 }
