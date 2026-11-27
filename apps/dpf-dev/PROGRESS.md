@@ -1,5 +1,8 @@
 # DPF Status DEV progress
 
+## v0.1.92 — adaptive mass gauges (2026-11-27)
+- Implemented independent persistent soot and ash maxima, initially 50 g before the first positive valid sample; thereafter historical maximum plus 20% headroom rounded up to 5 g. Zero, invalid and lower readings do not reset records. Remove fixed 60/73/100 g colour zones; gauge range is not a DDE limit. About entry translated into all 22 languages. Data Tool contract and distance gauge unchanged. CI and in-car verification pending.
+
 ## v0.1.91 — experimental B47 Detail (2026-11-27)
 - Add B47 pressure DID 44F8 (raw hex until calibration is verified), temperature 434A, engine runtime 44B7, lock 44C2, and calculated soot 44C1 through managed Data Tool 0.1.74. Existing soot 44BE is labelled measured in B47 Detail based on tester reference screenshot; verify both labels and scaling in car. Lock semantics remain unknown; no B47 automatic regeneration alerts. B57 unchanged.
 - Temperature and calculated soot calibration candidates: raw 855A -> 137.1 C and 0B62 -> 29.14 g. Compare with independent reference; pressure raw 55ED corresponds to reference 6.958 mbar, insufficient to establish conversion. All new readings are experimental; CI and vehicle verification pending.

@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const translations = require('./translations');
 const required = [
+  'Adaptive soot and ash gauge scales',
   'Background regeneration notifications',
   'Supports B57 and B47 DDE with validated soot, ash and distances.',
   'Regeneration status and advanced detail are verified on B57 only.',

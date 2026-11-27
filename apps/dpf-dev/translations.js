@@ -165,7 +165,8 @@ module.exports = {
     "Soot mass (measured)": "Hmotnosť sadzí (meraná)",
     "Soot mass (calculated)": "Hmotnosť sadzí (vypočítaná)",
     "Experimental B47 Detail measurements": "Experimentálne merania B47",
-    "Differential pressure (raw)": "Diferenčný tlak (surová hodnota)"
+    "Differential pressure (raw)": "Diferenčný tlak (surová hodnota)",
+    "Adaptive soot and ash gauge scales": "Adaptívne stupnice sadzí a popola"
   },
   "cs": {
     "Welcome on first launch and notices after important updates": "Uvítání při prvním spuštění a oznámení po důležitých aktualizacích",
@@ -332,7 +333,8 @@ module.exports = {
     "Soot mass (measured)": "Hmotnost sazí (měřená)",
     "Soot mass (calculated)": "Hmotnost sazí (vypočtená)",
     "Experimental B47 Detail measurements": "Experimentální měření B47",
-    "Differential pressure (raw)": "Diferenční tlak (surová hodnota)"
+    "Differential pressure (raw)": "Diferenční tlak (surová hodnota)",
+    "Adaptive soot and ash gauge scales": "Adaptivní stupnice sazí a popela"
   },
   "de": {
     "Welcome on first launch and notices after important updates": "Begrüßung beim ersten Start und Hinweise nach wichtigen Updates",
@@ -499,7 +501,8 @@ module.exports = {
     "Soot mass (measured)": "Rußmasse (gemessen)",
     "Soot mass (calculated)": "Rußmasse (berechnet)",
     "Experimental B47 Detail measurements": "Experimentelle B47-Messwerte",
-    "Differential pressure (raw)": "Differenzdruck (Rohwert)"
+    "Differential pressure (raw)": "Differenzdruck (Rohwert)",
+    "Adaptive soot and ash gauge scales": "Adaptive Skalen für Ruß und Asche"
   },
   "es": {
     "Welcome on first launch and notices after important updates": "Bienvenida al primer inicio y avisos tras actualizaciones importantes",
@@ -666,7 +669,8 @@ module.exports = {
     "Soot mass (measured)": "Masa de hollín (medida)",
     "Soot mass (calculated)": "Masa de hollín (calculada)",
     "Experimental B47 Detail measurements": "Mediciones experimentales B47",
-    "Differential pressure (raw)": "Presión diferencial (valor bruto)"
+    "Differential pressure (raw)": "Presión diferencial (valor bruto)",
+    "Adaptive soot and ash gauge scales": "Escalas adaptativas de hollín y ceniza"
   },
   "fr": {
     "Welcome on first launch and notices after important updates": "Accueil au premier démarrage et avis après les mises à jour importantes",
@@ -833,7 +837,8 @@ module.exports = {
     "Soot mass (measured)": "Masse de suie (mesurée)",
     "Soot mass (calculated)": "Masse de suie (calculée)",
     "Experimental B47 Detail measurements": "Mesures expérimentales B47",
-    "Differential pressure (raw)": "Pression différentielle (valeur brute)"
+    "Differential pressure (raw)": "Pression différentielle (valeur brute)",
+    "Adaptive soot and ash gauge scales": "Échelles adaptatives de suie et de cendres"
   },
   "it": {
     "Welcome on first launch and notices after important updates": "Benvenuto al primo avvio e avvisi dopo gli aggiornamenti importanti",
@@ -1000,7 +1005,8 @@ module.exports = {
     "Soot mass (measured)": "Massa fuliggine (misurata)",
     "Soot mass (calculated)": "Massa fuliggine (calcolata)",
     "Experimental B47 Detail measurements": "Misurazioni sperimentali B47",
-    "Differential pressure (raw)": "Pressione differenziale (valore grezzo)"
+    "Differential pressure (raw)": "Pressione differenziale (valore grezzo)",
+    "Adaptive soot and ash gauge scales": "Scale adattive per fuliggine e cenere"
   },
   "hu": {
     "Welcome on first launch and notices after important updates": "Üdvözlés az első indításkor és értesítések fontos frissítések után",
@@ -1167,7 +1173,8 @@ module.exports = {
     "Soot mass (measured)": "Koromtömeg (mért)",
     "Soot mass (calculated)": "Koromtömeg (számított)",
     "Experimental B47 Detail measurements": "Kísérleti B47 mérések",
-    "Differential pressure (raw)": "Nyomáskülönbség (nyers érték)"
+    "Differential pressure (raw)": "Nyomáskülönbség (nyers érték)",
+    "Adaptive soot and ash gauge scales": "Adaptív korom- és hamuskálák"
   },
   "pl": {
     "Welcome on first launch and notices after important updates": "Powitanie przy pierwszym uruchomieniu i komunikaty po ważnych aktualizacjach",
@@ -1334,7 +1341,8 @@ module.exports = {
     "Soot mass (measured)": "Masa sadzy (zmierzona)",
     "Soot mass (calculated)": "Masa sadzy (obliczona)",
     "Experimental B47 Detail measurements": "Eksperymentalne pomiary B47",
-    "Differential pressure (raw)": "Różnica ciśnień (wartość surowa)"
+    "Differential pressure (raw)": "Różnica ciśnień (wartość surowa)",
+    "Adaptive soot and ash gauge scales": "Adaptacyjne skale sadzy i popiołu"
   },
   "ru": {
     "Welcome on first launch and notices after important updates": "Приветствие при первом запуске и уведомления после важных обновлений",
@@ -1501,7 +1509,8 @@ module.exports = {
     "Soot mass (measured)": "Масса сажи (измеренная)",
     "Soot mass (calculated)": "Масса сажи (расчётная)",
     "Experimental B47 Detail measurements": "Экспериментальные измерения B47",
-    "Differential pressure (raw)": "Перепад давления (сырое значение)"
+    "Differential pressure (raw)": "Перепад давления (сырое значение)",
+    "Adaptive soot and ash gauge scales": "Адаптивные шкалы сажи и золы"
   },
   "da": {
     "Welcome on first launch and notices after important updates": "Velkomst ved første start og beskeder efter vigtige opdateringer",
@@ -1668,7 +1677,8 @@ module.exports = {
     "Soot mass (measured)": "Sodmasse (målt)",
     "Soot mass (calculated)": "Sodmasse (beregnet)",
     "Experimental B47 Detail measurements": "Eksperimentelle B47-målinger",
-    "Differential pressure (raw)": "Differenstryk (råværdi)"
+    "Differential pressure (raw)": "Differenstryk (råværdi)",
+    "Adaptive soot and ash gauge scales": "Adaptive skalaer for sod og aske"
   },
   "el": {
     "Welcome on first launch and notices after important updates": "Καλωσόρισμα στην πρώτη εκκίνηση και ειδοποιήσεις μετά από σημαντικές ενημερώσεις",
@@ -1835,7 +1845,8 @@ module.exports = {
     "Soot mass (measured)": "Μάζα αιθάλης (μετρημένη)",
     "Soot mass (calculated)": "Μάζα αιθάλης (υπολογισμένη)",
     "Experimental B47 Detail measurements": "Πειραματικές μετρήσεις B47",
-    "Differential pressure (raw)": "Διαφορική πίεση (ακατέργαστη τιμή)"
+    "Differential pressure (raw)": "Διαφορική πίεση (ακατέργαστη τιμή)",
+    "Adaptive soot and ash gauge scales": "Προσαρμοστικές κλίμακες αιθάλης και τέφρας"
   },
   "zh-CN": {
     "Welcome on first launch and notices after important updates": "首次使用和重要更新时显示通知",
@@ -2002,7 +2013,8 @@ module.exports = {
     "Soot mass (measured)": "烟炱质量（测量值）",
     "Soot mass (calculated)": "烟炱质量（计算值）",
     "Experimental B47 Detail measurements": "B47 实验性测量",
-    "Differential pressure (raw)": "压差（原始值）"
+    "Differential pressure (raw)": "压差（原始值）",
+    "Adaptive soot and ash gauge scales": "烟炱和灰分自适应刻度"
   },
   "nl": {
     "Welcome on first launch and notices after important updates": "Welkomstbericht bij de eerste start en meldingen na belangrijke updates",
@@ -2169,7 +2181,8 @@ module.exports = {
     "Soot mass (measured)": "Roetmassa (gemeten)",
     "Soot mass (calculated)": "Roetmassa (berekend)",
     "Experimental B47 Detail measurements": "Experimentele B47-metingen",
-    "Differential pressure (raw)": "Drukverschil (ruwe waarde)"
+    "Differential pressure (raw)": "Drukverschil (ruwe waarde)",
+    "Adaptive soot and ash gauge scales": "Adaptieve schalen voor roet en as"
   },
   "nb": {
     "Welcome on first launch and notices after important updates": "Velkomst ved første oppstart og meldinger etter viktige oppdateringer",
@@ -2336,7 +2349,8 @@ module.exports = {
     "Soot mass (measured)": "Sotmasse (målt)",
     "Soot mass (calculated)": "Sotmasse (beregnet)",
     "Experimental B47 Detail measurements": "Eksperimentelle B47-målinger",
-    "Differential pressure (raw)": "Differansetrykk (råverdi)"
+    "Differential pressure (raw)": "Differansetrykk (råverdi)",
+    "Adaptive soot and ash gauge scales": "Adaptive skalaer for sot og aske"
   },
   "pt": {
     "Welcome on first launch and notices after important updates": "Boas-vindas no primeiro arranque e avisos após atualizações importantes",
@@ -2503,7 +2517,8 @@ module.exports = {
     "Soot mass (measured)": "Massa de fuligem (medida)",
     "Soot mass (calculated)": "Massa de fuligem (calculada)",
     "Experimental B47 Detail measurements": "Medições experimentais B47",
-    "Differential pressure (raw)": "Pressão diferencial (valor bruto)"
+    "Differential pressure (raw)": "Pressão diferencial (valor bruto)",
+    "Adaptive soot and ash gauge scales": "Escalas adaptativas de fuligem e cinzas"
   },
   "ro": {
     "Welcome on first launch and notices after important updates": "Mesaj de bun venit la prima pornire și notificări după actualizările importante",
@@ -2670,7 +2685,8 @@ module.exports = {
     "Soot mass (measured)": "Masă funingine (măsurată)",
     "Soot mass (calculated)": "Masă funingine (calculată)",
     "Experimental B47 Detail measurements": "Măsurători experimentale B47",
-    "Differential pressure (raw)": "Presiune diferențială (valoare brută)"
+    "Differential pressure (raw)": "Presiune diferențială (valoare brută)",
+    "Adaptive soot and ash gauge scales": "Scări adaptive pentru funingine și cenușă"
   },
   "sl": {
     "Welcome on first launch and notices after important updates": "Pozdrav ob prvem zagonu in obvestila po pomembnih posodobitvah",
@@ -2837,7 +2853,8 @@ module.exports = {
     "Soot mass (measured)": "Masa saj (izmerjena)",
     "Soot mass (calculated)": "Masa saj (izračunana)",
     "Experimental B47 Detail measurements": "Eksperimentalne meritve B47",
-    "Differential pressure (raw)": "Diferenčni tlak (surova vrednost)"
+    "Differential pressure (raw)": "Diferenčni tlak (surova vrednost)",
+    "Adaptive soot and ash gauge scales": "Prilagodljive lestvice saj in pepela"
   },
   "fi": {
     "Welcome on first launch and notices after important updates": "Tervetuloviesti ensimmäisellä käynnistyksellä ja ilmoitukset merkittävien päivitysten jälkeen",
@@ -3004,7 +3021,8 @@ module.exports = {
     "Soot mass (measured)": "Nokimassa (mitattu)",
     "Soot mass (calculated)": "Nokimassa (laskettu)",
     "Experimental B47 Detail measurements": "Kokeelliset B47-mittaukset",
-    "Differential pressure (raw)": "Paine-ero (raaka-arvo)"
+    "Differential pressure (raw)": "Paine-ero (raaka-arvo)",
+    "Adaptive soot and ash gauge scales": "Mukautuvat noki- ja tuhka-asteikot"
   },
   "sv": {
     "Welcome on first launch and notices after important updates": "Välkomstmeddelande vid första start och aviseringar efter viktiga uppdateringar",
@@ -3171,7 +3189,8 @@ module.exports = {
     "Soot mass (measured)": "Sotmassa (uppmätt)",
     "Soot mass (calculated)": "Sotmassa (beräknad)",
     "Experimental B47 Detail measurements": "Experimentella B47-mätningar",
-    "Differential pressure (raw)": "Differenstryck (råvärde)"
+    "Differential pressure (raw)": "Differenstryck (råvärde)",
+    "Adaptive soot and ash gauge scales": "Adaptiva skalor för sot och aska"
   },
   "tr": {
     "Welcome on first launch and notices after important updates": "İlk açılışta karşılama ve önemli güncellemelerden sonra bildirimler",
@@ -3338,7 +3357,8 @@ module.exports = {
     "Soot mass (measured)": "Kurum kütlesi (ölçülen)",
     "Soot mass (calculated)": "Kurum kütlesi (hesaplanan)",
     "Experimental B47 Detail measurements": "Deneysel B47 ölçümleri",
-    "Differential pressure (raw)": "Diferansiyel basınç (ham değer)"
+    "Differential pressure (raw)": "Diferansiyel basınç (ham değer)",
+    "Adaptive soot and ash gauge scales": "Uyarlanabilir kurum ve kül ölçekleri"
   },
   "uk": {
     "Welcome on first launch and notices after important updates": "Привітання під час першого запуску та сповіщення після важливих оновлень",
@@ -3505,6 +3525,7 @@ module.exports = {
     "Soot mass (measured)": "Маса сажі (виміряна)",
     "Soot mass (calculated)": "Маса сажі (розрахована)",
     "Experimental B47 Detail measurements": "Експериментальні вимірювання B47",
-    "Differential pressure (raw)": "Перепад тиску (сире значення)"
+    "Differential pressure (raw)": "Перепад тиску (сире значення)",
+    "Adaptive soot and ash gauge scales": "Адаптивні шкали сажі та золи"
   }
 };

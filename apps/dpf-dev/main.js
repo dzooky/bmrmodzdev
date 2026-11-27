@@ -26,6 +26,7 @@ mgu.run({
         ctx.hideButton('BTN_NOTICE_OK');
         const settingsCanvas = createSettingsCanvas(ctx.settings, ctx.spec.version, () => openPage('overview'));
         const distanceHistory = distanceRecord.create(ctx.dataDir, log);
+        const massHistory = distanceRecord.createMass(ctx.dataDir, log);
         const release = ctx.isPreview ? null : {
             version: ctx.spec.version,
             existing: fs.existsSync(ctx.settings.file) || fs.existsSync(path.join(ctx.dataDir, 'dpf-distance-record.json')),
@@ -246,6 +247,7 @@ mgu.run({
 
             const newsX = 1120;
             const milestones = [
+                ['0.1.92', 'Adaptive soot and ash gauge scales'],
                 ['0.1.91', 'Experimental B47 Detail measurements'],
                 ['0.1.90', 'Welcome on first launch and notices after important updates'],
                 ['0.1.82', 'Background regeneration notifications'],
@@ -394,15 +396,12 @@ mgu.run({
 
             function massGauge(key, label, x) {
                 const reading = readings[key];
+                const max = massHistory.scale(key);
                 G.segBar(cv, t, x, 44, columnWidth, gaugeHeight, {
                     label: translate(label), value: reading ? reading.value : null,
-                    unit: 'g', decimals: 2, min: 0, max: 100, step: 5,
-                    ramp: 'hot', limit: 100,
-                    zones: [
-                        { from: 60, to: 73.333333, color: 'warn' },
-                        { from: 73.333333, to: 100, color: 'crit' }
-                    ],
-                    scale: { every: 20 }
+                    unit: 'g', decimals: 2, min: 0, max, step: max / 20,
+                    ramp: 'hot', limit: max,
+                    scale: { every: max / 5 }
                 });
                 if (stale(key)) cv.text('STALE', x + 18, 110, 15, t.warn, { font: 'bold' });
             }
@@ -515,6 +514,7 @@ mgu.run({
                         if (!readings[key] || readings[key].at !== row.at) {
                             readings[key] = row;
                             if (key === 'SINCE') distanceHistory.observe(ddeProfiles.km(row, profile.distanceFactor));
+                            if (key === 'SOOT' || key === 'ASH') massHistory.observe(key, row.value);
                         }
                     }
                 } else if (result.error) log.warn('DPF Data Tool: ' + result.error);
