@@ -21,6 +21,10 @@ const assert=require('assert'),cc=require('./cc-test');
  assert.strictEqual(res.gearConfig.ok,true);
  const lines=cc.detailLines(res);
  assert(lines.some(x=>x.includes('Bundle: syntax-error')));
+ const after=cc.detailLines(Object.assign({},res,{beltRetest:{stage:'changed',sampledAt:'2026-11-27T09:00:05.000Z',
+  before:{frontLeft:'latched',frontRight:'unlatched'},after:{frontLeft:'unlatched',frontRight:'latched'}}}));
+ assert(after.some(x=>x.includes('Belt retest: changed')));
+ assert(after.some(x=>x.includes('Belt L: latched -> unlatched')));
  assert(lines.some(x=>x.includes('Tool OAP left: latched')));
  assert(lines.some(x=>x.includes('Service TASU: config-unauthorized')));
  assert(lines.some(x=>x.includes('frontLeft: not-received')));
