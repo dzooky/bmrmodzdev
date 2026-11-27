@@ -27,12 +27,14 @@ async function run(options){
   oemButton:'unknown',finishConfirmed:false,offConfirmed:false,cancelled:false,samples:[],bdc:null,errors:[],note:'Method may be fire-and-forget; request completion does not prove heating. OEM button and KOMBI are manually reported.'};
  const mark=(v)=>{out.stage=v;if(typeof o.onStage==='function')try{o.onStage(v);}catch(_){}};
  if(o.confirmed!==true||o.beltGate!==true||!o.signals||typeof o.signals.watch!=='function'||typeof o.signals.call!=='function'||typeof o.ask!=='function')return out;
- let sub=null,live=null,liveAt=0,ended=false;
+ let sub=null,live=null,liveAt=0,ended=false,onObservedAt=0,offObservedAt=0;
  const update=raw=>{
   if(ended)return;
   const s=state(raw);
   if(!s)return;
   live=s;liveAt=now();
+  if(out.requestAttempted&&s.heating===true)onObservedAt=liveAt;
+  if(onObservedAt>0&&s.heating===false)offObservedAt=liveAt;
   if(out.samples.length<28)out.samples.push({at:new Date(liveAt).toISOString(),
    elapsedMs:liveAt-Date.parse(out.startedAt),state:s});
  };
@@ -59,10 +61,10 @@ async function run(options){
  async function observeOff(){
   // After hardware-button OFF, only passive heatingState callbacks may prove OFF.
   for(let i=0;i<5;i++){
-   if(live&&live.heating===false&&liveAt>=out.buttonAt)return snapshot();
+   if(live&&live.heating===false&&offObservedAt>0)return snapshot();
    await delay(600);
   }
-  return live&&liveAt>=out.buttonAt?snapshot():null;
+  return live&&offObservedAt>0&&live.heating===false?snapshot():null;
  }
  async function bdc(){
   if(o.Diag===false)return null;
@@ -111,7 +113,6 @@ async function run(options){
   const press=await ask('press-oem-button',['pressed']);
   if(press==='cancelled'){cancelled();return out;}
   if(press==='pressed'){
-   out.buttonAt=now();
    out.oemButton=await ask('kombi-after-button',['activated','deactivated','none']);
    if(out.oemButton==='cancelled'){cancelled();return out;}
    out.afterButton=await observeOff();
