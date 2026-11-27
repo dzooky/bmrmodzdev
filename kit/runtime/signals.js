@@ -90,6 +90,45 @@ async function proxy(iface, instance) {
     return nativeTick(() => someip.buildProxy(cfg, String(instance)).then((p) => p.init().then(() => p)));
 }
 
+/** Opt-in diagnostics only: keep nativeTick and the original proxy lifecycle.
+ * Record return types, then normalize sync and async returns without retry.
+ * Existing proxy/watch callers are unchanged.
+ */
+async function proxyDiagnostic(iface, instance, trace) {
+    if (!someip) throw new Error('someip native module not available');
+    const cfg = loadConfig(iface);
+    return nativeTick(async () => {
+        let p;
+        try {
+            trace.stage = 'buildProxy';
+            trace.buildType = typeof someip.buildProxy;
+            if (trace.buildType !== 'function') throw new TypeError('someip.buildProxy is not a function');
+            const built = someip.buildProxy(cfg, String(instance));
+            trace.buildReturn = built === null ? 'null' : typeof built;
+            trace.buildThen = built == null ? 'undefined' : typeof built.then;
+            trace.stage = 'buildResolve';
+            p = await Promise.resolve(built);
+            trace.stage = 'init';
+            trace.initType = p == null ? 'undefined' : typeof p.init;
+            if (trace.initType !== 'function') throw new TypeError('p.init is not a function');
+            const initialized = p.init();
+            trace.initReturn = initialized === null ? 'null' : typeof initialized;
+            trace.initThen = initialized == null ? 'undefined' : typeof initialized.then;
+            trace.stage = 'initResolve';
+            await Promise.resolve(initialized);
+            trace.getValueType = typeof p.getValue;
+            trace.shutdownType = typeof p.shutdown;
+            trace.stage = 'ready';
+            return p;
+        } catch (e) {
+            if (p && typeof p.shutdown === 'function') {
+                try { await Promise.resolve(p.shutdown()); } catch (_) {}
+            }
+            throw e;
+        }
+    });
+}
+
 /** Call a method on a proxy from proxy(); params = the method's argument struct. */
 function call(p, method, params, timeoutMs) {
     return nativeTick(() => p.callMethod(method, params || {}, timeoutMs || 5000));
@@ -116,4 +155,4 @@ function onAvailable(p, fn) {
         .then(() => { if (p.isAvailable && p.isAvailable()) fn(true); });
 }
 
-module.exports = { watch, proxy, call, set, on, onAvailable, loadConfig, hasNative: () => !!someip };
+module.exports = { watch, proxy, proxyDiagnostic, call, set, on, onAvailable, loadConfig, hasNative: () => !!someip };
