@@ -161,7 +161,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Ďalšie preklady a úprava veľkosti textu v Detail",
     "Language selection aligned with OSA": "Výber jazyka zjednotený s OSA",
     "Language handling now uses the OSA controller": "Správa jazykov teraz používa riešenie z OSA",
-    "Correct Settings text after repeated page renders": "Správny text v Settings aj po opakovanom vykreslení"
+    "Correct Settings text after repeated page renders": "Správny text v Settings aj po opakovanom vykreslení",
+    "Soot mass (measured)": "Hmotnosť sadzí (meraná)",
+    "Soot mass (calculated)": "Hmotnosť sadzí (vypočítaná)",
+    "Experimental B47 Detail measurements": "Experimentálne merania B47",
+    "Differential pressure (raw)": "Diferenčný tlak (surová hodnota)"
   },
   "cs": {
     "Welcome on first launch and notices after important updates": "Uvítání při prvním spuštění a oznámení po důležitých aktualizacích",
@@ -324,7 +328,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Další překlady a úprava velikosti textu v Detail",
     "Language selection aligned with OSA": "Výběr jazyka sjednocen s OSA",
     "Language handling now uses the OSA controller": "Správa jazyků nyní používá řešení z OSA",
-    "Correct Settings text after repeated page renders": "Správný text v Nastavení i po opakovaném vykreslení"
+    "Correct Settings text after repeated page renders": "Správný text v Nastavení i po opakovaném vykreslení",
+    "Soot mass (measured)": "Hmotnost sazí (měřená)",
+    "Soot mass (calculated)": "Hmotnost sazí (vypočtená)",
+    "Experimental B47 Detail measurements": "Experimentální měření B47",
+    "Differential pressure (raw)": "Diferenční tlak (surová hodnota)"
   },
   "de": {
     "Welcome on first launch and notices after important updates": "Begrüßung beim ersten Start und Hinweise nach wichtigen Updates",
@@ -487,7 +495,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Weitere Übersetzungen und Schriftgröße in Detail",
     "Language selection aligned with OSA": "Sprachauswahl an OSA angeglichen",
     "Language handling now uses the OSA controller": "Sprachverwaltung verwendet nun die OSA-Steuerung",
-    "Correct Settings text after repeated page renders": "Korrekte Schrift in Einstellungen nach wiederholtem Rendern"
+    "Correct Settings text after repeated page renders": "Korrekte Schrift in Einstellungen nach wiederholtem Rendern",
+    "Soot mass (measured)": "Rußmasse (gemessen)",
+    "Soot mass (calculated)": "Rußmasse (berechnet)",
+    "Experimental B47 Detail measurements": "Experimentelle B47-Messwerte",
+    "Differential pressure (raw)": "Differenzdruck (Rohwert)"
   },
   "es": {
     "Welcome on first launch and notices after important updates": "Bienvenida al primer inicio y avisos tras actualizaciones importantes",
@@ -650,7 +662,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Más traducciones y tamaño de texto en Detalle",
     "Language selection aligned with OSA": "Selección de idioma igualada a OSA",
     "Language handling now uses the OSA controller": "La gestión de idiomas ahora utiliza el controlador de OSA",
-    "Correct Settings text after repeated page renders": "Texto correcto en Ajustes tras renderizados repetidos"
+    "Correct Settings text after repeated page renders": "Texto correcto en Ajustes tras renderizados repetidos",
+    "Soot mass (measured)": "Masa de hollín (medida)",
+    "Soot mass (calculated)": "Masa de hollín (calculada)",
+    "Experimental B47 Detail measurements": "Mediciones experimentales B47",
+    "Differential pressure (raw)": "Presión diferencial (valor bruto)"
   },
   "fr": {
     "Welcome on first launch and notices after important updates": "Accueil au premier démarrage et avis après les mises à jour importantes",
@@ -813,7 +829,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Traductions supplémentaires et taille du texte Détail",
     "Language selection aligned with OSA": "Sélection de langue alignée sur OSA",
     "Language handling now uses the OSA controller": "La gestion des langues utilise désormais le contrôleur OSA",
-    "Correct Settings text after repeated page renders": "Texte correct dans les paramètres après plusieurs affichages"
+    "Correct Settings text after repeated page renders": "Texte correct dans les paramètres après plusieurs affichages",
+    "Soot mass (measured)": "Masse de suie (mesurée)",
+    "Soot mass (calculated)": "Masse de suie (calculée)",
+    "Experimental B47 Detail measurements": "Mesures expérimentales B47",
+    "Differential pressure (raw)": "Pression différentielle (valeur brute)"
   },
   "it": {
     "Welcome on first launch and notices after important updates": "Benvenuto al primo avvio e avvisi dopo gli aggiornamenti importanti",
@@ -976,7 +996,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Altre traduzioni e dimensione del testo Dettagli",
     "Language selection aligned with OSA": "Selezione lingua allineata a OSA",
     "Language handling now uses the OSA controller": "La gestione delle lingue ora usa il controller OSA",
-    "Correct Settings text after repeated page renders": "Testo corretto nelle Impostazioni dopo più ridisegni"
+    "Correct Settings text after repeated page renders": "Testo corretto nelle Impostazioni dopo più ridisegni",
+    "Soot mass (measured)": "Massa fuliggine (misurata)",
+    "Soot mass (calculated)": "Massa fuliggine (calcolata)",
+    "Experimental B47 Detail measurements": "Misurazioni sperimentali B47",
+    "Differential pressure (raw)": "Pressione differenziale (valore grezzo)"
   },
   "hu": {
     "Welcome on first launch and notices after important updates": "Üdvözlés az első indításkor és értesítések fontos frissítések után",
@@ -1139,7 +1163,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "További fordítások és a részletek betűmérete",
     "Language selection aligned with OSA": "Nyelvválasztás az OSA-val egységesítve",
     "Language handling now uses the OSA controller": "A nyelvkezelés most az OSA vezérlőjét használja",
-    "Correct Settings text after repeated page renders": "Helyes szöveg a Beállításokban ismételt megjelenítés után"
+    "Correct Settings text after repeated page renders": "Helyes szöveg a Beállításokban ismételt megjelenítés után",
+    "Soot mass (measured)": "Koromtömeg (mért)",
+    "Soot mass (calculated)": "Koromtömeg (számított)",
+    "Experimental B47 Detail measurements": "Kísérleti B47 mérések",
+    "Differential pressure (raw)": "Nyomáskülönbség (nyers érték)"
   },
   "pl": {
     "Welcome on first launch and notices after important updates": "Powitanie przy pierwszym uruchomieniu i komunikaty po ważnych aktualizacjach",
@@ -1302,7 +1330,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Dodatkowe tłumaczenia i wielkość tekstu w Szczegółach",
     "Language selection aligned with OSA": "Wybór języka ujednolicony z OSA",
     "Language handling now uses the OSA controller": "Obsługa języków korzysta teraz z kontrolera OSA",
-    "Correct Settings text after repeated page renders": "Poprawny tekst w Ustawieniach po wielokrotnym renderowaniu"
+    "Correct Settings text after repeated page renders": "Poprawny tekst w Ustawieniach po wielokrotnym renderowaniu",
+    "Soot mass (measured)": "Masa sadzy (zmierzona)",
+    "Soot mass (calculated)": "Masa sadzy (obliczona)",
+    "Experimental B47 Detail measurements": "Eksperymentalne pomiary B47",
+    "Differential pressure (raw)": "Różnica ciśnień (wartość surowa)"
   },
   "ru": {
     "Welcome on first launch and notices after important updates": "Приветствие при первом запуске и уведомления после важных обновлений",
@@ -1465,7 +1497,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Дополнительные переводы и размер текста в деталях",
     "Language selection aligned with OSA": "Выбор языка приведён к OSA",
     "Language handling now uses the OSA controller": "Управление языками теперь использует контроллер OSA",
-    "Correct Settings text after repeated page renders": "Правильный текст настроек после повторной отрисовки"
+    "Correct Settings text after repeated page renders": "Правильный текст настроек после повторной отрисовки",
+    "Soot mass (measured)": "Масса сажи (измеренная)",
+    "Soot mass (calculated)": "Масса сажи (расчётная)",
+    "Experimental B47 Detail measurements": "Экспериментальные измерения B47",
+    "Differential pressure (raw)": "Перепад давления (сырое значение)"
   },
   "da": {
     "Welcome on first launch and notices after important updates": "Velkomst ved første start og beskeder efter vigtige opdateringer",
@@ -1628,7 +1664,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Flere oversættelser og tekststørrelse i Detaljer",
     "Language selection aligned with OSA": "Sprogvalg tilpasset OSA",
     "Language handling now uses the OSA controller": "Sproghåndtering bruger nu OSA-styringen",
-    "Correct Settings text after repeated page renders": "Korrekt tekst i Indstillinger efter gentagen visning"
+    "Correct Settings text after repeated page renders": "Korrekt tekst i Indstillinger efter gentagen visning",
+    "Soot mass (measured)": "Sodmasse (målt)",
+    "Soot mass (calculated)": "Sodmasse (beregnet)",
+    "Experimental B47 Detail measurements": "Eksperimentelle B47-målinger",
+    "Differential pressure (raw)": "Differenstryk (råværdi)"
   },
   "el": {
     "Welcome on first launch and notices after important updates": "Καλωσόρισμα στην πρώτη εκκίνηση και ειδοποιήσεις μετά από σημαντικές ενημερώσεις",
@@ -1791,7 +1831,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Επιπλέον μεταφράσεις και μέγεθος κειμένου Λεπτομερειών",
     "Language selection aligned with OSA": "Επιλογή γλώσσας εναρμονισμένη με το OSA",
     "Language handling now uses the OSA controller": "Η διαχείριση γλωσσών χρησιμοποιεί πλέον τον ελεγκτή OSA",
-    "Correct Settings text after repeated page renders": "Σωστό κείμενο Ρυθμίσεων μετά από επαναλαμβανόμενη απόδοση"
+    "Correct Settings text after repeated page renders": "Σωστό κείμενο Ρυθμίσεων μετά από επαναλαμβανόμενη απόδοση",
+    "Soot mass (measured)": "Μάζα αιθάλης (μετρημένη)",
+    "Soot mass (calculated)": "Μάζα αιθάλης (υπολογισμένη)",
+    "Experimental B47 Detail measurements": "Πειραματικές μετρήσεις B47",
+    "Differential pressure (raw)": "Διαφορική πίεση (ακατέργαστη τιμή)"
   },
   "zh-CN": {
     "Welcome on first launch and notices after important updates": "首次使用和重要更新时显示通知",
@@ -1954,7 +1998,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "补充翻译并调整详细信息文字大小",
     "Language selection aligned with OSA": "语言选择与 OSA 保持一致",
     "Language handling now uses the OSA controller": "语言处理现在使用 OSA 控制器",
-    "Correct Settings text after repeated page renders": "重复绘制后设置文字仍正确显示"
+    "Correct Settings text after repeated page renders": "重复绘制后设置文字仍正确显示",
+    "Soot mass (measured)": "烟炱质量（测量值）",
+    "Soot mass (calculated)": "烟炱质量（计算值）",
+    "Experimental B47 Detail measurements": "B47 实验性测量",
+    "Differential pressure (raw)": "压差（原始值）"
   },
   "nl": {
     "Welcome on first launch and notices after important updates": "Welkomstbericht bij de eerste start en meldingen na belangrijke updates",
@@ -2117,7 +2165,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Extra vertalingen en tekstgrootte in Details",
     "Language selection aligned with OSA": "Taalkeuze gelijkgetrokken met OSA",
     "Language handling now uses the OSA controller": "Taalbeheer gebruikt nu de OSA-controller",
-    "Correct Settings text after repeated page renders": "Correcte tekst in Instellingen na herhaald weergeven"
+    "Correct Settings text after repeated page renders": "Correcte tekst in Instellingen na herhaald weergeven",
+    "Soot mass (measured)": "Roetmassa (gemeten)",
+    "Soot mass (calculated)": "Roetmassa (berekend)",
+    "Experimental B47 Detail measurements": "Experimentele B47-metingen",
+    "Differential pressure (raw)": "Drukverschil (ruwe waarde)"
   },
   "nb": {
     "Welcome on first launch and notices after important updates": "Velkomst ved første oppstart og meldinger etter viktige oppdateringer",
@@ -2280,7 +2332,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Flere oversettelser og tekststørrelse i Detaljer",
     "Language selection aligned with OSA": "Språkvalg tilpasset OSA",
     "Language handling now uses the OSA controller": "Språkhåndteringen bruker nå OSA-kontrolleren",
-    "Correct Settings text after repeated page renders": "Riktig tekst i Innstillinger etter gjentatt visning"
+    "Correct Settings text after repeated page renders": "Riktig tekst i Innstillinger etter gjentatt visning",
+    "Soot mass (measured)": "Sotmasse (målt)",
+    "Soot mass (calculated)": "Sotmasse (beregnet)",
+    "Experimental B47 Detail measurements": "Eksperimentelle B47-målinger",
+    "Differential pressure (raw)": "Differansetrykk (råverdi)"
   },
   "pt": {
     "Welcome on first launch and notices after important updates": "Boas-vindas no primeiro arranque e avisos após atualizações importantes",
@@ -2443,7 +2499,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Mais traduções e tamanho do texto em Detalhes",
     "Language selection aligned with OSA": "Seleção de idioma alinhada com OSA",
     "Language handling now uses the OSA controller": "A gestão de idiomas agora usa o controlador OSA",
-    "Correct Settings text after repeated page renders": "Texto correto nas Definições após várias renderizações"
+    "Correct Settings text after repeated page renders": "Texto correto nas Definições após várias renderizações",
+    "Soot mass (measured)": "Massa de fuligem (medida)",
+    "Soot mass (calculated)": "Massa de fuligem (calculada)",
+    "Experimental B47 Detail measurements": "Medições experimentais B47",
+    "Differential pressure (raw)": "Pressão diferencial (valor bruto)"
   },
   "ro": {
     "Welcome on first launch and notices after important updates": "Mesaj de bun venit la prima pornire și notificări după actualizările importante",
@@ -2606,7 +2666,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Traduceri suplimentare și dimensiunea textului în Detalii",
     "Language selection aligned with OSA": "Selectarea limbii aliniată cu OSA",
     "Language handling now uses the OSA controller": "Gestionarea limbii folosește acum controlerul OSA",
-    "Correct Settings text after repeated page renders": "Text corect în Setări după afișări repetate"
+    "Correct Settings text after repeated page renders": "Text corect în Setări după afișări repetate",
+    "Soot mass (measured)": "Masă funingine (măsurată)",
+    "Soot mass (calculated)": "Masă funingine (calculată)",
+    "Experimental B47 Detail measurements": "Măsurători experimentale B47",
+    "Differential pressure (raw)": "Presiune diferențială (valoare brută)"
   },
   "sl": {
     "Welcome on first launch and notices after important updates": "Pozdrav ob prvem zagonu in obvestila po pomembnih posodobitvah",
@@ -2769,7 +2833,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Dodatni prevodi in velikost besedila v Podrobnostih",
     "Language selection aligned with OSA": "Izbira jezika usklajena z OSA",
     "Language handling now uses the OSA controller": "Upravljanje jezikov zdaj uporablja krmilnik OSA",
-    "Correct Settings text after repeated page renders": "Pravilno besedilo v Nastavitvah po več prikazih"
+    "Correct Settings text after repeated page renders": "Pravilno besedilo v Nastavitvah po več prikazih",
+    "Soot mass (measured)": "Masa saj (izmerjena)",
+    "Soot mass (calculated)": "Masa saj (izračunana)",
+    "Experimental B47 Detail measurements": "Eksperimentalne meritve B47",
+    "Differential pressure (raw)": "Diferenčni tlak (surova vrednost)"
   },
   "fi": {
     "Welcome on first launch and notices after important updates": "Tervetuloviesti ensimmäisellä käynnistyksellä ja ilmoitukset merkittävien päivitysten jälkeen",
@@ -2932,7 +3000,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Lisää käännöksiä ja tietonäkymän tekstikoko",
     "Language selection aligned with OSA": "Kielivalinta yhdenmukaistettu OSA:n kanssa",
     "Language handling now uses the OSA controller": "Kielenhallinta käyttää nyt OSA-ohjainta",
-    "Correct Settings text after repeated page renders": "Asetusten teksti pysyy oikeana toistuvassa piirrossa"
+    "Correct Settings text after repeated page renders": "Asetusten teksti pysyy oikeana toistuvassa piirrossa",
+    "Soot mass (measured)": "Nokimassa (mitattu)",
+    "Soot mass (calculated)": "Nokimassa (laskettu)",
+    "Experimental B47 Detail measurements": "Kokeelliset B47-mittaukset",
+    "Differential pressure (raw)": "Paine-ero (raaka-arvo)"
   },
   "sv": {
     "Welcome on first launch and notices after important updates": "Välkomstmeddelande vid första start och aviseringar efter viktiga uppdateringar",
@@ -3095,7 +3167,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Fler översättningar och textstorlek i Detaljer",
     "Language selection aligned with OSA": "Språkval anpassat till OSA",
     "Language handling now uses the OSA controller": "Språkhanteringen använder nu OSA-styrenheten",
-    "Correct Settings text after repeated page renders": "Korrekt text i Inställningar efter upprepad rendering"
+    "Correct Settings text after repeated page renders": "Korrekt text i Inställningar efter upprepad rendering",
+    "Soot mass (measured)": "Sotmassa (uppmätt)",
+    "Soot mass (calculated)": "Sotmassa (beräknad)",
+    "Experimental B47 Detail measurements": "Experimentella B47-mätningar",
+    "Differential pressure (raw)": "Differenstryck (råvärde)"
   },
   "tr": {
     "Welcome on first launch and notices after important updates": "İlk açılışta karşılama ve önemli güncellemelerden sonra bildirimler",
@@ -3258,7 +3334,11 @@ module.exports = {
     "Additional translations and Detail text sizing": "Ek çeviriler ve Ayrıntılar metin boyutu",
     "Language selection aligned with OSA": "Dil seçimi OSA ile uyumlu",
     "Language handling now uses the OSA controller": "Dil yönetimi artık OSA denetleyicisini kullanıyor",
-    "Correct Settings text after repeated page renders": "Tekrarlanan çizimlerden sonra Ayarlar metni doğru"
+    "Correct Settings text after repeated page renders": "Tekrarlanan çizimlerden sonra Ayarlar metni doğru",
+    "Soot mass (measured)": "Kurum kütlesi (ölçülen)",
+    "Soot mass (calculated)": "Kurum kütlesi (hesaplanan)",
+    "Experimental B47 Detail measurements": "Deneysel B47 ölçümleri",
+    "Differential pressure (raw)": "Diferansiyel basınç (ham değer)"
   },
   "uk": {
     "Welcome on first launch and notices after important updates": "Привітання під час першого запуску та сповіщення після важливих оновлень",
@@ -3421,6 +3501,10 @@ module.exports = {
     "Additional translations and Detail text sizing": "Додаткові переклади та розмір тексту в деталях",
     "Language selection aligned with OSA": "Вибір мови узгоджено з OSA",
     "Language handling now uses the OSA controller": "Керування мовами тепер використовує контролер OSA",
-    "Correct Settings text after repeated page renders": "Правильний текст налаштувань після повторного відображення"
+    "Correct Settings text after repeated page renders": "Правильний текст налаштувань після повторного відображення",
+    "Soot mass (measured)": "Маса сажі (виміряна)",
+    "Soot mass (calculated)": "Маса сажі (розрахована)",
+    "Experimental B47 Detail measurements": "Експериментальні вимірювання B47",
+    "Differential pressure (raw)": "Перепад тиску (сире значення)"
   }
 };
