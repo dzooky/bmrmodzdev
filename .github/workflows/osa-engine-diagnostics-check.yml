@@ -18,5 +18,8 @@ jobs:
           node --check apps/osa-engine-diagnostics/main.js
           node --check apps/osa-engine-diagnostics/measure.js
           node apps/osa-engine-diagnostics/measure.test.js
+          node apps/osa-engine-diagnostics/send-report.test.js
+          node --check apps/osa-engine-diagnostics/send-report.js
+          node --check apps/osa-engine-diagnostics/upload.js
       - name: Build offline install preview
         run: python3 kit/tools/build.py --preview-only osa-engine-diagnostics
