@@ -4,9 +4,13 @@ const {catalogs,t}=require('./translations'),spec=require('./app.json');
 assert.deepStrictEqual(Object.keys(catalogs),['en']);
 assert.deepStrictEqual(spec.settings.find(s=>s.key==='language').options.map(a=>a[0]),['en']);
 for(const [key,value] of Object.entries(catalogs.en))assert.ok(typeof value==='string'&&value.trim(),key);
-assert.deepStrictEqual(Object.keys(spec.signals),['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']);
+assert.deepStrictEqual(Object.keys(spec.signals),[
+ 'com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu',
+ 'de.bmw.infrastructure.analytics.BasicDataSet','de.bmw.infotainment.misc.MDrive']);
+assert.strictEqual(spec.signals['de.bmw.infrastructure.analytics.BasicDataSet'].basicDataSet,'s');
+assert.strictEqual(spec.signals['de.bmw.infotainment.misc.MDrive'].dataDisplayGearbox,'s');
 assert.deepStrictEqual(spec.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.strictEqual(spec.version,'0.1.93');
+assert.strictEqual(spec.version,'0.1.94');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.73');
 assert.strictEqual(spec.mguInternet,true);
 assert.strictEqual(spec.requires['data-native-provider'],'0.1.1');
@@ -16,14 +20,17 @@ assert.ok(require('fs').readFileSync(require('path').join(__dirname,'main.js'),'
 assert.deepStrictEqual(spec.screens[0].buttons.map(b=>b[0]),['BTN_BT','BTN_NT']);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 assert.ok(main.includes('rpmRetest.run(client.request)'));
-assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare']"));
-for(const key of ['CC Compare','Manual captures','Capturing','Wheel OFF: capture','OEM wheel ON: capture','Gear P: capture','Gear D: capture','Not captured','Send comparison report','CC Controls','Manual test only','Steering wheel heating','Arm test','Confirm action','Send detailed report','Report sent','Wheel is warm','No heating felt','Physical feedback','D signal','not verified; not a test gate'])assert.ok(catalogs.en[key],key);
+assert.ok(main.includes("const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare','CC Sources']"));
+for(const key of ['CC Sources','Read-only source tests','Wheel OEM 45s trace','Observe gear P','Observe gear D','Wheel: start OFF, OEM ON at 5s, OFF at 35s','Gear: keep brake pressed; observe only','No ECU writes or automatic gear actuation','Send source report','CC Compare','Manual captures','Capturing','Wheel OFF: capture','OEM wheel ON: capture','Gear P: capture','Gear D: capture','Not captured','Send comparison report','CC Controls','Manual test only','Steering wheel heating','Arm test','Confirm action','Send detailed report','Report sent','Wheel is warm','No heating felt','Physical feedback','D signal','not verified; not a test gate'])assert.ok(catalogs.en[key],key);
 assert.ok(main.includes('ccActuationGate.check(id,client.request)'));
 assert.ok(main.includes('ccActuation.run(id,{confirmed:true'));
 assert.ok(main.includes('actuatorReport.envelope()'));
 assert.ok(main.includes('ccCompare.gearCapture(kind,client.request)'));
 assert.ok(main.includes('ccCompare.wheelCapture(kind,{signals:ctx.signals'));
 assert.ok(main.includes('comparison.envelope()'));
+assert.ok(main.includes('sourceProbe.captureWheel(ctx.signals)'));
+assert.ok(main.includes("sourceProbe.captureGear(kind==='gearD'?'D':'P',ctx.signals"));
+assert.ok(main.includes('sourceReport.envelope()'));
 assert.ok(main.includes("runCcActuator('wheelHeat')"));
 assert.ok(!main.includes('runCcActuator(Object.keys(ccActuation.CASES)'));
 assert.ok(main.includes("actuatorReport.feedback('heat-felt')"));

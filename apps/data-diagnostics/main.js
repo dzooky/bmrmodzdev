@@ -10,8 +10,9 @@ const nativeFront=require('./cc-native-front');
 const ccActuation=require('./cc-actuation'),ccActuationGate=require('./cc-actuation-gate');
 const ccActuationReport=require('./cc-actuation-report'),upload=require('./upload').upload;
 const ccCompare=require('./cc-compare'),ccCompareReport=require('./cc-compare-report');
+const sourceProbe=require('./cc-source-probe-094'),sourceProbeReport=require('./cc-source-probe-report-094');
 const W=1600,H=520;
-const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare'];
+const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare','CC Sources'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -26,6 +27,8 @@ mgu.run({start(ctx){
  const actuatorReport=ccActuationReport.create(require('path').join(ctx.dataDir,'cc-wheel-test-092.json'));
  const comparison=ccCompareReport.create(require('path').join(ctx.dataDir,'cc-compare-093.json'));
  let compareBusy=false,compareUploadBusy=false,compareMessage='',compareDetails=0;
+ const sourceReport=sourceProbeReport.create(require('path').join(ctx.dataDir,'cc-probe-094.json'));
+ let sourceBusy=false,sourceUploadBusy=false,sourceMessage='',sourceDetails=0,sourceProgress='';
  let actuatorBusy=false,actuatorArmed=null,actuatorArmUntil=0,actuatorDetails=0,actuatorStage='';
  let actuatorUploadBusy=false,actuatorUploadMessage='';
  const word=key=>t(ctx.settings.get('language')||'en',key);
@@ -128,6 +131,26 @@ mgu.run({start(ctx){
   }catch(e){actuatorUploadMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
   finally{actuatorUploadBusy=false;}
  }
+ async function captureSources(kind){
+  if(sourceBusy||sourceUploadBusy||!['wheelTrace','gearP','gearD'].includes(kind))return;
+  sourceBusy=true;sourceMessage=word('Capturing');sourceProgress=kind;
+  try{
+   const r=kind==='wheelTrace'?
+    await sourceProbe.captureWheel(ctx.signals):
+    await sourceProbe.captureGear(kind==='gearD'?'D':'P',ctx.signals,{log:ctx.log});
+   sourceReport.save(r);sourceMessage=kind+': '+r.stage;
+   sourceDetails=0;
+  }catch(e){sourceMessage=word('FAIL')+': '+String(e.message||e).slice(0,65);}
+  finally{sourceBusy=false;sourceProgress='';}
+ }
+ async function uploadSources(){
+  if(sourceBusy||sourceUploadBusy||!sourceReport.snapshot().captures.length)return;
+  sourceUploadBusy=true;sourceMessage=word('Sending');
+  try{const r=await upload(sourceReport.envelope(),ctx.dataDir);
+   sourceMessage=word('Report sent')+': '+r.id;
+  }catch(e){sourceMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
+  finally{sourceUploadBusy=false;}
+ }
  async function captureComparison(kind){
   if(compareBusy||compareUploadBusy||!ccCompare.FIELDS.includes(kind))return;
   compareBusy=true;compareMessage=word('Capturing');
@@ -157,6 +180,23 @@ mgu.run({start(ctx){
  ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
  ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
  ctx.onTap((x,y)=>{
+  if(page===7){
+   if(x>=1100&&x<=1510&&y>=55&&y<=110){
+    sourceDetails=(sourceDetails+1)%(Math.ceil(sourceReport.lines().length/6)+1);return;
+   }
+   if(sourceBusy||sourceUploadBusy)return;
+   if(y>=150&&y<=242){
+    if(x>=90&&x<=740){captureSources('wheelTrace').catch(e=>log.warn(String(e)));return;}
+    if(x>=850&&x<=1500){captureSources('gearP').catch(e=>log.warn(String(e)));return;}
+   }
+   if(x>=850&&x<=1500&&y>=260&&y<=340){
+    captureSources('gearD').catch(e=>log.warn(String(e)));return;
+   }
+   if(x>=520&&x<=1080&&y>=390&&y<=455){
+    uploadSources().catch(e=>log.warn(String(e)));return;
+   }
+   return;
+  }
   if(page===6){
    if(x>=1100&&x<=1510&&y>=55&&y<=110){
     compareDetails=(compareDetails+1)%(Math.ceil(comparison.lines().length/6)+1);return;
@@ -208,7 +248,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.93');
+  header(cv,theme,'Info','0.1.94');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -368,6 +408,31 @@ mgu.run({start(ctx){
   label(cv,word('Send comparison report'),800,430,23,theme.text,{align:'center',font:'bold'});
   if(compareMessage)label(cv,compareMessage,800,483,17,theme.dim,{align:'center'});
  }
+ function drawCcSources(cv,theme){
+  const summary=sourceReport.snapshot(),busy=sourceBusy||sourceUploadBusy;
+  header(cv,theme,'CC Sources',word(busy?'Running':'Read-only source tests'));
+  cv.roundRect(1100,58,265,50,8,theme.track);
+  label(cv,'Details '+sourceDetails+'/'+Math.ceil(sourceReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
+  if(sourceDetails){
+   const lines=sourceReport.lines(),start=(sourceDetails-1)*6;
+   lines.slice(start,start+6).forEach((line,i)=>label(cv,line,68,153+i*38,16,theme.text));
+  }else{
+   const items=[['wheelTrace','Wheel OEM 45s trace',90,150,650],
+    ['gearP','Observe gear P',850,150,650],['gearD','Observe gear D',850,260,650]];
+   items.forEach(item=>{
+    const r=summary.captures.find(v=>v.kind===item[0]);
+    cv.roundRect(item[2],item[3],item[4],80,10,busy?theme.track:theme.accent2);
+    label(cv,word(item[1]),item[2]+item[4]/2,item[3]+30,21,theme.text,{align:'center',font:'bold'});
+    label(cv,r?r.stage:word('Not captured'),item[2]+item[4]/2,item[3]+58,15,theme.text,{align:'center'});
+   });
+   label(cv,word('Wheel: start OFF, OEM ON at 5s, OFF at 35s'),418,255,16,theme.warn,{align:'center'});
+   label(cv,word('Gear: keep brake pressed; observe only'),420,318,17,theme.warn,{align:'center'});
+   label(cv,word('No ECU writes or automatic gear actuation'),800,366,16,theme.dim,{align:'center'});
+  }
+  cv.roundRect(520,390,560,65,10,busy?theme.track:theme.accent2);
+  label(cv,word('Send source report'),800,430,23,theme.text,{align:'center',font:'bold'});
+  if(sourceMessage)label(cv,sourceMessage,800,483,17,theme.dim,{align:'center'});
+ }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
   if(page===0)drawInfo(cv,theme);
@@ -377,6 +442,7 @@ mgu.run({start(ctx){
   if(page===4)drawCC(cv,theme);
   if(page===5)drawCcControls(cv,theme);
   if(page===6)drawCcCompare(cv,theme);
+  if(page===7)drawCcSources(cv,theme);
   G.frame(cv,theme,pages.map(word),page,[]);
   return ui.image('MAIN_GFX',cv);
  }
