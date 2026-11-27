@@ -577,7 +577,7 @@ def build(app_id, language='en', preview_only=False):
         package_fonts = os.path.join(src, 'javascript', 'kit', 'fonts')
         shutil.copy(os.path.join(fonts_dir, 'spritmonitor-cjk.json'), os.path.join(package_fonts, 'cjk.json'))
         shutil.copy(os.path.join(fonts_dir, 'OFL-NotoSansSC.txt'), package_fonts)
-    if app_id in ('dpf', 'dpf-dev', 'data-native-provider'):
+    if app_id in ('dpf', 'dpf-dev') or app_id == 'data-native-provider':
         shutil.copy(os.path.join(KIT, 'localization', 'fonts', 'dpf-cjk.json'),
                     os.path.join(src, 'javascript', 'kit', 'fonts', 'cjk.json'))
     if app_id in ('osa', 'osa-dev'):
