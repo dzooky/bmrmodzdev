@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.98",
+  "version": "0.1.99",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -14,16 +14,7 @@
       "name": "MAIN",
       "kind": "canvas",
       "title": "Data Tool Diagnostics",
-      "buttons": [
-        [
-          "BTN_BT",
-          "Start / stop BT test"
-        ],
-        [
-          "BTN_NT",
-          "Test notification"
-        ]
-      ]
+      "buttons": []
     }
   ],
   "settings": [
@@ -87,6 +78,15 @@
     "de.bmw.infotainment.misc.MDrive": {
       "_optional": "Diagnostic-only read-only gearbox display program candidate",
       "dataDisplayGearbox": "s"
+    },
+    "de.bmw.infotainment.climate.climatemaster.ClimateMaster": {
+      "_optional": "Diagnostic-only read-only OEM wheel status. No setters or methods.",
+      "statusSteeringWheelHeating": "s",
+      "statusAvailableSteeringWheelHeating": "s"
+    },
+    "de.bmw.body.steeringwheelcomfort.SteeringWheelClimate": {
+      "_optional": "Diagnostic-only read-only steering wheel body state. No methods.",
+      "heatingState": "s"
     }
   },
   "requires": {
