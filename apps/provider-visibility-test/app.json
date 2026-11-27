@@ -2,7 +2,7 @@
   "id": "provider-visibility-test",
   "title": "Data Provider Visibility Test",
   "description": "Passive experimental OAP background visibility probe",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "vendor": "custom",
   "loggingId": "DVT1",
   "iconGlyph": "temp",
@@ -31,5 +31,6 @@
   },
   "requires": {},
   "mguInternet": false,
-  "oapVisibility": "BACKGROUND"
+  "oapVisibility": "BACKGROUND",
+  "oapEntryPointLoadingEnabled": false
 }

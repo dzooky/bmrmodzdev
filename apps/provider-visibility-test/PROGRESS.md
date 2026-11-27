@@ -1,3 +1,12 @@
+# Provider visibility test 0.1.1
+- Implemented: disable SDK entryPointLoadingEnabled for this test app only; retain BACKGROUND, autostart, RHMI loading, app identity and passive startup probe. Existing provider unchanged. SDK may stop loading the JS entrypoint; actual startup and visibility remain unknown.
+- Automated checks: preview assertions added; pending execution.
+- In-car: not verified. Update existing test app, inspect menu visibility; no engine start required.
+
+## 0.1.0 vehicle result (2026-11-27)
+- Installation PASS; app remained visible among iDrive apps (visibility FAIL). Autostart and effective native permissions not verified.
+- CI: five PR #173 checks passed, merged to main.
+
 # Provider visibility test 0.1.0
 - Implemented: isolated OAP package with experimental BACKGROUND visibility and autostart; same TASU manifest declaration as the provider. No ECU reads, proxy initialization, commands, socket or shared data changes. Passive startup log and private report record native module and generated configuration presence only.
 - Automated checks: preview workflow added; pending execution.
