@@ -31,7 +31,7 @@ assert.ok(main.includes('ccCompare.gearCapture(kind,client.request)'));
 assert.ok(main.includes('ccCompare.wheelCapture(kind,{signals:ctx.signals'));
 assert.ok(main.includes('comparison.envelope()'));
 assert.ok(main.includes('sourceProbe.captureGuidedWheel(ctx.signals'));
-assert.ok(main.includes("vehicleGear.capture(kind==='gearD'?'D':'P',ctx.signals"));
+assert.ok(main.includes("vehicleGear.capture(kind==='gearD'?'D':kind==='gearR'?'R':'P',ctx.signals"));
 assert.ok(main.includes('actuatorReport.kombi(v)'));
 assert.ok(main.includes('sourceReport.envelope()'));
 assert.ok(main.includes("runCcActuator('wheelHeat')"));
