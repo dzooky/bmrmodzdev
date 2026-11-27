@@ -43,8 +43,16 @@ function detailLines(x){
  const fmt=v=>v===true?'yes':v===false?'no':'?';
  const val=v=>String(v===undefined||v===null?'—':v).replace(/[\r\n\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
- const retest=x&&x.beltRetest;
+ const retest=x&&x.beltRetest,gearRetest=x&&x.gearRetest;
  const details=[
+  ...(gearRetest?[
+   'Gear test: '+val(gearRetest.stage)+' / selector='+val(gearRetest.selector),
+   'Gear exact: '+val(gearRetest.exactStatus)+' / matches='+val(gearRetest.exactMatches),
+   'Gear fields: Gearbox='+fmt(gearRetest.fields&&gearRetest.fields.statusGearboxDrive)+' PowerTrain2='+fmt(gearRetest.fields&&gearRetest.fields.DataPowerTrain2)+' instance1='+fmt(gearRetest.instance1),
+   'Gear ACL: registered='+fmt(gearRetest.aclRegistered)+' staged='+fmt(gearRetest.aclStaged)+' / live='+fmt(gearRetest.availabilityVerified),
+   'Gear alternatives (catalog only): '+val(JSON.stringify(gearRetest.alternatives||[]).slice(0,200)),
+   'Gear errors: '+val((gearRetest.errors||[]).join('; ')||'none')
+  ]:[]),
   ...(retest?[
    'Belt retest: '+val(retest.stage)+' / new sample='+val(retest.sampledAt),
    'Belt L: '+val(retest.before&&retest.before.frontLeft)+' -> '+val(retest.after&&retest.after.frontLeft),
