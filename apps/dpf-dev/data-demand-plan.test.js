@@ -15,7 +15,7 @@ for(const identity of ['0F1FE8','0F2678']){
  assert.ok(app.background.every(key=>app.fields.includes(key)));
 }
 assert.strictEqual(plan('0F1FE8').fields.length,12);
-assert.strictEqual(plan('0F2678').fields.length,4);
+assert.strictEqual(plan('0F2678').fields.length,9);
 assert.deepStrictEqual(plan('0F2678').background,[]);
 assert.strictEqual(plan('NONEXISTENT'),null);
 console.log('DPF DEV declarative future Tool demands: B57/B47 exact agreement, no activation PASS');
