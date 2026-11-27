@@ -43,8 +43,15 @@ function detailLines(x){
  const fmt=v=>v===true?'yes':v===false?'no':'?';
  const val=v=>String(v===undefined||v===null?'—':v).replace(/[\r\n\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
- const retest=x&&x.beltRetest,gearRetest=x&&x.gearRetest;
+ const retest=x&&x.beltRetest,gearRetest=x&&x.gearRetest,rpmRetest=x&&x.rpmRetest;
  const details=[
+  ...(rpmRetest?[
+   'RPM test: '+val(rpmRetest.stage)+' / rpm='+val(rpmRetest.rpm)+' / raw='+val(rpmRetest.raw),
+   'RPM CDS: ready='+fmt(rpmRetest.workerReady)+' running='+fmt(rpmRetest.workerRunning)+' samples='+val(rpmRetest.samples),
+   'RPM freshness: ageMs='+val(rpmRetest.ageMs)+' / min='+val(rpmRetest.minRpm)+' max='+val(rpmRetest.maxRpm),
+   'RPM source: '+val(rpmRetest.source)+' / leaseReleased='+fmt(rpmRetest.released),
+   'RPM errors: '+val(rpmRetest.workerError||rpmRetest.error||'none')
+  ]:[]),
   ...(gearRetest?[
    'Gear test: '+val(gearRetest.stage)+' / selector='+val(gearRetest.selector),
    'Gear exact: '+val(gearRetest.exactStatus)+' / matches='+val(gearRetest.exactMatches),

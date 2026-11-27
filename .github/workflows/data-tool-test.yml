@@ -59,6 +59,7 @@ jobs:
           node --check apps/data-native-provider/gear.js
           node --check apps/data-diagnostics/cc-belt-retest.js
           node --check apps/data-diagnostics/cc-gear-retest.js
+          node --check apps/data-diagnostics/cc-rpm-retest.js
           node --check apps/data-diagnostics/cc-native-front.js
           node --check apps/data-diagnostics/cc-native-gear.js
           node --check apps/data-diagnostics/cache-probe.js
@@ -132,6 +133,7 @@ jobs:
           node tools/data-tool/cc-feasibility.test.js
           node apps/data-diagnostics/cc-belt-retest.test.js
           node apps/data-diagnostics/cc-gear-retest.test.js
+          node apps/data-diagnostics/cc-rpm-retest.test.js
           node apps/data-diagnostics/cc-test.test.js
           node apps/data-diagnostics/cc-native-front.test.js
           node apps/data-diagnostics/cc-native-gear.test.js
