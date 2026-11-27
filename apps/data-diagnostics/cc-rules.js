@@ -64,12 +64,12 @@ function capabilities(io=fs){
  const result={};
  try{
   const st=io.statSync(CATALOG);if(!st.isFile()||st.size>20*1024*1024)throw Error('catalog');
-  const i=JSON.parse(io.readFileSync(CATALOG,'utf8')).interfaces||{};
-  for(const [name,field] of targets){
+  const catalog=JSON.parse(io.readFileSync(CATALOG,'utf8')),i=catalog.interfaces||{};
+  for(const [name,field] of targets.concat([['de.bmw.infrastructure.DriverSelectionModule','piaProfileId'],['de.bmw.infotainment.personalization.SessionManager','currentUserAccountReference']])){
    const entry=i[name]||{},f=(entry.fields||entry.attributes||entry.properties||{})[field];
    const safeKeys=o=>o&&typeof o==='object'?Object.keys(o).filter(k=>/^[a-zA-Z0-9_.:-]{1,100}$/.test(k)).slice(0,30):[];
-   const instances=entry.instances||entry.instanceMap||entry.availableInstances;
-   result[field]={present:!!f,keys:safeKeys(f),getter:!!(f&&f.getter),notifier:!!(f&&f.notifier),setter:!!(f&&f.setter),instances:safeKeys(instances),status:'metadata-only'};
+   const instances=(catalog.instanceIDs||{})[name]||entry.instances||entry.instanceMap||entry.availableInstances;
+   result[field]={present:!!f,keys:safeKeys(f),getter:!!f&&f.getter!=null,notifier:!!f&&f.notifier!=null,setter:!!f&&f.setter!=null,instances:safeKeys(instances),status:'metadata-only'};
   }
  }catch(_){}
  return result;
@@ -81,4 +81,31 @@ function read(opts={}){
  out.capabilities=capabilities(io);
  return out;
 }
-module.exports={inspect,capture,keys,read,shape,profiles,targets,capabilities};
+// Only installer-declared configs; no subscriptions, methods or setters.
+const profileTarget=['de.bmw.infrastructure.DriverSelectionModule','piaProfileId'];
+async function sample(signals,declared,opts={}){
+ const out=read(opts),allowed=targets.concat([profileTarget]);
+ let localProfile=null;
+ for(const [iface,field] of allowed){
+  const item=out.samples[field]={status:'not-declared',value:null};
+  const d=(Array.isArray(declared)?declared:[]).find(x=>x&&x.interface===iface&&x.field===field);
+  if(!d||typeof d.instance!=='string'||!d.instance)continue;
+  let proxy,timer;
+  const bound=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('timeout')),ms);})]).finally(()=>clearTimeout(timer));
+  try{
+   const pending=Promise.resolve().then(()=>signals.proxy(iface,d.instance));
+   try{proxy=await bound(pending,4000);}catch(e){pending.then(p=>p&&p.shutdown&&p.shutdown()).catch(()=>{});throw e;}
+   const value=await bound(Promise.resolve().then(()=>proxy.getValue(field,2500)),3500);
+   if(field==='piaProfileId'){
+    // Keep actual ID only in memory on the head unit. Never include it in reports.
+    const raw=value&&typeof value==='object'?value.piaProfileId:value;
+    if((typeof raw==='string'&&raw.length>0&&raw.length<=128)||(Number.isSafeInteger(raw)&&raw>=0)){
+     localProfile=String(raw);out.profile.status='sample';item.status='sample';
+    }else item.status='unrecognized-shape';
+   }else{item.value=shape(value);item.status=value==null?'empty':'sample';}
+  }catch(e){item.status=e&&e.message==='timeout'?'timeout':'read-failed';}
+  finally{if(proxy&&proxy.shutdown)try{await bound(Promise.resolve().then(()=>proxy.shutdown()),1500);}catch(_){}}
+ }
+ return {report:out,localProfile};
+}
+module.exports={inspect,capture,keys,read,shape,profiles,targets,capabilities,sample};
