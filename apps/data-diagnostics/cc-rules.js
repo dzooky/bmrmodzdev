@@ -92,6 +92,21 @@ function proxyError(e){
  const code=String(e&&e.code||'');
  return {detail,code:/^(EACCES|EPERM|ENOENT|EINVAL|EADDRINUSE|ECONNREFUSED|ETIMEDOUT|ENOTCONN|EAGAIN|EBUSY)$/.test(code)?code:null};
 }
+// Availability observation only; no field subscription or getter retry.
+function waitForProvider(signals,p,item,timeoutMs){
+ return new Promise(resolve=>{
+  const started=Date.now();let done=false,timer,poll;
+  item.availabilityEvents=[];item.providerAvailableBefore=null;item.availabilityMethod=typeof p.isAvailable;
+  const finish=(available,reason)=>{if(done)return;done=true;clearTimeout(timer);clearInterval(poll);item.availabilityWaitMs=Date.now()-started;item.availabilityResult=reason;resolve(available);};
+  const check=()=>{if(done||typeof p.isAvailable!=='function')return;try{const a=p.isAvailable();if(typeof a==='boolean'){if(item.providerAvailableBefore===null)item.providerAvailableBefore=a;if(a)finish(true,'isAvailable');}}catch(e){item.availabilityError=proxyError(e);}};
+  timer=setTimeout(()=>finish(false,'deadline'),timeoutMs);
+  item.availabilityCallback=typeof signals.onAvailable==='function'?'requested':'unsupported';
+  if(typeof signals.onAvailable==='function'){
+   Promise.resolve().then(()=>signals.onAvailable(p,a=>{if(done||typeof a!=='boolean')return;if(item.availabilityEvents.length<20)item.availabilityEvents.push({available:a,ms:Date.now()-started});if(a)finish(true,'callback');})).then(()=>{if(!done)item.availabilityCallback='registered';},e=>{if(!done){item.availabilityCallback='failed';item.availabilityError=proxyError(e);}});
+  }
+  check();if(!done)poll=setInterval(check,250);
+ });
+}
 async function readProfile(signals,opts={}){
  const report=read(opts),item=report.samples[FIELD]={status:'not-started'};
  let localProfile=null,p;
