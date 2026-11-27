@@ -210,8 +210,10 @@ mgu.run({start(ctx){
   }catch(e){record={kind:'oemWheelOn',startedAt:new Date().toISOString(),finishedAt:new Date().toISOString(),
    status:'FAIL',stage:'exception',errors:[String(e.message||e)],samples:[]};}
   finally{
-   if(record)try{oemOnReport.save(record);oemOnMessage=record.status+' / '+record.stage;}
-    catch(e){oemOnMessage='Report save failed: '+String(e.message||e).slice(0,50);}
+   if(record)try{
+    oemOnReport.save(record);
+    oemOnMessage=record.status+' / '+record.stage;
+   }catch(e){oemOnMessage='Report save failed: '+String(e.message||e).slice(0,50);}
    oemOnBusy=false;oemOnPrompt='';oemOnResponder=null;oemOnDetails=0;
   }
  }
@@ -672,8 +674,12 @@ mgu.run({start(ctx){
    }else{
     cv.roundRect(520,240,560,80,10,busy?theme.track:theme.accent2);
     label(cv,Date.now()<oemOnArmedUntil?word('Confirm action'):word('Start OEM ON test'),800,290,21,theme.text,{align:'center',font:'bold'});
-    if(latest)label(cv,latest.status+' / '+latest.stage,800,345,17,theme.dim,{align:'center'});
-    label(cv,word('Recorded attempts')+': '+list.length+'/4',800,373,16,theme.dim,{align:'center'});
+    if(latest){
+     const failed=latest.status==='SKIP'||latest.status==='FAIL'||latest.status==='PARTIAL';
+     label(cv,word(failed?'Test stopped – no confirmed activation':'Last OEM test result'),800,344,20,
+      failed?theme.warn:theme.text,{align:'center',font:'bold'});
+     label(cv,latest.status+' / '+latest.stage,800,369,18,failed?theme.warn:theme.dim,{align:'center'});
+    }else label(cv,word('Recorded attempts')+': '+list.length+'/4',800,366,16,theme.dim,{align:'center'});
    }
   }
   const footer=[['Read-only OEM source test',90],['Send OEM source report',580],['Send OEM ON report',1070]];
@@ -681,7 +687,8 @@ mgu.run({start(ctx){
    cv.roundRect(item[1],390,440,75,10,busy?theme.track:theme.accent2);
    label(cv,word(item[0]),item[1]+220,435,17,theme.text,{align:'center',font:'bold'});
   }
-  if(oemOnMessage||oemStage)label(cv,oemOnMessage||oemStage,800,487,15,theme.dim,{align:'center'});
+  if(oemOnMessage||oemOnStage)
+   label(cv,String(oemOnMessage||oemOnStage).slice(0,90),800,486,16,theme.text,{align:'center'});
  }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
