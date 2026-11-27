@@ -2,7 +2,7 @@
   "id": "dpf-dev",
   "title": "DPF Status DEV",
   "description": "Isolated development copy of BMW DPF Status. Not verified for simultaneous operation with stable DPF.",
-  "version": "0.1.91",
+  "version": "0.1.92",
   "config": {
     "customSettings": true,
     "previewEquipment": [
