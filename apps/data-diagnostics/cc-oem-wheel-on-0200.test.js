@@ -4,19 +4,19 @@ const {run,state,BODY}=require('./cc-oem-wheel-on-0200');
 const {create}=require('./cc-oem-wheel-on-report-0200');
 const origin=Date.parse('2026-11-27T18:00:00Z');
 (async()=>{
- let t=origin,heating=false,commandCount=0,shutdownCount=0,btnCount=0;
- const sub={available:true,proxy:{async getValue(field){
-  assert.equal(field,'heatingState');return {heatingState:{heating,functionalityCoded:true,availability:true}};
- }},shutdown(){shutdownCount++;}};
+ let t=origin,heating=false,commandCount=0,shutdownCount=0,btnCount=0,notify=null;
+ const sub={available:true,proxy:{},shutdown(){shutdownCount++;}};
  const signals={
   async watch(iface,instance,handlers){
    assert.equal(iface,BODY);assert.equal(instance,'1');
-   handlers.heatingState({heating:false,functionalityCoded:true,availability:true});return sub;
+   notify=handlers.heatingState;
+   notify({heating,functionalityCoded:true,availability:true});return sub;
   },
   async call(proxy,name,args,timeout){
    assert.equal(proxy,sub.proxy);assert.equal(name,'requestHeating');
    assert.deepStrictEqual(args,{requestor:[0,0,0,0,0],heating:true});
    assert.equal(timeout,3000);commandCount++;heating=true;
+   notify({heating,functionalityCoded:true,availability:true});
   }
  };
  const options={confirmed:true,beltGate:true,signals,Diag:false,now:()=>t,
@@ -24,7 +24,8 @@ const origin=Date.parse('2026-11-27T18:00:00Z');
   ask:async phase=>{
    if(phase==='kombi-on')return 'activated';
    if(phase==='physical-heat')return 'warm';
-   if(phase==='press-oem-button'){btnCount++;heating=false;return 'pressed';}
+   if(phase==='press-oem-button'){btnCount++;heating=false;
+    notify({heating,functionalityCoded:true,availability:true});return 'pressed';}
    if(phase==='kombi-after-button')return 'deactivated';
   }};
  const good=await run(options);
@@ -52,6 +53,31 @@ const origin=Date.parse('2026-11-27T18:00:00Z');
  const noSample=await run({...options,signals:{
   watch:async()=>({available:true,proxy:{},shutdown(){}}),call:signals.call}});
  assert.equal(noSample.stage,'no-fresh-oem-state');assert.equal(commandCount,1);
+ // A subscription without an immediate field value must wait for passive
+ // notification; unsupported get:heatingState must never be attempted.
+ let delayedHandler=null,waitTicks=0,readAttempts=0;
+ const lateSignals={
+  watch:async (_,__,handlers)=>{delayedHandler=handlers.heatingState;
+   return {available:true,proxy:{getValue(){readAttempts++;throw Error('unsupported get');}},
+    shutdown(){}};},
+  call:signals.call
+ };
+ const late=await run({...options,signals:lateSignals,
+  delay:async ms=>{t+=ms;waitTicks++;if(waitTicks===2)delayedHandler({
+   heating:true,functionalityCoded:true,availability:true
+  });}});
+ assert.equal(late.stage,'not-ready-off');
+ assert.equal(late.requestAttempted,false);
+ assert.equal(readAttempts,0);
+ assert.equal(commandCount,1);
+ let noNotifyReads=0;
+ const silent=await run({...options,signals:{
+  watch:async()=>({available:true,proxy:{getValue(){noNotifyReads++;throw Error('bad getter');}},
+   shutdown(){}}),call:signals.call}});
+ assert.equal(silent.stage,'no-fresh-oem-state');
+ assert.equal(silent.requestAttempted,false);
+ assert.equal(noNotifyReads,0);
+ assert.equal(commandCount,1);
  assert.deepStrictEqual(state({heatingState:{heating:false,functionalityCoded:true,availability:true}}),
   {heating:false,coded:true,available:true});
  console.log('OEM manual ON: single request, fresh OFF, gate, BMW button, safe skip and history PASS');
