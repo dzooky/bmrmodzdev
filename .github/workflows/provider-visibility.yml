@@ -21,6 +21,6 @@ jobs:
               assert d['mguAppStartType'] == 'autostart'
               cfg = json.loads((p.parent/'config/base.json').read_text())
               assert cfg['entryPointLoadingEnabled'] == (app != 'provider-visibility-test')
-              assert cfg['rhmiLoadingEnabled'] is True
+              assert cfg['rhmiLoadingEnabled'] == (app != 'provider-visibility-test')
               assert json.loads(p.with_name('manifest.json').read_text())
           PY
