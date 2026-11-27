@@ -1,5 +1,9 @@
 # DPF Status DEV progress
 
+## v0.1.91 — experimental B47 Detail (2026-11-27)
+- Add B47 pressure DID 44F8 (raw hex until calibration is verified), temperature 434A, engine runtime 44B7, lock 44C2, and calculated soot 44C1 through managed Data Tool 0.1.74. Existing soot 44BE is labelled measured in B47 Detail based on tester reference screenshot; verify both labels and scaling in car. Lock semantics remain unknown; no B47 automatic regeneration alerts. B57 unchanged.
+- Temperature and calculated soot calibration candidates: raw 855A -> 137.1 C and 0B62 -> 29.14 g. Compare with independent reference; pressure raw 55ED corresponds to reference 6.958 mbar, insufficient to establish conversion. All new readings are experimental; CI and vehicle verification pending.
+
 ## 2026-11-25 — DEV release candidate DPF 0.1.81 / Tool 0.1.56
 - PR #89 merged ae90e029, both CI PASS. DPF 0.1.80 initially no data in either mode and competing app also no data; diagnostic mode restored communication. B57 managed Overview and Detail populated, temperature updated with engine running to 80 C. User switched screens; intermittent NOT NEEDED/UNKNOWN confirmed. Root cause of initial vehicle-wide unavailability unconfirmed.
 - Approved public API sample validity 3x acquisition interval (15/180 s); keep acquisition scheduler unchanged. DPF managed-only, remove source switch, comparison action and Diagnostics tab; retain cluster test and existing UI/calibration. DEV release candidate only, production repository untouched. CI and new vehicle validation pending; actual regeneration, wake/reconnect and B47 remain unverified.
