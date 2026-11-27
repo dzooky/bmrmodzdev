@@ -71,6 +71,8 @@ jobs:
           node --check apps/data-diagnostics/cc-wheel-oem-report-098.js
           node --check apps/data-diagnostics/cc-oem-services-099.js
           node --check apps/data-diagnostics/cc-oem-services-report-099.js
+          node --check apps/data-diagnostics/cc-oem-wheel-on-0200.js
+          node --check apps/data-diagnostics/cc-oem-wheel-on-report-0200.js
           node --check apps/data-diagnostics/cc-native-front.js
           node --check apps/data-diagnostics/cc-native-gear.js
           node --check apps/data-diagnostics/cache-probe.js
@@ -153,6 +155,7 @@ jobs:
           node apps/data-diagnostics/cc-vehicle-gear-096.test.js
           node apps/data-diagnostics/cc-wheel-oem-098.test.js
           node apps/data-diagnostics/cc-oem-services-099.test.js
+          node apps/data-diagnostics/cc-oem-wheel-on-0200.test.js
           node apps/data-diagnostics/cc-test.test.js
           node apps/data-diagnostics/cc-native-front.test.js
           node apps/data-diagnostics/cc-native-gear.test.js
