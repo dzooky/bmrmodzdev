@@ -13,6 +13,8 @@ function safe(record){
   before:record.before===null||Number.isInteger(record.before)||typeof record.before==='object'?record.before:null,
   after:record.after===null||Number.isInteger(record.after)||typeof record.after==='object'?record.after:null,
   physicalFeedback:['heat-felt','no-heat','not-checked'].includes(record.physicalFeedback)?record.physicalFeedback:'not-checked',
+  gearObservation:record.gearSourceVerified===true&&['P','R','N','D'].includes(record.gearObservation)?record.gearObservation:null,
+  gearSourceVerified:record.gearSourceVerified===true&&['P','R','N','D'].includes(record.gearObservation),
   checks:Array.isArray(record.checks)?record.checks.slice(0,4).map(c=>({seconds:c.seconds,on:c.on===true,fitted:c.fitted===true})):[],
   error:String(record.error||'').slice(0,120),
   steps:(record.steps||[]).slice(-48).map(x=>({
@@ -53,7 +55,7 @@ function create(file,io){
   const out=[];
   for(const s of snapshot().cases){
    out.push(s.id+' '+s.status+' / '+s.stage+' / '+s.error);
-   out.push('before='+JSON.stringify(s.before)+' after='+JSON.stringify(s.after)+' touch='+s.physicalFeedback);
+   out.push('before='+JSON.stringify(s.before)+' after='+JSON.stringify(s.after)+' touch='+s.physicalFeedback+' gear='+String(s.gearObservation||'unverified'));
    for(const c of s.checks)out.push('check-'+c.seconds+'s='+c.on);
    for(const step of s.steps)out.push(step.stage+' '+step.request+' > '+step.response+(step.error?' '+step.error:''));
   }
