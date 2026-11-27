@@ -46,7 +46,7 @@ mgu.run({start(ctx){
  const traceReport=someIpTraceReport.create(require('path').join(ctx.dataDir,'cc-someip-trace-024.json'));
  let traceBusy=false,traceUploadBusy=false,traceMessage='',traceStage='',traceDetails=0;
  const oemOnReport=oemWheelOnReport.create(require('path').join(ctx.dataDir,'cc-oem-wheel-on-0200.json'));
- let oemOnBusy=false,oemOnUploadBusy=false,oemOnArmedUntil=0,oemOnStage='',oemOnMessage='',oemOnDetails=0;
+ let oemOnBusy=false,oemOnUploadBusy=false,oemOnArmed=false,oemOnStage='',oemOnMessage='',oemOnDetails=0;
  let oemOnPrompt='',oemOnResponder=null;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
@@ -189,11 +189,10 @@ mgu.run({start(ctx){
  }
  async function runOemWheelOn(){
   if(oemOnBusy||oemOnUploadBusy||oemBusy||traceBusy||traceUploadBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
-  const now=Date.now();
-  if(now>=oemOnArmedUntil){
-   oemOnArmedUntil=now+12000;oemOnMessage=word('Confirm OEM activation');return;
+  if(!oemOnArmed){
+   oemOnArmed=true;oemOnMessage=word('Confirm OEM activation');return;
   }
-  oemOnArmedUntil=0;oemOnBusy=true;oemOnStage='belt-gate';oemOnMessage='';oemOnPrompt='';oemOnDetails=0;
+  oemOnArmed=false;oemOnBusy=true;oemOnStage='belt-gate';oemOnMessage='';oemOnPrompt='';oemOnDetails=0;
   let record;
   try{
    const gate=await ccActuationGate.check('wheelHeat',client.request);
@@ -723,7 +722,7 @@ mgu.run({start(ctx){
     }
    }else{
     const mainActions=[['Trace SOME/IP',90],['Check OEM (engine OFF)',580],
-     [Date.now()<oemOnArmedUntil?'Confirm action':'Start OEM ON test',1070]];
+     [oemOnArmed?'Confirm action':'Start OEM ON test',1070]];
     for(const action of mainActions){
      cv.roundRect(action[1],240,440,80,10,busy?theme.track:theme.accent2);
      label(cv,word(action[0]),action[1]+220,289,19,theme.text,{align:'center',font:'bold'});
