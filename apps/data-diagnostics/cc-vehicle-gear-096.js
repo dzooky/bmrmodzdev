@@ -77,7 +77,7 @@ async function capture(expected,signals,options){
    report.events.some(e=>e.source===source)?'sample':'no-sample';
  // A matching decoded value is evidence only for THIS observed source;
  // cross-vehicle and Tool-side EGS validation are still required.
- report.liveStageVerified=report.matchingObservation&&!report.conflictingObservation;
+ report.liveStageVerified=false; // selector observation is not independently verified EGS engagement
  return report;
 }
 module.exports={IFACE,stage,selection,capture};
