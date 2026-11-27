@@ -12,8 +12,9 @@ const ccActuationReport=require('./cc-actuation-report'),upload=require('./uploa
 const ccCompare=require('./cc-compare'),ccCompareReport=require('./cc-compare-report');
 const sourceProbe=require('./cc-source-probe-094'),sourceProbeReport=require('./cc-source-probe-report-094');
 const vehicleGear=require('./cc-vehicle-gear-096');
+const wheelOem=require('./cc-wheel-oem-098'),wheelOemReport=require('./cc-wheel-oem-report-098');
 const W=1600,H=520;
-const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare','CC Sources'];
+const pages=['Info','Data Tool','Background Tool','Notification Tool','CC Test','CC Controls','CC Compare','CC Sources','CC Wheel OEM'];
 const DEV_NOTICE=[
  'This application is still in development phase and not ready for public use.',
  'We still working on it and will be available soon.',
@@ -32,6 +33,9 @@ mgu.run({start(ctx){
  let sourceBusy=false,sourceUploadBusy=false,sourceMessage='',sourceDetails=0,sourceProgress='',sourceStage='';
  let actuatorBusy=false,actuatorArmed=null,actuatorArmUntil=0,actuatorDetails=0,actuatorStage='';
  let actuatorUploadBusy=false,actuatorUploadMessage='';
+ const wheelReport=wheelOemReport.create(require('path').join(ctx.dataDir,'cc-wheel-oem-098.json'));
+ let wheelBusy=false,wheelUploadBusy=false,wheelArmedUntil=0,wheelPrompt='',wheelStage='',wheelInfo='',wheelMessage='',wheelDetails=0;
+ let wheelResponder=null;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
    if(ntBusy||Date.now()<ntCooldown)return;
@@ -96,7 +100,7 @@ mgu.run({start(ctx){
   finally{ccBusy=false;ccDetailPage=0;}
  }
  async function runCcActuator(id){
-  if(actuatorBusy||actuatorUploadBusy||id!=='wheelHeat')return;
+  if(actuatorBusy||actuatorUploadBusy||wheelBusy||id!=='wheelHeat')return;
   const now=Date.now();
   if(actuatorArmed!==id||now>=actuatorArmUntil){
    actuatorArmed=id;actuatorArmUntil=now+12000;return;
@@ -132,8 +136,47 @@ mgu.run({start(ctx){
   }catch(e){actuatorUploadMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
   finally{actuatorUploadBusy=false;}
  }
+ async function runWheelOem(){
+  if(wheelBusy||wheelUploadBusy||actuatorBusy||sourceBusy)return;
+  const now=Date.now();
+  if(now>=wheelArmedUntil){wheelArmedUntil=now+12000;wheelMessage=word('Confirm wheel OEM sequence');return;}
+  wheelArmedUntil=0;wheelBusy=true;wheelPrompt='';wheelStage='belt-gate';wheelMessage='';
+  let record=null;
+  try{
+   const gate=await ccActuationGate.check('wheelHeat',client.request);
+   if(!gate.ok){
+    record={kind:'wheelOemSequence',startedAt:new Date().toISOString(),finishedAt:new Date().toISOString(),
+     status:'SKIP',stage:'belt-gate-'+gate.stage,commandAccepted:false,errors:[gate.error||gate.stage],samples:[]};
+   }else{
+    const ask=(phase,timeout)=>{
+     wheelPrompt=phase;
+     return new Promise(resolve=>{
+      let done=false;
+      const complete=value=>{if(done)return;done=true;wheelPrompt='';wheelResponder=null;resolve(value);};
+      wheelResponder=complete;
+      setTimeout(()=>complete(null),timeout);
+     });
+    };
+    record=await wheelOem.run({confirmed:true,signals:ctx.signals,log:ctx.log,
+     ask,onStage:(stage,detail)=>{wheelStage=stage;wheelInfo=detail;}});
+   }
+  }catch(e){record={kind:'wheelOemSequence',startedAt:new Date().toISOString(),
+   finishedAt:new Date().toISOString(),status:'FAIL',stage:'exception',errors:[String(e.message||e)],samples:[]};}
+  finally{
+   if(record)try{wheelReport.save(record);wheelMessage=record.status+' / '+record.stage;}
+    catch(e){wheelMessage='Report save failed: '+String(e.message||e).slice(0,40);}
+   wheelBusy=false;wheelPrompt='';wheelResponder=null;wheelDetails=0;
+  }
+ }
+ async function uploadWheelOem(){
+  if(wheelBusy||wheelUploadBusy||!wheelReport.snapshot().attempts.length)return;
+  wheelUploadBusy=true;wheelMessage=word('Sending');
+  try{const r=await upload(wheelReport.envelope(),ctx.dataDir);wheelMessage=word('Report sent')+': '+r.id;}
+  catch(e){wheelMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
+  finally{wheelUploadBusy=false;}
+ }
  async function captureSources(kind){
-  if(sourceBusy||sourceUploadBusy||!['wheelTrace','gearP','gearR','gearD'].includes(kind))return;
+  if(sourceBusy||sourceUploadBusy||wheelBusy||!['wheelTrace','gearP','gearR','gearD'].includes(kind))return;
   sourceBusy=true;sourceMessage=word('Capturing');sourceProgress=kind;sourceStage='';
   try{
    const r=kind==='wheelTrace'?
@@ -153,7 +196,7 @@ mgu.run({start(ctx){
   finally{sourceUploadBusy=false;}
  }
  async function captureComparison(kind){
-  if(compareBusy||compareUploadBusy||!ccCompare.FIELDS.includes(kind))return;
+  if(compareBusy||compareUploadBusy||wheelBusy||!ccCompare.FIELDS.includes(kind))return;
   compareBusy=true;compareMessage=word('Capturing');
   try{
    const result=kind.startsWith('wheel')?
@@ -181,6 +224,28 @@ mgu.run({start(ctx){
  ui.onClick('BTN_NT',()=>{testNotification().catch(e=>log.warn(String(e)));});
  ctx.onTab(i=>{if(i>=0&&i<pages.length)page=i;});
  ctx.onTap((x,y)=>{
+  if(page===8){
+   if(x>=1100&&x<=1510&&y>=55&&y<=110){
+    wheelDetails=(wheelDetails+1)%(Math.ceil(wheelReport.lines().length/6)+1);return;
+   }
+   if(wheelPrompt&&wheelResponder){
+    let value=null;
+    if(wheelPrompt==='press1'||wheelPrompt==='press2'){
+     if(x>=420&&x<=1180&&y>=255&&y<=335)value='pressed';
+    }else if(wheelPrompt==='kombi1'||wheelPrompt==='kombi2'){
+     if(y>=260&&y<=345){
+      if(x>=90&&x<=530)value='activated';
+      if(x>=580&&x<=1020)value='deactivated';
+      if(x>=1070&&x<=1510)value='none';
+     }
+    }
+    if(value){wheelResponder(value);return;}
+   }
+   if(wheelBusy||wheelUploadBusy)return;
+   if(x>=490&&x<=1110&&y>=195&&y<=275){runWheelOem().catch(e=>log.warn(String(e)));return;}
+   if(x>=520&&x<=1080&&y>=405&&y<=485){uploadWheelOem().catch(e=>log.warn(String(e)));return;}
+   return;
+  }
   if(page===7){
    if(x>=1100&&x<=1510&&y>=55&&y<=110){
     sourceDetails=(sourceDetails+1)%(Math.ceil(sourceReport.lines().length/6)+1);return;
@@ -254,7 +319,7 @@ mgu.run({start(ctx){
  function row(cv,theme,key,value,y){label(cv,word(key),85,y,24,theme.dim);label(cv,value,1510,y,25,theme.text,{align:'right'});}
  function button(cv,theme,text,disabled){cv.roundRect(520,390,560,65,10,disabled?theme.track:theme.accent2);label(cv,text,800,430,24,theme.text,{align:'center',font:'bold'});}
  function drawInfo(cv,theme){
-  header(cv,theme,'Info','0.1.97');
+  header(cv,theme,'Info','0.1.98');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
   label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
@@ -446,6 +511,39 @@ mgu.run({start(ctx){
   if(sourceBusy&&sourceStage)label(cv,sourceStage.toUpperCase()+': '+sourceProgress,800,465,18,theme.warn,{align:'center'});
   if(sourceMessage)label(cv,sourceMessage,800,497,16,theme.dim,{align:'center'});
  }
+ function drawWheelOem(cv,theme){
+  const history=wheelReport.snapshot().attempts,latest=history[history.length-1];
+  header(cv,theme,'CC Wheel OEM',wheelBusy?word('Running'):latest?latest.status:word('Not tested'));
+  cv.roundRect(1100,58,265,50,8,theme.track);
+  label(cv,'Details '+wheelDetails+'/'+Math.ceil(wheelReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
+  if(wheelDetails){
+   wheelReport.lines().slice((wheelDetails-1)*6,wheelDetails*6).forEach((line,i)=>
+    label(cv,line,68,155+i*38,16,theme.text));
+  }else{
+   label(cv,word('Parked, engine running, belt latched, wheel OFF'),800,149,20,theme.warn,{align:'center'});
+   label(cv,word('60s command; press OEM buttons promptly, before timeout'),800,185,18,theme.dim,{align:'center'});
+   if(wheelBusy){
+    label(cv,word(wheelStage)+': '+wheelInfo,800,230,18,theme.warn,{align:'center'});
+    if(wheelPrompt==='press1'||wheelPrompt==='press2'){
+     cv.roundRect(420,255,760,80,10,theme.accent2);
+     label(cv,word(wheelPrompt==='press1'?'I pressed OEM button #1':'I pressed OEM button #2'),800,307,23,theme.text,{align:'center',font:'bold'});
+    }else if(wheelPrompt==='kombi1'||wheelPrompt==='kombi2'){
+     [['KOMBI activated',90],['KOMBI deactivated',580],['No KOMBI message',1070]].forEach(item=>{
+      cv.roundRect(item[1],260,440,85,10,theme.accent2);
+      label(cv,word(item[0]),item[1]+220,310,19,theme.text,{align:'center',font:'bold'});
+     });
+    }else label(cv,word('Running'),800,315,22,theme.text,{align:'center'});
+   }else{
+    cv.roundRect(490,195,620,80,10,wheelUploadBusy?theme.track:theme.accent2);
+    label(cv,Date.now()<wheelArmedUntil?word('Confirm action'):word('Start OEM sequence'),800,246,23,theme.text,{align:'center',font:'bold'});
+    label(cv,word('Recorded attempts')+': '+history.length+'/4',800,325,20,theme.dim,{align:'center'});
+    if(latest)label(cv,latest.status+' / '+latest.stage,800,361,18,theme.dim,{align:'center'});
+   }
+  }
+  cv.roundRect(520,405,560,80,10,wheelBusy||wheelUploadBusy?theme.track:theme.accent2);
+  label(cv,word('Send OEM sequence report'),800,453,21,theme.text,{align:'center',font:'bold'});
+  if(wheelMessage)label(cv,wheelMessage,1210,485,15,theme.dim,{align:'center'});
+ }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
   if(page===0)drawInfo(cv,theme);
@@ -456,6 +554,7 @@ mgu.run({start(ctx){
   if(page===5)drawCcControls(cv,theme);
   if(page===6)drawCcCompare(cv,theme);
   if(page===7)drawCcSources(cv,theme);
+  if(page===8)drawWheelOem(cv,theme);
   G.frame(cv,theme,pages.map(word),page,[]);
   return ui.image('MAIN_GFX',cv);
  }
