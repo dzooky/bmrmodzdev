@@ -356,7 +356,7 @@ mgu.run({start(ctx){
   header(cv,theme,'Info','0.1.99');
   DEV_NOTICE.forEach((line,i)=>label(cv,line,800,190+i*42,24,theme.text,{align:'center'}));
   label(cv,word('Stay parked during the test'),800,350,24,theme.warn,{align:'center'});
-  label(cv,word('Notification Tool test'),800,410,22,theme.dim,{align:'center'});
+  label(cv,word('OEM wheel diagnostics – manual tests only'),800,410,22,theme.dim,{align:'center'});
  }
  function drawData(cv,theme){
   const h=udsHealth;header(cv,theme,'Data Tool',word(h?'Running':healthError?'Unavailable':'Loading Tool status'));
