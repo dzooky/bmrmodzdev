@@ -46,7 +46,7 @@ mgu.run({start(ctx){
  const traceReport=someIpTraceReport.create(require('path').join(ctx.dataDir,'cc-someip-trace-024.json'));
  let traceBusy=false,traceUploadBusy=false,traceMessage='',traceStage='',traceDetails=0;
  const oemOnReport=oemWheelOnReport.create(require('path').join(ctx.dataDir,'cc-oem-wheel-on-0200.json'));
- let oemOnBusy=false,oemOnUploadBusy=false,oemOnArmedUntil=0,oemOnStage='',oemOnMessage='',oemOnDetails=0;
+ let oemOnBusy=false,oemOnUploadBusy=false,oemOnArmed=false,oemOnStage='',oemOnMessage='',oemOnDetails=0;
  let oemOnPrompt='',oemOnResponder=null;
  const word=key=>t(ctx.settings.get('language')||'en',key);
   async function testNotification(){
@@ -189,11 +189,10 @@ mgu.run({start(ctx){
  }
  async function runOemWheelOn(){
   if(oemOnBusy||oemOnUploadBusy||oemBusy||traceBusy||traceUploadBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
-  const now=Date.now();
-  if(now>=oemOnArmedUntil){
-   oemOnArmedUntil=now+12000;oemOnMessage=word('Confirm OEM activation');return;
+  if(!oemOnArmed){
+   oemOnArmed=true;oemOnMessage=word('Confirm OEM activation');return;
   }
-  oemOnArmedUntil=0;oemOnBusy=true;oemOnStage='belt-gate';oemOnMessage='';oemOnPrompt='';oemOnDetails=0;
+  oemOnArmed=false;oemOnBusy=true;oemOnStage='belt-gate';oemOnMessage='';oemOnPrompt='';oemOnDetails=0;
   let record;
   try{
    const gate=await ccActuationGate.check('wheelHeat',client.request);
@@ -201,11 +200,12 @@ mgu.run({start(ctx){
     record={kind:'oemWheelOn',startedAt:new Date().toISOString(),finishedAt:new Date().toISOString(),
      status:'SKIP',stage:'belt-gate-'+gate.stage,errors:[gate.error||gate.stage],samples:[]};
    }else{
-    const ask=(phase,timeout)=>new Promise(resolve=>{
+    const ask=phase=>new Promise(resolve=>{
+     // Only an explicit user interaction advances the manual test.
      oemOnPrompt=phase;
      let complete=false;
      const done=value=>{if(complete)return;complete=true;oemOnPrompt='';oemOnResponder=null;resolve(value);};
-     oemOnResponder=done;setTimeout(()=>done('unknown'),timeout);
+     oemOnResponder=done;
     });
     record=await oemWheelOn.run({confirmed:true,beltGate:true,signals:ctx.signals,
      log:ctx.log,ask,onStage:stage=>{oemOnStage=stage;}});
@@ -320,6 +320,9 @@ mgu.run({start(ctx){
  ctx.onTap((x,y)=>{
   if(page===9){
    if(oemOnPrompt&&oemOnResponder){
+    if(x>=1090&&x<=1510&&y>=390&&y<=465){
+     oemOnResponder('cancelled');return;
+    }
     let value=null;
     if(oemOnPrompt==='kombi-on'&&y>=240&&y<=320){
      if(x>=90&&x<=530)value='activated';
@@ -335,6 +338,8 @@ mgu.run({start(ctx){
      if(x>=90&&x<=530)value='activated';
      if(x>=580&&x<=1020)value='deactivated';
      if(x>=1070&&x<=1510)value='none';
+    }else if(oemOnPrompt==='finish-test'&&x>=420&&x<=1180&&y>=240&&y<=320){
+     value='finish';
     }
     if(value){oemOnResponder(value);return;}
    }
@@ -708,6 +713,7 @@ mgu.run({start(ctx){
      else if(oemOnPrompt==='physical-heat')
       choices=[['Wheel is warm',90],['No heating felt',580],['Not checked',1070]];
      else if(oemOnPrompt==='press-oem-button')choices=[['I pressed BMW button to switch OFF',420]];
+     else if(oemOnPrompt==='finish-test')choices=[['Finish test',420]];
      for(const item of choices){
       const w=choices.length===1?760:440;
       cv.roundRect(item[1],240,w,80,10,theme.accent2);
@@ -716,7 +722,7 @@ mgu.run({start(ctx){
     }
    }else{
     const mainActions=[['Trace SOME/IP',90],['Check OEM (engine OFF)',580],
-     [Date.now()<oemOnArmedUntil?'Confirm action':'Start OEM ON test',1070]];
+     [oemOnArmed?'Confirm action':'Start OEM ON test',1070]];
     for(const action of mainActions){
      cv.roundRect(action[1],240,440,80,10,busy?theme.track:theme.accent2);
      label(cv,word(action[0]),action[1]+220,289,19,theme.text,{align:'center',font:'bold'});
@@ -729,11 +735,17 @@ mgu.run({start(ctx){
     }else label(cv,word('Recorded attempts')+': '+list.length+'/4',800,366,16,theme.dim,{align:'center'});
    }
   }
-  const footer=[['Read-only OEM source test',45],['Send OEM source report',435],
-   ['Send SOME/IP trace',825],['Send OEM ON report',1215]];
-  for(const item of footer){
-   cv.roundRect(item[1],390,340,75,10,busy?theme.track:theme.accent2);
-   label(cv,word(item[0]),item[1]+170,435,16,theme.text,{align:'center',font:'bold'});
+  if(oemOnBusy){
+   cv.roundRect(1090,390,420,75,10,theme.warn);
+   label(cv,word('Cancel test – switch OFF using BMW button'),1300,435,16,theme.text,
+    {align:'center',font:'bold'});
+  }else{
+   const footer=[['Read-only OEM source test',45],['Send OEM source report',435],
+    ['Send SOME/IP trace',825],['Send OEM ON report',1215]];
+   for(const item of footer){
+    cv.roundRect(item[1],390,340,75,10,busy?theme.track:theme.accent2);
+    label(cv,word(item[0]),item[1]+170,435,16,theme.text,{align:'center',font:'bold'});
+   }
   }
   if(traceBusy||traceMessage||traceStage)
    label(cv,String(traceMessage||traceStage).slice(0,95),800,487,15,theme.text,{align:'center'});
