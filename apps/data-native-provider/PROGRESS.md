@@ -1,4 +1,8 @@
 # Data Native Provider (OAP app)
+## 0.1.1 — first in-car provider transport confirmation (2026-11-27)
+- **In-car verified (single parked snapshot):** With Data Tool 0.1.73 and Diagnostics 0.1.87, Tool OAP source returned `sample`, front-left `latched`, front-right `unlatched`. This supports successful startup, socket reachability, and end-to-end valid responses on this HU for one test.
+- **Not yet verified:** Changing contacts across subsequent requests, ongoing operation after sleep/wake, gear selector (deliberately invalid), background app consumers. Retain the proven 0.1.1 implementation unchanged for next targeted Diagnostics 0.1.88 retest.
+
 ## 0.1.1 — headless autostart bootstrap fix (2026-11-26)
 - **Implemented:** Start the dedicated on-demand IPC socket outside the UI-only `mgu.run({start(ctx)})` callback. BMW OAP may start in CONFIG_STATE with no RHMI application, where the normal runtime deliberately returns before calling `start(ctx)`. This previously left Provider 0.1.0 without a socket. Shared MGU kit runtime, Tool 0.1.72, Diagnostics 0.1.86, TASU requests, and UI functionality remain unchanged. The provider does not perform reads at boot.
 - **Automated-tested:** CI pending, regression for headless bootstrap without any RHMI, existing authorized on-demand bridge tests and MGU preview. **In-car verified:** No. This fixes a definite source-code startup gap; BMW autostart, cross-process access and live ACSM responses remain unverified.

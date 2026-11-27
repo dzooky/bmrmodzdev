@@ -43,7 +43,13 @@ function detailLines(x){
  const fmt=v=>v===true?'yes':v===false?'no':'?';
  const val=v=>String(v===undefined||v===null?'—':v).replace(/[\r\n\t]/g,' ').slice(0,160);
  const contact=k=>{const r=reads[k]||{};return k+': '+val(r.state||'not-received')+' / '+val(r.detail||r.error||'no detail');};
+ const retest=x&&x.beltRetest;
  const details=[
+  ...(retest?[
+   'Belt retest: '+val(retest.stage)+' / new sample='+val(retest.sampledAt),
+   'Belt L: '+val(retest.before&&retest.before.frontLeft)+' -> '+val(retest.after&&retest.after.frontLeft),
+   'Belt R: '+val(retest.before&&retest.before.frontRight)+' -> '+val(retest.after&&retest.after.frontRight)
+  ]:[]),
   'Bundle: '+val(b.status)+' / IF='+fmt(modules.IFConfigGenerator)+' ACL='+fmt(modules.AclGenerator)+(b.line?' @'+b.line:''),
   'Catalog: '+val(c.status)+' / VehicleInfo='+fmt(c.vehicleInformationMentioned),
   'Gear signals: Gearbox='+fmt(c.statusGearboxDriveMentioned)+' PowerTrain2='+fmt(c.dataPowerTrain2Mentioned),
