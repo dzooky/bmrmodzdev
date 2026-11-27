@@ -1,8 +1,8 @@
 {
   "id": "data-native-provider",
-  "title": "Data Native Provider",
+  "title": "Data Provider",
   "description": "Autostart read-only BMW TASU vehicle source for BMRMODZ Data Tool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "vendor": "custom",
   "loggingId": "DNP1",
   "iconGlyph": "temp",
@@ -14,7 +14,8 @@
     {
       "name": "MAIN",
       "kind": "canvas",
-      "title": "Data Native Provider"
+      "title": "Data Provider",
+      "bar": false
     }
   ],
   "settings": [],
@@ -27,10 +28,17 @@
       "_broadcasts": [
         "sendTasuResponse"
       ]
+    },
+    "de.bmw.infotainment.hmi.hmicontext.HMIContext": {
+      "_optional": "Automatic iDrive language",
+      "_instances": "HMI_CID",
+      "currentDisplayLanguage": "rs"
     }
   },
   "requires": {
-    "bmrmodz-data-tool": "0.1.72"
+    "bmrmodz-data-tool": "0.1.72",
+    "idrive7-renderd": "2.1.19",
+    "mgu-inputgate": "1.2.1"
   },
   "mguInternet": false
 }

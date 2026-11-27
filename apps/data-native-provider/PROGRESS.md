@@ -1,4 +1,12 @@
 # Data Native Provider (OAP app)
+## 0.1.2 — localized information-only screen
+- Implemented: display title Data Provider, single full-layout information canvas without tabs/settings/buttons, 22 languages matching OSA, automatic HMIContext language with English fallback. Added read-only HMI language manifest matching OSA and renderer/inputgate dependencies for full layout. Reuse DPF CJK and Cyrillic atlases. Preserve technical app ID, autostart, TASU declarations, headless startup and acquisition modules.
+- CI: pending; manifest checks cover 22 languages and unchanged TASU contract.
+- In-car: not verified. Update provider, check information screen and iDrive language, then one existing parked belt reference test. Fullscreen depends on renderer support; language permission and data bridge must be confirmed on actual MGU.
+- Custom icon deferred; existing icon retained.
+- Visibility test 0.1.2 remained visible in iDrive; no experimental visibility flags transferred to provider.
+
+# Data Native Provider (OAP app)
 ## 0.1.1 — first in-car provider transport confirmation (2026-11-27)
 - **In-car verified (single parked snapshot):** With Data Tool 0.1.73 and Diagnostics 0.1.87, Tool OAP source returned `sample`, front-left `latched`, front-right `unlatched`. This supports successful startup, socket reachability, and end-to-end valid responses on this HU for one test.
 - **Not yet verified:** Changing contacts across subsequent requests, ongoing operation after sleep/wake, gear selector (deliberately invalid), background app consumers. Retain the proven 0.1.1 implementation unchanged for next targeted Diagnostics 0.1.88 retest.
