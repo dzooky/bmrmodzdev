@@ -1,4 +1,10 @@
 # Data Native Provider (OAP app)
+## 0.1.3 — close screen and title overlap
+- Implemented: opt-in native title masking up to the status region; centered Close target in full renderer mode with native bar fallback, translated across all 22 locales. Close calls RHMI closeState only; no process or bridge shutdown. Existing acquisition and manifest unchanged.
+- 0.1.2 vehicle evidence: information screen displayed in English (vehicle set to English); residual native title fragment visible. CI 5/5 PASS; other languages and bridge continuity unverified.
+- CI pending. Vehicle test: check title, Close via touch/controller, reopen, verify provider remains reachable after closing. Platform lifecycle behavior not yet verified.
+
+# Data Native Provider (OAP app)
 ## 0.1.2 — localized information-only screen
 - Implemented: display title Data Provider, single full-layout information canvas without tabs/settings/buttons, 22 languages matching OSA, automatic HMIContext language with English fallback. Added read-only HMI language manifest matching OSA and renderer/inputgate dependencies for full layout. Reuse DPF CJK and Cyrillic atlases. Preserve technical app ID, autostart, TASU declarations, headless startup and acquisition modules.
 - CI: pending; manifest checks cover 22 languages and unchanged TASU contract.
