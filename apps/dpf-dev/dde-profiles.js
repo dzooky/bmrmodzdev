@@ -1,7 +1,7 @@
 'use strict';
 
 // DDE-specific diagnostic profiles. Values validated with B47 tester/BimmerLink.
-// B47 regen state/pressure/temperature are deliberately not decoded.
+// B47 detail calibration is experimental; regeneration state remains disabled.
 const B57='0F1FE8';
 const B47='0F2678';
 const common=[
@@ -35,7 +35,13 @@ const profiles={
     distanceFactor:0.001,
     averageFactor:1,
     regeneration:false,
-    detail:[]
+    detail:[
+      ['PRESSURE',0x44F8,2,0.03051804,-664.397],
+      ['TEMP',0x434A,2,0.1,-3276.7],
+      ['RUNTIME',0x44B7,4,1],
+      ['LOCK',0x44C2,1,1],
+      ['SOOT CALCULATED',0x44C1,2,0.01]
+    ]
   }
 };
 function forDde(index){return Object.prototype.hasOwnProperty.call(profiles,index)?profiles[index]:null;}
