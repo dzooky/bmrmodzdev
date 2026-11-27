@@ -93,12 +93,14 @@ async function run(id,options){
     try{
      add(name,{request:hex([sid].concat(data))});
      const r=await diag.physical(ecu,sid,data,1500,replyTo(sid,data),{maxRetries:0,hardTimeoutMs:3500,callTimeoutMs:2000});
-     add(name+'-reply',{response:hex(r),ok:!!r&&r[0]!==0x7f&&replyTo(sid,data)(r)});
-    }catch(e){add(name+'-error',{error:stageError(e)});}
+     const ok=!!r&&r[0]!==0x7f&&replyTo(sid,data)(r);
+     add(name+'-reply',{response:hex(r),ok});return ok;
+    }catch(e){add(name+'-error',{error:stageError(e)});return false;}
    };
    if(seatAttempt){
-    await cleanup(0x78,0x31,[1,0xa1,0x26,spec.button,0],'cleanup-release');
-    await cleanup(0x78,0x31,[2,0xa1,0x26],'cleanup-stop');
+    const released=await cleanup(0x78,0x31,[1,0xa1,0x26,spec.button,0],'cleanup-release');
+    const stopped=await cleanup(0x78,0x31,[2,0xa1,0x26],'cleanup-stop');
+    if(!released||!stopped){out.status='FAIL';out.error='IHKA cleanup not confirmed';add('cleanup-unverified',{error:out.error});}
    }
    // Wheel command uses the OEM 30-second auto-expiry; no replay of unknown
    // original state. Do not send an unverified second command on failure.
