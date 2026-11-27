@@ -13,6 +13,7 @@ const ccCompare=require('./cc-compare'),ccCompareReport=require('./cc-compare-re
 const sourceProbe=require('./cc-source-probe-094'),sourceProbeReport=require('./cc-source-probe-report-094');
 const vehicleGear=require('./cc-vehicle-gear-096');
 const oemServices=require('./cc-oem-services-099'),oemServicesReport=require('./cc-oem-services-report-099');
+const someIpTrace=require('./cc-someip-trace-024'),someIpTraceReport=require('./cc-someip-trace-report-024');
 const oemWheelOn=require('./cc-oem-wheel-on-0200'),oemWheelOnReport=require('./cc-oem-wheel-on-report-0200');
 const wheelOem=require('./cc-wheel-oem-098'),wheelOemReport=require('./cc-wheel-oem-report-098');
 const W=1600,H=520;
@@ -42,6 +43,8 @@ mgu.run({start(ctx){
  let wheelResponder=null;
  const oemReport=oemServicesReport.create(require('path').join(ctx.dataDir,'cc-oem-services-099.json'));
  let oemBusy=false,oemUploadBusy=false,oemMessage='',oemStage='',oemDetails=0;
+ const traceReport=someIpTraceReport.create(require('path').join(ctx.dataDir,'cc-someip-trace-024.json'));
+ let traceBusy=false,traceUploadBusy=false,traceMessage='',traceStage='',traceDetails=0;
  const oemOnReport=oemWheelOnReport.create(require('path').join(ctx.dataDir,'cc-oem-wheel-on-0200.json'));
  let oemOnBusy=false,oemOnUploadBusy=false,oemOnArmedUntil=0,oemOnStage='',oemOnMessage='',oemOnDetails=0;
  let oemOnPrompt='',oemOnResponder=null;
@@ -185,7 +188,7 @@ mgu.run({start(ctx){
   finally{wheelUploadBusy=false;}
  }
  async function runOemWheelOn(){
-  if(oemOnBusy||oemOnUploadBusy||oemBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
+  if(oemOnBusy||oemOnUploadBusy||oemBusy||traceBusy||traceUploadBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
   const now=Date.now();
   if(now>=oemOnArmedUntil){
    oemOnArmedUntil=now+12000;oemOnMessage=word('Confirm OEM activation');return;
@@ -225,8 +228,29 @@ mgu.run({start(ctx){
   }catch(e){oemOnMessage=word('Send failed')+': '+String(e.message||e).slice(0,55);}
   finally{oemOnUploadBusy=false;}
  }
+ async function runSomeIpTrace(){
+  if(traceBusy||traceUploadBusy||oemBusy||oemUploadBusy||oemOnBusy||
+     wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
+  traceBusy=true;traceMessage='';traceStage='watch-request';
+  try{
+   const result=await someIpTrace.capture(ctx.signals,{log:ctx.log,
+    onStage:stage=>{traceStage=stage;}});
+   traceReport.save(result);traceDetails=0;
+   traceMessage=result.stage+' / '+result.watch.status+
+    ' / notifications: '+result.notifications.total;
+  }catch(e){traceMessage=word('FAIL')+': '+String(e.message||e).slice(0,75);}
+  finally{traceBusy=false;traceStage='';}
+ }
+ async function uploadSomeIpTrace(){
+  if(traceBusy||traceUploadBusy||!traceReport.snapshot().captures.length)return;
+  traceUploadBusy=true;traceMessage=word('Sending');
+  try{const r=await upload(traceReport.envelope(),ctx.dataDir);
+   traceMessage=word('Report sent')+': '+r.id;
+  }catch(e){traceMessage=word('Send failed')+': '+String(e.message||e).slice(0,60);}
+  finally{traceUploadBusy=false;}
+ }
  async function captureOemServices(engineOff){
-  if(oemBusy||oemUploadBusy||oemOnBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
+  if(oemBusy||oemUploadBusy||oemOnBusy||traceBusy||traceUploadBusy||wheelBusy||actuatorBusy||sourceBusy||compareBusy)return;
   oemBusy=true;oemMessage='';oemStage=word('Capturing');
   try{
    const result=await oemServices.capture(ctx.signals,{log:ctx.log,
@@ -314,22 +338,20 @@ mgu.run({start(ctx){
     }
     if(value){oemOnResponder(value);return;}
    }
-   if(!oemOnBusy&&x>=1100&&x<=1510&&y>=55&&y<=110){
-    oemOnDetails=(oemOnDetails+1)%(Math.ceil(oemOnReport.lines().length/6)+1);return;
+   if(!oemOnBusy&&!traceBusy&&x>=1100&&x<=1510&&y>=55&&y<=110){
+    traceDetails=(traceDetails+1)%(Math.ceil(traceReport.lines().length/6)+1);return;
    }
-   if(oemBusy||oemUploadBusy||oemOnBusy||oemOnUploadBusy)return;
+   if(oemBusy||oemUploadBusy||oemOnBusy||oemOnUploadBusy||traceBusy||traceUploadBusy)return;
    if(y>=240&&y<=320){
-    if(x>=90&&x<=770){
-     captureOemServices(true).catch(e=>log.warn(String(e)));return;
-    }
-    if(x>=830&&x<=1510){
-     runOemWheelOn().catch(e=>log.warn(String(e)));return;
-    }
+    if(x>=90&&x<=530){runSomeIpTrace().catch(e=>log.warn(String(e)));return;}
+    if(x>=580&&x<=1020){captureOemServices(true).catch(e=>log.warn(String(e)));return;}
+    if(x>=1070&&x<=1510){runOemWheelOn().catch(e=>log.warn(String(e)));return;}
    }
    if(y>=390&&y<=465){
-    if(x>=90&&x<=510){captureOemServices().catch(e=>log.warn(String(e)));return;}
-    if(x>=580&&x<=1020){uploadOemServices().catch(e=>log.warn(String(e)));return;}
-    if(x>=1090&&x<=1510){uploadOemWheelOn().catch(e=>log.warn(String(e)));return;}
+    if(x>=45&&x<=385){captureOemServices().catch(e=>log.warn(String(e)));return;}
+    if(x>=435&&x<=775){uploadOemServices().catch(e=>log.warn(String(e)));return;}
+    if(x>=825&&x<=1165){uploadSomeIpTrace().catch(e=>log.warn(String(e)));return;}
+    if(x>=1215&&x<=1555){uploadOemWheelOn().catch(e=>log.warn(String(e)));return;}
    }
    return;
   }
@@ -655,15 +677,15 @@ mgu.run({start(ctx){
  }
  function drawOemServices(cv,theme){
   const list=oemOnReport.snapshot().attempts,latest=list[list.length-1];
-  const busy=oemOnBusy||oemOnUploadBusy||oemBusy||oemUploadBusy;
+  const busy=oemOnBusy||oemOnUploadBusy||oemBusy||oemUploadBusy||traceBusy||traceUploadBusy;
   header(cv,theme,'CC OEM Services',busy?word('Running'):latest?latest.status:word('Not tested'));
   cv.roundRect(1100,58,265,50,8,theme.track);
-  label(cv,'Details '+oemOnDetails+'/'+Math.ceil(oemOnReport.lines().length/6),1230,91,19,theme.text,{align:'center'});
-  if(oemOnDetails){
-   oemOnReport.lines().slice((oemOnDetails-1)*6,oemOnDetails*6).forEach((line,i)=>
+  label(cv,'Trace details '+traceDetails+'/'+Math.ceil(traceReport.lines().length/6),1230,91,18,theme.text,{align:'center'});
+  if(traceDetails){
+   traceReport.lines().slice((traceDetails-1)*6,traceDetails*6).forEach((line,i)=>
     label(cv,line,68,155+i*38,16,theme.text));
   }else{
-   label(cv,word('Engine OFF: read-only test, no belt or start needed'),800,148,20,theme.text,{align:'center'});
+   label(cv,word('Trace and OEM check: engine OFF, no belt needed'),800,148,20,theme.text,{align:'center'});
    label(cv,word('OEM ON: engine running, P, belt latched, wheel OFF'),800,187,19,theme.warn,{align:'center'});
    if(oemOnBusy){
     label(cv,word(oemOnStage),800,222,21,theme.warn,{align:'center'});
@@ -681,10 +703,12 @@ mgu.run({start(ctx){
      }
     }
    }else{
-    cv.roundRect(90,240,680,80,10,busy?theme.track:theme.accent2);
-    label(cv,word('Check OEM (engine OFF)'),430,289,20,theme.text,{align:'center',font:'bold'});
-    cv.roundRect(830,240,680,80,10,busy?theme.track:theme.accent2);
-    label(cv,Date.now()<oemOnArmedUntil?word('Confirm action'):word('Start OEM ON test'),1170,289,20,theme.text,{align:'center',font:'bold'});
+    const mainActions=[['Trace SOME/IP',90],['Check OEM (engine OFF)',580],
+     [Date.now()<oemOnArmedUntil?'Confirm action':'Start OEM ON test',1070]];
+    for(const action of mainActions){
+     cv.roundRect(action[1],240,440,80,10,busy?theme.track:theme.accent2);
+     label(cv,word(action[0]),action[1]+220,289,19,theme.text,{align:'center',font:'bold'});
+    }
     if(latest){
      const failed=latest.status==='SKIP'||latest.status==='FAIL'||latest.status==='PARTIAL';
      label(cv,word(failed?'Test stopped – no confirmed activation':'Last OEM test result'),800,344,20,
@@ -693,13 +717,16 @@ mgu.run({start(ctx){
     }else label(cv,word('Recorded attempts')+': '+list.length+'/4',800,366,16,theme.dim,{align:'center'});
    }
   }
-  const footer=[['Read-only OEM source test',90],['Send OEM source report',580],['Send OEM ON report',1070]];
+  const footer=[['Read-only OEM source test',45],['Send OEM source report',435],
+   ['Send SOME/IP trace',825],['Send OEM ON report',1215]];
   for(const item of footer){
-   cv.roundRect(item[1],390,440,75,10,busy?theme.track:theme.accent2);
-   label(cv,word(item[0]),item[1]+220,435,17,theme.text,{align:'center',font:'bold'});
+   cv.roundRect(item[1],390,340,75,10,busy?theme.track:theme.accent2);
+   label(cv,word(item[0]),item[1]+170,435,16,theme.text,{align:'center',font:'bold'});
   }
-  if(oemOnMessage||oemStage||oemOnStage)
-   label(cv,String(oemOnMessage||oemStage||oemOnStage).slice(0,95),800,486,16,theme.text,{align:'center'});
+  if(traceBusy||traceMessage||traceStage)
+   label(cv,String(traceMessage||traceStage).slice(0,95),800,487,15,theme.text,{align:'center'});
+  else if(oemMessage||oemOnMessage||oemStage||oemOnStage)
+   label(cv,String(oemMessage||oemOnMessage||oemStage||oemOnStage).slice(0,95),800,487,15,theme.text,{align:'center'});
  }
  async function render(){
   const theme=ctx.theme(),cv=ctx.canvas(W,H).clear(theme.bg),now=Date.now();delete cv.text;
