@@ -31,7 +31,7 @@ async function run(){
   const log=reportModule.create(path.join(dir,'source.json'));
   log.save(wheel);
   assert.equal(log.snapshot().captures[0].offDetected,true);
-  assert.equal(log.envelope().runMode,'cc-guided-oem-wheel-gear-sources-0.1.95');
+  assert.equal(log.envelope().runMode,'cc-wheel-vehicleinformation-0.1.96');
   assert.equal(reportModule.create(path.join(dir,'source.json')).snapshot().captures[0].mode,'guided-oem');
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
  let noOnClock=start;
