@@ -32,4 +32,34 @@ function create(dataDir,log){
   }
   return {observe,scale,get maxKm(){return maxKm;}};
 }
-module.exports={create};
+// Mass records are independent of distance and of each other. No diagnostic threshold implied.
+function createMass(dataDir,log){
+  const file=path.join(dataDir,'dpf-mass-record.json');
+  const maxima={SOOT:null,ASH:null};
+  const valid=value=>Number.isFinite(value)&&value>=0&&value<=1000;
+  try{
+    const saved=JSON.parse(fs.readFileSync(file,'utf8'));
+    if(saved&&saved.schema===1)for(const key of Object.keys(maxima))
+      if(valid(saved[key])&&saved[key]>0)maxima[key]=saved[key];
+  }catch(e){if(e.code!=='ENOENT'&&log)log.warn('DPF mass record load: '+e.message);}
+  function observe(key,value){
+    if(!Object.prototype.hasOwnProperty.call(maxima,key)||!valid(value)||value===0||
+       (maxima[key]!==null&&value<=maxima[key]))return false;
+    maxima[key]=value;
+    const tmp=file+'.tmp';
+    try{
+      fs.writeFileSync(tmp,JSON.stringify({schema:1,...maxima})+'\n');
+      fs.renameSync(tmp,file);
+    }catch(e){
+      if(log)log.warn('DPF mass record save: '+e.message);
+      try{fs.unlinkSync(tmp);}catch(ignore){}
+    }
+    return true;
+  }
+  function scale(key){
+    const value=maxima[key];
+    return valid(value)&&value>0?Math.max(5,Math.ceil(value*1.2/5)*5):50;
+  }
+  return {observe,scale};
+}
+module.exports={create,createMass};
