@@ -138,6 +138,7 @@ jobs:
           node apps/data-diagnostics/cc-gear-retest.test.js
           node apps/data-diagnostics/cc-rpm-retest.test.js
           node apps/data-diagnostics/cc-actuation.test.js
+          node apps/data-diagnostics/cc-actuation-gate.test.js
           node apps/data-diagnostics/cc-test.test.js
           node apps/data-diagnostics/cc-native-front.test.js
           node apps/data-diagnostics/cc-native-gear.test.js
