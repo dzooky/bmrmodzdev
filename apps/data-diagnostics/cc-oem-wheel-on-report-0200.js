@@ -15,6 +15,8 @@ function safe(v){
   stage:str(v.stage,65),requestAttempted:v.requestAttempted===true,
   requestAccepted:v.requestAccepted===true,reply:str(v.reply,40),
   before:state(v.before),after:state(v.after),afterButton:state(v.afterButton),
+  offConfirmed:v.offConfirmed===true,finishConfirmed:v.finishConfirmed===true,
+  cancelled:v.cancelled===true,
   kombi:['activated','deactivated','none','unknown'].includes(v.kombi)?v.kombi:'unknown',
   physical:['warm','cold','not-checked','unknown'].includes(v.physical)?v.physical:'unknown',
   oemButton:['activated','deactivated','none','not-pressed','unknown'].includes(v.oemButton)?v.oemButton:'unknown',
@@ -54,6 +56,7 @@ function create(file,io){
    out.push('request='+a.requestAttempted+' accepted='+a.requestAccepted+' '+a.reply);
    out.push('OEM before '+JSON.stringify(a.before)+' after '+JSON.stringify(a.after));
    out.push('KOMBI='+a.kombi+' physical='+a.physical+' OEM-button='+a.oemButton);
+   out.push('OFF sampled='+a.offConfirmed+' finished='+a.finishConfirmed+' cancelled='+a.cancelled);
    out.push('OEM after button '+JSON.stringify(a.afterButton)+' BDC '+JSON.stringify(a.bdc));
   }
   return out.length?out:['No OEM activation attempts'];
