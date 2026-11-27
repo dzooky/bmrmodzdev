@@ -24,6 +24,10 @@ const assert=require('assert'),cc=require('./cc-test');
  const after=cc.detailLines(Object.assign({},res,{beltRetest:{stage:'changed',sampledAt:'2026-11-27T09:00:05.000Z',
   before:{frontLeft:'latched',frontRight:'unlatched'},after:{frontLeft:'unlatched',frontRight:'latched'}}}));
  assert(after.some(x=>x.includes('Belt retest: changed')));
+ const rpmDetails=cc.detailLines(Object.assign({},res,{rpmRetest:{stage:'rpm-sample',rpm:750,raw:3000,
+  workerReady:true,workerRunning:true,samples:2,ageMs:200,minRpm:740,maxRpm:750,released:true,source:'CDS.statusEngineSpeed2'}}));
+ assert(rpmDetails.some(x=>x.includes('RPM test: rpm-sample')));
+ assert(rpmDetails.some(x=>x.includes('RPM freshness: ageMs=200')));
  const combined=cc.detailLines(Object.assign({},res,{gearRetest:{stage:'instance-or-schema-unverified',exactStatus:'incomplete-or-schema-unknown',
   exactMatches:2,fields:{statusGearboxDrive:true,DataPowerTrain2:true},instance1:false,
   aclRegistered:false,aclStaged:false,availabilityVerified:false,selector:null,alternatives:[],errors:[]}}));
