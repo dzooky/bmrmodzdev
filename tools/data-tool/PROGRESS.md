@@ -1,3 +1,6 @@
+## v0.1.74 — experimental B47 Detail catalog (2026-11-27)
+- Add read-only B47 named fields for pressure 44F8, temperature 434A, runtime 44B7, lock 44C2 and calculated soot 44C1. Preserve B57, scheduler, freshness and transport. No B47 background regeneration demand. CI and real-car validation pending.
+
 ## 2026-11-27 — in-car confirmation of 0.1.73 OAP seat-belt transport
 - **In-car verified (single parked sample):** Tool 0.1.73 + Native Provider 0.1.1 + Data Diagnostics 0.1.87 returned `Tool OAP source: sample`, front-left `latched`, front-right `unlatched`, and rear `unlatched / unlatched`. This confirms one Provider → Data Tool → Diagnostics transfer; not a dynamic belt-change test, continuous background subscription, or production CC integration.
 - **Still unverified:** P/R/N/D, which remains invalid due to missing verified VehicleInformation source; original Tool service TASU remains unavailable. No automatic CC operation authorized.

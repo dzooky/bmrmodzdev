@@ -9,7 +9,7 @@ assert.strictEqual(b47.regeneration,false,'B47 unverified regen state must not g
 assert.strictEqual(b57.regeneration,true,'B57 existing regeneration must stay enabled');
 assert.deepStrictEqual(b47.overview.map(row=>row[0]),['SOOT','ASH','SINCE','AVERAGE']);
 assert.deepStrictEqual(b57.overview.map(row=>row[0]),['SOOT','ASH','SINCE','AVERAGE','REQUEST','MODE']);
-assert.strictEqual(b47.detail.length,0,'B47 must not use B57 detail DIDs');
+assert.deepStrictEqual(b47.detail.map(r=>r[1]),[0x44F8,0x434A,0x44B7,0x44C2,0x44C1]);
 assert.ok(b57.detail.some(row=>row[0]==='TEMP'));
 assert.ok(b57.detail.some(row=>row[0]==='PRESSURE'));
 const raw={SOOT:0x067e,ASH:0x073b,SINCE:0x0006e078,AVERAGE:0x0241};
@@ -19,4 +19,8 @@ assert.strictEqual(km({raw:raw.SINCE},b47.distanceFactor).toFixed(2),'450.68');
 assert.strictEqual(km({raw:raw.AVERAGE},b47.averageFactor),577);
 assert.strictEqual(km({raw:450680},b57.distanceFactor),450.68);
 assert.strictEqual(km({raw:577000},b57.averageFactor),577);
+const detail = Object.fromEntries(b47.detail.map(r=>[r[0],r]));
+assert.strictEqual((0x855A*detail.TEMP[3]+detail.TEMP[4]).toFixed(1),'137.1');
+assert.strictEqual((0x0B62*detail['SOOT CALCULATED'][3]).toFixed(2),'29.14');
+assert.strictEqual(detail.PRESSURE[3],1);
 console.log('B47/B57 profiles: verified measurements, no unvalidated B47 regeneration, B57 retained');

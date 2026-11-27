@@ -5,7 +5,7 @@ const {build}=require('./dpf-demand-profile');
 (async()=>{
  const b57=build('0F1FE8'),b47=build('0F2678');
  assert.strictEqual(b57.fields.length,12);
- assert.strictEqual(b47.fields.length,4);
+ assert.strictEqual(b47.fields.length,9);
  assert.strictEqual(build('BAD'),null);
  assert.strictEqual(b57.freshnessMs['dpf.b57.request'],5000);
  assert.strictEqual(b57.freshnessMs['dpf.b57.soot'],60000);
