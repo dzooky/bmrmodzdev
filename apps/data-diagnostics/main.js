@@ -338,8 +338,15 @@ mgu.run({start(ctx){
     }
     if(value){oemOnResponder(value);return;}
    }
-   if(!oemOnBusy&&!traceBusy&&x>=1100&&x<=1510&&y>=55&&y<=110){
-    traceDetails=(traceDetails+1)%(Math.ceil(traceReport.lines().length/6)+1);return;
+   if(!oemOnBusy&&!traceBusy&&y>=55&&y<=110){
+    if(x>=1080&&x<=1275){
+     traceDetails=(traceDetails+1)%(Math.ceil(traceReport.lines().length/6)+1);
+     oemOnDetails=0;return;
+    }
+    if(x>=1290&&x<=1530){
+     oemOnDetails=(oemOnDetails+1)%(Math.ceil(oemOnReport.lines().length/6)+1);
+     traceDetails=0;return;
+    }
    }
    if(oemBusy||oemUploadBusy||oemOnBusy||oemOnUploadBusy||traceBusy||traceUploadBusy)return;
    if(y>=240&&y<=320){
@@ -679,10 +686,15 @@ mgu.run({start(ctx){
   const list=oemOnReport.snapshot().attempts,latest=list[list.length-1];
   const busy=oemOnBusy||oemOnUploadBusy||oemBusy||oemUploadBusy||traceBusy||traceUploadBusy;
   header(cv,theme,'CC OEM Services',busy?word('Running'):latest?latest.status:word('Not tested'));
-  cv.roundRect(1100,58,265,50,8,theme.track);
-  label(cv,'Trace details '+traceDetails+'/'+Math.ceil(traceReport.lines().length/6),1230,91,18,theme.text,{align:'center'});
+  cv.roundRect(1080,58,195,50,8,theme.track);
+  label(cv,'Trace '+traceDetails,1178,91,17,theme.text,{align:'center'});
+  cv.roundRect(1290,58,240,50,8,theme.track);
+  label(cv,'OEM ON '+oemOnDetails,1410,91,17,theme.text,{align:'center'});
   if(traceDetails){
    traceReport.lines().slice((traceDetails-1)*6,traceDetails*6).forEach((line,i)=>
+    label(cv,line,68,155+i*38,16,theme.text));
+  }else if(oemOnDetails){
+   oemOnReport.lines().slice((oemOnDetails-1)*6,oemOnDetails*6).forEach((line,i)=>
     label(cv,line,68,155+i*38,16,theme.text));
   }else{
    label(cv,word('Trace and OEM check: engine OFF, no belt needed'),800,148,20,theme.text,{align:'center'});
