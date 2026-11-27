@@ -1,9 +1,10 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),os=require('os'),path=require('path');
 const gear=require('./cc-vehicle-gear-096'),{create}=require('./cc-source-probe-report-094');
-assert.equal(gear.stage(4),'D');assert.equal(gear.stage('P'),'P');
+assert.equal(gear.stage(4),'D');assert.equal(gear.stage(2),'R');assert.equal(gear.stage('P'),'P');
 assert.equal(gear.stage('INITIALISIERUNG'),null);
 assert.deepStrictEqual(gear.selection(3),{stage:'P',gear:0});
+assert.deepStrictEqual(gear.selection(2),{stage:'R',gear:-1});
 assert.deepStrictEqual(gear.selection('_1'),{stage:'D',gear:1});
 assert.deepStrictEqual(gear.selection(4),{stage:null,gear:0});
 assert.equal(gear.selection('INITIALISIERUNG'),null);
@@ -32,6 +33,12 @@ assert.equal(gear.selection('INITIALISIERUNG'),null);
  }},{durationMs:500,delay:async()=>{}});
  assert.equal(p.matchingObservation,true);assert.equal(p.conflictingObservation,false);
  assert.equal(p.liveStageVerified,false);
+ const reverse=await gear.capture('R',{watch:async(_i,_n,h)=>{
+  h.DataPowerTrain2({statusGearSelectionDrive:'R'});
+  return {shutdown(){}};
+ }},{durationMs:500,delay:async()=>{}});
+ assert.equal(reverse.kind,'gearR');assert.equal(reverse.matchingObservation,true);
+ assert.equal(reverse.liveStageVerified,false);
  const contradiction=await gear.capture('P',{watch:async(_i,_n,h)=>{
   h.statusGearboxDrive({statusActualStageDrive:'D'});
   return {shutdown(){}};
@@ -44,12 +51,12 @@ assert.equal(gear.selection('INITIALISIERUNG'),null);
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'cc96-'));
  try{
   const log=create(path.join(dir,'source.json'));
-  log.save(p);log.save(result);
+  log.save(p);log.save(reverse);log.save(result);
   assert.equal(log.snapshot().gearStageVerified,false);
-  assert.equal(log.snapshot().captures.length,2);
-  assert.equal(log.snapshot().captures[1].sources.statusGearboxDrive,'sample');
-  assert.equal(log.snapshot().captures[1].events[0].decoded,'D');
-  assert.equal(log.envelope().runMode,'cc-wheel-vehicleinformation-0.1.96');
+  assert.equal(log.snapshot().captures.length,3);
+  assert.equal(log.snapshot().captures[2].sources.statusGearboxDrive,'sample');
+  assert.equal(log.snapshot().captures[2].events[0].decoded,'D');
+  assert.equal(log.envelope().runMode,'cc-wheel-vehicleinformation-reverse-0.1.97');
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
  console.log('VehicleInformation P/D decoding, subscription, cleanup, no-sample and report PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
