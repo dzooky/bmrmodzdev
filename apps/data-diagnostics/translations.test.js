@@ -13,7 +13,7 @@ assert.equal(spec.requires['data-native-provider'],undefined);
 for(const key of ['Climate Comfort Rules','Driver seat heating','Driver seat ventilation','Steering wheel heating','UNKNOWN','Read status','Send report','Catalog discovery only - rule values not yet verified','Report save failed','Sending','Report sent','Send failed'])assert.ok(catalogs.en[key],key);
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 assert.ok(main.includes('rules.readProfile(ctx.signals)'));
-assert.ok(main.includes("runMode:'cc-rules-catalog-0.2.11'"));
+assert.ok(main.includes("runMode:'cc-rules-catalog-0.2.12'"));
 assert.ok(main.includes("G.frame(cv,theme,[word('Climate Comfort Rules')],0,[])"));
 for(const token of ['ccActuation','requestHeating','client.request','nativeFront','oemWheelOn'])assert.ok(!main.includes(token),token);
 console.log('CC rules single screen, English catalog and no actuator permissions PASS');
