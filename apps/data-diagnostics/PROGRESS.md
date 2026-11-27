@@ -1,3 +1,7 @@
+## v0.2.16 — Profile getter availability and rejection evidence (2026-11-28)
+- In-car evidence 0.2.15: proxy ready, handoff received in 3 ms, getter attempted but rejected; no profile value. CI 46080351270, 46080351241, 46080351251 passed; PR #185 merged.
+- Record provider availability before the single getter, bounded check, sanitized technical rejection and elapsed getter time. Preserve existing getter attempt even if availability is false, to distinguish rejection causes; no retries, subscriptions, writes or manifest changes. No raw profile values or arbitrary error text exported. CI and in-car evidence pending.
+
 ## v0.2.15 — Box native proxy handoff and legacy Promise compatibility (2026-11-28)
 - In-car evidence 0.2.14 report: buildProxy and init resolved, getValue/shutdown functions present, stage ready; outer proxy-failed after 5 ms, is not a function. CI 46078336663, 46078336658, 46078336667 passed; PR #182 merged.
 - Return a null-prototype handle containing the native proxy instead of resolving directly with it. Replace diagnostic Promise.finally timeout wrapper with explicit then success/rejection cleanup (possible legacy Promise incompatibility; exact cause not established). Record handoff and getter attempt separately. Existing proxy/watch, manifest and permissions unchanged. No retry or writes. CI and actual profile sample pending.
