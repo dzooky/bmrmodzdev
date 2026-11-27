@@ -1,3 +1,7 @@
+## v0.2.15 — Box native proxy handoff and legacy Promise compatibility (2026-11-28)
+- In-car evidence 0.2.14 report: buildProxy and init resolved, getValue/shutdown functions present, stage ready; outer proxy-failed after 5 ms, is not a function. CI 46078336663, 46078336658, 46078336667 passed; PR #182 merged.
+- Return a null-prototype handle containing the native proxy instead of resolving directly with it. Replace diagnostic Promise.finally timeout wrapper with explicit then success/rejection cleanup (possible legacy Promise incompatibility; exact cause not established). Record handoff and getter attempt separately. Existing proxy/watch, manifest and permissions unchanged. No retry or writes. CI and actual profile sample pending.
+
 ## v0.2.14 — Isolated staged proxy initialization (2026-11-27)
 - In-car evidence 0.2.13 report: native module present, config instance 1 present, proxy failed in 3 ms with is not a function. Exact missing method unknown. CI 46077593788, 46077593801, 46077593827 passed, PR #181 merged.
 - Add opt-in diagnostic helper in kit runtime; existing proxy/watch unchanged. Record buildProxy and init stages, return/then types, getter/shutdown types; normalize synchronous and promise returns with Promise.resolve. No retry, additional manifest permission or climate request. Same nativeTick serialization. CI and in-car results pending.

@@ -94,8 +94,11 @@ function proxyError(e){
 }
 async function readProfile(signals,opts={}){
  const report=read(opts),item=report.samples[FIELD]={status:'not-started'};
- let localProfile=null,p,timer;
- const bound=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('timeout')),ms);})]).finally(()=>clearTimeout(timer));
+ let localProfile=null,p;
+ const bound=(promise,ms)=>new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>reject(Error('timeout')),ms);
+  Promise.resolve(promise).then(v=>{clearTimeout(timer);resolve(v);},e=>{clearTimeout(timer);reject(e);});
+ });
  try{
   const catalog=JSON.parse((opts.io||fs).readFileSync(CATALOG,'utf8'));
   const entry=catalog.interfaces&&catalog.interfaces[PROFILE],f=entry&&entry.fields&&entry.fields[FIELD];
@@ -110,9 +113,10 @@ async function readProfile(signals,opts={}){
   item.configInstanceKeys=Object.keys(cfg.instanceIDs||cfg.instances||{}).filter(k=>k==='1').slice(0,1);
   const started=Date.now();
   const pending=Promise.resolve().then(()=>signals.proxyDiagnostic(PROFILE,'1',item.proxyStages={}));
-  try{p=await bound(pending,4000);}catch(e){item.proxyError=proxyError(e);pending.then(x=>x&&x.shutdown&&x.shutdown()).catch(()=>{});throw e;}finally{item.proxyElapsedMs=Date.now()-started;}
+  try{const handle=await bound(pending,4000);p=handle.proxy;item.proxyHandoff='received';}catch(e){item.proxyError=proxyError(e);pending.then(x=>x&&x.proxy&&x.proxy.shutdown&&x.proxy.shutdown()).catch(()=>{});throw e;}finally{item.proxyElapsedMs=Date.now()-started;}
   item.status='getter-failed';
-  const value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);
+  item.getterAttempted=true;
+  let value;try{value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);}catch(e){item.getterErrorKind=e&&e.message==='timeout'?'timeout':e instanceof TypeError?'type-error':'rejected';throw e;}
   const raw=value&&typeof value==='object'?value[FIELD]:value;
   if((typeof raw==='string'&&raw.length>0&&raw.length<=128)||(Number.isSafeInteger(raw)&&raw>=0)){
    localProfile=String(raw);item.status='sample';report.profile.status='sample';
