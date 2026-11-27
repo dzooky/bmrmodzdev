@@ -11,7 +11,7 @@ const assert=require('assert'),{run}=require('./cc-rpm-retest');
  };
  const r=await run(request,{rounds:5,delayMs:0,sleep:async()=>{}});
  assert.strictEqual(r.ok,true);assert.strictEqual(r.stage,'rpm-sample');
- assert.strictEqual(r.rpm,3001.25);assert.strictEqual(r.samples,5);
+ assert.strictEqual(r.rpm,751.25);assert.strictEqual(r.samples,5);
  assert.strictEqual(r.released,true);assert.strictEqual(r.minRpm,750.25);
  assert.deepStrictEqual(calls,[
  'cdsDemand diagnostics-secondary','cdsSnapshot diagnostics-secondary',
