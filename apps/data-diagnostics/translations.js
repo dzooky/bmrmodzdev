@@ -12,6 +12,7 @@ const catalogs={
     "CC Sources":"CC Sources",
     "CC Wheel OEM":"CC Wheel OEM",
     "CC OEM Services":"CC OEM Services",
+    "OEM wheel diagnostics – manual tests only":"OEM wheel diagnostics – manual tests only",
     "Read-only OEM service discovery":"Read-only OEM service discovery",
     "ClimateMaster + SteeringWheelClimate + BDC":"ClimateMaster + SteeringWheelClimate + BDC",
     "Run OEM source test":"Run OEM source test",
