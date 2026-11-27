@@ -2,6 +2,7 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Profile getter only - climate rules not tested": "Profile getter only - climate rules not tested",
     "Catalog metadata only - values unavailable": "Catalog metadata only - values unavailable",
     "Active BMW profile": "Active BMW profile",
     "Reading status": "Reading status",

@@ -81,4 +81,30 @@ function read(opts={}){
  out.capabilities=capabilities(io);
  return out;
 }
-module.exports={inspect,capture,keys,read,shape,profiles,targets,capabilities};
+// Isolated, manually triggered profile getter. Never export the profile identifier.
+const PROFILE='de.bmw.infrastructure.DriverSelectionModule',FIELD='piaProfileId';
+async function readProfile(signals,opts={}){
+ const report=read(opts),item=report.samples[FIELD]={status:'not-started'};
+ let localProfile=null,p,timer;
+ const bound=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('timeout')),ms);})]).finally(()=>clearTimeout(timer));
+ try{
+  const catalog=JSON.parse((opts.io||fs).readFileSync(CATALOG,'utf8'));
+  const entry=catalog.interfaces&&catalog.interfaces[PROFILE],f=entry&&entry.fields&&entry.fields[FIELD];
+  if(!f||f.getter==null||!Object.prototype.hasOwnProperty.call((catalog.instanceIDs||{})[PROFILE]||{},'1')){item.status='catalog-mismatch';return {report,localProfile};}
+  if(!signals||typeof signals.loadConfig!=='function'||typeof signals.proxy!=='function'){item.status='runtime-unavailable';return {report,localProfile};}
+  let cfg;try{cfg=signals.loadConfig(PROFILE);}catch(_){item.status='config-unavailable';return {report,localProfile};}
+  if(!cfg.fields||!cfg.fields[FIELD]||cfg.fields[FIELD].getter==null){item.status='config-no-getter';return {report,localProfile};}
+  item.status='proxy-failed';
+  const pending=Promise.resolve().then(()=>signals.proxy(PROFILE,'1'));
+  try{p=await bound(pending,4000);}catch(e){pending.then(x=>x&&x.shutdown&&x.shutdown()).catch(()=>{});throw e;}
+  item.status='getter-failed';
+  const value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);
+  const raw=value&&typeof value==='object'?value[FIELD]:value;
+  if((typeof raw==='string'&&raw.length>0&&raw.length<=128)||(Number.isSafeInteger(raw)&&raw>=0)){
+   localProfile=String(raw);item.status='sample';report.profile.status='sample';
+  }else{item.status='unrecognized-shape';item.type=Array.isArray(value)?'array':typeof value;item.keys=value&&typeof value==='object'?Object.keys(value).filter(k=>/^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/.test(k)).slice(0,12):[];}
+ }catch(e){if(e&&e.message==='timeout')item.status+='-timeout';else if(item.status==='not-started')item.status='catalog-unavailable';}
+ finally{if(p&&p.shutdown)try{await bound(Promise.resolve().then(()=>p.shutdown()),1500);}catch(_){}}
+ return {report,localProfile};
+}
+module.exports={inspect,capture,keys,read,shape,profiles,targets,capabilities,readProfile,PROFILE,FIELD};

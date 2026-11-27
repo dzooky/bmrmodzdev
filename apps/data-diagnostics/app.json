@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -55,7 +55,13 @@
       ]
     }
   ],
-  "signals": {},
+  "signals": {
+    "de.bmw.infrastructure.DriverSelectionModule": {
+      "_instances": "1",
+      "_optional": "BMW profile diagnostic",
+      "piaProfileId": "r"
+    }
+  },
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1"
