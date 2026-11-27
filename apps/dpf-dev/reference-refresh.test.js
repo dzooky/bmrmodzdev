@@ -12,13 +12,13 @@ const {forDde,B57,B47}=require('./dde-profiles');
  const requested=[];
  const {snapshots,info}=await collect(b47,original,async(ecu,did)=>{
   requested.push([ecu,did]);
-  const len=did===0x44BF?4:2;
+  const len=b47.overview.concat(b47.detail).find(r=>r[1]===did)[2];
   return [0x62,did>>8,did&255,...Array(len).fill(0)];
  },now);
- assert.strictEqual(requested.length,3,'skip fresh native soot');
- assert.deepStrictEqual(requested.map(x=>x[1]),[0x44BD,0x44BF,0x44C7]);
- assert.strictEqual(info.completed,3);
- assert.strictEqual(info.missing,3);
+ assert.strictEqual(requested.length,8,'skip fresh native soot');
+ assert.deepStrictEqual(requested.map(x=>x[1]),[0x44BD,0x44BF,0x44C7,0x44F8,0x434A,0x44B7,0x44C2,0x44C1]);
+ assert.strictEqual(info.completed,8);
+ assert.strictEqual(info.missing,8);
  assert.strictEqual(snapshots.SOOT.raw,100);
  assert.strictEqual(snapshots.ASH.source,'legacy');
  assert.strictEqual(snapshots.SINCE.source,'legacy');
