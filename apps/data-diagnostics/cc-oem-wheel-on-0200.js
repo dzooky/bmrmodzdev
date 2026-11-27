@@ -36,10 +36,15 @@ async function run(options){
   if(out.samples.length<28)out.samples.push({at:new Date(liveAt).toISOString(),
    elapsedMs:liveAt-Date.parse(out.startedAt),state:s});
  };
- async function refresh(){
-  if(sub&&sub.proxy&&typeof sub.proxy.getValue==='function'){
-   try{update(await sub.proxy.getValue('heatingState',1200));}catch(e){out.errors.push('refresh:'+err(e));}
+ // Vehicle's SOME/IP proxy does not expose get:heatingState. Only the
+ // watch callback is a supported observation path on this platform.
+ // Bounded wait: never send an ON request without a recent valid OFF sample.
+ async function awaitInitialState(){
+  for(let i=0;i<6;i++){
+   if(live&&now()-liveAt>=0&&now()-liveAt<=3000)return true;
+   await delay(1000);
   }
+  return !!(live&&now()-liveAt>=0&&now()-liveAt<=3000);
  }
  const snapshot=()=>live?{...live,at:new Date(liveAt).toISOString()}:null;
  async function ask(phase,timeout,values){
@@ -69,8 +74,8 @@ async function run(options){
   if(!sub||sub.available===false||sub.error||!sub.proxy){
    mark('oem-unavailable');if(sub&&sub.error)out.errors.push(err(sub.error));return out;
   }
-  await refresh();
-  if(!live||now()-liveAt>3000){
+  await awaitInitialState();
+  if(!live||now()-liveAt<0||now()-liveAt>3000){
    mark('no-fresh-oem-state');return out;
   }
   out.before=snapshot();
@@ -85,7 +90,7 @@ async function run(options){
    const r=await o.signals.call(sub.proxy,'requestHeating',payload,3000);
    out.requestAccepted=true;out.reply=r===undefined?'no-method-reply':'returned';
   }catch(e){out.errors.push('request:'+err(e));mark('request-error');return out;}
-  for(let i=0;i<5;i++){await delay(1000);await refresh();}
+  for(let i=0;i<5;i++)await delay(1000);
   out.after=snapshot();
   // User feedback is captured even if no state update was delivered.
   out.kombi=await ask('kombi-on',12000,['activated','deactivated','none']);
@@ -93,7 +98,7 @@ async function run(options){
   const press=await ask('press-oem-button',15000,['pressed']);
   if(press==='pressed'){
    out.oemButton=await ask('kombi-after-button',12000,['activated','deactivated','none']);
-   for(let i=0;i<3;i++){await delay(1000);await refresh();}
+   for(let i=0;i<3;i++)await delay(1000);
    out.afterButton=snapshot();
    out.bdc=await bdc();
   }else{
