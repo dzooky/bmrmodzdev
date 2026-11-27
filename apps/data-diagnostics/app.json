@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -55,48 +55,10 @@
       ]
     }
   ],
-  "signals": {
-    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
-      "_instances": "SystemFunctionsInternalTasuInst1",
-      "_methods": [
-        "sendTasuRequest"
-      ],
-      "_broadcasts": [
-        "sendTasuResponse"
-      ],
-      "_optional": "Read-only native front seat-belt comparison"
-    },
-    "de.bmw.infrastructure.VehicleInformation": {
-      "_optional": "Manual read-only Redline gearbox selector candidate; not an established Data Tool source",
-      "statusGearboxDrive": "s",
-      "DataPowerTrain2": "s"
-    },
-    "de.bmw.infrastructure.analytics.BasicDataSet": {
-      "_optional": "Diagnostic-only read-only gear lever candidate, independent of Data Tool",
-      "basicDataSet": "s"
-    },
-    "de.bmw.infotainment.misc.MDrive": {
-      "_optional": "Diagnostic-only read-only gearbox display program candidate",
-      "dataDisplayGearbox": "s"
-    },
-    "de.bmw.infotainment.climate.climatemaster.ClimateMaster": {
-      "_optional": "Diagnostic-only read-only OEM wheel status. No setters or methods.",
-      "statusSteeringWheelHeating": "s",
-      "statusAvailableSteeringWheelHeating": "s"
-    },
-    "de.bmw.body.steeringwheelcomfort.SteeringWheelClimate": {
-      "_optional": "Manual double-confirm-only OEM wheel ON test; single requestHeating(true) after fresh OFF state and front seat belt gate",
-      "heatingState": "s",
-      "_methods": [
-        "requestHeating"
-      ]
-    }
-  },
+  "signals": {},
   "requires": {
     "idrive7-renderd": "2.1.19",
-    "mgu-inputgate": "1.2.1",
-    "bmrmodz-data-tool": "0.1.73",
-    "data-native-provider": "0.1.1"
+    "mgu-inputgate": "1.2.1"
   },
   "mguInternet": true
 }

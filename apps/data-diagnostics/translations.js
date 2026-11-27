@@ -2,6 +2,15 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Climate Comfort Rules": "Climate Comfort Rules",
+    "Driver seat heating": "Driver seat heating",
+    "Driver seat ventilation": "Driver seat ventilation",
+    "Steering wheel heating": "Steering wheel heating",
+    "UNKNOWN": "UNKNOWN",
+    "Read status": "Read status",
+    "Send report": "Send report",
+    "Catalog discovery only - rule values not yet verified": "Catalog discovery only - rule values not yet verified",
+    "Report save failed": "Report save failed",
     "Native": "Native",
     "Tool": "Tool",
     "Service TASU": "Service TASU",
