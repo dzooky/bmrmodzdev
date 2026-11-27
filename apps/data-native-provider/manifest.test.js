@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),path=require('path');
 const a=require('./app.json');
-assert.equal(a.id,'data-native-provider');assert.equal(a.version,'0.1.1');
+assert.equal(a.id,'data-native-provider');assert.equal(a.version,'0.1.2');
 assert.equal(a.mguAppStartType,'autostart');
 assert.deepStrictEqual(a.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
 assert.equal(a.signals['de.bmw.infrastructure.VehicleInformation'],undefined);
@@ -10,5 +10,10 @@ const build=fs.readFileSync(path.join(__dirname,'../../kit/tools/build.py'),'utf
 assert(build.includes("pkg['mguAppStartType'] = spec['mguAppStartType']"));
 const main=fs.readFileSync(path.join(__dirname,'main.js'),'utf8');
 assert(main.indexOf('headless.start(')<main.indexOf('mgu.run('));
-for(const t of ['This application is still in development phase and not ready for public use.','We still working on it and will be available soon.','Thank you'])assert(main.includes(t));
+assert(main.includes('idriveLanguage.watch(ctx'));
+assert.equal(a.signals['de.bmw.infotainment.hmi.hmicontext.HMIContext'].currentDisplayLanguage,'rs');
+assert.equal(a.screens.length,1);assert.equal(a.settings.length,0);assert.equal(a.screens[0].bar,false);
+const locales=require('./locales');const codes=require('../osa-dev/app.json').settings.find(s=>s.key==='language').options.map(o=>o[0]);
+assert.equal(codes.length,22);assert.deepStrictEqual(Object.keys(locales).sort(),codes.sort());
+for(const lines of Object.values(locales)){assert.equal(lines.length,5);assert(lines.every(s=>typeof s==='string'&&s.length>0));}
 console.log('Native provider autostart manifest and supported OAP package metadata PASS');
