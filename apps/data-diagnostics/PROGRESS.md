@@ -1,3 +1,8 @@
+## v0.2.8 — Restore installation after SOME/IP manifest rejection (2026-11-27)
+- In-car report: 0.2.7 installation rejected with `some/ip manifest ask for what the unit does not have`. Exact offending interface/field unknown. Catalog field presence does not establish subscribability or manifest support.
+- Fix: restore empty signals manifest from installed 0.2.6; remove runtime watches for both unverified fields. Keep profile candidate discovery and add passive field metadata (getter/notifier/setter presence, instance keys, schema keys). No permission bypass, no values read, no writes. Rule/profile states remain UNKNOWN. CI pending; installation not yet confirmed.
+- Next: inspect report to distinguish setter-only/notification/readable fields and supported instances before requesting any new permission.
+
 ## v0.2.7 — OEM rule candidate reads and BMW profile discovery (2026-11-27)
 - Vehicle evidence 0.2.6: catalog returned Climate.operationAutomaticSwitchDriverSeat and ClimateMaster.statusClimateUpdateAutomatic; no values or rule mapping yet. CI 46072224182 passed, merged PR #170.
 - Implemented: one read-only watch per candidate, bounded numeric/boolean payload capture, profile-related catalog metadata discovery, active profile row UNKNOWN pending verified source. No profile identity is read or exported in this version. No ECU or write calls. Eight captures with values retained. No shared tool changes. CI pending; no in-car verification.

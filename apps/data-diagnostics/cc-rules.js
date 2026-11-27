@@ -59,20 +59,26 @@ function profiles(io=fs){
   }return found;
  }catch(_){return [];}
 }
-async function read(signals,opts={}){
- const out=capture(opts.io||fs);out.profile={status:'UNKNOWN',candidates:profiles(opts.io||fs)};out.samples={};
- const pause=opts.pause||(ms=>new Promise(r=>setTimeout(r,ms)));
- for(const [iface,field] of targets){
-  const item=out.samples[field]={status:'no-sample',value:null};let sub,ended=false,timer;
-  try{
-   const pending=Promise.resolve().then(()=>signals.watch(iface,'1',{[field]:v=>{if(!ended){item.status='sample';item.value=shape(v);}}},opts.log));
-   const race=await Promise.race([pending,new Promise(r=>{timer=setTimeout(()=>r(null),3000);})]);clearTimeout(timer);
-   if(!race){item.status='watch-timeout';pending.then(s=>s&&s.shutdown&&s.shutdown()).catch(()=>{});continue;}
-   sub=race;if(sub.error){item.status='watch-error';continue;}
-   await pause(2500);if(item.status!=='sample'&&sub.available===false)item.status='unavailable';
-  }catch(_){item.status='watch-error';}
-  finally{ended=true;clearTimeout(timer);if(sub&&sub.shutdown)try{await sub.shutdown();}catch(_){}}
- }
+// Passive metadata only: no proxy, getter, or unauthorized interface access.
+function capabilities(io=fs){
+ const result={};
+ try{
+  const st=io.statSync(CATALOG);if(!st.isFile()||st.size>20*1024*1024)throw Error('catalog');
+  const i=JSON.parse(io.readFileSync(CATALOG,'utf8')).interfaces||{};
+  for(const [name,field] of targets){
+   const entry=i[name]||{},f=(entry.fields||entry.attributes||entry.properties||{})[field];
+   const safeKeys=o=>o&&typeof o==='object'?Object.keys(o).filter(k=>/^[a-zA-Z0-9_.:-]{1,100}$/.test(k)).slice(0,30):[];
+   const instances=entry.instances||entry.instanceMap||entry.availableInstances;
+   result[field]={present:!!f,keys:safeKeys(f),getter:!!(f&&f.getter),notifier:!!(f&&f.notifier),setter:!!(f&&f.setter),instances:safeKeys(instances),status:'metadata-only'};
+  }
+ }catch(_){}
+ return result;
+}
+function read(opts={}){
+ const io=opts.io||fs,out=capture(io);
+ out.profile={status:'UNKNOWN',candidates:profiles(io)};
+ out.samples={};
+ out.capabilities=capabilities(io);
  return out;
 }
-module.exports={inspect,capture,keys,read,shape,profiles,targets};
+module.exports={inspect,capture,keys,read,shape,profiles,targets,capabilities};
