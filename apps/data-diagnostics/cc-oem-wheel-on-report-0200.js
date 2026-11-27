@@ -1,7 +1,7 @@
 'use strict';
 // Private sanitized four-attempt report, including rejected/unavailable attempts.
 const fs=require('fs'),path=require('path');
-const FILE='cc-oem-wheel-on-0200.json',VERSION='0.2.00';
+const FILE='cc-oem-wheel-on-0200.json',VERSION='0.2.0';
 const str=(v,n)=>String(v==null?'':v).slice(0,n);
 const stamp=v=>str(v,30);
 const state=v=>v&&typeof v==='object'?{at:stamp(v.at),
@@ -46,7 +46,7 @@ function create(file,io){
   attempts=next;return snapshot();
  }
  const envelope=()=>({schema:1,application:'bmrmodz-data-diagnostics',
-  runMode:'cc-oem-wheel-on-manual-0.2.00',results:[],notes:{ccOemWheelOn:snapshot()}});
+  runMode:'cc-oem-wheel-on-manual-0.2.0',results:[],notes:{ccOemWheelOn:snapshot()}});
  function lines(){
   const out=[];
   for(const a of attempts){

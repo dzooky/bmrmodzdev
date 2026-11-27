@@ -12,7 +12,7 @@ assert.strictEqual(spec.signals['de.bmw.infrastructure.analytics.BasicDataSet'].
 assert.deepStrictEqual(spec.signals['de.bmw.body.steeringwheelcomfort.SteeringWheelClimate']._methods,['requestHeating']);
 assert.strictEqual(spec.signals['de.bmw.infotainment.misc.MDrive'].dataDisplayGearbox,'s');
 assert.deepStrictEqual(spec.signals['com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu']._methods,['sendTasuRequest']);
-assert.strictEqual(spec.version,'0.2.00');
+assert.strictEqual(spec.version,'0.2.0');
 assert.strictEqual(spec.signals['de.bmw.infrastructure.VehicleInformation'].statusGearboxDrive,'s');
 assert.strictEqual(spec.signals['de.bmw.infrastructure.VehicleInformation'].DataPowerTrain2,'s');
 assert.strictEqual(spec.requires['bmrmodz-data-tool'],'0.1.73');
