@@ -10,7 +10,8 @@ const profileRows=Object.freeze({
   ['LOCK',0x44C2,1],['AVG TEMP',0x4B4A,2],['REMAINING',0x4C78,2]
  ]),
  B47:Object.freeze([
-  ['SOOT',0x44BE,2],['ASH',0x44BD,2],['SINCE',0x44BF,4],['AVERAGE',0x44C7,2]
+  ['SOOT',0x44BE,2],['ASH',0x44BD,2],['SINCE',0x44BF,4],['AVERAGE',0x44C7,2],
+  ['PRESSURE',0x44F8,2],['TEMP',0x434A,2],['RUNTIME',0x44B7,4],['LOCK',0x44C2,1],['SOOT CALCULATED',0x44C1,2]
  ])
 });
 const IDENTITIES=Object.freeze({'0F1FE8':'B57','0F2678':'B47'});
