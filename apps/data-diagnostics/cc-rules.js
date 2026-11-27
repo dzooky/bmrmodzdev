@@ -83,7 +83,7 @@ function read(opts={}){
 }
 // Isolated, manually triggered profile getter. Never export the profile identifier.
 const PROFILE='de.bmw.infrastructure.DriverSelectionModule',FIELD='piaProfileId';
-// Error messages are only collected before the getter can return profile data.
+// Error messages are restricted to allowlisted technical words; never export getter values.
 // Restrict output to known technical words and redact every other token.
 function proxyError(e){
  const msg=String(e&&e.message||e||'').slice(0,512);
@@ -114,9 +114,15 @@ async function readProfile(signals,opts={}){
   const started=Date.now();
   const pending=Promise.resolve().then(()=>signals.proxyDiagnostic(PROFILE,'1',item.proxyStages={}));
   try{const handle=await bound(pending,4000);p=handle.proxy;item.proxyHandoff='received';}catch(e){item.proxyError=proxyError(e);pending.then(x=>x&&x.proxy&&x.proxy.shutdown&&x.proxy.shutdown()).catch(()=>{});throw e;}finally{item.proxyElapsedMs=Date.now()-started;}
+  item.providerAvailableBefore=null;
+  item.availabilityMethod=typeof p.isAvailable;
+  if(typeof p.isAvailable==='function'){
+   try{const a=await bound(Promise.resolve().then(()=>p.isAvailable()),1000);if(typeof a==='boolean')item.providerAvailableBefore=a;}catch(e){item.availabilityError=proxyError(e);}
+  }
   item.status='getter-failed';
   item.getterAttempted=true;
-  let value;try{value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);}catch(e){item.getterErrorKind=e&&e.message==='timeout'?'timeout':e instanceof TypeError?'type-error':'rejected';throw e;}
+  const getterStarted=Date.now();
+  let value;try{value=await bound(Promise.resolve().then(()=>p.getValue(FIELD,2500)),3500);}catch(e){item.getterErrorKind=e&&e.message==='timeout'?'timeout':e instanceof TypeError?'type-error':'rejected';item.getterError=proxyError(e);item.getterRejectionType=typeof e;throw e;}finally{item.getterElapsedMs=Date.now()-getterStarted;}
   const raw=value&&typeof value==='object'?value[FIELD]:value;
   if((typeof raw==='string'&&raw.length>0&&raw.length<=128)||(Number.isSafeInteger(raw)&&raw>=0)){
    localProfile=String(raw);item.status='sample';report.profile.status='sample';
