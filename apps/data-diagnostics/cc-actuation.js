@@ -2,7 +2,12 @@
 // Manual, foreground-only OAP TASU proof. This does NOT give the Data Tool an
 // actuator API: its ctl.sock is mode 0666 and is NOT an authorized control path.
 // No automatic actions, arbitrary ECU parameters, raw UDS API or background runs.
-const {Diag,replyTo}=require('./kit/diag');
+// The installed MGU kit is generated at build time; keep unit tests isolated.
+function replyTo(sid,data){
+ const echo=(data||[]).slice(0,sid===0x31?3:2);
+ return u=>Array.isArray(u)&&((u[0]===sid+0x40&&echo.every((b,i)=>u[i+1]===b))||
+   (u[0]===0x7f&&u[1]===sid));
+}
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const CASES=Object.freeze({
  frontHeat:{label:'Front left heating',kind:'seat',ecu:0x78,button:0x1b,offset:19,belt:'frontLeft'},
@@ -33,7 +38,7 @@ async function run(id,options){
  // Caller must confirm parking, equipment and a latched occupant belt on screen.
  // This is operator confirmation, NOT a verified transmission/speed read.
  if(opts.confirmed!==true){out.stage='not-confirmed';out.status='SKIP';return out;}
- const Diagnostic=opts.Diag||Diag,sleep=opts.pause||pause,log=opts.log||{info(){},warn(){}};
+ const Diagnostic=opts.Diag||require('./kit/diag').Diag,sleep=opts.pause||pause,log=opts.log||{info(){},warn(){}};
  let diag,seatAttempt=false,wheelAttempt=false;
  try{
   add('native-init');
