@@ -476,36 +476,6 @@ def discover_spritmonitor_location(spec):
         spec.setdefault('config', {})['stationPositioning'] = {'interface': name, 'instance': instance}
 
 
-def discover_cc_rule_getters(spec):
-    """Use only the installed catalog and unambiguous getter instances."""
-    candidates = [
-        ('de.bmw.infotainment.climate.Climate', 'operationAutomaticSwitchDriverSeat'),
-        ('de.bmw.infotainment.climate.climatemaster.ClimateMaster', 'statusClimateUpdateAutomatic'),
-        ('de.bmw.infrastructure.DriverSelectionModule', 'piaProfileId'),
-    ]
-    spec.setdefault('config', {})['ccRuleGetters'] = []
-    try:
-        with open(os.environ.get('MGU_SOMEIP_CATALOG', '/etc/oap/someip/someip-interfaces.json'), encoding='utf-8') as file:
-            catalog = json.load(file)
-        interfaces, instances = catalog['interfaces'], catalog['instanceIDs']
-        if not isinstance(interfaces, dict) or not isinstance(instances, dict):
-            return
-    except (OSError, ValueError, KeyError, TypeError):
-        return
-    for name, field in candidates:
-        interface = interfaces.get(name)
-        known = instances.get(name)
-        if not isinstance(interface, dict) or not isinstance(known, dict) or len(known) != 1:
-            continue
-        fields = interface.get('fields')
-        definition = fields.get(field) if isinstance(fields, dict) else None
-        if not isinstance(definition, dict) or definition.get('getter') is None:
-            continue
-        instance = next(iter(known))
-        spec['signals'][name] = {'_instances': instance, '_optional': 'CC diagnostic getter', field: 'r'}
-        spec['config']['ccRuleGetters'].append({'interface': name, 'field': field, 'instance': instance})
-
-
 def build(app_id, language='en', preview_only=False):
     language = normalize_language(language)
     # mgu-store supplies the BMW SDK donor and links it into the app on the head unit.
@@ -519,8 +489,6 @@ def build(app_id, language='en', preview_only=False):
     spec.setdefault('id', app_id)
     if spec['id'] == 'spritmonitor':
         discover_spritmonitor_location(spec)
-    if spec['id'] == 'data-diagnostics':
-        discover_cc_rule_getters(spec)
     ver = spec['version']
     stage = os.path.join(DIST, app_id)
     # The source folder may use display casing; keep the installed identity stable.

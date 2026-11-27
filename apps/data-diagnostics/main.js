@@ -4,7 +4,7 @@ const {t}=require('./translations'),{upload}=require('./upload');
 const fs=require('fs'),path=require('path');
 mgu.run({start(ctx){
  const {ui,log}=ctx,word=k=>t(ctx.settings.get('language')||'en',k);
- const file=path.join(ctx.dataDir,'cc-rules-029.json');
+ const file=path.join(ctx.dataDir,'cc-rules-0210.json');
  let history=[],latest=null,busy=false,message='',localProfile=null;
  try{const x=JSON.parse(fs.readFileSync(file,'utf8'));if(Array.isArray(x))history=x.slice(-8);}catch(_){}
  const label=(cv,text,x,y,size,color,opts)=>cv.text(String(text).slice(0,105),x,y,size,color,Object.assign({literal:true},opts||{}));
@@ -13,12 +13,12 @@ mgu.run({start(ctx){
   try{const result=await rules.sample(ctx.signals,(ctx.spec.config||{}).ccRuleGetters,{log});latest=result.report;localProfile=result.localProfile;history=history.concat([latest]).slice(-8);
   // Keep the latest catalog inventory only; repeated snapshots preserve timestamps and states.
   history=history.map((v,i)=>i===history.length-1?v:{at:v.at,states:v.states,discovery:{status:v.discovery.status},samples:v.samples,profile:{status:v.profile.status},readOnly:true,writeCount:0});
-  try{fs.writeFileSync(file+'.tmp',JSON.stringify(history),{mode:0o600});fs.renameSync(file+'.tmp',file);message=latest.discovery.status;}catch(_){message=word('Report save failed');}
+  try{fs.writeFileSync(file+'.tmp',JSON.stringify(history),{mode:0o600});fs.renameSync(file+'.tmp',file);message=Object.values(latest.samples).filter(x=>x.status==='sample').length+'/3 '+word('Getter samples');}catch(_){message=word('Report save failed');}
   }catch(_){message=word('Read failed');}finally{busy=false;}
  }
  async function send(){
   if(!history.length)return;busy=true;message=word('Sending');
-  try{const r=await upload({schema:1,application:'bmrmodz-data-diagnostics',runMode:'cc-rules-catalog-0.2.9',results:[],notes:{ccRules:history}},ctx.dataDir);message=word('Report sent')+': '+r.id;}catch(e){message=word('Send failed')+': '+String(e.message||e).slice(0,55);}finally{busy=false;}
+  try{const r=await upload({schema:1,application:'bmrmodz-data-diagnostics',runMode:'cc-rules-catalog-0.2.10',results:[],notes:{ccRules:history}},ctx.dataDir);message=word('Report sent')+': '+r.id;}catch(e){message=word('Send failed')+': '+String(e.message||e).slice(0,55);}finally{busy=false;}
  }
  ctx.onTap((x,y)=>{if(busy||y<385||y>465)return;if(x>=90&&x<=760)read();else if(x>=840&&x<=1510)send();});
  async function render(){

@@ -2,12 +2,29 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
   "config": {
-    "customSettings": false
+    "customSettings": false,
+    "ccRuleGetters": [
+      {
+        "interface": "de.bmw.infotainment.climate.Climate",
+        "field": "operationAutomaticSwitchDriverSeat",
+        "instance": "1"
+      },
+      {
+        "interface": "de.bmw.infotainment.climate.climatemaster.ClimateMaster",
+        "field": "statusClimateUpdateAutomatic",
+        "instance": "1"
+      },
+      {
+        "interface": "de.bmw.infrastructure.DriverSelectionModule",
+        "field": "piaProfileId",
+        "instance": "1"
+      }
+    ]
   },
   "screens": [
     {
@@ -55,7 +72,23 @@
       ]
     }
   ],
-  "signals": {},
+  "signals": {
+    "de.bmw.infotainment.climate.Climate": {
+      "_instances": "1",
+      "_optional": "CC diagnostic getter",
+      "operationAutomaticSwitchDriverSeat": "r"
+    },
+    "de.bmw.infotainment.climate.climatemaster.ClimateMaster": {
+      "_instances": "1",
+      "_optional": "CC diagnostic getter",
+      "statusClimateUpdateAutomatic": "r"
+    },
+    "de.bmw.infrastructure.DriverSelectionModule": {
+      "_instances": "1",
+      "_optional": "CC diagnostic getter",
+      "piaProfileId": "r"
+    }
+  },
   "requires": {
     "idrive7-renderd": "2.1.19",
     "mgu-inputgate": "1.2.1"
