@@ -1,0 +1,22 @@
+name: OSA Engine Diagnostics isolated checks
+on:
+  pull_request:
+    paths: ['apps/osa-engine-diagnostics/**', '.github/workflows/osa-engine-diagnostics-check.yml']
+  push:
+    branches: [main]
+    paths: ['apps/osa-engine-diagnostics/**', '.github/workflows/osa-engine-diagnostics-check.yml']
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Syntax and comparison regression
+        run: |
+          node --check apps/osa-engine-diagnostics/main.js
+          node --check apps/osa-engine-diagnostics/measure.js
+          node apps/osa-engine-diagnostics/measure.test.js
+      - name: Build offline install preview
+        run: python3 kit/tools/build.py --preview-only osa-engine-diagnostics
