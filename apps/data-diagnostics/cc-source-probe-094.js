@@ -195,7 +195,7 @@ async function captureGuidedWheel(signals,options){
    const s=await read(phase);
    if(s.on===target)return s;
    if(now()>=deadline)break;
-   notify(phase,'Waiting for BDC '+(target?'ON':'OFF'));
+   notify(phase,'Press OEM wheel heating '+(target?'ON':'OFF')+' NOW; waiting for BDC '+(target?'ON':'OFF'));
    await delay(Math.min(pollMs,Math.max(1,deadline-now())));
   }
   return null;
