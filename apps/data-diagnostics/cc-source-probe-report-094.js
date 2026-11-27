@@ -1,15 +1,15 @@
 'use strict';
 const fs=require('fs'),path=require('path'),logic=require('./cc-source-probe-094');
-const FILE='cc-probe-094.json',VERSION='0.1.94';
+const FILE='cc-probe-095.json',VERSION='0.1.95';
 function safe(r){
  if(!r||!['wheelTrace','gearP','gearD'].includes(r.kind))return null;
  const x={kind:r.kind,at:String(r.at||'').slice(0,30),
   stage:String(r.stage||'unavailable').slice(0,60),
   errors:Array.isArray(r.errors)?r.errors.slice(0,8).map(t=>String(t).slice(0,95)):[]};
  if(r.kind==='wheelTrace'){
-  x.ok=r.ok===true;x.sequence='OEM button ON ~5s; OEM OFF ~35s';
-  x.samples=(r.samples||[]).slice(0,12).map(s=>({
-   elapsedSec:Number.isFinite(s.elapsedSec)?s.elapsedSec:null,
+  x.ok=r.ok===true;x.sequence=String(r.sequence||'OEM guided ON/OFF').slice(0,120);x.mode=r.mode==='guided-oem'?'guided-oem':'legacy';x.onDetected=r.onDetected===true;x.offDetected=r.offDetected===true;x.warmthHoldMs=Number.isFinite(r.warmthHoldMs)?r.warmthHoldMs:null;
+  x.samples=(r.samples||[]).slice(0,85).map(s=>({
+   elapsedSec:Number.isFinite(s.elapsedSec)?s.elapsedSec:null,phase:String(s.phase||'').slice(0,24),
    at:String(s.at||'').slice(0,30),
    bytes:Array.isArray(s.bytes)&&s.bytes.length<=32&&s.bytes.every(v=>Number.isInteger(v)&&v>=0&&v<=255)?s.bytes:null,
    on:s.on===true?true:s.on===false?false:null,
@@ -42,15 +42,15 @@ function create(file,io){
   captures:['wheelTrace','gearP','gearD'].filter(k=>rows[k]).map(k=>rows[k])});
  function save(r){const x=safe(r);if(!x)throw Error('Invalid source capture');
   rows[x.kind]=x;const body=JSON.stringify(snapshot());
-  if(Buffer.byteLength(body)>24000)throw Error('Source report too large');
+  if(Buffer.byteLength(body)>35000)throw Error('Source report too large');
   const tmp=f+'.tmp';disk.writeFileSync(tmp,body,{mode:0o600});disk.renameSync(tmp,f);return snapshot();
  }
  const envelope=()=>({schema:1,application:'bmrmodz-data-diagnostics',
-  runMode:'cc-oem-wheel-gear-sources-0.1.94',results:[],notes:{ccSourceProbe:snapshot()}});
+  runMode:'cc-guided-oem-wheel-gear-sources-0.1.95',results:[],notes:{ccSourceProbe:snapshot()}});
  function lines(){
   const out=[];for(const x of snapshot().captures){
-   out.push(x.kind+': '+x.stage+' / '+x.errors.join(' '));
-   if(x.samples){for(const s of x.samples)out.push(s.elapsedSec+'s '+(s.bytes?s.bytes.map(v=>v.toString(16).padStart(2,'0')).join(' '):'ERROR '+s.error));
+   out.push(x.kind+': '+x.stage+' / '+x.errors.join(' '));if(x.kind==='wheelTrace')out.push('OEM ON='+x.onDetected+' OFF='+x.offDetected+' / '+x.mode);
+   if(x.samples){for(const s of x.samples)out.push(s.elapsedSec+'s '+(s.phase?s.phase+' ':'')+(s.bytes?s.bytes.map(v=>v.toString(16).padStart(2,'0')).join(' '):'ERROR '+s.error));
     out.push('Changed offsets='+x.transitions.map(t=>t.from+'-'+t.to+':'+t.offsets.join(',')).join(' / '));}
    if(x.events){out.push('Sources='+JSON.stringify(x.sources));
     for(const e of x.events)out.push(e.source+':'+e.raw+' '+e.decoded);
