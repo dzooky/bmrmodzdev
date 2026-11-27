@@ -35,7 +35,7 @@ async function native(signals,log,options){
  result.status=status(result);return result;
 }
 async function tool(options){
- const opts=options||{},delay=opts.delay||nap,open=opts.connect||connect;
+ const opts=options||{},delay=opts.delay||nap,open=opts.connect||connect,duration=opts.durationMs===undefined?DURATION_MS:Math.max(0,Math.min(opts.durationMs,DURATION_MS));
  const result={source:'data-tool',values:row(),events:row(),errors:[],subscribed:false,available:false,invalid:[]};
  let client;
  try{
@@ -45,7 +45,7 @@ async function tool(options){
   const demand=await client.request({op:'demand',fields,freshnessMs});
   if(!demand||!demand.ok)throw Error('demand '+(demand&&demand.error||'rejected'));
   result.subscribed=true;
-  const end=Date.now()+DURATION_MS;
+  const end=Date.now()+duration;
   do{
    const snap=await client.request({op:'snapshot'});
    if(!snap||!snap.ok)throw Error('snapshot '+(snap&&snap.error||'rejected'));
