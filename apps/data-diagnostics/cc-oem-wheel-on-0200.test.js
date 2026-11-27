@@ -40,7 +40,7 @@ const origin=Date.parse('2026-11-27T18:00:00Z');
   for(let i=0;i<5;i++)log.save({...good,startedAt:new Date(origin+i*1000).toISOString()});
   assert.equal(log.snapshot().attempts.length,4);
   assert.equal(create(path.join(dir,'report.json')).snapshot().attempts.length,4);
-  assert.equal(log.envelope().runMode,'cc-oem-wheel-on-manual-0.2.00');
+  assert.equal(log.envelope().runMode,'cc-oem-wheel-on-manual-0.2.0');
   assert.equal(log.snapshot().oemSynchronizationVerified,false);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
  const noGate=await run({...options,beltGate:false});
