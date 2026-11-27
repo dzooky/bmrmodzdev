@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert'),fs=require('fs'),os=require('os'),path=require('path');
-const {create}=require('./distance-record');
+const {create,createMass}=require('./distance-record');
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'dpf-distance-'));
 try{
   const h=create(dir);
@@ -19,7 +19,27 @@ try{
   const reloaded=create(dir);
   assert.strictEqual(reloaded.maxKm,430.2); // survived restart
   assert.strictEqual(reloaded.scale(350,12),500);
-  console.log('DPF persistent adaptive distance scale verified');
+  const m=createMass(dir);
+  assert.strictEqual(m.scale('SOOT'),50);
+  assert.strictEqual(m.scale('ASH'),50);
+  assert.strictEqual(m.observe('SOOT',0),false);
+  assert.strictEqual(m.observe('SOOT',28),true);
+  assert.strictEqual(m.scale('SOOT'),35);
+  assert.strictEqual(m.scale('ASH'),50);
+  assert.strictEqual(m.observe('ASH',27.3),true);
+  assert.strictEqual(m.scale('ASH'),35);
+  assert.strictEqual(m.observe('SOOT',2),false);
+  assert.strictEqual(m.observe('SOOT',NaN),false);
+  assert.strictEqual(m.observe('ASH',-1),false);
+  assert.strictEqual(m.observe('ASH',1001),false);
+  assert.strictEqual(m.observe('SOOT',42),true);
+  assert.strictEqual(m.scale('SOOT'),55);
+  const restored=createMass(dir);
+  assert.strictEqual(restored.scale('SOOT'),55);
+  assert.strictEqual(restored.scale('ASH'),35);
+  assert.strictEqual(restored.observe('SOOT',10),false);
+  assert.strictEqual(create(dir).maxKm,430.2);
+  console.log('DPF persistent adaptive distance and mass scales verified');
 }finally{
   fs.rmSync(dir,{recursive:true,force:true});
 }
