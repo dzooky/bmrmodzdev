@@ -30,6 +30,6 @@ async function run(request,previous){
  try{next=await request({op:'ccNativeSnapshot'},{timeoutMs:21000});}
  catch(e){return {ok:false,stage:'request-error',error:String(e&&e.message||e).slice(0,80)};}
  if(!next||next.ok!==true)return {ok:false,stage:next&&next.stage||'provider-unavailable'};
- return compare(previous,next);
+ return Object.assign(compare(previous,next),{sample:next});
 }
 module.exports={run,compare};
