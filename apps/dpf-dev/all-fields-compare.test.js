@@ -5,7 +5,7 @@ const profiles=require('./dde-profiles');
 (async()=>{
  const b57=profiles.forDde(profiles.B57),b47=profiles.forDde(profiles.B47);
  assert.strictEqual(specFor(b57).length,12);
- assert.strictEqual(specFor(b47).length,4);
+ assert.strictEqual(specFor(b47).length,9);
  const specs=specFor(b57),now=Date.now(),samples={},raws={};
  for(const s of specs){raws[s.did]=s.len===1?10:s.len===2?100:10000;
   samples[s.key]={raw:raws[s.did],source:'legacy',at:now-1000};}
@@ -55,5 +55,5 @@ const profiles=require('./dde-profiles');
  },async()=>{throw Error('must not read expired sample');},now);
  assert.strictEqual(expired.rows[0].status,'no-sample','91s sample is stale');
  assert.strictEqual(missing.rows[0].display,'N/A');
- console.log('DPF DEV all-fields comparison: 12 B57/4 B47, exact OK, delta and missing handling PASS');
+ console.log('DPF DEV all-fields comparison: 12 B57/9 B47, exact OK, delta and missing handling PASS');
 })().catch(e=>{console.error(e);process.exitCode=1;});
