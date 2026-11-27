@@ -13,6 +13,7 @@ function safe(record){
   before:record.before===null||Number.isInteger(record.before)||typeof record.before==='object'?record.before:null,
   after:record.after===null||Number.isInteger(record.after)||typeof record.after==='object'?record.after:null,
   physicalFeedback:['heat-felt','no-heat','not-checked'].includes(record.physicalFeedback)?record.physicalFeedback:'not-checked',
+  kombiFeedback:['message-seen','no-message','not-checked'].includes(record.kombiFeedback)?record.kombiFeedback:'not-checked',
   gearObservation:record.gearSourceVerified===true&&['P','R','N','D'].includes(record.gearObservation)?record.gearObservation:null,
   gearSourceVerified:record.gearSourceVerified===true&&['P','R','N','D'].includes(record.gearObservation),
   checks:Array.isArray(record.checks)?record.checks.slice(0,4).map(c=>({seconds:c.seconds,on:c.on===true,fitted:c.fitted===true})):[],
@@ -46,6 +47,10 @@ function create(file,io){
   const current=Object.assign({},cases.wheelHeat,{physicalFeedback:value});
   return save(current);
  }
+ function kombi(value){
+  if(!['message-seen','no-message'].includes(value)||!cases.wheelHeat)throw Error('Missing wheel test');
+  return save(Object.assign({},cases.wheelHeat,{kombiFeedback:value}));
+ }
  function envelope(){
   return {schema:1,application:'bmrmodz-data-diagnostics',
    runMode:'cc-wheel-manual-0.1.92',results:[],
@@ -55,12 +60,12 @@ function create(file,io){
   const out=[];
   for(const s of snapshot().cases){
    out.push(s.id+' '+s.status+' / '+s.stage+' / '+s.error);
-   out.push('before='+JSON.stringify(s.before)+' after='+JSON.stringify(s.after)+' touch='+s.physicalFeedback+' gear='+String(s.gearObservation||'unverified'));
+   out.push('before='+JSON.stringify(s.before)+' after='+JSON.stringify(s.after)+' touch='+s.physicalFeedback+' KOMBI='+s.kombiFeedback+' gear='+String(s.gearObservation||'unverified'));
    for(const c of s.checks)out.push('check-'+c.seconds+'s='+c.on);
    for(const step of s.steps)out.push(step.stage+' '+step.request+' > '+step.response+(step.error?' '+step.error:''));
   }
   return out.length?out:['No tests collected'];
  }
- return {save,feedback,snapshot,envelope,lines};
+ return {save,feedback,kombi,snapshot,envelope,lines};
 }
 module.exports={create,safe,FILE,IDS};

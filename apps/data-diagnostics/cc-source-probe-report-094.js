@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('fs'),path=require('path'),logic=require('./cc-source-probe-094');
-const FILE='cc-probe-095.json',VERSION='0.1.95';
+const FILE='cc-probe-096.json',VERSION='0.1.96';
 function safe(r){
  if(!r||!['wheelTrace','gearP','gearD'].includes(r.kind))return null;
  const x={kind:r.kind,at:String(r.at||'').slice(0,30),
@@ -18,15 +18,19 @@ function safe(r){
   }));
   x.transitions=logic.wheelTransitions(x.samples);
  }else{
-  x.expected=r.kind==='gearD'?'D':'P';x.liveStageVerified=false;
+  x.expected=r.kind==='gearD'?'D':'P';x.mode=r.mode==='vehicle-information'?'vehicle-information':'legacy';x.liveStageVerified=false;
+  x.matchingObservation=r.matchingObservation===true;x.conflictingObservation=r.conflictingObservation===true;
   x.leverDObserved=r.leverDObserved===true;
   const source=r.sources||{};
-  x.sources={BasicDataSet:String(source.BasicDataSet||'unavailable').slice(0,55),
+  x.sources=x.mode==='vehicle-information'?{
+   statusGearboxDrive:String(source.statusGearboxDrive||'unavailable').slice(0,55),
+   DataPowerTrain2:String(source.DataPowerTrain2||'unavailable').slice(0,55)}:{
+   BasicDataSet:String(source.BasicDataSet||'unavailable').slice(0,55),
    MDrive:String(source.MDrive||'unavailable').slice(0,55)};
   x.events=(r.events||[]).slice(0,30).map(e=>({
    at:String(e.at||'').slice(0,30),
-   source:e.source==='BasicDataSet'?'BasicDataSet':'MDrive',
-   field:e.source==='BasicDataSet'?'operationGearSelectorSwitch':'displayProgramGearbox',
+   source:String(e.source||'unknown').slice(0,35),
+   field:String(e.field||'unknown').slice(0,45),
    raw:e.raw===null?null:String(e.raw||'').slice(0,45),
    decoded:e.decoded===null?null:String(e.decoded||'').slice(0,35)
   }));
@@ -46,7 +50,7 @@ function create(file,io){
   const tmp=f+'.tmp';disk.writeFileSync(tmp,body,{mode:0o600});disk.renameSync(tmp,f);return snapshot();
  }
  const envelope=()=>({schema:1,application:'bmrmodz-data-diagnostics',
-  runMode:'cc-guided-oem-wheel-gear-sources-0.1.95',results:[],notes:{ccSourceProbe:snapshot()}});
+  runMode:'cc-wheel-vehicleinformation-0.1.96',results:[],notes:{ccSourceProbe:snapshot()}});
  function lines(){
   const out=[];for(const x of snapshot().captures){
    out.push(x.kind+': '+x.stage+' / '+x.errors.join(' '));if(x.kind==='wheelTrace')out.push('OEM ON='+x.onDetected+' OFF='+x.offDetected+' / '+x.mode);
@@ -54,7 +58,7 @@ function create(file,io){
     out.push('Changed offsets='+x.transitions.map(t=>t.from+'-'+t.to+':'+t.offsets.join(',')).join(' / '));}
    if(x.events){out.push('Sources='+JSON.stringify(x.sources));
     for(const e of x.events)out.push(e.source+':'+e.raw+' '+e.decoded);
-    out.push('Lever D observed='+x.leverDObserved+' / EGS stage NOT verified');}
+    out.push('Expected='+x.expected+' matched='+x.matchingObservation+' conflicting='+x.conflictingObservation+' / EGS actual stage NOT verified');}
   }
   return out.length?out:['No source captures'];
  }

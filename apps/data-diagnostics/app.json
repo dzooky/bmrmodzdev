@@ -2,7 +2,7 @@
   "id": "data-diagnostics",
   "title": "Data Tool Diagnostics",
   "description": "Experimental read-only feasibility diagnostics for the BMRMODZ Data Tool",
-  "version": "0.1.95",
+  "version": "0.1.96",
   "vendor": "custom",
   "loggingId": "DAT1",
   "iconGlyph": "temp",
@@ -74,6 +74,11 @@
         "sendTasuResponse"
       ],
       "_optional": "Read-only native front seat-belt comparison"
+    },
+    "de.bmw.infrastructure.VehicleInformation": {
+      "_optional": "Manual read-only Redline gearbox selector candidate; not an established Data Tool source",
+      "statusGearboxDrive": "s",
+      "DataPowerTrain2": "s"
     },
     "de.bmw.infrastructure.analytics.BasicDataSet": {
       "_optional": "Diagnostic-only read-only gear lever candidate, independent of Data Tool",
