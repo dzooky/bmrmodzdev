@@ -58,6 +58,6 @@ function create(file,io){
   }
   return out.length?out:['No OEM activation attempts'];
  }
- return {FILE,VERSION,safe,create};
+ return {save,snapshot,envelope,lines};
 }
 module.exports={FILE,VERSION,safe,create};
