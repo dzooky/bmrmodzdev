@@ -2,6 +2,7 @@
 // Temporary test app: English UI only.
 const catalogs={
   "en": {
+    "Getter samples recorded in report": "Getter samples recorded in report",
     "Catalog metadata only - values unavailable": "Catalog metadata only - values unavailable",
     "Active BMW profile": "Active BMW profile",
     "Reading status": "Reading status",

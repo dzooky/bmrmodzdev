@@ -207,5 +207,6 @@ jobs:
           node tools/data-tool/native/process-boundary-source.test.js /tmp/bmrmodz-native-peer/process-boundary
       - name: Offline MGU preview build
         run: |
+          python3 kit/tools/cc-rule-getters-test.py
           python3 kit/tools/build.py --preview-only data-diagnostics
           python3 kit/tools/build.py --preview-only data-native-provider
