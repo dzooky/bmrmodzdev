@@ -71,3 +71,17 @@
 - **Known issue:** Existing automation is tied to the visible `MAIN` screen loop; automatic background operation is not implemented in this copy.
 - **Approved next step:** Gradually migrate `cc-dev` to the BMRMODZ Background Tool via its shared APIs. Preserve stable Climate Comfort without changes.
 - **Safety:** Do not run stable CC and CC DEV automated controls simultaneously before exclusive command ownership is established. Both use the same vehicle diagnostic/actuator paths.
+
+## 2026-11-27 — local CC welcome draft
+- Added Slovak and English first-launch welcome previews in the OSA/DPF style. Copy covers equipment-dependent seat heating, seat ventilation, steering-wheel heating and per-seat thresholds and levels. The development Info screen remains the starting page.
+- Run `bash preview/cc-dev/run.sh` and open `http://127.0.0.1:8080/`. Replay either language from the simulator sidebar. The isolated builder from DEV handles the original image hashes.
+- Edge verified both texts, OK and replay. Equipment, managed-temperature and tab-navigation tests passed. The popup is simulator-only and vehicle testing remains pending.
+- Welcome copy now describes automatic activation according to equipment and thresholds and levels for all supported seats. The welcome preview includes the same 22 languages as OSA and DPF. Actual MGU glyph measurement and confirmation checks passed for all of them. Edge verified Slovak and Chinese, and font additions are limited to the simulator.
+
+## 2026-11-27 — local CC update notice
+- Added the localized What's New preview with equipment-dependent tabs, Data Tool temperature display and restored seat and steering artwork. The footer points to About. Scenario and language are separate simulator controls.
+- Verified both notices in 22 languages (44 layouts and confirmation checks) with the MGU renderer. Edge verified opening, OK and replay. This is a simulator preview with vehicle verification pending.
+
+## 2026-11-27 — seat-belt wait setting
+- Added Time to check seatbelt to enabled CC Settings with a persisted choice of 1–5 minutes (default 3). The offline activation policy accepts all five values. Foreground vehicle automation and manual tests retain their existing timing.
+- Edge verified selecting a value and persistence across restart. Activation policy and tab-navigation tests passed. Wiring the setting into a live timeout remains pending with vehicle verification.

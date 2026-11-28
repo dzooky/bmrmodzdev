@@ -2,9 +2,10 @@
 // Vehicle-independent activation policy. Does not send vehicle commands.
 // BG adapter must supply validated startup, fresh temperatures, belt and gearbox
 // signals before this policy can drive any car functions.
-const MINUTES=Object.freeze([1,2,3,5]);
+const MINUTES=Object.freeze([1,2,3,4,5]);
+const DEFAULT_MINUTES=3;
 const POSITIONS=Object.freeze(['frontLeft','frontRight','rearLeft','rearRight']);
-function create({waitMinutes=3}={}){
+function create({waitMinutes=DEFAULT_MINUTES}={}){
  if(!MINUTES.includes(waitMinutes))throw Error('Invalid belt waiting interval');
  let active=false,startedAt=null,timerAt=null,deadline=null;
  const rows=new Map(),attempted=new Set(),completed=new Set();
@@ -63,4 +64,4 @@ function create({waitMinutes=3}={}){
   attempted:Array.from(attempted),completed:Array.from(completed)};}
  return {start,stop,tick,acknowledge,status};
 }
-module.exports={create,MINUTES,POSITIONS};
+module.exports={create,MINUTES,DEFAULT_MINUTES,POSITIONS};

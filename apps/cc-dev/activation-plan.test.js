@@ -9,7 +9,10 @@ const wheel=job('steeringHeating','frontLeft','Heating','frontLeft',15);
 const input=(at,belts={},more={})=>Object.assign({at,engineRunning:true,gear:'P',rpm:800,belts,temperatures:{frontLeft:10,frontRight:10,outside:30}},more);
 const run=(name,fn)=>{fn();console.log('PASS',name);};
 run('all allowed wait intervals and rejects arbitrary',()=>{
- assert.deepStrictEqual(Array.from(MINUTES),[1,2,3,5]);
+ assert.deepStrictEqual(Array.from(MINUTES),[1,2,3,4,5]);
+ const setting=require('./app.json').settings.find(s=>s.key==='seatBeltCheckMinutes');
+ assert.deepStrictEqual(setting.steps,Array.from(MINUTES));
+ assert.equal(setting.default,3);
  for(const m of MINUTES)assert(create({waitMinutes:m}));
  assert.throws(()=>create({waitMinutes:10}));
 });
