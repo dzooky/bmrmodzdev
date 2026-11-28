@@ -1,3 +1,7 @@
+## v0.2.17 — Bounded profile service discovery (2026-11-28)
+- In-car evidence 0.2.16: proxy ready, provider unavailable immediately after init; getter rejected in 1 ms with Service unavailable. CI 46080903887, 46080903891, 46080903903 passed; PR #186 merged.
+- Use existing kit onAvailable callback and bounded isAvailable observation for up to 10 seconds. Only one getter after positive availability; skip if deadline expires. Record timing and availability events, preserve proxy shutdown, manifest and all existing production paths. No field subscription, writes or retries. Tests cover immediate/delayed availability, unavailable and rejection. If unavailable, stop this experiment and review SessionManager metadata before any new active permission. CI and in-car results pending.
+
 ## v0.2.16 — Profile getter availability and rejection evidence (2026-11-28)
 - In-car evidence 0.2.15: proxy ready, handoff received in 3 ms, getter attempted but rejected; no profile value. CI 46080351270, 46080351241, 46080351251 passed; PR #185 merged.
 - Record provider availability before the single getter, bounded check, sanitized technical rejection and elapsed getter time. Preserve existing getter attempt even if availability is false, to distinguish rejection causes; no retries, subscriptions, writes or manifest changes. No raw profile values or arbitrary error text exported. CI and in-car evidence pending.
