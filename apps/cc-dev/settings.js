@@ -1,5 +1,8 @@
 'use strict';
 
+const { MINUTES, DEFAULT_MINUTES } = require('./activation-plan');
+const SEAT_BELT_CHECK = 'seatBeltCheckMinutes';
+
 const OPTIONS = [
     ['outside', 'Outside'],
     ['inside', 'Inside'],
@@ -31,7 +34,7 @@ module.exports = function createSettingsPage(settings) {
             if (equipment && equipment.steeringWheelHeating === true) {
                 rows.push({ key: 'steeringTemperatureSource', label: 'Steering wheel temperature source', id: 'steering-temperature-source' });
             }
-            if (!rows.some(row => row.key === expanded)) expanded = null;
+            if (expanded !== SEAT_BELT_CHECK && !rows.some(row => row.key === expanded)) expanded = null;
             let y = 136;
             rows.forEach(row => {
                 const options = OPTIONS.map(([key, label]) => [key, key === 'inside' && row.insideLabel ? row.insideLabel : label]);
@@ -59,6 +62,30 @@ module.exports = function createSettingsPage(settings) {
                     y += 62;
                 });
             });
+            const beltOpen = expanded === SEAT_BELT_CHECK;
+            if (!expanded || beltOpen) {
+                const value = settings.get(SEAT_BELT_CHECK);
+                const selected = MINUTES.includes(value) ? value : DEFAULT_MINUTES;
+                cv.roundRect(55, y, 1490, 64, 12, beltOpen ? selectionColor : '#ffffff12');
+                cv.text('Time to check seatbelt', 80, y + 41, 28, theme.text);
+                cv.text(selected + ' min', 1455, y + 41, 26, theme.text, { align: 'right' });
+                const cy = y + 32, direction = beltOpen ? -1 : 1;
+                cv.polyline([[1480, cy - direction * 4], [1488, cy + direction * 4],
+                    [1496, cy - direction * 4]], 2, theme.dim);
+                cv.target(55, y, 1490, 64, () => { expanded = beltOpen ? null : SEAT_BELT_CHECK; }, 'seatbelt-check-time', 12);
+                y += 72;
+                if (beltOpen) {
+                    MINUTES.forEach((minutes, index) => {
+                        const x = 80 + index * 290;
+                        cv.roundRect(x, y, 280, 54, 10, minutes === selected ? selectionColor : '#ffffff0c');
+                        cv.text(minutes + ' min', x + 140, y + 36, 26, theme.text, { align: 'center' });
+                        cv.target(x, y, 280, 54, () => {
+                            settings.set(SEAT_BELT_CHECK, minutes);
+                            expanded = null;
+                        }, 'seatbelt-check-minutes-' + minutes, 10);
+                    });
+                }
+            }
             if (!expanded) {
                 cv.text('Original BMW climate rules', 80, y + 28, 24, theme.text);
                 cv.text('Not verified', 1488, y + 28, 20, theme.dim, { align: 'right' });

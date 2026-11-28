@@ -66,7 +66,7 @@ mgu.run({
         ctx.hideButton('BTN_SETTINGS');
         applyTestThresholds(ctx.settings, ctx.spec.config.garageThresholdTest === true);
         const settingsPage = createSettingsPage(ctx.settings);
-        const rows = ctx.spec.config.previewEquipment;
+        const rows = ctx.spec.config.previewEquipment.filter(row => !row.hidden);
         const link = ctx.isPreview ? null : new ReadOnlyDiag(ctx.signals, ctx.log);
         let equipment = {};
         const enqueueDiagnostic = createDiagnosticQueue();
@@ -94,6 +94,7 @@ mgu.run({
         });
         let tabs = [];
         let page = 'Info';
+        const welcome = ctx.isPreview ? require('./welcome-preview').start(ctx.settings, () => { page = 'Info'; }) : null;
         let servicesReport = null;
         let servicesScroll = 0;
         let servicesSelection = null;
@@ -161,6 +162,7 @@ mgu.run({
         });
 
         ctx.onTab(index => {
+            if (welcome && welcome.active()) return;
             if (tabs[index] && page !== tabs[index]) {
                 settingsPage.close();
                 page = tabs[index];
@@ -240,6 +242,7 @@ mgu.run({
             const selectedTab = tabs.indexOf(page === 'BMW services' ? 'My Car' : page);
             cv.tabInfo = { tabs: tabs.slice(), sel: selectedTab, badges: [] };
             G.frame(cv, theme, tabs, selectedTab, []);
+            if (welcome) welcome.draw(cv, theme);
             return ctx.ui.image('MAIN_GFX', cv);
         });
     },

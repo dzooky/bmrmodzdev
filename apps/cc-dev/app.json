@@ -184,6 +184,15 @@
       "hidden": true
     },
     {
+      "key": "seatBeltCheckMinutes",
+      "label": "Time to check seatbelt",
+      "type": "number",
+      "unit": "min",
+      "default": 3,
+      "steps": [1, 2, 3, 4, 5],
+      "hidden": true
+    },
+    {
       "key": "temperatureSource",
       "label": "Front seat temperature source",
       "type": "choice",
@@ -244,6 +253,49 @@
   ],
   "config": {
     "previewEquipment": [
+      {
+        "key": "previewNoticeScenario",
+        "label": "Pop-up scenario",
+        "type": "choice",
+        "hidden": true,
+        "default": "welcome",
+        "options": [
+          ["welcome", "First install"],
+          ["update", "What's New"],
+          ["dashboard", "Info"]
+        ]
+      },
+      {
+        "key": "previewWelcome",
+        "label": "Pop-up language",
+        "type": "choice",
+        "hidden": true,
+        "default": "welcome-sk",
+        "options": [
+          ["welcome-sk", "Slovenčina"],
+          ["welcome-en", "English"],
+          ["welcome-de", "Deutsch"],
+          ["welcome-es", "Español"],
+          ["welcome-fr", "Français"],
+          ["welcome-hu", "Magyar"],
+          ["welcome-pl", "Polski"],
+          ["welcome-cs", "Čeština"],
+          ["welcome-it", "Italiano"],
+          ["welcome-ru", "Русский"],
+          ["welcome-da", "Dansk"],
+          ["welcome-el", "Ελληνικά"],
+          ["welcome-zh-CN", "简体中文"],
+          ["welcome-nl", "Nederlands"],
+          ["welcome-nb", "Norsk"],
+          ["welcome-pt", "Português"],
+          ["welcome-ro", "Română"],
+          ["welcome-sl", "Slovenščina"],
+          ["welcome-fi", "Suomi"],
+          ["welcome-sv", "Svenska"],
+          ["welcome-tr", "Türkçe"],
+          ["welcome-uk", "Українська"]
+        ]
+      },
       {
         "key": "frontSeatHeating",
         "label": "Heated front seats",
